@@ -5,7 +5,12 @@
   import { intentLabel, mediaTypeLabel, statusLabel } from "../domain/labels"
   import type { WatchItem } from "../domain/types"
 
-  let { item, href }: { item: WatchItem; href: string } = $props()
+  interface Props {
+    item: WatchItem
+    href: string
+  }
+
+  let { item, href }: Props = $props()
 </script>
 
 <a

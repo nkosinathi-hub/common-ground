@@ -1,6 +1,11 @@
 import { PAGE_SIZE } from "@/shared/domain"
 import type { WatchCursor, WatchFilters, WatchItem, WatchPage, WatchSort } from "./types"
 
+export interface KeyedRow {
+  readonly item: WatchItem
+  readonly sortKey: string
+}
+
 export const SEARCH_MAX = 100
 
 export const DEFAULT_FILTERS: WatchFilters = {
@@ -15,19 +20,19 @@ export const normaliseSearch = (search: string): string =>
   search.trim().slice(0, SEARCH_MAX).toLowerCase()
 
 /** True when the list is narrowed, so an empty result means "no match", not "nothing yet". */
-export const hasActiveFilters = (f: WatchFilters): boolean =>
-  f.mediaType !== null ||
-  f.intent !== null ||
-  f.myStatus !== null ||
-  normaliseSearch(f.search) !== ""
+export const hasActiveFilters = (filters: WatchFilters): boolean =>
+  filters.mediaType !== null ||
+  filters.intent !== null ||
+  filters.myStatus !== null ||
+  normaliseSearch(filters.search) !== ""
 
 /** Mirrors the where clause of public.list_watch_items. */
-export function matches(item: WatchItem, f: WatchFilters): boolean {
-  const search = normaliseSearch(f.search)
+export function matches(item: WatchItem, filters: WatchFilters): boolean {
+  const search = normaliseSearch(filters.search)
   return (
-    (f.mediaType === null || item.mediaType === f.mediaType) &&
-    (f.intent === null || item.intent === f.intent) &&
-    (f.myStatus === null || item.myStatus === f.myStatus) &&
+    (filters.mediaType === null || item.mediaType === filters.mediaType) &&
+    (filters.intent === null || item.intent === filters.intent) &&
+    (filters.myStatus === null || item.myStatus === filters.myStatus) &&
     (search === "" || item.title.toLowerCase().includes(search))
   )
 }
@@ -35,7 +40,8 @@ export function matches(item: WatchItem, f: WatchFilters): boolean {
 export const sortKeyOf = (item: WatchItem, sort: WatchSort): string =>
   sort === "title" ? item.title.toLowerCase() : item.createdAt
 
-const compareText = (a: string, b: string) => (a < b ? -1 : a > b ? 1 : 0)
+/** Plain string order: -1, 0 or 1. */
+const compareText = (a: string, b: string) => Number(a > b) - Number(a < b)
 
 /** Recent: newest first. Title: A to Z. Ties break on id in the same direction as the SQL. */
 export function compareFor(sort: WatchSort): (a: WatchItem, b: WatchItem) => number {
@@ -51,15 +57,10 @@ export function isAfter(item: WatchItem, cursor: WatchCursor, sort: WatchSort): 
   return order * direction > 0
 }
 
-export interface KeyedRow {
-  readonly item: WatchItem
-  readonly sortKey: string
-}
-
 export function pageOf(rows: readonly KeyedRow[], size = PAGE_SIZE): WatchPage {
   const last = rows.at(-1)
   return {
-    items: rows.map((r) => r.item),
+    items: rows.map((row) => row.item),
     next: rows.length >= size && last ? { key: last.sortKey, id: last.item.id } : null,
   }
 }

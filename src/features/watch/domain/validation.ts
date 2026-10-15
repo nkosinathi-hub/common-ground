@@ -9,21 +9,30 @@ import {
 } from "@/shared/domain"
 import type { ProgressInput, SessionInput, TitleDetailsInput } from "./types"
 
+/** Same bounds as the watch_items, watch_progress and watch_sessions check constraints. */
+export const TITLE_MAX = 200
+export const SYNOPSIS_MAX = 2000
+export const NOTE_MAX = 500
+export const YEAR_DIGITS = 4
+export const FIRST_FILM_YEAR = 1870
+export const LAST_YEAR = 2100
+export const RATING_MAX = 5
+
 const fail = (message: string, field: string) => err(appError("validation", message, field))
 
-/** Same bounds as the watch_items check constraints. */
 export function validateDetails(input: TitleDetailsInput): Result<TitleDetailsInput> {
   const title = input.title.trim()
   const synopsis = input.synopsis.trim()
   const note = input.availabilityNote?.trim() || null
-  if (title.length < 1 || title.length > 200)
-    return fail("Give the title a name (up to 200 characters)", "title")
+  if (title.length < 1 || title.length > TITLE_MAX)
+    return fail(`Give the title a name (up to ${TITLE_MAX} characters)`, "title")
   const year = input.releaseYear
-  if (year !== null && (!Number.isInteger(year) || year < 1870 || year > 2100))
-    return fail("Use a year between 1870 and 2100", "releaseYear")
-  if (synopsis.length > 2000) return fail("Keep the synopsis under 2000 characters", "synopsis")
-  if (note && note.length > 500)
-    return fail("Keep the note under 500 characters", "availabilityNote")
+  if (year !== null && (!Number.isInteger(year) || year < FIRST_FILM_YEAR || year > LAST_YEAR))
+    return fail(`Use a year between ${FIRST_FILM_YEAR} and ${LAST_YEAR}`, "releaseYear")
+  if (synopsis.length > SYNOPSIS_MAX)
+    return fail(`Keep the synopsis under ${SYNOPSIS_MAX} characters`, "synopsis")
+  if (note && note.length > NOTE_MAX)
+    return fail(`Keep the note under ${NOTE_MAX} characters`, "availabilityNote")
   return ok({
     title,
     mediaType: input.mediaType,
@@ -50,9 +59,9 @@ const isCount = (n: number | null) => n === null || (Number.isInteger(n) && n >=
 export function validateProgress(input: ProgressInput): Result<ProgressInput> {
   if (!isCount(input.season)) return fail("Use a whole number from 0", "season")
   if (!isCount(input.episode)) return fail("Use a whole number from 0", "episode")
-  const r = input.rating
-  if (r !== null && (!Number.isInteger(r) || r < 1 || r > 5))
-    return fail("Rate from 1 to 5", "rating")
+  const rating = input.rating
+  if (rating !== null && (!Number.isInteger(rating) || rating < 1 || rating > RATING_MAX))
+    return fail(`Rate from 1 to ${RATING_MAX}`, "rating")
   const completedOn = input.status === "completed" ? input.completedOn : null
   if (completedOn !== null && !isDateOnly(completedOn))
     return fail("Use a date like 2026-10-15", "completedOn")
@@ -65,6 +74,6 @@ export function validateSession(input: SessionInput, today: DateOnly): Result<Se
   const memberIds = [...new Set(input.memberIds)]
   if (memberIds.length === 0) return fail("Choose who was there", "memberIds")
   const note = input.note.trim()
-  if (note.length > 500) return fail("Keep the note under 500 characters", "note")
+  if (note.length > NOTE_MAX) return fail(`Keep the note under ${NOTE_MAX} characters`, "note")
   return ok({ watchedOn: input.watchedOn, memberIds, note })
 }

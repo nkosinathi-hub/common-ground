@@ -3,13 +3,14 @@
   import { Users } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { AsyncView, Resource } from "@/shared/ui"
-  import type { SpaceMember, WatchItem } from "../domain/types"
+  import { memberName, type MemberRef } from "@/shared/domain"
+  import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
   import LogSessionDialog from "./LogSessionDialog.svelte"
 
   interface Props {
     item: WatchItem
-    members: readonly SpaceMember[]
+    members: readonly MemberRef[]
     onLogged: () => void
   }
 
@@ -19,12 +20,12 @@
   let logging = $state(false)
 
   $effect(() => {
+    // Reload when the title changes; the load itself must not become a dependency.
     void item.id
     untrack(() => void sessions.load())
   })
 
-  const names = (ids: readonly string[]) =>
-    ids.map((id) => members.find((m) => m.id === id)?.displayName ?? "Former member").join(", ")
+  const names = (ids: readonly string[]) => ids.map((id) => memberName(members, id)).join(", ")
 </script>
 
 <section class="space-y-4 rounded-xl border p-4" aria-labelledby="sessions-heading">

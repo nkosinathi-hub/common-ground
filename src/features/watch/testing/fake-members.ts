@@ -1,10 +1,9 @@
-import { ok } from "@/shared/domain"
-import type { MemberDirectory } from "../application/ports"
-import type { SpaceMember, WatchItem } from "../domain/types"
+import { ok, type MemberDirectory, type MemberRef } from "@/shared/domain"
+import type { WatchItem } from "../domain/types"
 import { ME, PARTNER } from "./fixtures"
 
 export class FakeMemberDirectory implements MemberDirectory {
-  list: SpaceMember[] = [
+  list: MemberRef[] = [
     { id: ME, displayName: "Nkosi" },
     { id: PARTNER, displayName: "Lindi" },
   ]

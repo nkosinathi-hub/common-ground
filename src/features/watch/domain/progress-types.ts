@@ -31,8 +31,3 @@ export interface WatchSession {
   readonly note: string | null
   readonly memberIds: readonly string[]
 }
-
-export interface SpaceMember {
-  readonly id: string
-  readonly displayName: string
-}

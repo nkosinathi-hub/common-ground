@@ -1,11 +1,11 @@
 <script lang="ts">
   import * as Dialog from "$lib/components/ui/dialog"
   import { CatalogSearch, type CatalogTitle } from "@/features/catalog"
-  import { toast } from "@/shared/ui"
   import type { Result } from "@/shared/domain"
+  import { toast } from "@/shared/ui"
   import { fromCatalog } from "../domain/catalog"
   import { INTENTS } from "../domain/labels"
-  import type { ManualTitleInput, SharedIntent } from "../domain/types"
+  import type { SharedIntent, TitleDetailsInput } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import ManualTitleForm from "./ManualTitleForm.svelte"
@@ -22,8 +22,11 @@
   let intent = $state<SharedIntent>("want_to_watch")
   let busy = $state(false)
 
-  function done(title: string, result: Result<string>) {
-    if (!result.ok) return void toast.error(result.error.message)
+  function added(title: string, result: Result<string>) {
+    if (!result.ok) {
+      toast.error(result.error.message)
+      return
+    }
     toast.success(`${title} is on your list`)
     open = false
     mode = "search"
@@ -33,13 +36,13 @@
   async function pick(title: CatalogTitle) {
     if (busy) return
     busy = true
-    done(title.title, await service.addCatalog(spaceId, fromCatalog(title), intent))
+    added(title.title, await service.addCatalog(spaceId, fromCatalog(title), intent))
     busy = false
   }
 
-  async function addManual(input: ManualTitleInput): Promise<Result<string>> {
+  async function addManual(input: TitleDetailsInput): Promise<Result<string>> {
     const result = await service.addManual(spaceId, { ...input, intent })
-    if (result.ok) done(input.title.trim(), result)
+    if (result.ok) added(input.title.trim(), result)
     return result
   }
 </script>
@@ -57,7 +60,7 @@
       label="Add to"
       value={intent}
       options={INTENTS}
-      onchange={(v) => (intent = v || "want_to_watch")}
+      onchange={(value) => (intent = value || "want_to_watch")}
     />
     {#if mode === "search"}
       <CatalogSearch {spaceId} onPick={pick} onManual={() => (mode = "manual")} />

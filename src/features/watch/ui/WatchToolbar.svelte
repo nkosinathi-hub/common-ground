@@ -8,18 +8,22 @@
   import Choice from "./Choice.svelte"
   import type { WatchListState } from "./watch-list.svelte"
 
-  let { list }: { list: WatchListState } = $props()
-
-  const chips = [{ value: null, label: "All titles" }, ...MEDIA_TYPES]
+  const CHIPS = [{ value: null, label: "All titles" }, ...MEDIA_TYPES]
   const SORTS: readonly { value: WatchSort; label: string }[] = [
     { value: "recent", label: "Recently added" },
     { value: "title", label: "Title A to Z" },
   ]
+
+  interface Props {
+    list: WatchListState
+  }
+
+  let { list }: Props = $props()
 </script>
 
 <div class="flex flex-col gap-4 border-b pb-5">
   <div class="flex flex-wrap gap-1" role="group" aria-label="Type">
-    {#each chips as chip (chip.label)}
+    {#each CHIPS as chip (chip.label)}
       <Button
         variant={list.filters.mediaType === chip.value ? "secondary" : "ghost"}
         size="sm"
@@ -48,7 +52,7 @@
       value={list.filters.intent ?? ""}
       options={INTENTS}
       anyLabel="All lists"
-      onchange={(v) => list.setFilter({ intent: v || null })}
+      onchange={(value) => list.setFilter({ intent: value || null })}
     />
     <Choice
       id="watch-my-status"
@@ -57,7 +61,7 @@
       value={list.filters.myStatus ?? ""}
       options={STATUSES}
       anyLabel="Any progress"
-      onchange={(v) => list.setFilter({ myStatus: v || null })}
+      onchange={(value) => list.setFilter({ myStatus: value || null })}
     />
     <div class="flex items-center gap-1">
       <ArrowDownUp class="size-4 text-muted-foreground" aria-hidden="true" />
@@ -67,7 +71,7 @@
         hideLabel
         value={list.filters.sort}
         options={SORTS}
-        onchange={(v) => list.setFilter({ sort: v || "recent" })}
+        onchange={(value) => list.setFilter({ sort: value || "recent" })}
       />
     </div>
   </div>

@@ -12,13 +12,19 @@
   import { WatchListState } from "./watch-list.svelte"
   import WatchToolbar from "./WatchToolbar.svelte"
 
-  let { spaceId, itemHref }: { spaceId: string; itemHref: (id: string) => string } = $props()
+  interface Props {
+    spaceId: string
+    itemHref: (id: string) => string
+  }
+
+  let { spaceId, itemHref }: Props = $props()
   const { service } = useWatch()
   const list = new WatchListState(service, () => spaceId)
   const picker = new PickState(service, () => spaceId)
   let adding = $state(false)
 
   $effect(() => {
+    // Reload when the space changes; the load itself must not become a dependency.
     void spaceId
     untrack(() => void list.load())
   })
@@ -82,7 +88,7 @@
     {#if list.next}
       <div class="flex justify-center">
         <Button variant="outline" disabled={list.loadingMore} onclick={() => list.loadMore()}>
-          {list.loadingMore ? "Loading more" : list.moreError ? "Try again" : "Load more"}
+          {list.moreLabel}
         </Button>
       </div>
     {/if}

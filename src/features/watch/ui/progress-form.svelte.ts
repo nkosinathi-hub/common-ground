@@ -1,4 +1,4 @@
-import { err, isDateOnly, ok, appError, type DateOnly, type Result } from "@/shared/domain"
+import { appError, err, isDateOnly, ok, type DateOnly, type Result } from "@/shared/domain"
 import type { Progress, ProgressInput, ProgressStatus } from "../domain/types"
 import { parseCount } from "../domain/validation"
 
@@ -12,12 +12,12 @@ export class ProgressFormState {
 
   constructor(private readonly today: () => DateOnly) {}
 
-  reset(p: Progress | null): void {
-    this.status = p?.status ?? "not_started"
-    this.season = p?.season?.toString() ?? ""
-    this.episode = p?.episode?.toString() ?? ""
-    this.rating = p?.rating?.toString() ?? ""
-    this.completedOn = p?.completedOn ?? ""
+  reset(saved: Progress | null): void {
+    this.status = saved?.status ?? "not_started"
+    this.season = saved?.season?.toString() ?? ""
+    this.episode = saved?.episode?.toString() ?? ""
+    this.rating = saved?.rating?.toString() ?? ""
+    this.completedOn = saved?.completedOn ?? ""
   }
 
   /** Choosing "completed" fills today's date if none was set. */

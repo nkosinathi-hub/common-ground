@@ -5,10 +5,15 @@
   import { todayDateOnly } from "@/shared/domain"
   import { FormState, toast } from "@/shared/ui"
   import { STATUSES } from "../domain/labels"
+  import { RATING_MAX } from "../domain/validation"
   import type { Progress } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import { ProgressFormState } from "./progress-form.svelte"
+
+  const RATINGS = Array.from({ length: RATING_MAX }, (_, index) => String(index + 1)).map(
+    (value) => ({ value, label: `${value} of ${RATING_MAX}` }),
+  )
 
   interface Props {
     itemId: string
@@ -21,7 +26,6 @@
   const { service } = useWatch()
   const fields = new ProgressFormState(() => todayDateOnly())
   const submission = new FormState()
-  const RATINGS = ["1", "2", "3", "4", "5"].map((value) => ({ value, label: `${value} of 5` }))
 
   $effect(() => fields.reset(mine))
 
@@ -53,7 +57,7 @@
       label="Status"
       value={fields.status}
       options={STATUSES}
-      onchange={(v) => fields.setStatus(v || "not_started")}
+      onchange={(value) => fields.setStatus(value || "not_started")}
     />
     <Choice
       id="progress-rating"
@@ -61,7 +65,7 @@
       value={fields.rating}
       options={RATINGS}
       anyLabel="No rating"
-      onchange={(v) => (fields.rating = v)}
+      onchange={(value) => (fields.rating = value)}
     />
   </div>
   {#if episodic}

@@ -2,13 +2,13 @@
   import { ArrowLeft } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { FormState } from "@/shared/ui"
-  import type { ManualTitleInput } from "../domain/types"
+  import type { Result } from "@/shared/domain"
+  import type { TitleDetailsInput } from "../domain/types"
   import { TitleFormState } from "./title-form.svelte"
   import TitleFields from "./TitleFields.svelte"
-  import type { Result } from "@/shared/domain"
 
   interface Props {
-    onSubmit: (input: ManualTitleInput) => Promise<Result<unknown>>
+    onSubmit: (input: TitleDetailsInput) => Promise<Result<unknown>>
     onBack: () => void
   }
 

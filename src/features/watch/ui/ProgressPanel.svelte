@@ -2,13 +2,14 @@
   import { untrack } from "svelte"
   import { AsyncView, Resource } from "@/shared/ui"
   import { progressSummary } from "../domain/labels"
-  import type { SpaceMember, WatchItem } from "../domain/types"
+  import { memberName, type MemberRef } from "@/shared/domain"
+  import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
   import ProgressForm from "./ProgressForm.svelte"
 
   interface Props {
     item: WatchItem
-    members: readonly SpaceMember[]
+    members: readonly MemberRef[]
     /** Bumped by the parent when progress changed elsewhere (a watched-together log). */
     version: number
     onSaved: () => void
@@ -19,12 +20,12 @@
   const progress = new Resource(() => service.progress(item.id))
 
   $effect(() => {
+    // Reload when the title changes or the parent bumps the version.
     void [item.id, version]
     untrack(() => void progress.load())
   })
 
-  const nameOf = (id: string, me: string) =>
-    id === me ? "You" : (members.find((m) => m.id === id)?.displayName ?? "Former member")
+  const nameOf = (id: string, me: string) => (id === me ? "You" : memberName(members, id))
 </script>
 
 <section class="space-y-4 rounded-xl border p-4" aria-labelledby="progress-heading">

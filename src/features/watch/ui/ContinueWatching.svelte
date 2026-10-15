@@ -6,15 +6,16 @@
   import { useWatch } from "./context"
   import WatchCard from "./WatchCard.svelte"
 
-  let {
-    spaceId,
-    itemHref,
-    listHref,
-  }: {
+  /** Home shows only the first few titles in progress. */
+  const SHOWN = 8
+
+  interface Props {
     spaceId: string
     itemHref: (id: string) => string
     listHref: string
-  } = $props()
+  }
+
+  let { spaceId, itemHref, listHref }: Props = $props()
   const { service } = useWatch()
   const watching = new Resource(() =>
     service.list(spaceId, { ...DEFAULT_FILTERS, myStatus: "watching", sort: "recent" }),
@@ -34,7 +35,7 @@
       </EmptyState>
     {:else}
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {#each page.items.slice(0, 8) as item (item.id)}
+        {#each page.items.slice(0, SHOWN) as item (item.id)}
           <WatchCard {item} href={itemHref(item.id)} />
         {/each}
       </div>

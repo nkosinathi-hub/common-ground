@@ -1,69 +1,56 @@
-import type { SupabaseClient } from "@supabase/supabase-js"
-import { ok, type Result } from "@/shared/domain"
+import type { Result } from "@/shared/domain"
+import { done, settle, signedOut } from "@/shared/infrastructure/query"
+import type { Db } from "@/shared/infrastructure/supabase"
 import type * as T from "../domain/types"
-import {
-  toProgress,
-  toSession,
-  unit,
-  unwrap,
-  type ProgressRow,
-  type SessionRow,
-} from "./watch-rows"
+import { progressArgs } from "./watch-args"
+import { toProgress, toSession } from "./watch-rows"
+
+/** The watched-together log keeps the latest nights for a title. */
+const RECENT_SESSIONS = 50
 
 /** Per-member progress and the watched-together log. Each member writes only their own row. */
 export class SupabaseWatchProgress {
-  constructor(protected readonly db: SupabaseClient) {}
+  constructor(protected readonly db: Db) {}
 
-  protected async me(): Promise<string> {
+  /** The signed-in user's id, or null when signed out. */
+  protected async me(): Promise<string | null> {
     const { data } = await this.db.auth.getUser()
-    return data.user?.id ?? ""
+    return data.user?.id ?? null
   }
 
   async progress(itemId: string): Promise<Result<T.MemberProgress>> {
-    const [rows, me] = await Promise.all([
-      this.db
-        .from("watch_progress")
-        .select("user_id, status, season, episode, rating, completed_on, updated_at")
-        .eq("watch_item_id", itemId)
-        .order("updated_at", { ascending: false }),
-      this.me(),
-    ])
-    const found = unwrap<ProgressRow[]>(rows)
-    return found.ok ? ok({ me, entries: (found.value ?? []).map(toProgress) }) : found
+    const me = await this.me()
+    if (!me) return signedOut()
+    const query = this.db
+      .from("watch_progress")
+      .select("user_id, status, season, episode, rating, completed_on, updated_at")
+      .eq("watch_item_id", itemId)
+      .order("updated_at", { ascending: false })
+    return settle(query, (rows) => ({ me, entries: rows.map(toProgress) }))
   }
 
-  saveProgress = async (itemId: string, input: T.ProgressInput) =>
-    unit(
-      await this.db.rpc("save_watch_progress", {
-        item: itemId,
-        new_status: input.status,
-        new_season: input.season,
-        new_episode: input.episode,
-        new_rating: input.rating,
-        new_completed_on: input.completedOn,
-      }),
-    )
+  saveProgress = (itemId: string, input: T.ProgressInput) =>
+    done(this.db.rpc("save_watch_progress", progressArgs(itemId, input)))
 
-  async sessions(itemId: string): Promise<Result<T.WatchSession[]>> {
-    const rows = unwrap<SessionRow[]>(
-      await this.db
-        .from("watch_sessions")
-        .select("id, watched_on, note, watch_session_members(user_id)")
-        .eq("watch_item_id", itemId)
-        .order("watched_on", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(50),
-    )
-    return rows.ok ? ok((rows.value ?? []).map(toSession)) : rows
+  sessions(itemId: string): Promise<Result<T.WatchSession[]>> {
+    const query = this.db
+      .from("watch_sessions")
+      .select("id, watched_on, note, watch_session_members(user_id)")
+      .eq("watch_item_id", itemId)
+      .order("watched_on", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(RECENT_SESSIONS)
+    return settle(query, (rows) => rows.map(toSession))
   }
 
-  logSession = async (itemId: string, input: T.SessionInput) =>
-    unwrap<string>(
-      await this.db.rpc("log_watch_session", {
+  logSession = (itemId: string, input: T.SessionInput) =>
+    settle(
+      this.db.rpc("log_watch_session", {
         item: itemId,
         watched_on: input.watchedOn,
-        member_ids: input.memberIds,
-        note: input.note || null,
+        member_ids: [...input.memberIds],
+        note: input.note || undefined,
       }),
+      (id) => id,
     )
 }

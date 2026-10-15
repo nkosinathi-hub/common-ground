@@ -3,6 +3,7 @@
   import { Pencil, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { Poster } from "@/features/catalog"
+  import type { Result } from "@/shared/domain"
   import { ConfirmDialog, toast } from "@/shared/ui"
   import { INTENTS, mediaTypeLabel } from "../domain/labels"
   import type { SharedIntent, WatchItemView } from "../domain/types"
@@ -23,18 +24,21 @@
   let editing = $state(false)
   let confirming = $state(false)
 
+  /** Toasts the outcome of a change and says whether it worked. */
+  async function confirmed(change: Promise<Result<void>>, success: string): Promise<boolean> {
+    const result = await change
+    if (result.ok) toast.success(success)
+    else toast.error(result.error.message)
+    return result.ok
+  }
+
   async function changeIntent(intent: SharedIntent) {
-    const result = await service.setIntent(item.id, intent)
-    if (!result.ok) return void toast.error(result.error.message)
-    toast.success("List updated")
-    onChanged()
+    if (await confirmed(service.setIntent(item.id, intent), "List updated")) onChanged()
   }
 
   async function remove() {
-    const result = await service.remove(item.id)
-    if (!result.ok) return void toast.error(result.error.message)
-    toast.success(`${item.title} was removed`)
-    window.location.assign(backHref)
+    if (await confirmed(service.remove(item.id), `${item.title} was removed`))
+      window.location.assign(backHref)
   }
 </script>
 
@@ -61,7 +65,7 @@
         label="Shared list"
         value={item.intent}
         options={INTENTS}
-        onchange={(v) => v && changeIntent(v)}
+        onchange={(value) => value && changeIntent(value)}
       />
     </div>
     <div class="flex flex-wrap gap-2">

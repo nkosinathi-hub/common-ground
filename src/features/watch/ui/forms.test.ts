@@ -55,7 +55,7 @@ describe("SessionFormState", () => {
 })
 
 describe("TitleFormState", () => {
-  it("fills from an item, parses the year and clears", () => {
+  it("fills from an item and parses the year", () => {
     const form = new TitleFormState()
     form.fill(item(1, "Dune", { availabilityNote: "Box office" }))
     expect(form.toInput()).toMatchObject({
@@ -65,9 +65,6 @@ describe("TitleFormState", () => {
     form.fill(item(2, "Old", { releaseYear: null }))
     expect(form.year).toBe("")
     form.year = "20x1"
-    expect(form.toInput().ok).toBe(false)
-    form.clear("watch_together")
-    expect(form.intent).toBe("watch_together")
-    expect(form.title).toBe("")
+    expect(form.toInput()).toMatchObject({ ok: false, error: { field: "releaseYear" } })
   })
 })

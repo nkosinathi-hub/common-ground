@@ -3,16 +3,12 @@ import { WatchService } from "../application/watch-service"
 import { FakeMemberDirectory } from "./fake-members"
 import { FakeWatchGateway } from "./fake-watch-gateway"
 
-/** Context key/value pairs for rendering watch components in tests. */
-export function watchTestContext(watchKey: symbol, catalogKey: symbol, catalog: unknown) {
+/** The fakes behind a rendered watch component; tests provide them with provideWatch. */
+export function watchFakes() {
   const gateway = new FakeWatchGateway()
   const members = new FakeMemberDirectory()
   const service = new WatchService(gateway)
-  const context = new Map<symbol, unknown>([
-    [watchKey, { service, members }],
-    [catalogKey, catalog],
-  ])
-  return { gateway, members, service, context }
+  return { gateway, members, service }
 }
 
 /** A catalog that finds nothing and has no listings; enough for watch UI tests. */

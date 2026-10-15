@@ -1,92 +1,88 @@
 import { appError, err, ok, type AppError, type DateOnly, type Result } from "@/shared/domain"
+import type { Tables } from "@/shared/infrastructure/database.types"
 import { toAppError } from "@/shared/infrastructure/errors"
+import type { QueryError, QueryReply } from "@/shared/infrastructure/query"
+import { progressStatusOf } from "../domain/labels"
 import type * as T from "../domain/types"
 
-export interface WatchItemRow {
-  id: string
-  space_id: string
-  catalog_type: T.CatalogType | null
-  catalog_id: number | null
-  title: string
-  media_type: T.MediaType
-  release_year: number | null
-  synopsis: string
-  poster_path: string | null
-  shared_intent: T.SharedIntent
-  manual_availability_note: string | null
-  created_by: string | null
-  created_at: string
-  my_progress?: T.ProgressStatus
-  sort_key?: string
-}
+type Item = Tables<"watch_items">
 
-export interface ProgressRow {
-  user_id: string
-  status: T.ProgressStatus
-  season: number | null
-  episode: number | null
-  rating: number | null
-  completed_on: string | null
-  updated_at: string
-}
+/** A watch_items row as selected by ITEM_COLUMNS, or as returned by list_watch_items. */
+export type WatchItemRow = Pick<
+  Item,
+  | "id"
+  | "space_id"
+  | "catalog_type"
+  | "catalog_id"
+  | "title"
+  | "media_type"
+  | "release_year"
+  | "synopsis"
+  | "poster_path"
+  | "shared_intent"
+  | "manual_availability_note"
+  | "created_by"
+  | "created_at"
+> & { readonly my_progress?: string | null }
 
-export interface SessionRow {
-  id: string
-  watched_on: string
-  note: string | null
-  watch_session_members: { user_id: string }[] | null
+export type ProgressRow = Omit<Tables<"watch_progress">, "space_id" | "watch_item_id">
+
+export interface SessionRow extends Pick<Tables<"watch_sessions">, "id" | "watched_on" | "note"> {
+  readonly watch_session_members: { user_id: string }[] | null
 }
 
 export const ITEM_COLUMNS =
-  "id, space_id, catalog_type, catalog_id, title, media_type, release_year, synopsis, " +
-  "poster_path, shared_intent, manual_availability_note, created_by, created_at"
-
-export const toItem = (r: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchItem => ({
-  id: r.id,
-  spaceId: r.space_id,
-  catalog: r.catalog_type && r.catalog_id ? { type: r.catalog_type, id: r.catalog_id } : null,
-  title: r.title,
-  mediaType: r.media_type,
-  releaseYear: r.release_year,
-  synopsis: r.synopsis,
-  posterPath: r.poster_path,
-  intent: r.shared_intent,
-  availabilityNote: r.manual_availability_note,
-  createdBy: r.created_by,
-  createdAt: r.created_at,
-  myStatus: myStatus ?? r.my_progress ?? "not_started",
-})
-
-export const toProgress = (r: ProgressRow): T.Progress => ({
-  userId: r.user_id,
-  status: r.status,
-  season: r.season,
-  episode: r.episode,
-  rating: r.rating,
-  completedOn: r.completed_on as DateOnly | null,
-  updatedAt: r.updated_at,
-})
-
-export const toSession = (r: SessionRow): T.WatchSession => ({
-  id: r.id,
-  watchedOn: r.watched_on as DateOnly,
-  note: r.note,
-  memberIds: (r.watch_session_members ?? []).map((m) => m.user_id),
-})
-
-type PgError = { code?: string; message?: string } | null
+  "id, space_id, catalog_type, catalog_id, title, media_type, release_year, synopsis, poster_path, shared_intent, manual_availability_note, created_by, created_at"
 
 export const DUPLICATE_MESSAGE = "Already on your list"
 
+export const toItem = (row: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchItem => ({
+  id: row.id,
+  spaceId: row.space_id,
+  catalog:
+    row.catalog_type && row.catalog_id ? { type: row.catalog_type, id: row.catalog_id } : null,
+  title: row.title,
+  mediaType: row.media_type,
+  releaseYear: row.release_year,
+  synopsis: row.synopsis,
+  posterPath: row.poster_path,
+  intent: row.shared_intent,
+  availabilityNote: row.manual_availability_note,
+  createdBy: row.created_by,
+  createdAt: row.created_at,
+  myStatus: myStatus ?? progressStatusOf(row.my_progress),
+})
+
+// Postgres renders date columns as YYYY-MM-DD, which is exactly a DateOnly.
+export const toProgress = (row: ProgressRow): T.Progress => ({
+  userId: row.user_id,
+  status: row.status,
+  season: row.season,
+  episode: row.episode,
+  rating: row.rating,
+  completedOn: row.completed_on as DateOnly | null,
+  updatedAt: row.updated_at,
+})
+
+export const toSession = (row: SessionRow): T.WatchSession => ({
+  id: row.id,
+  watchedOn: row.watched_on as DateOnly,
+  note: row.note,
+  memberIds: (row.watch_session_members ?? []).map((member) => member.user_id),
+})
+
 /** Unique violations and the add RPC's friendly P0001 both read as a duplicate add. */
-export function toWatchError(error: PgError): AppError {
+export function toWatchError(error: QueryError | null): AppError {
   if (error?.code === "23505" || error?.message === DUPLICATE_MESSAGE)
     return appError("conflict", DUPLICATE_MESSAGE)
   return toAppError(error)
 }
 
-export const unwrap = <V>(reply: { data: unknown; error: PgError }): Result<V> =>
-  reply.error ? err(toWatchError(reply.error)) : ok(reply.data as V)
-
-export const unit = (reply: { error: PgError }): Result<void> =>
-  reply.error ? err(toWatchError(reply.error)) : ok(undefined)
+/** Like the shared settle, but for adds: a duplicate reads as "Already on your list". */
+export async function settleAdd<D, V>(
+  query: PromiseLike<QueryReply<D>>,
+  map: (data: D) => V,
+): Promise<Result<V>> {
+  const { data, error } = await query
+  return error ? err(toWatchError(error)) : ok(map(data as D))
+}

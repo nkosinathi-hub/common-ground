@@ -1,23 +1,28 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
-import { CATALOG_CONTEXT, CatalogService } from "@/features/catalog"
-import { emptyCatalogGateway, watchTestContext } from "../testing/render-context"
+import { CatalogService, provideCatalog } from "@/features/catalog"
 import { SPACE_ID, item } from "../testing/fixtures"
-import { WATCH_CONTEXT } from "./context"
+import Provided from "../testing/Provided.svelte"
+import { emptyCatalogGateway, watchFakes } from "../testing/render-context"
+import { provideWatch } from "./context"
 import WatchPage from "./WatchPage.svelte"
 
 afterEach(cleanup)
 const cards = () => within(screen.getByRole("list")).getAllByRole("link")
 
 function setup(count = 0) {
-  const catalog = new CatalogService(emptyCatalogGateway)
-  const ctx = watchTestContext(WATCH_CONTEXT, CATALOG_CONTEXT, catalog)
-  ctx.gateway.items = Array.from({ length: count }, (_, n) =>
+  const fakes = watchFakes()
+  const provide = () => {
+    provideWatch({ service: fakes.service, members: fakes.members })
+    provideCatalog(new CatalogService(emptyCatalogGateway))
+  }
+  fakes.gateway.items = Array.from({ length: count }, (_, n) =>
     item(n + 1, `Title ${n + 1}`, { intent: n % 2 ? "watch_together" : "want_to_watch" }),
   )
   const itemHref = (id: string) => `#/s/${SPACE_ID}/watch/${id}`
-  render(WatchPage, { props: { spaceId: SPACE_ID, itemHref }, context: ctx.context })
-  return ctx
+  const props = { spaceId: SPACE_ID, itemHref }
+  render(Provided, { props: { provide, component: WatchPage, props } })
+  return fakes
 }
 
 describe("WatchPage", () => {

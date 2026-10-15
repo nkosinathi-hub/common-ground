@@ -3,6 +3,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { MEDIA_TYPES } from "../domain/labels"
+  import { NOTE_MAX, SYNOPSIS_MAX, TITLE_MAX, YEAR_DIGITS } from "../domain/validation"
   import Choice from "./Choice.svelte"
   import type { TitleFormState } from "./title-form.svelte"
 
@@ -27,7 +28,7 @@
   <Input
     id={id("title")}
     bind:value={form.title}
-    maxlength={200}
+    maxlength={TITLE_MAX}
     required
     aria-invalid={errorFor("title") ? true : undefined}
   />
@@ -39,24 +40,24 @@
     label="Type"
     value={form.mediaType}
     options={MEDIA_TYPES}
-    onchange={(v) => (form.mediaType = v || "movie")}
+    onchange={(value) => (form.mediaType = value || "movie")}
   />
   <div class="grid gap-1.5">
     <Label for={id("year")}>Release year</Label>
-    <Input id={id("year")} inputmode="numeric" maxlength={4} bind:value={form.year} />
+    <Input id={id("year")} inputmode="numeric" maxlength={YEAR_DIGITS} bind:value={form.year} />
   </div>
 </div>
 {@render problem("releaseYear")}
 <div class="grid gap-1.5">
   <Label for={id("synopsis")}>Synopsis</Label>
-  <Textarea id={id("synopsis")} rows={3} maxlength={2000} bind:value={form.synopsis} />
+  <Textarea id={id("synopsis")} rows={3} maxlength={SYNOPSIS_MAX} bind:value={form.synopsis} />
   {@render problem("synopsis")}
 </div>
 <div class="grid gap-1.5">
   <Label for={id("note")}>Where to watch (your note)</Label>
   <Input
     id={id("note")}
-    maxlength={500}
+    maxlength={NOTE_MAX}
     placeholder="For example: DVD on the shelf"
     bind:value={form.note}
   />

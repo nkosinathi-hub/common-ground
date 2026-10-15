@@ -4,16 +4,16 @@
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { todayDateOnly } from "@/shared/domain"
+  import { todayDateOnly, type MemberRef } from "@/shared/domain"
   import { FormState, toast } from "@/shared/ui"
-  import type { SpaceMember } from "../domain/types"
+  import { NOTE_MAX } from "../domain/validation"
   import { useWatch } from "./context"
   import { SessionFormState } from "./session-form.svelte"
 
   interface Props {
     open: boolean
     itemId: string
-    members: readonly SpaceMember[]
+    members: readonly MemberRef[]
     onLogged: () => void
   }
 
@@ -71,7 +71,7 @@
       </fieldset>
       <div class="grid gap-1.5">
         <Label for="session-note">Note (optional)</Label>
-        <Textarea id="session-note" rows={2} maxlength={500} bind:value={fields.note} />
+        <Textarea id="session-note" rows={2} maxlength={NOTE_MAX} bind:value={fields.note} />
       </div>
       {#if submission.formError}
         <p role="alert" class="text-sm text-destructive">{submission.formError}</p>

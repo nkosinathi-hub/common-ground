@@ -5,7 +5,12 @@
   import { Poster } from "@/features/catalog"
   import type { PickState } from "./pick-state.svelte"
 
-  let { picker, itemHref }: { picker: PickState; itemHref: (id: string) => string } = $props()
+  interface Props {
+    picker: PickState
+    itemHref: (id: string) => string
+  }
+
+  let { picker, itemHref }: Props = $props()
 </script>
 
 <Dialog.Root bind:open={picker.open}>

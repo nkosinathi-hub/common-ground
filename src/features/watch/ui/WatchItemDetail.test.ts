@@ -1,10 +1,11 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { createRawSnippet } from "svelte"
 import { afterEach, describe, expect, it } from "vitest"
-import { CATALOG_CONTEXT, CatalogService } from "@/features/catalog"
+import { CatalogService, provideCatalog } from "@/features/catalog"
 import { ME, PARTNER, SPACE_ID, item } from "../testing/fixtures"
-import { emptyCatalogGateway, watchTestContext } from "../testing/render-context"
-import { WATCH_CONTEXT } from "./context"
+import Provided from "../testing/Provided.svelte"
+import { emptyCatalogGateway, watchFakes } from "../testing/render-context"
+import { provideWatch } from "./context"
 import WatchItemDetail from "./WatchItemDetail.svelte"
 
 afterEach(cleanup)
@@ -12,18 +13,18 @@ afterEach(cleanup)
 const html = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }))
 
 function setup(extra: Parameters<typeof item>[2] = {}) {
-  const ctx = watchTestContext(
-    WATCH_CONTEXT,
-    CATALOG_CONTEXT,
-    new CatalogService(emptyCatalogGateway),
-  )
+  const fakes = watchFakes()
+  const provide = () => {
+    provideWatch({ service: fakes.service, members: fakes.members })
+    provideCatalog(new CatalogService(emptyCatalogGateway))
+  }
   const show = item(1, "Home video", {
     mediaType: "series",
     availabilityNote: "On the shelf",
     ...extra,
   })
-  ctx.gateway.items = [show]
-  ctx.gateway.progressRows = [
+  fakes.gateway.items = [show]
+  fakes.gateway.progressRows = [
     {
       userId: PARTNER,
       status: "watching",
@@ -41,8 +42,8 @@ function setup(extra: Parameters<typeof item>[2] = {}) {
     comments: html("Comments go here"),
     recommend: html("Recommend goes here"),
   }
-  render(WatchItemDetail, { props, context: ctx.context })
-  return ctx
+  render(Provided, { props: { provide, component: WatchItemDetail, props } })
+  return fakes
 }
 
 describe("WatchItemDetail", () => {

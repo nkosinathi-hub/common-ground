@@ -3,7 +3,7 @@ import type { WatchService } from "../application/watch-service"
 import { DEFAULT_FILTERS, hasActiveFilters } from "../domain/filters"
 import type { WatchCursor, WatchFilters, WatchItem } from "../domain/types"
 
-export const LIST_SEARCH_DEBOUNCE_MS = 300
+const LIST_SEARCH_DEBOUNCE_MS = 300
 
 /** The shared list with filters and keyset "load more". Superseded responses are ignored. */
 export class WatchListState {
@@ -26,6 +26,11 @@ export class WatchListState {
 
   get narrowed(): boolean {
     return hasActiveFilters(this.filters)
+  }
+
+  get moreLabel(): string {
+    if (this.loadingMore) return "Loading more"
+    return this.moreError ? "Try again" : "Load more"
   }
 
   get empty(): boolean {

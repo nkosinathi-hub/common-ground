@@ -3,7 +3,12 @@
   import { Availability } from "@/features/catalog"
   import type { WatchItem } from "../domain/types"
 
-  let { spaceId, item }: { spaceId: string; item: WatchItem } = $props()
+  interface Props {
+    spaceId: string
+    item: WatchItem
+  }
+
+  let { spaceId, item }: Props = $props()
 </script>
 
 {#if item.catalog}

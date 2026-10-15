@@ -6,7 +6,6 @@ import type {
   ProgressInput,
   SessionInput,
   SharedIntent,
-  SpaceMember,
   TitleDetailsInput,
   WatchCursor,
   WatchFilters,
@@ -35,9 +34,4 @@ export interface WatchGateway {
   saveProgress(itemId: string, input: ProgressInput): Promise<Result<void>>
   sessions(itemId: string): Promise<Result<WatchSession[]>>
   logSession(itemId: string, input: SessionInput): Promise<Result<string>>
-}
-
-/** Current members of a space, for "who was there" and progress names. Wired by the app. */
-export interface MemberDirectory {
-  members(spaceId: string): Promise<Result<SpaceMember[]>>
 }

@@ -25,15 +25,15 @@ export class FakeWatchGateway implements WatchGateway {
   list(request: ListRequest) {
     this.lists.push(request)
     return this.run(() => {
-      const { filters: f, cursor, size } = request
+      const { filters, cursor, size } = request
       const rows = this.items
-        .filter((i) => i.spaceId === request.spaceId && matches(i, f))
-        .sort(compareFor(f.sort))
-        .filter((i) => !cursor || isAfter(i, cursor, f.sort))
+        .filter((i) => i.spaceId === request.spaceId && matches(i, filters))
+        .sort(compareFor(filters.sort))
+        .filter((i) => !cursor || isAfter(i, cursor, filters.sort))
         .slice(0, size)
       return ok(
         pageOf(
-          rows.map((i) => ({ item: i, sortKey: sortKeyOf(i, f.sort) })),
+          rows.map((i) => ({ item: i, sortKey: sortKeyOf(i, filters.sort) })),
           size,
         ),
       )

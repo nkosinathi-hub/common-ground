@@ -26,6 +26,7 @@
   let progressVersion = $state(0)
 
   $effect(() => {
+    // Reload when the space or title changes; the loads must not become dependencies.
     void [spaceId, itemId]
     untrack(() => {
       void view.load()
