@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
+  import { TasksTab } from "@/features/tasks"
   import { ErrorState, Loading } from "@/shared/ui"
   import { appError, type AppError } from "@/shared/domain"
   import type { Idea } from "../domain"
@@ -60,6 +61,8 @@
         {#key idea.id}<OverviewTab {idea} onSaved={(next) => (idea = next)} />{/key}
       {:else if tab === "research"}
         <ResearchTab {idea} {attachments} />
+      {:else if tab === "tasks"}
+        <TasksTab spaceId={idea.spaceId} ideaId={idea.id} />
       {:else if tab === "discussion"}
         {@render discussion?.(idea)}
       {/if}
