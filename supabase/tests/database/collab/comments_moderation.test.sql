@@ -47,7 +47,7 @@ select throws_ok($$ select public.edit_comment((select id from c where who = 'an
 
 select tests.reset_role();
 delete from public.watch_items where id = tests.item('Frieren');
-select is((select count(*) from public.comments)::int, 0, 'comments go with their title');
+select is((select count(*) from public.comments where space_id = tests.space('Us'))::int, 0, 'comments go with their title');
 
 select * from finish();
 rollback;
