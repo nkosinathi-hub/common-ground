@@ -7,6 +7,7 @@
   import IdeasSection from "./pages/IdeasSection.svelte"
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
+  import QuickCapture from "./shell/QuickCapture.svelte"
   import type { Section } from "./shell/nav"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
@@ -29,7 +30,7 @@
 
 {#key space.id}
   <AppShell spaceId={space.id} current={section} theme={space.template} onSignOut={signOut}>
-    {#snippet actions()}<NotificationsBell />{/snippet}
+    {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
     {#if route.name === "home"}
       <HomePage {space} />
     {:else if route.name === "watch" || route.name === "watch-item"}

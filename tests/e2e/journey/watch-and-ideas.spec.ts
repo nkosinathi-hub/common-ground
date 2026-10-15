@@ -36,7 +36,7 @@ test("capture an idea and open every tab", async ({ page }) => {
 
   await page.goto(`./#/s/${spaceId}/ideas`)
   await page.getByLabel("Idea title").fill("Night market stall")
-  await page.getByRole("button", { name: "Capture" }).click()
+  await page.getByRole("button", { name: "Capture", exact: true }).click()
   await page
     .getByRole("link", { name: /Night market stall/ })
     .first()
@@ -48,4 +48,21 @@ test("capture an idea and open every tab", async ({ page }) => {
       "Night market stall",
     )
   }
+})
+
+test("quick capture from any screen keeps an unsent draft", async ({ page }) => {
+  test.setTimeout(120_000)
+  const ana = await createUser("quick")
+  await signIn(page, ana)
+  const spaceId = await createSpace(page, "Quick")
+  await page.goto(`./#/s/${spaceId}/watch`)
+  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await page.getByLabel("Idea", { exact: true }).fill("Pop-up cinema")
+  await page.reload()
+  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await expect(page.getByLabel("Idea", { exact: true })).toHaveValue("Pop-up cinema")
+  await page.getByRole("button", { name: "Save idea" }).click()
+  await expect(page.getByText("Idea saved")).toBeVisible()
+  await page.goto(`./#/s/${spaceId}/ideas`)
+  await expect(page.getByRole("link", { name: /Pop-up cinema/ }).first()).toBeVisible()
 })
