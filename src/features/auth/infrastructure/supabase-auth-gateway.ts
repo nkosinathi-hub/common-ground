@@ -1,23 +1,10 @@
 import type { User } from "@supabase/supabase-js"
 import { appError, err, ok, type Result } from "@/shared/domain"
 import { toAppError } from "@/shared/infrastructure/errors"
+import { done, signedOut, type QueryError } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { AuthGateway } from "../application/ports"
+import type { AuthGateway, SignUpRequest } from "../application/ports"
 import type { AuthEvent, SessionUser } from "../domain/session"
-
-const toUser = (user: User): SessionUser => ({
-  id: user.id,
-  email: user.email ?? "",
-  displayName: String(user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? ""),
-  emailConfirmed: Boolean(user.email_confirmed_at),
-})
-
-const done = (error: { code?: string; message?: string; status?: number } | null): Result<void> =>
-  error ? err(toAppError(error)) : ok(undefined)
-
-/** Server trouble is not a wrong password: 5xx, 429, timeouts and network failures ask to retry. */
-const isOutage = (error: { status?: number; code?: string }) =>
-  !error.status || error.status >= 500 || error.status === 429 || error.code === "request_timeout"
 
 const EVENTS: Record<string, AuthEvent> = {
   SIGNED_IN: "signed_in",
@@ -27,6 +14,20 @@ const EVENTS: Record<string, AuthEvent> = {
   USER_UPDATED: "refreshed",
 }
 
+const TOO_MANY_REQUESTS = 429
+const SERVER_ERROR = 500
+
+const toUser = (user: User): SessionUser => ({
+  id: user.id,
+  email: user.email ?? "",
+  displayName: String(user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? ""),
+  emailConfirmed: Boolean(user.email_confirmed_at),
+})
+
+/** Server trouble is not a wrong password: 5xx, 429, timeouts and network failures ask to retry. */
+const isOutage = ({ status, code }: QueryError) =>
+  !status || status >= SERVER_ERROR || status === TOO_MANY_REQUESTS || code === "request_timeout"
+
 export class SupabaseAuthGateway implements AuthGateway {
   constructor(private readonly db: Db) {}
 
@@ -35,9 +36,9 @@ export class SupabaseAuthGateway implements AuthGateway {
     return data.session ? toUser(data.session.user) : null
   }
 
-  async signUp(email: string, password: string, displayName: string, redirectTo: string) {
+  signUp({ email, password, displayName, redirectTo }: SignUpRequest) {
     const options = { emailRedirectTo: redirectTo, data: { display_name: displayName } }
-    return done((await this.db.auth.signUp({ email, password, options })).error)
+    return done(this.db.auth.signUp({ email, password, options }))
   }
 
   async signIn(email: string, password: string): Promise<Result<SessionUser>> {
@@ -50,28 +51,19 @@ export class SupabaseAuthGateway implements AuthGateway {
     return ok(toUser(data.user))
   }
 
-  signOut = async () => done((await this.db.auth.signOut()).error)
+  signOut = () => done(this.db.auth.signOut())
 
-  requestPasswordReset = async (email: string, redirectTo: string) =>
-    done((await this.db.auth.resetPasswordForEmail(email, { redirectTo })).error)
+  requestPasswordReset = (email: string, redirectTo: string) =>
+    done(this.db.auth.resetPasswordForEmail(email, { redirectTo }))
 
-  resendVerification = async (email: string, redirectTo: string) =>
-    done(
-      (
-        await this.db.auth.resend({
-          type: "signup",
-          email,
-          options: { emailRedirectTo: redirectTo },
-        })
-      ).error,
-    )
+  resendVerification = (email: string, redirectTo: string) =>
+    done(this.db.auth.resend({ type: "signup", email, options: { emailRedirectTo: redirectTo } }))
 
-  updatePassword = async (password: string) =>
-    done((await this.db.auth.updateUser({ password })).error)
+  updatePassword = (password: string) => done(this.db.auth.updateUser({ password }))
 
-  async reauthenticate(password: string) {
+  async reauthenticate(password: string): Promise<Result<void>> {
     const user = await this.currentUser()
-    if (!user) return err(appError("unauthenticated", "Please sign in again"))
+    if (!user) return signedOut()
     const { error } = await this.db.auth.signInWithPassword({ email: user.email, password })
     return error ? err(appError("denied", "Password is incorrect")) : ok(undefined)
   }

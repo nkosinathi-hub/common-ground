@@ -1,5 +1,5 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
-import type { AuthGateway } from "../application/ports"
+import type { AuthGateway, SignUpRequest } from "../application/ports"
 import type { AuthEvent, SessionUser } from "../domain/session"
 
 interface Account {
@@ -13,7 +13,7 @@ export class FakeAuthGateway implements AuthGateway {
   user: SessionUser | null = null
   private listeners = new Set<(event: AuthEvent, user: SessionUser | null) => void>()
 
-  private emit(event: AuthEvent) {
+  emit(event: AuthEvent) {
     for (const listener of this.listeners) listener(event, this.user)
   }
 
@@ -21,7 +21,7 @@ export class FakeAuthGateway implements AuthGateway {
     return this.user
   }
 
-  async signUp(email: string, password: string, displayName: string, redirectTo: string) {
+  async signUp({ email, password, displayName, redirectTo }: SignUpRequest) {
     if (this.accounts.has(email)) return ok(undefined)
     const user = { id: `user-${this.accounts.size + 1}`, email, displayName, emailConfirmed: false }
     this.accounts.set(email, { password, user })

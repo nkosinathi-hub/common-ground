@@ -14,7 +14,8 @@
   async function submit(event: SubmitEvent) {
     event.preventDefault()
     const result = await form.run(() => service.signIn(email, password))
-    unverified = !result.ok && result.error.message.includes("Confirm")
+    // Sign-in is denied only while the email is unconfirmed (see AuthGateway.signIn).
+    unverified = !result.ok && result.error.kind === "denied"
   }
 
   async function resend() {

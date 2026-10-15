@@ -9,7 +9,8 @@ import {
 import type { SessionUser } from "../domain/session"
 import type { AuthGateway } from "./ports"
 
-export interface Location {
+/** Where the app is served, so email links come back to it. */
+export interface AppAddress {
   readonly origin: string
   readonly basePath: string
 }
@@ -17,11 +18,11 @@ export interface Location {
 export class AuthService {
   constructor(
     private readonly gateway: AuthGateway,
-    private readonly location: Location,
+    private readonly address: AppAddress,
   ) {}
 
   private redirect(next: CallbackNext) {
-    return callbackUrl(this.location.origin, this.location.basePath, next)
+    return callbackUrl(this.address.origin, this.address.basePath, next)
   }
 
   currentUser = () => this.gateway.currentUser()
@@ -32,8 +33,7 @@ export class AuthService {
   async signUp(input: SignUpInput): Promise<Result<void>> {
     const valid = validateSignUp(input)
     if (!valid.ok) return valid
-    const { email, password, displayName } = valid.value
-    return this.gateway.signUp(email, password, displayName, this.redirect("home"))
+    return this.gateway.signUp({ ...valid.value, redirectTo: this.redirect("home") })
   }
 
   async signIn(email: string, password: string): Promise<Result<SessionUser>> {

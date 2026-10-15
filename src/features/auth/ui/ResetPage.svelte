@@ -4,7 +4,12 @@
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
-  let { expired = false }: { expired?: boolean } = $props()
+  interface Props {
+    /** True when the reset link that brought the user here had expired. */
+    expired?: boolean
+  }
+
+  let { expired = false }: Props = $props()
   const { service } = useAuth()
   const form = new FormState()
   let email = $state("")

@@ -2,17 +2,14 @@
   import type { Snippet } from "svelte"
   import * as Card from "$lib/components/ui/card"
 
-  let {
-    title,
-    description,
-    children,
-    footer,
-  }: {
+  interface Props {
     title: string
     description?: string
     children: Snippet
     footer?: Snippet
-  } = $props()
+  }
+
+  let { title, description, children, footer }: Props = $props()
 </script>
 
 <main class="flex min-h-dvh items-center justify-center bg-banner/40 px-4 py-10">

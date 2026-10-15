@@ -5,7 +5,11 @@
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
-  let { onDone }: { onDone: () => void } = $props()
+  interface Props {
+    onDone: () => void
+  }
+
+  let { onDone }: Props = $props()
   const { service } = useAuth()
   const form = new FormState()
   let password = $state("")

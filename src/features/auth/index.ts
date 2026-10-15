@@ -1,7 +1,5 @@
 export { AuthService } from "./application/auth-service"
-export type { AuthGateway } from "./application/ports"
-export { parseAuthCallback, scrubbedUrl, type AuthCallback } from "./domain/callback"
-export type { SessionUser } from "./domain/session"
+export { parseAuthCallback, scrubbedUrl } from "./domain/callback"
 export { provideAuth, useAuth } from "./ui/context"
 export { SessionStore } from "./ui/session.svelte"
 export { default as NewPasswordPage } from "./ui/NewPasswordPage.svelte"
