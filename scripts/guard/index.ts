@@ -1,9 +1,10 @@
 import { execSync } from "node:child_process"
+import { dockerHost } from "../setup/system"
 
 const e2e = process.argv.includes("--e2e")
-const DOCKER = {
-  DOCKER_HOST: process.env.DOCKER_HOST ?? "unix:///run/user/1000/podman/podman.sock",
-}
+// DOCKER_HOST from the environment wins; otherwise the same detector `pnpm run setup` uses.
+const host = dockerHost()
+const DOCKER = host ? { DOCKER_HOST: host } : {}
 
 const steps: [string, string][] = [
   ["format", "pnpm -s format:check"],
