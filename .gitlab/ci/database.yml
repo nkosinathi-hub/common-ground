@@ -1,0 +1,35 @@
+# Local Supabase inside docker-in-docker for pgTAP and Playwright.
+.supabase:
+  services:
+    - name: docker:27-dind
+      alias: docker
+      command: ["--tls=false"]
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"
+
+database:
+  extends: .supabase
+  stage: database
+  script:
+    - apt-get update -qq && apt-get install -y -qq docker.io >/dev/null
+    - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor
+    - pnpm exec supabase test db
+
+e2e:
+  extends: .supabase
+  stage: e2e
+  image: mcr.microsoft.com/playwright:v1.64.1-noble
+  script:
+    - apt-get update -qq && apt-get install -y -qq docker.io >/dev/null
+    - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor
+    - pnpm exec tsx scripts/e2e/env.ts > .env.local
+    - pnpm build
+    - pnpm test:e2e
+  artifacts:
+    when: on_failure
+    paths: [playwright-report/, test-results/]
+    expire_in: 1 week

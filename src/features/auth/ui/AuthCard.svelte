@@ -19,7 +19,7 @@
   <Card.Root class="w-full max-w-md">
     <Card.Header>
       <p class="font-serif text-sm tracking-wide text-primary">Common Ground</p>
-      <Card.Title class="text-2xl">{title}</Card.Title>
+      <Card.Title level={1} class="text-2xl">{title}</Card.Title>
       {#if description}<Card.Description>{description}</Card.Description>{/if}
     </Card.Header>
     <Card.Content>{@render children()}</Card.Content>

@@ -34,6 +34,9 @@ set search_path = ''
 as $$
   select exists (
     select 1 from public.space_members where space_id = target_space and user_id = target_user
+  ) and (
+    -- Not an oracle: only answers for spaces the caller belongs to (or server-side callers).
+    (select auth.uid()) is null or public.is_space_member(target_space)
   );
 $$;
 

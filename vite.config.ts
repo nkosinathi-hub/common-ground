@@ -9,8 +9,8 @@ export default defineConfig({
   base: process.env.PAGES_BASE_PATH ?? "/",
   plugins: [tailwindcss(), svelte()],
   resolve: {
+    ...(process.env.VITEST ? { conditions: ["browser"] } : {}),
     alias: { $lib: src("lib"), "@": src("") },
-    conditions: process.env.VITEST ? ["browser"] : [],
   },
   build: { sourcemap: false, target: "es2023" },
   test: {

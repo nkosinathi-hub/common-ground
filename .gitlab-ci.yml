@@ -1,0 +1,38 @@
+# GitLab is the primary forge: every MR runs the full guard. Deployment jobs are manual.
+stages: [verify, database, e2e, deploy]
+
+include:
+  - local: .gitlab/ci/database.yml
+  - local: .gitlab/ci/deploy.yml
+
+default:
+  image: node:24-bookworm
+  before_script:
+    - corepack enable && corepack prepare pnpm@10.34.3 --activate
+    - pnpm install --frozen-lockfile
+  cache:
+    key: { files: [pnpm-lock.yaml] }
+    paths: [.pnpm-store]
+
+variables:
+  npm_config_store_dir: .pnpm-store
+  VITE_SUPABASE_URL: http://127.0.0.1:54321
+  VITE_SUPABASE_ANON_KEY: ci-placeholder
+
+verify:
+  stage: verify
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"
+  script:
+    - pnpm format:check
+    - pnpm exec tsx scripts/guard/static-checks.ts
+    - pnpm lint
+    - pnpm check
+    - pnpm exec vitest run --coverage
+    - pnpm build
+    - pnpm exec tsx scripts/guard/bundle-scan.ts
+  artifacts:
+    when: always
+    paths: [coverage/]
+    expire_in: 1 week

@@ -34,7 +34,7 @@
       {#snippet children(info)}
         <Card.Header>
           <DoorOpen class="size-6 text-primary" aria-hidden="true" />
-          <Card.Title
+          <Card.Title level={1}
             >{info.status === "valid" ? `Join ${info.spaceName}` : "Invitation"}</Card.Title
           >
           {#if info.status === "valid" && info.inviterName}

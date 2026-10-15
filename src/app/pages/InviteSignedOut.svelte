@@ -6,7 +6,7 @@
 <main class="flex min-h-dvh items-center justify-center px-4">
   <Card.Root class="w-full max-w-md">
     <Card.Header>
-      <Card.Title>You have been invited</Card.Title>
+      <Card.Title level={1}>You have been invited</Card.Title>
       <Card.Description>
         Sign in or create an account to see and accept this invitation. We will bring you back here.
       </Card.Description>
