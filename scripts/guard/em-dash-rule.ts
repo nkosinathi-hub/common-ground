@@ -1,4 +1,4 @@
-const EM_DASH = "—"
+const EM_DASH = String.fromCharCode(0x2014)
 
 export interface DashHit {
   readonly path: string

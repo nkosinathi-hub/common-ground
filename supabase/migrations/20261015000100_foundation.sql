@@ -12,6 +12,10 @@ begin
 end;
 $$;
 
-revoke all on schema public from anon;
-alter default privileges in schema public revoke execute on functions from public;
-alter default privileges in schema public revoke execute on functions from anon;
+-- Deny by default: Supabase grants every role full table access unless revoked.
+-- Each table must grant exactly the columns and verbs it needs to `authenticated`.
+alter default privileges for role postgres in schema public revoke all on tables from anon, authenticated;
+alter default privileges for role postgres in schema public revoke all on sequences from anon, authenticated;
+alter default privileges for role postgres in schema public revoke execute on functions from public, anon;
+revoke all on all tables in schema public from anon, authenticated;
+revoke usage on schema public from anon;
