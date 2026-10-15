@@ -24,7 +24,8 @@ keep-alive:
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   script:
-    - curl -fsS "$SUPABASE_URL/rest/v1/" -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -o /dev/null
+    - >
+      curl -fsS "$SUPABASE_URL/rest/v1/" -H "apikey: $SUPABASE_PUBLISHABLE_KEY" -o /dev/null
     - >
       [ -z "$CLEANUP_SECRET" ] || curl -fsS -X POST "$SUPABASE_URL/functions/v1/attachments"
       -H "x-cleanup-secret: $CLEANUP_SECRET" -H "content-type: application/json"
