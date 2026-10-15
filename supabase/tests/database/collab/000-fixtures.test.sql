@@ -1,3 +1,4 @@
+-- Runs before this folder's tests and is not rolled back. Stand-ins are no-ops once the real tables exist.
 -- Test-only stand-ins for tables owned by the watch and ideas branches. Never a migration.
 create table if not exists public.watch_items (
   id uuid primary key default gen_random_uuid(),
@@ -46,3 +47,7 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 grant execute on function tests.space(text), tests.item(text), tests.idea(text) to authenticated;
+
+select plan(1);
+select pass('fixtures installed');
+select * from finish();
