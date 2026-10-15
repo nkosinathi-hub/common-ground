@@ -51,7 +51,7 @@
   {#snippet footer()}
     <a class="underline-offset-4 hover:underline" href="#/auth/reset">Forgot your password?</a>
     <span
-      >New here? <a class="text-primary underline-offset-4 hover:underline" href="#/auth/sign-up"
+      >New here? <a class="text-primary underline underline-offset-4" href="#/auth/sign-up"
         >Create an account</a
       ></span
     >

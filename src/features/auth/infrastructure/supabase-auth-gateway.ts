@@ -15,6 +15,10 @@ const toUser = (user: User): SessionUser => ({
 const done = (error: { code?: string; message?: string; status?: number } | null): Result<void> =>
   error ? err(toAppError(error)) : ok(undefined)
 
+/** Server trouble is not a wrong password: 5xx, 429, timeouts and network failures ask to retry. */
+const isOutage = (error: { status?: number; code?: string }) =>
+  !error.status || error.status >= 500 || error.status === 429 || error.code === "request_timeout"
+
 const EVENTS: Record<string, AuthEvent> = {
   SIGNED_IN: "signed_in",
   SIGNED_OUT: "signed_out",
@@ -40,6 +44,7 @@ export class SupabaseAuthGateway implements AuthGateway {
     const { data, error } = await this.db.auth.signInWithPassword({ email, password })
     if (error?.code === "email_not_confirmed")
       return err(appError("denied", "Confirm your email first"))
+    if (error && isOutage(error)) return err(toAppError({ status: error.status ?? 0 }))
     if (error || !data.user)
       return err(appError("unauthenticated", "Email or password is incorrect"))
     return ok(toUser(data.user))

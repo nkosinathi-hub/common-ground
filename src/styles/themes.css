@@ -1,7 +1,7 @@
 /* Per-space accents from the space templates. Contrast checked against --background. */
 [data-space-theme="couple"] {
-  --primary: #945865;
-  --ring: #945865;
+  --primary: #8a4f5d;
+  --ring: #8a4f5d;
   --accent: #f3e4e6;
   --sidebar: #f7f0ef;
   --sidebar-accent: #f3e4e6;

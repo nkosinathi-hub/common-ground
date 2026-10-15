@@ -22,8 +22,10 @@
     children: Snippet
   } = $props()
 
+  // Theme applies only inside a space; leaving the shell restores the neutral palette.
   $effect(() => {
     document.documentElement.dataset.spaceTheme = theme
+    return () => delete document.documentElement.dataset.spaceTheme
   })
 </script>
 

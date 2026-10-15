@@ -35,7 +35,7 @@ function byStatus(status?: number): AppError["kind"] {
   if (status === 404) return "not_found"
   if (status === 409) return "conflict"
   if (status === 429) return "rate_limited"
-  if (status === 0 || status === undefined) return "network"
+  if (status === 0 || status === undefined || status >= 500) return "network"
   return "unknown"
 }
 

@@ -67,8 +67,9 @@
     </form>
     {#snippet footer()}
       <span
-        >Already have an account? <a class="text-primary hover:underline" href="#/auth/sign-in"
-          >Sign in</a
+        >Already have an account? <a
+          class="text-primary underline underline-offset-4"
+          href="#/auth/sign-in">Sign in</a
         ></span
       >
       <a class="hover:underline" href="#/privacy">How we handle your data</a>

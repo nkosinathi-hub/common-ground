@@ -18,17 +18,7 @@ const ROUTES: Record<string, (spaceId: string) => string> = {
 
 // Known defects owned outside this suite, keyed "<project>:<route>" or "*:<route>"; see
 // routes.spec.ts for the rule. Remove an entry when its fix lands.
-const RAIL = "color-contrast: active item in the nav rail (.bg-sidebar-accent), NavRail.svelte"
-const KNOWN: Record<string, string> = {
-  "desktop:home": RAIL,
-  "desktop:watch": RAIL,
-  "desktop:ideas": RAIL,
-  "tablet:home": RAIL,
-  "tablet:watch": RAIL,
-  "tablet:ideas": RAIL,
-  "desktop:new space": "color-contrast: .bg-primary text on the new space page",
-  "*:account": "page-has-heading-one: AccountPage.svelte has no h1",
-}
+const KNOWN: Record<string, string> = {}
 
 let page: Page
 let spaceId = ""

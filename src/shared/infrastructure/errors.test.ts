@@ -23,3 +23,9 @@ describe("toAppError", () => {
     expect(toAppError(null).kind).toBe("unknown")
   })
 })
+
+describe("toAppError server failures", () => {
+  it("treats 5xx as a retryable outage", () => {
+    expect(toAppError({ status: 504 }).kind).toBe("network")
+  })
+})

@@ -11,10 +11,7 @@ const PUBLIC_ROUTES = [
 
 // Known defects, owned outside this suite. test.fail flips to a failure once the fix lands, so
 // the entry must then be removed. Never add an entry to silence a new violation.
-const KNOWN: Record<string, string> = {
-  "#/auth/sign-up":
-    "link-in-text-block: the 'Sign in' link in SignUpPage.svelte needs a non-colour cue (underline)",
-}
+const KNOWN: Record<string, string> = {}
 
 for (const route of PUBLIC_ROUTES) {
   test(`${route.path} has no axe violations @a11y`, async ({ page }) => {
