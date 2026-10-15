@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import { TasksTab } from "@/features/tasks"
+  import { BudgetPanel } from "@/features/budget"
+  import { MilestonesPanel, TasksTab } from "@/features/tasks"
   import { ErrorState, Loading } from "@/shared/ui"
   import { appError, type AppError } from "@/shared/domain"
   import type { Idea } from "../domain"
@@ -63,6 +64,16 @@
         <ResearchTab {idea} {attachments} />
       {:else if tab === "tasks"}
         <TasksTab spaceId={idea.spaceId} ideaId={idea.id} />
+      {:else if tab === "milestones"}
+        <div class="grid gap-6 lg:grid-cols-2">
+          <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} />
+          <BudgetPanel
+            spaceId={idea.spaceId}
+            ideaId={idea.id}
+            currency={idea.currency}
+            onCurrencyChanged={(currency) => idea && (idea = { ...idea, currency })}
+          />
+        </div>
       {:else if tab === "discussion"}
         {@render discussion?.(idea)}
       {/if}
