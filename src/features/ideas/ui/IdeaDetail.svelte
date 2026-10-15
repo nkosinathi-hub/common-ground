@@ -3,7 +3,14 @@
   import { BudgetPanel } from "@/features/budget"
   import { MilestonesPanel, TasksTab } from "@/features/tasks"
   import { ErrorState, Loading } from "@/shared/ui"
-  import { appError, err, type AppError, type IdeaTab, type Result } from "@/shared/domain"
+  import {
+    appError,
+    buildHash,
+    err,
+    type AppError,
+    type IdeaTab,
+    type Result,
+  } from "@/shared/domain"
   import type { Idea } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
@@ -20,9 +27,11 @@
     discussion?: Snippet<[Idea]>
     /** Attachment list for the research tab (attachments feature). */
     attachments?: Snippet<[Idea]>
+    /** After the idea is deleted; by default goes back to the space's ideas list. */
+    onDeleted?: () => void
   }
 
-  let { spaceId, ideaId, tab, tabHref, discussion, attachments }: Props = $props()
+  let { spaceId, ideaId, tab, tabHref, discussion, attachments, onDeleted }: Props = $props()
 
   const ideas = useIdeas()
   let idea = $state<Idea | null>(null)
@@ -44,6 +53,8 @@
     load()
   })
 
+  const backToList = () => (location.hash = buildHash({ name: "ideas", spaceId }))
+  const deleted = () => (onDeleted ?? backToList)()
   function setCurrency(currency: string) {
     if (idea) idea = { ...idea, currency }
   }
@@ -55,7 +66,7 @@
   <Loading label="Loading idea" />
 {:else}
   <div class="flex flex-col gap-4">
-    <IdeaHeader {idea} onChange={(next) => (idea = next)} />
+    <IdeaHeader {idea} onChange={(next) => (idea = next)} onDeleted={deleted} />
     <IdeaTabs current={tab} href={tabHref} />
     <div role="tabpanel" tabindex="0" aria-label={tab}>
       {#if tab === "overview"}
