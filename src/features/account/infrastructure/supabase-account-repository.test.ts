@@ -1,25 +1,12 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
+import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { SupabaseAccountRepository } from "./supabase-account-repository"
 
-type Reply = { data: unknown; error: unknown }
-
-/** Typed-client stand-in: records each call and answers every query with one reply. */
+/** The repository over a client that records each call and answers every await with `reply`. */
 function recordingDb(reply: Reply) {
-  const calls: unknown[][] = []
-  const chain: Record<string, unknown> = {
-    then: (resolve: (value: Reply) => void) => resolve(reply),
-  }
-  for (const name of ["from", "update", "eq"])
-    chain[name] = (...args: unknown[]) => {
-      calls.push([name, ...args])
-      return chain
-    }
-  const rpc = async (...args: unknown[]) => {
-    calls.push(["rpc", ...args])
-    return reply
-  }
-  return { calls, repo: new SupabaseAccountRepository({ ...chain, rpc } as unknown as Db) }
+  const { calls, client } = recordingClient(reply)
+  return { calls, repo: new SupabaseAccountRepository(client as Db) }
 }
 
 describe("SupabaseAccountRepository", () => {

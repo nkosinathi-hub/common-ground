@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { PAGE_SIZE } from "@/shared/domain"
 import type { Db } from "@/shared/infrastructure/supabase"
-import { stubDb } from "../testing/stub-db"
+import { recordingClient } from "@/shared/infrastructure/testing/recording-client"
 import { SupabaseActivity, SupabaseNotifications } from "./supabase-notifications"
 
 const noteRow = (id: string, actor: { display_name: string } | null) => ({
@@ -17,7 +17,7 @@ const noteRow = (id: string, actor: { display_name: string } | null) => ({
 
 describe("SupabaseNotifications", () => {
   it("maps rows newest first with actor names, former members as null", async () => {
-    const { db, calls } = stubDb([
+    const { client: db, calls } = recordingClient([
       { data: [noteRow("n1", { display_name: "Ana" }), noteRow("n2", null)], error: null },
     ])
     const page = await new SupabaseNotifications(db as Db).list(null)
@@ -31,7 +31,7 @@ describe("SupabaseNotifications", () => {
   })
 
   it("pages older than the cursor with the quoted keyset filter", async () => {
-    const { db, calls } = stubDb([{ data: [], error: null }])
+    const { client: db, calls } = recordingClient([{ data: [], error: null }])
     await new SupabaseNotifications(db as Db).list({ createdAt: "2026-10-15T10:00:00Z", id: "n1" })
     expect(calls).toContainEqual([
       "or",
@@ -40,7 +40,7 @@ describe("SupabaseNotifications", () => {
   })
 
   it("stamps reads with the time it is given", async () => {
-    const { db, calls } = stubDb([
+    const { client: db, calls } = recordingClient([
       { data: null, error: null },
       { data: null, error: { code: "42501" } },
     ])
@@ -63,7 +63,7 @@ describe("SupabaseActivity", () => {
       created_at: "2026-10-15T10:00:00Z",
       actor: { display_name: "Ben" },
     }
-    const { db, calls } = stubDb([{ data: [row], error: null }])
+    const { client: db, calls } = recordingClient([{ data: [row], error: null }])
     const page = await new SupabaseActivity(db as Db).list("s", null)
     expect(page).toMatchObject({ ok: true, value: { items: [{ id: "e1", actorName: "Ben" }] } })
     expect(calls).toContainEqual(["eq", "space_id", "s"])

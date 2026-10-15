@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
-import { stubDb, type Reply } from "../testing/stub-db"
+import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { SupabaseSpacesGateway } from "./supabase-spaces-gateway"
 
 const gatewayFor = (replies: Reply[], userId?: string | null) => {
-  const { db, calls } = stubDb(replies, userId)
+  const { client: db, calls } = recordingClient(replies, userId)
   return { gateway: new SupabaseSpacesGateway(db as Db), calls }
 }
 

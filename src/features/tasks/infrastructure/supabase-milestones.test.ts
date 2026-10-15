@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
-import { recordingClient, type Reply } from "../testing/recording-client"
+import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { MILESTONE_COLUMNS } from "./rows"
 import { SupabaseMilestones } from "./supabase-milestones"
 
