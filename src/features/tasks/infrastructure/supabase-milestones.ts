@@ -1,8 +1,9 @@
 import type { DateOnly } from "@/shared/domain"
+import { removed } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { MilestonesRepository } from "../application/ports"
 import { MILESTONE_COLUMNS, toMilestone } from "./rows"
-import { many, none, one, table } from "./table"
+import { many, one, table } from "./table"
 
 export class SupabaseMilestones implements MilestonesRepository {
   constructor(private readonly db: Db) {}
@@ -46,6 +47,6 @@ export class SupabaseMilestones implements MilestonesRepository {
     )
   }
   remove(id: string) {
-    return none(table(this.db, "milestones").delete().eq("id", id))
+    return removed(table(this.db, "milestones").delete().eq("id", id).select("id"))
   }
 }
