@@ -1,17 +1,9 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
-import { removed, settle } from "@/shared/infrastructure/query"
+import type { Result } from "@/shared/domain"
+import { current, removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { MilestonePatch, MilestonesRepository, NewMilestone } from "../application/ports"
 import type { Milestone } from "../domain"
-import { MILESTONE_COLUMNS, toMilestone, type MilestoneRow } from "./rows"
-
-const STALE = "Someone else changed this. Reload to see their version"
-
-/** The update matched on the updated_at the client saw: no row back means it went stale. */
-const current = (data: MilestoneRow[]): Result<Milestone> => {
-  const [row] = data
-  return row ? ok(toMilestone(row)) : err(appError("conflict", STALE))
-}
+import { MILESTONE_COLUMNS, toMilestone } from "./rows"
 
 export class SupabaseMilestones implements MilestonesRepository {
   constructor(private readonly db: Db) {}
@@ -32,19 +24,14 @@ export class SupabaseMilestones implements MilestonesRepository {
     return settle(this.milestones.insert(row).select(MILESTONE_COLUMNS).single(), toMilestone)
   }
 
-  async update(
-    id: string,
-    expectedUpdatedAt: string,
-    patch: MilestonePatch,
-  ): Promise<Result<Milestone>> {
+  update(id: string, expectedUpdatedAt: string, patch: MilestonePatch): Promise<Result<Milestone>> {
     const row = {
       title: patch.title,
       target_date: patch.targetDate,
       completed_at: patch.completedAt,
     }
     const query = this.milestones.update(row).eq("id", id).eq("updated_at", expectedUpdatedAt)
-    const rows = await settle(query.select(MILESTONE_COLUMNS), (data) => data)
-    return rows.ok ? current(rows.value) : rows
+    return current(query.select(MILESTONE_COLUMNS), toMilestone)
   }
 
   remove(id: string): Promise<Result<void>> {

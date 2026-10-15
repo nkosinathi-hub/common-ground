@@ -42,5 +42,21 @@ export async function removed(query: PromiseLike<QueryReply<unknown>>): Promise<
   return ok(undefined)
 }
 
+const STALE = "Someone else changed this. Reload to see their version"
+
+/**
+ * Awaits an update matched on the updated_at the client saw, selecting the row back: no row back
+ * means someone else changed it first, so the update went stale.
+ */
+export async function current<R, T>(
+  query: PromiseLike<QueryReply<R[]>>,
+  map: (row: R) => T,
+): Promise<Result<T>> {
+  const { data, error } = await query
+  if (error) return err(toAppError(error))
+  const [row] = data ?? []
+  return row ? ok(map(row)) : err(appError("conflict", STALE))
+}
+
 /** Signed-out callers never send an empty string where Postgres expects a uuid. */
 export const signedOut = () => err(appError("unauthenticated", "Please sign in again"))
