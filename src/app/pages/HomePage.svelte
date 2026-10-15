@@ -1,14 +1,14 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
   import * as Card from "$lib/components/ui/card"
   import { useAuth } from "@/features/auth"
   import { ActivityFeed } from "@/features/notifications"
   import { RecommendationsInbox } from "@/features/recommendations"
+  import { UpcomingTasks } from "@/features/tasks"
   import { ContinueWatching } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
   import { templateFor, type Space } from "@/features/spaces"
 
-  let { space, sections }: { space: Space; sections?: Snippet } = $props()
+  let { space }: { space: Space } = $props()
   const { session } = useAuth()
   const template = $derived(templateFor(space.template))
   const hour = new Date().getHours()
@@ -31,6 +31,15 @@
     </Card.Content>
   </Card.Root>
   <Card.Root>
+    <Card.Header><Card.Title>Coming up</Card.Title></Card.Header>
+    <Card.Content>
+      <UpcomingTasks
+        spaceId={space.id}
+        taskHref={(ideaId) => buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "tasks" })}
+      />
+    </Card.Content>
+  </Card.Root>
+  <Card.Root>
     <Card.Header><Card.Title>Recommended for you</Card.Title></Card.Header>
     <Card.Content>
       <RecommendationsInbox
@@ -39,7 +48,6 @@
       />
     </Card.Content>
   </Card.Root>
-  {@render sections?.()}
   <Card.Root>
     <Card.Header><Card.Title>Recently in {space.name}</Card.Title></Card.Header>
     <Card.Content><ActivityFeed spaceId={space.id} limit /></Card.Content>

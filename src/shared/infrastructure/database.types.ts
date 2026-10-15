@@ -475,17 +475,23 @@ isOneToOne: false
                   ]
                 },"task_checklist_items": {
                   Row: {
-                    "created_at": string,"done": boolean,"id": string,"label": string,"position": number,"space_id": string,"task_id": string,"updated_at": string
+                    "created_at": string,"created_by": string | null,"done": boolean,"id": string,"label": string,"position": number,"space_id": string,"task_id": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"done"?: boolean,"id"?: string,"label": string,"position"?: number,"space_id": string,"task_id": string,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"done"?: boolean,"id"?: string,"label": string,"position"?: number,"space_id": string,"task_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"done"?: boolean,"id"?: string,"label"?: string,"position"?: number,"space_id"?: string,"task_id"?: string,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string | null,"done"?: boolean,"id"?: string,"label"?: string,"position"?: number,"space_id"?: string,"task_id"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
+      foreignKeyName: "task_checklist_items_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "task_checklist_items_space_id_task_id_fkey"
       columns: ["space_id","task_id"]
 isOneToOne: false
@@ -518,16 +524,16 @@ isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     },{
+      foreignKeyName: "tasks_idea_id_milestone_id_fkey"
+      columns: ["idea_id","milestone_id"]
+isOneToOne: false
+      referencedRelation: "milestones"
+      referencedColumns: ["idea_id","id"]
+    },{
       foreignKeyName: "tasks_space_id_idea_id_fkey"
       columns: ["space_id","idea_id"]
 isOneToOne: false
       referencedRelation: "ideas"
-      referencedColumns: ["space_id","id"]
-    },{
-      foreignKeyName: "tasks_space_id_milestone_id_fkey"
-      columns: ["space_id","milestone_id"]
-isOneToOne: false
-      referencedRelation: "milestones"
       referencedColumns: ["space_id","id"]
     }
                   ]
