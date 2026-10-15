@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 import { latestLink } from "../support/mailpit"
-import { uniqueEmail } from "../support/stack"
+import { requireStack, uniqueEmail } from "../support/stack"
+
+requireStack()
 
 test("sign up, verify by email, sign out and back in", async ({ page }) => {
   const email = uniqueEmail("newbie")

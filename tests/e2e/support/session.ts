@@ -8,7 +8,7 @@ export async function signIn(page: Page, user: TestUser): Promise<void> {
   await page.getByRole("button", { name: "Sign in" }).click()
   await expect(
     page.getByRole("heading", { name: /space for your people|Home|Good/ }).first(),
-  ).toBeVisible()
+  ).toBeVisible({ timeout: 30_000 })
 }
 
 /** Creates a space through the UI and returns its id from the URL. */

@@ -23,7 +23,7 @@ supabase/functions/<name>/index.ts             thin Deno entry
 supabase/functions/_shared/                    pure TS, unit-tested by Vitest
 ```
 
-## Layer rules (scripts/guard/layers.ts)
+## Layer rules (scripts/guard/layers-rule.ts, scripts/guard/layers-classify.ts)
 
 | From                   | May import                                                                                   |
 | ---------------------- | -------------------------------------------------------------------------------------------- |

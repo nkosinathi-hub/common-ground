@@ -9,24 +9,36 @@ Edge Functions, Realtime). Title data from TMDB, streaming availability from Jus
 
 ## Quick start
 
+Needs [mise](https://mise.jdx.dev) (or node 24 and pnpm 10) and Podman or Docker.
+
 ```sh
-mise install                # node 24, pnpm 10
-pnpm install
-systemctl --user enable --now podman.socket   # or Docker
-pnpm exec supabase start
-cp .env.example .env.local  # then paste the local URL and publishable key from `supabase status`
-pnpm secrets:tmdb           # writes supabase/functions/.env from your TMDB key file
-pnpm dev
+mise install && pnpm install
+pnpm run setup   # checks tools, finds Podman/Docker, starts Supabase, migrates, seeds, fills .env
+pnpm dev         # http://127.0.0.1:5173, sign in as ana@demo.local / demo-password-ana
 ```
+
+`pnpm setup` is a pnpm built-in, so the script runs as `pnpm run setup`. Flags and the
+per-OS engine detection are in the [setup runbook](docs/runbooks/setup.md). Title search also
+needs TMDB credentials: `pnpm secrets:tmdb` ([secrets](docs/runbooks/secrets.md)).
 
 ## The one command
 
 `pnpm guard` runs everything a change must pass: format, file-length and layer rules, lint, type
 check, unit tests with coverage, database tests (pgTAP), build and a bundle secret scan.
-`pnpm guard:e2e` adds the Playwright suite.
+`pnpm guard:e2e` adds the Playwright suite (desktop, tablet and 360px phone; axe on every route).
+GitLab CI runs the same steps on every merge request.
 
 ## Docs
 
-- [Conventions](docs/CONVENTIONS.md): layers, file size, tests first, database rules
-- [Architecture decisions](docs/adr/)
-- [Runbooks](docs/runbooks/): setup, deployment, secrets, backups, rollback
+Start at the [documentation index](docs/00-index.md).
+
+- [Engineering standards](docs/standards.md): tests first, 100-line files, layers, commits
+- [Conventions](docs/CONVENTIONS.md): layout, layer table, database rules
+- [Security](docs/security.md): threat model, RLS isolation, secrets, POPIA
+- [Architecture decisions](docs/adr/0001-stack.md) (0001 to 0007)
+- [Runbooks](docs/00-index.md#documentation-index): setup, secrets, SMTP, TMDB terms, quotas,
+  backup, rollback
+
+## Licence
+
+[MIT](LICENSE)
