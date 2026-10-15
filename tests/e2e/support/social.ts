@@ -7,7 +7,9 @@ export async function recommend(page: Page, to: string, note: string): Promise<v
   await dialog.getByRole("checkbox", { name: to, exact: true }).check()
   await dialog.getByLabel("Note (optional)").fill(note)
   await dialog.getByRole("button", { name: "Send" }).click()
-  await expect(page.getByText(`Recommended to ${to}`)).toBeVisible()
+  // The dialog closes only once the send succeeds; an earlier toast may still be showing.
+  await expect(dialog).toBeHidden()
+  await expect(page.getByText(`Recommended to ${to}`).first()).toBeVisible()
 }
 
 /** Posts a plain comment in the thread on the current page. */
