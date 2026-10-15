@@ -1,17 +1,5 @@
--- Runs before this folder's tests and is not rolled back. Stand-ins are no-ops once the real tables exist.
--- Test-only stand-ins for tables owned by the watch and ideas branches. Never a migration.
-create table if not exists public.watch_items (
-  id uuid primary key default gen_random_uuid(),
-  space_id uuid not null references public.spaces (id) on delete cascade,
-  title text not null default 'x',
-  unique (space_id, id)
-);
-create table if not exists public.ideas (
-  id uuid primary key default gen_random_uuid(),
-  space_id uuid not null references public.spaces (id) on delete cascade,
-  title text not null default 'x',
-  unique (space_id, id)
-);
+-- Runs before this folder's tests and is not rolled back.
+-- Shared setup helpers for the collab tests.
 
 -- Shared setup: ana owns "Us" with ben and cat; eve owns "Other". One title and one idea each.
 create or replace function tests.collab_setup() returns void
@@ -27,7 +15,7 @@ begin
   insert into public.space_members (space_id, user_id, role) values
     (us, tests.user_id('ana'), 'owner'), (us, tests.user_id('ben'), 'member'),
     (us, tests.user_id('cat'), 'member'), (other, tests.user_id('eve'), 'owner');
-  insert into public.watch_items (space_id, title) values (us, 'Frieren'), (other, 'Dune');
+  insert into public.watch_items (space_id, title, media_type) values (us, 'Frieren', 'anime'), (other, 'Dune', 'movie');
   insert into public.ideas (space_id, title) values (us, 'Cafe'), (other, 'Bakery');
 end $$;
 

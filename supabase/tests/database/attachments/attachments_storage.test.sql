@@ -8,8 +8,8 @@ insert into public.spaces (id, name) values
 insert into public.space_members (space_id, user_id, role) values
   ('51000000-0000-4000-8000-000000000001', tests.user_id('ana'), 'owner'),
   ('52000000-0000-4000-8000-000000000002', tests.user_id('eve'), 'owner');
-insert into public.ideas (id, space_id) values
-  ('11000000-0000-4000-8000-000000000001', '51000000-0000-4000-8000-000000000001');
+insert into public.ideas (id, space_id, title) values
+  ('11000000-0000-4000-8000-000000000001', '51000000-0000-4000-8000-000000000001', 'Idea');
 insert into public.attachments
   (id, space_id, idea_id, uploader_id, filename, declared_mime, verified_mime, bytes, status, finalized_at)
 values

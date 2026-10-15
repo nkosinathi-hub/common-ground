@@ -4,8 +4,8 @@ select plan(4);
 
 select tests.create_user('ana');
 insert into public.spaces (id, name) values ('51000000-0000-4000-8000-000000000001', 'Ours');
-insert into public.ideas (id, space_id) values
-  ('11000000-0000-4000-8000-000000000001', '51000000-0000-4000-8000-000000000001');
+insert into public.ideas (id, space_id, title) values
+  ('11000000-0000-4000-8000-000000000001', '51000000-0000-4000-8000-000000000001', 'Idea');
 insert into public.attachments
   (id, space_id, idea_id, uploader_id, filename, declared_mime, verified_mime, bytes, status,
    created_at, finalized_at)

@@ -7,6 +7,7 @@ import svelteConfig from "./svelte.config.js"
 export default ts.config(
   {
     ignores: [
+      ".claude/**",
       "dist",
       "coverage",
       "src/lib/components/ui",

@@ -35,7 +35,11 @@
     {:else if route.name === "watch" || route.name === "watch-item"}
       <WatchSection {space} itemId={route.name === "watch-item" ? route.itemId : null} />
     {:else if route.name === "ideas" || route.name === "idea"}
-      <IdeasSection {space} {route} />
+      <IdeasSection
+        {space}
+        ideaId={route.name === "idea" ? route.ideaId : null}
+        tab={route.name === "idea" ? route.tab : "overview"}
+      />
     {:else if route.name === "settings"}
       <SettingsPage {space} me={session.user?.id ?? ""} />
     {/if}

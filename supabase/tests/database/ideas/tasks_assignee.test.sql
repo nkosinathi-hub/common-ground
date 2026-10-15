@@ -22,7 +22,7 @@ select tests.reset_role();
 select is((select count(*)::int from public.notifications where recipient_id = tests.user_id('ben')
   and deduplication_key = 'task_assigned:00000000-0000-0000-0000-00000000007a:' || tests.user_id('ben')),
   1, 'assignee notified exactly once');
-select is((select type from public.notifications limit 1), 'task_assigned', 'notification type');
+select is((select type from public.notifications where recipient_id = tests.user_id('ben') limit 1), 'task_assigned', 'notification type');
 
 select tests.act_as('ana');
 select throws_ok(
