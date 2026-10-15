@@ -3,12 +3,14 @@
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
   import type { AppError } from "@/shared/domain"
-  import type { EntryForm } from "../domain"
+  import { CATEGORY_MAX, LABEL_MAX, type EntryForm } from "../domain"
 
-  let {
-    currency,
-    onSubmit,
-  }: { currency: string; onSubmit: (form: EntryForm) => Promise<AppError | null> } = $props()
+  interface Props {
+    currency: string
+    onSubmit: (form: EntryForm) => Promise<AppError | null>
+  }
+
+  let { currency, onSubmit }: Props = $props()
   const blank = { category: "", label: "", estimated: "", actual: "" }
   let form = $state({ ...blank })
   let error = $state<AppError | null>(null)
@@ -29,14 +31,14 @@
   <Input
     aria-label="Category"
     placeholder="Category"
-    maxlength={80}
+    maxlength={CATEGORY_MAX}
     bind:value={form.category}
     aria-invalid={invalid("category")}
   />
   <Input
     aria-label="Item"
     placeholder="Item"
-    maxlength={200}
+    maxlength={LABEL_MAX}
     bind:value={form.label}
     aria-invalid={invalid("label")}
   />

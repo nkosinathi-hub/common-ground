@@ -2,7 +2,11 @@
   import { formatMoney } from "@/shared/domain"
   import type { Totals } from "../domain"
 
-  let { totals }: { totals: Totals } = $props()
+  interface Props {
+    totals: Totals
+  }
+
+  let { totals }: Props = $props()
   const cells = $derived([
     { label: "Estimated", value: totals.estimated, over: false },
     { label: "Actual", value: totals.actual, over: false },

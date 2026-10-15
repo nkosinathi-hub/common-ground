@@ -2,7 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import type { AppError } from "@/shared/domain"
-  import { entryFormOf, type BudgetEntry, type EntryForm } from "../domain"
+  import { entryFormOf, LABEL_MAX, type BudgetEntry, type EntryForm } from "../domain"
 
   interface Props {
     entry: BudgetEntry
@@ -29,7 +29,7 @@
   <td class="p-1">
     <Input
       aria-label="Item"
-      maxlength={200}
+      maxlength={LABEL_MAX}
       bind:value={form.label}
       aria-invalid={invalid("label")}
     />

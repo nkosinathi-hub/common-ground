@@ -1,30 +1,25 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
-  import { CURRENCIES } from "../domain"
+  import { currencyOptions } from "../domain"
   import { useBudget } from "./context"
 
-  let {
-    ideaId,
-    currency,
-    entryCount,
-    onChanged,
-  }: {
+  interface Props {
     ideaId: string
     currency: string
     entryCount: number
     onChanged: (currency: string) => void
-  } = $props()
-  const budget = useBudget()
+  }
+
+  let { ideaId, currency, entryCount, onChanged }: Props = $props()
+  const { service } = useBudget()
   let next = $state(untrack(() => currency))
   let confirmClear = $state(false)
   let error = $state<string | null>(null)
-  const options = $derived(
-    CURRENCIES.includes(currency as never) ? CURRENCIES : [currency, ...CURRENCIES],
-  )
+  const options = $derived(currencyOptions(currency))
 
   async function change() {
-    const result = await budget.changeCurrency(ideaId, next, confirmClear)
+    const result = await service.changeCurrency(ideaId, next, confirmClear)
     error = result.ok ? null : result.error.message
     if (!result.ok) return
     confirmClear = false

@@ -1,15 +1,22 @@
 import { getContext, setContext } from "svelte"
-import type { BudgetUseCases } from "../application/budget-use-cases"
+import type { BudgetService } from "../application/budget-service"
 
 const KEY = Symbol("budget")
 
-/** Called by src/app/composition.ts with use cases bound to real adapters. */
-export function provideBudget(useCases: BudgetUseCases): void {
-  setContext(KEY, useCases)
+export interface BudgetContext {
+  readonly service: BudgetService
 }
 
-export function useBudget(): BudgetUseCases {
-  const useCases = getContext<BudgetUseCases | undefined>(KEY)
-  if (!useCases) throw new Error("provideBudget was not called above this component")
-  return useCases
+/** Called once by the composition root (src/app/composition). */
+export function provideBudget(value: BudgetContext): void {
+  setContext(KEY, value)
 }
+
+export function useBudget(): BudgetContext {
+  const value = getContext<BudgetContext | undefined>(KEY)
+  if (!value) throw new Error("Budget is not provided: call provideBudget")
+  return value
+}
+
+/** The context map for render({ context }) in component tests. */
+export const budgetContext = (value: BudgetContext) => new Map([[KEY, value]])
