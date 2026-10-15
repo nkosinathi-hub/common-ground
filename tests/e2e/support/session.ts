@@ -1,4 +1,4 @@
-import { expect, type Browser, type Page } from "@playwright/test"
+import { expect, test, type Browser, type BrowserContextOptions, type Page } from "@playwright/test"
 import type { TestUser } from "./stack"
 
 export async function signIn(page: Page, user: TestUser): Promise<void> {
@@ -26,4 +26,18 @@ export async function secondMember(browser: Browser, user: TestUser): Promise<Pa
   const page = await context.newPage()
   await signIn(page, user)
   return page
+}
+
+/** A page in a new context that keeps the current project's device (viewport, touch, mobile). */
+export async function projectPage(browser: Browser, extra: BrowserContextOptions = {}) {
+  const { viewport, hasTouch, isMobile, userAgent, deviceScaleFactor } = test.info().project.use
+  const context = await browser.newContext({
+    viewport,
+    hasTouch,
+    isMobile,
+    userAgent,
+    deviceScaleFactor,
+    ...extra,
+  })
+  return context.newPage()
 }
