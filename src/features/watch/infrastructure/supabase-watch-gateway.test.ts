@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { DEFAULT_FILTERS } from "../domain/filters"
+import { stubDb, type Reply } from "../testing/stub-db"
 import { SupabaseWatchGateway } from "./supabase-watch-gateway"
-import { toWatchError } from "./watch-rows"
 
 const row = {
   id: "i1",
@@ -22,31 +22,16 @@ const row = {
   sort_key: "show",
 }
 
-/** Minimal stand-in for the Supabase client: records calls, answers with a fixed reply. */
-function stub(reply: { data: unknown; error: unknown }) {
-  const calls: unknown[][] = []
-  const chain: Record<string, unknown> = {}
-  for (const name of ["from", "select", "insert", "update", "delete", "eq", "order", "limit"])
-    chain[name] = (...args: unknown[]) => (calls.push([name, ...args]), chain)
-  chain.then = (resolve: (v: unknown) => void) => resolve(reply)
-  const db = {
-    ...chain,
-    rpc: async (...args: unknown[]) => (calls.push(["rpc", ...args]), reply),
-    auth: { getUser: async () => ({ data: { user: { id: "u1" } } }) },
-  }
-  return { db: db as unknown as Db, calls }
+const gatewayFor = (replies: Reply[], userId?: string | null) => {
+  const { db, calls } = stubDb(replies, userId)
+  return { gateway: new SupabaseWatchGateway(db as Db), calls }
 }
 
 describe("SupabaseWatchGateway", () => {
   it("lists through the RPC and builds the keyset cursor from sort_key", async () => {
-    const { db, calls } = stub({ data: [row], error: null })
+    const { gateway, calls } = gatewayFor([{ data: [row], error: null }])
     const filters = { ...DEFAULT_FILTERS, sort: "title" as const, search: "sh" }
-    const page = await new SupabaseWatchGateway(db).list({
-      spaceId: "s1",
-      filters,
-      cursor: null,
-      size: 1,
-    })
+    const page = await gateway.list({ spaceId: "s1", filters, cursor: null, size: 1 })
     expect(calls[0]).toEqual([
       "rpc",
       "list_watch_items",
@@ -61,18 +46,51 @@ describe("SupabaseWatchGateway", () => {
     })
   })
 
-  it("reads a delete that RLS filtered out as not allowed", async () => {
-    const { db } = stub({ data: [], error: null })
-    const removed = await new SupabaseWatchGateway(db).remove("i1")
-    expect(removed).toMatchObject({ ok: false, error: { kind: "denied" } })
+  it("lets the author delete, and reads their own progress status", async () => {
+    const { gateway } = gatewayFor([
+      { data: [row], error: null },
+      { data: false, error: null },
+      { data: [{ status: "completed" }], error: null },
+    ])
+    expect(await gateway.get("s1", "i1")).toMatchObject({
+      ok: true,
+      value: { item: { id: "i1", myStatus: "completed" }, canDelete: true },
+    })
   })
 
-  it("maps both duplicate signals to one friendly conflict", () => {
-    expect(toWatchError({ code: "23505", message: "dup key" })).toEqual({
-      kind: "conflict",
-      message: "Already on your list",
+  it("never queries with an empty user id when signed out", async () => {
+    const { gateway, calls } = gatewayFor([], null)
+    expect(await gateway.get("s1", "i1")).toMatchObject({ error: { kind: "unauthenticated" } })
+    expect(await gateway.progress("i1")).toMatchObject({ error: { kind: "unauthenticated" } })
+    expect(calls).toEqual([])
+  })
+
+  it("reads a delete that RLS filtered out as not allowed", async () => {
+    const { gateway } = gatewayFor([{ data: [], error: null }])
+    expect(await gateway.remove("i1")).toMatchObject({ ok: false, error: { kind: "denied" } })
+  })
+
+  it("reads an update that touched no row as gone", async () => {
+    const { gateway } = gatewayFor([{ data: [], error: null }])
+    expect(await gateway.setIntent("i1", "archived")).toMatchObject({
+      error: { kind: "not_found" },
     })
-    expect(toWatchError({ code: "P0001", message: "Already on your list" }).kind).toBe("conflict")
-    expect(toWatchError({ code: "42501" }).kind).toBe("denied")
+  })
+
+  it("passes null for a catalog pick without a year or poster", async () => {
+    const { gateway, calls } = gatewayFor([{ data: "new-id", error: null }])
+    const pick = {
+      catalog: { type: "movie" as const, id: 1 },
+      title: "Dune",
+      mediaType: "movie" as const,
+      releaseYear: null,
+      synopsis: "",
+      posterPath: null,
+    }
+    expect(await gateway.addCatalog("s1", pick, "want_to_watch")).toEqual({
+      ok: true,
+      value: "new-id",
+    })
+    expect(calls[0]?.[2]).toMatchObject({ release_year: null, poster_path: null })
   })
 })
