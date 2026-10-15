@@ -34,9 +34,7 @@ test("Load more pages through 150 titles with no duplicates or gaps", async ({ p
     await more.click()
     await expect(cards).toHaveCount(shown)
   }
-  // A full last page cannot know it is the last (pageOf in watch/domain/filters.ts), so one
-  // more click comes back empty and only then hides the button.
-  await more.click()
+  // The last full page already knows it is the last, so the button goes without an empty click.
   await expect(more).toBeHidden()
   await expect(cards).toHaveCount(TOTAL)
 

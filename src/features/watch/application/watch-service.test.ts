@@ -26,7 +26,7 @@ describe("WatchService", () => {
     }
     expect(seen).toHaveLength(150)
     expect(new Set(seen).size).toBe(150)
-    expect(gateway.lists).toHaveLength(4)
+    expect(gateway.lists).toHaveLength(3)
     expect(gateway.lists[0]?.size).toBe(50)
   })
 

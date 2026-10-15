@@ -51,13 +51,13 @@ describe("watch filters", () => {
     expect(isAfter(frieren, recentCursor, "recent")).toBe(false)
   })
 
-  it("builds a page whose cursor is the last row of a full page", () => {
+  it("offers a next page only when the gateway fetched a row beyond the page", () => {
     const rows = [
       { item: dune, sortKey: "k1" },
       { item: frieren, sortKey: "k2" },
     ]
-    expect(pageOf(rows, 2)).toEqual({ items: [dune, frieren], next: { key: "k2", id: frieren.id } })
-    expect(pageOf(rows, 3).next).toBeNull()
+    expect(pageOf(rows, 1)).toEqual({ items: [dune], next: { key: "k1", id: dune.id } })
+    expect(pageOf(rows, 2)).toEqual({ items: [dune, frieren], next: null })
     expect(pageOf([], 2)).toEqual({ items: [], next: null })
   })
 })

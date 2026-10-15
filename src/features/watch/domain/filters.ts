@@ -57,10 +57,12 @@ export function isAfter(item: WatchItem, cursor: WatchCursor, sort: WatchSort): 
   return order * direction > 0
 }
 
+/** The gateway fetches size + 1 rows; the extra row only proves another page exists. */
 export function pageOf(rows: readonly KeyedRow[], size = PAGE_SIZE): WatchPage {
-  const last = rows.at(-1)
+  const page = rows.slice(0, size)
+  const last = page.at(-1)
   return {
-    items: rows.map((row) => row.item),
-    next: rows.length >= size && last ? { key: last.sortKey, id: last.item.id } : null,
+    items: page.map((row) => row.item),
+    next: rows.length > size && last ? { key: last.sortKey, id: last.item.id } : null,
   }
 }

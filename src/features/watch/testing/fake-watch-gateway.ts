@@ -30,7 +30,7 @@ export class FakeWatchGateway implements WatchGateway {
         .filter((i) => i.spaceId === request.spaceId && matches(i, filters))
         .sort(compareFor(filters.sort))
         .filter((i) => !cursor || isAfter(i, cursor, filters.sort))
-        .slice(0, size)
+        .slice(0, size + 1)
       return ok(
         pageOf(
           rows.map((i) => ({ item: i, sortKey: sortKeyOf(i, filters.sort) })),

@@ -43,8 +43,7 @@ describe("WatchPage", () => {
       await fireEvent.click(screen.getByRole("button", { name: "Load more" }))
       await waitFor(() => expect(cards()).toHaveLength(expected))
     }
-    await fireEvent.click(screen.getByRole("button", { name: "Load more" }))
-    await waitFor(() => expect(screen.queryByRole("button", { name: "Load more" })).toBeNull())
+    expect(screen.queryByRole("button", { name: "Load more" })).toBeNull()
   })
 
   it("shows a no-match state for filters and clears them", async () => {

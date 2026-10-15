@@ -29,13 +29,14 @@ const gatewayFor = (replies: Reply[], userId?: string | null) => {
 
 describe("SupabaseWatchGateway", () => {
   it("lists through the RPC and builds the keyset cursor from sort_key", async () => {
-    const { gateway, calls } = gatewayFor([{ data: [row], error: null }])
+    const extra = { ...row, id: "i2", sort_key: "show 2" }
+    const { gateway, calls } = gatewayFor([{ data: [row, extra], error: null }])
     const filters = { ...DEFAULT_FILTERS, sort: "title" as const, search: "sh" }
     const page = await gateway.list({ spaceId: "s1", filters, cursor: null, size: 1 })
     expect(calls[0]).toEqual([
       "rpc",
       "list_watch_items",
-      expect.objectContaining({ target_space: "s1", sort_by: "title", search: "sh", page_size: 1 }),
+      expect.objectContaining({ target_space: "s1", sort_by: "title", search: "sh", page_size: 2 }),
     ])
     expect(page).toMatchObject({
       ok: true,

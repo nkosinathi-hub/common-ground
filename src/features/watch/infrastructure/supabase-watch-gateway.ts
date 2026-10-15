@@ -19,7 +19,8 @@ async function updated(query: PromiseLike<QueryReply<{ id: string }[]>>): Promis
 /** Watchlist adapter. Visibility and permissions are enforced by RLS and the watch RPCs. */
 export class SupabaseWatchGateway extends SupabaseWatchProgress implements WatchGateway {
   list(request: ListRequest): Promise<Result<T.WatchPage>> {
-    return settle(this.db.rpc("list_watch_items", listArgs(request)), (rows) => {
+    const probe = { ...request, size: request.size + 1 }
+    return settle(this.db.rpc("list_watch_items", listArgs(probe)), (rows) => {
       const keyed = rows.map((row) => ({ item: toItem(row), sortKey: row.sort_key ?? "" }))
       return pageOf(keyed, request.size)
     })
