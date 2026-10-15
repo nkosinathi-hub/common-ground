@@ -14,8 +14,10 @@ src/app/composition/        the only place adapters are built and provided as co
   ideas.ts                  ideas, research, tasks, budget
   collaboration.ts          comments, recommendations, attachments
 src/shared/domain/          Result, Money, DateOnly, ids, errors (pure)
-src/shared/infrastructure/  Supabase client, generated database types
+src/shared/infrastructure/  Supabase client, generated database types, query and paging helpers
+src/shared/infrastructure/testing/  recordingClient: the one fake Supabase client for adapter tests
 src/shared/ui/              cross-feature Svelte primitives (states, layout)
+src/shared/ui/testing/      Provided.svelte: renders a component inside its provided contexts
 src/lib/components/ui/      shadcn-svelte generated components
 src/features/<name>/
   domain/          pure types and rules; imports shared/domain and own domain only
