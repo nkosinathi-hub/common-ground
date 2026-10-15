@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 import { createSpace, secondMember, signIn } from "../support/session"
-import { createUser } from "../support/stack"
+import { createUser, requireStack } from "../support/stack"
+
+requireStack()
 
 test("owner invites a member who joins once; strangers see nothing", async ({ page, browser }) => {
   test.setTimeout(180_000)
@@ -30,10 +32,14 @@ test("owner invites a member who joins once; strangers see nothing", async ({ pa
   await expect(evePage.getByRole("heading", { name: "This page is not available" })).toBeVisible()
 
   await page.reload()
+  // hasText is a case-insensitive substring: "ben" also matches the "Ana and Ben" space in the
+  // switcher. Only member rows carry a Remove button, so require one.
+  const remove = page.getByRole("button", { name: "Remove", exact: true })
   await page
     .getByRole("listitem")
     .filter({ hasText: "ben" })
-    .getByRole("button", { name: "Remove" })
+    .filter({ has: remove })
+    .getByRole("button", { name: "Remove", exact: true })
     .click()
   await page.getByRole("alertdialog").getByRole("button", { name: "Remove" }).click()
   await expect(page.getByText("ben was removed")).toBeVisible()

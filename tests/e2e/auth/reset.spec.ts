@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test"
 import { latestLink } from "../support/mailpit"
-import { createUser } from "../support/stack"
+import { createUser, requireStack } from "../support/stack"
+
+requireStack()
 
 test("reset a forgotten password through the emailed link", async ({ page }) => {
   const user = await createUser("forgetful")

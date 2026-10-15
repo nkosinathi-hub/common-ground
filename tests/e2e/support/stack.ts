@@ -1,19 +1,39 @@
+import { test } from "@playwright/test"
 import { createClient } from "@supabase/supabase-js"
 import { execSync } from "node:child_process"
+import { parseStatusEnv } from "../../../scripts/setup/supabase"
+import { dockerHost } from "../../../scripts/setup/system"
 
 let cached: Record<string, string> | null = null
 
+function status(): Record<string, string> {
+  const host = dockerHost()
+  const env = { ...process.env, ...(host ? { DOCKER_HOST: host } : {}) }
+  const out = execSync("pnpm -s exec supabase status -o env", {
+    encoding: "utf8",
+    env,
+    stdio: "pipe",
+  })
+  return parseStatusEnv(out)
+}
+
 /** Local stack values from `supabase status`. Local keys only; never production. */
 export function stack(): Record<string, string> {
-  if (cached) return cached
-  const out = execSync("pnpm -s exec supabase status -o env", { encoding: "utf8" })
-  cached = Object.fromEntries(
-    out.split("\n").flatMap((line) => {
-      const m = /^([A-Z_]+)="?([^"]*)"?$/.exec(line.trim())
-      return m ? [[m[1]!, m[2]!]] : []
-    }),
-  )
+  cached ??= status()
   return cached
+}
+
+export function stackRunning(): boolean {
+  try {
+    return Boolean(stack().API_URL)
+  } catch {
+    return false
+  }
+}
+
+/** Call at the top of a spec file whose tests need the local Supabase stack. */
+export function requireStack(): void {
+  test.skip(!stackRunning(), "local Supabase stack is not running; start it with `pnpm run setup`")
 }
 
 export const admin = () =>
