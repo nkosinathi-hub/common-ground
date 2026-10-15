@@ -1,3 +1,4 @@
+import { untrack } from "svelte"
 import type { AppError } from "@/shared/domain"
 import type { SpacesService } from "../application/spaces-service"
 import type { Space } from "../domain/space"
@@ -12,7 +13,7 @@ export class SpacesStore {
   constructor(private readonly service: SpacesService) {}
 
   async refresh(): Promise<void> {
-    this.status = this.status === "ready" ? "ready" : "loading"
+    untrack(() => (this.status = this.status === "ready" ? "ready" : "loading"))
     const loaded = await this.service.load()
     if (!loaded.ok) {
       this.status = "error"
@@ -26,13 +27,16 @@ export class SpacesStore {
 
   /** Route says which space; only accept it if the user is a member. */
   activate(spaceId: string): boolean {
-    const found = this.spaces.find((s) => s.id === spaceId) ?? null
-    if (found && found.id !== this.active?.id) this.service.select(found.id)
-    this.active = found
-    return found !== null
+    return untrack(() => {
+      const found = this.spaces.find((s) => s.id === spaceId) ?? null
+      if (found && found.id !== this.active?.id) this.service.select(found.id)
+      if (found?.id !== this.active?.id) this.active = found
+      return found !== null
+    })
   }
 
   clear() {
+    if (untrack(() => this.status === "idle")) return
     this.spaces = []
     this.active = null
     this.status = "idle"

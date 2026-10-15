@@ -1,3 +1,4 @@
+import { untrack } from "svelte"
 import type { AppError, Result } from "@/shared/domain"
 
 export type ResourceState<T> =
@@ -15,9 +16,12 @@ export class Resource<T> {
   }
 
   async load(): Promise<void> {
-    const mine = ++this.generation
-    if (this.state.status !== "ready") this.state = { status: "loading" }
-    const result = await this.loader()
+    // Untracked: callers run this inside $effect, which must not depend on our own state.
+    const mine = untrack(() => {
+      if (this.state.status !== "ready") this.state = { status: "loading" }
+      return ++this.generation
+    })
+    const result = await untrack(() => this.loader())
     if (mine !== this.generation) return
     this.state = result.ok
       ? { status: "ready", value: result.value }
@@ -25,7 +29,7 @@ export class Resource<T> {
   }
 
   retry = () => {
-    this.state = { status: "loading" }
+    untrack(() => (this.state = { status: "loading" }))
     return this.load()
   }
 

@@ -1,3 +1,4 @@
+import { untrack } from "svelte"
 import type { AppError } from "@/shared/domain"
 import type { NotificationsGateway } from "../application/ports"
 import { isoNow, unreadCount, type Notification } from "../domain/notification"
@@ -24,7 +25,7 @@ export class NotificationsStore {
     this.stop = this.gateway.subscribe(refresh)
     target.addEventListener("focus", refresh)
     target.addEventListener("online", refresh)
-    void this.refresh()
+    untrack(() => void this.refresh())
     return () => {
       this.stop?.()
       target.removeEventListener("focus", refresh)
