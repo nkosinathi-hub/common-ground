@@ -17,10 +17,10 @@
 
 {#if !item.catalog || item.availabilityNote}
   <section class="rounded-xl bg-muted/50 p-4" aria-label="Availability note">
-    <h3 class="mb-2 flex items-center gap-2 text-sm font-medium">
+    <h2 class="mb-2 flex items-center gap-2 text-sm font-medium">
       <Compass class="size-4" aria-hidden="true" />
       {item.catalog ? "Your availability note" : "Where to watch"}
-    </h3>
+    </h2>
     <p class="text-sm text-muted-foreground">
       {item.availabilityNote ?? "No availability note added."}
     </p>

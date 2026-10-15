@@ -38,20 +38,7 @@ const ROUTES: Record<string, (f: Fixture) => string> = {
 
 // Known defects owned outside this suite, keyed "<project>:<route>" or "*:<route>"; see
 // routes.spec.ts for the rule. Remove an entry when its fix lands.
-const NO_IDEA_H1 =
-  "idea pages have no h1: the title is only an input (src/features/ideas/ui/IdeaHeader.svelte:21)"
-const KNOWN: Record<string, string> = {
-  "*:watch item":
-    "manual title's 'Where to watch' h3 follows the h1 (src/features/watch/ui/ItemAvailability.svelte:20)",
-  ...Object.fromEntries(
-    ["overview", "research", "tasks", "milestones", "discussion"].map((t) => [
-      `*:idea ${t}`,
-      NO_IDEA_H1,
-    ]),
-  ),
-  "*:not found":
-    "NotFound has no h1: its only heading is EmptyState's h2 (src/app/pages/NotFound.svelte:8, src/shared/ui/EmptyState.svelte:20)",
-}
+const KNOWN: Record<string, string> = {}
 
 let page: Page
 let fixture: Fixture
@@ -79,10 +66,6 @@ for (const [name, path] of Object.entries(ROUTES)) {
 }
 
 test("a success toast has enough contrast @a11y", async () => {
-  test.fail(
-    true,
-    "richColors success toast is #008a2e on #ecfdf3, contrast 4.25 (src/app/App.svelte:53)",
-  )
   await addTitle(page, fixture.space, "Toast title")
   await expect(page.getByText("Toast title is on your list")).toBeVisible()
   await page.waitForFunction(() => document.getAnimations().length === 0)

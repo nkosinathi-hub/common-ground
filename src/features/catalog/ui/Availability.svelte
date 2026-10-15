@@ -41,10 +41,10 @@
 
 <section class="space-y-4 rounded-xl border bg-card p-4" aria-label="Where to watch">
   <header class="flex items-center justify-between gap-2">
-    <h3 class="flex items-center gap-2 text-sm font-medium">
+    <h2 class="flex items-center gap-2 text-sm font-medium">
       <Compass class="size-4" aria-hidden="true" />
       Where to watch
-    </h3>
+    </h2>
     <Badge variant="secondary">South Africa</Badge>
   </header>
 

@@ -6,6 +6,7 @@
 <main class="mx-auto max-w-lg px-4 py-16">
   <EmptyState
     illustration
+    level={1}
     title="This page is not available"
     description="It may have been removed, or it belongs to a space you are not part of."
   >

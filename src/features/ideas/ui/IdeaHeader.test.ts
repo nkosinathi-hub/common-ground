@@ -25,6 +25,13 @@ async function confirmDelete() {
 
 afterEach(cleanup)
 
+describe("IdeaHeader heading", () => {
+  it("names the page with the idea title for screen readers", async () => {
+    await setup()
+    expect(screen.getByRole("heading", { level: 1, name: "Tea bar" })).toBeInTheDocument()
+  })
+})
+
 describe("IdeaHeader delete", () => {
   it("deletes the idea after confirming and hands control back", async () => {
     const { repo, idea, onDeleted } = await setup()

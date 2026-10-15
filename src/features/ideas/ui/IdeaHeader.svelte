@@ -31,6 +31,7 @@
 </script>
 
 <header class="flex flex-col gap-2">
+  <h1 class="sr-only">{idea.title}</h1>
   <div class="flex items-center gap-2">
     <label class="sr-only" for="idea-title">Title</label>
     <Input

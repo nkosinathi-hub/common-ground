@@ -7,12 +7,15 @@
     title,
     description,
     illustration = false,
+    level = 2,
     children,
   }: {
     icon?: Component
     title: string
     description?: string
     illustration?: boolean
+    /** Use 1 when the empty state is the whole page, e.g. not-found. */
+    level?: 1 | 2
     children?: Snippet
   } = $props()
 </script>
@@ -27,7 +30,7 @@
       <Icon class="size-6" aria-hidden="true" />
     </div>
   {/if}
-  <h2 class="text-lg font-semibold">{title}</h2>
+  <svelte:element this={`h${level}`} class="text-lg font-semibold">{title}</svelte:element>
   {#if description}<p class="max-w-sm text-sm text-muted-foreground">{description}</p>{/if}
   {#if children}<div class="mt-2 flex flex-wrap justify-center gap-2">
       {@render children()}
