@@ -36,7 +36,7 @@ supabase/functions/_shared/                    pure TS, unit-tested by Vitest
 | app                    | anything                                                                                     |
 
 `@supabase/supabase-js` is imported only from `shared/infrastructure` and feature `infrastructure`.
-UI receives use cases through Svelte context set in `src/app/composition.ts`, never by importing an adapter.
+UI receives use cases through Svelte context set in `src/app/composition/` (one module per area), never by importing an adapter.
 
 ## Size and style
 
