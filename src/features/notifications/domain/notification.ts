@@ -39,7 +39,7 @@ const ACTIVITY: Record<string, string> = {
   space_created: "created the space",
   member_joined: "joined",
   member_left: "left",
-  title_added: "added a title",
+  watch_item_added: "added a title",
   watched_together: "logged a watch together",
   idea_created: "captured an idea",
   idea_stage_changed: "moved an idea",
