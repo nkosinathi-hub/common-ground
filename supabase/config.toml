@@ -386,6 +386,12 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# The scheduled cleanup calls attachments with only its secret (.gitlab/ci/deploy.yml), so the
+# gateway must not demand a JWT. The handler verifies the caller JWT for every user action and
+# the cleanup secret for cleanup (supabase/functions/_shared/attachments/handler.ts).
+[functions.attachments]
+verify_jwt = false
+
 [analytics]
 enabled = false
 port = 54327
