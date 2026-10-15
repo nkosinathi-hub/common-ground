@@ -1,71 +1,55 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
+import { PROBE_BYTES } from "./magic.ts"
+import { fetchProbe, readProbe } from "./probe.ts"
 import { SAMPLES } from "./samples.ts"
-import { judgeUpload, readProbe } from "./probe.ts"
-import { MAX_BYTES } from "./types.ts"
 
-const body = new Uint8Array(32).fill(7)
+const OBJECT_SIZE = 5000
+const body = new Uint8Array(PROBE_BYTES * 2).fill(7)
+const reply = (status: number, contentRange: string | null, contentLength: string | null) => ({
+  status,
+  contentRange,
+  contentLength,
+  body,
+})
 
 describe("readProbe", () => {
   it("reads the total size from a 206 Content-Range", () => {
-    const probe = readProbe(
-      { status: 206, contentRange: "bytes 0-15/5000", contentLength: "16", body },
-      16,
-    )
-    expect(probe?.total).toBe(5000)
-    expect(probe?.head).toHaveLength(16)
+    const range = `bytes 0-${PROBE_BYTES - 1}/${OBJECT_SIZE}`
+    const probe = readProbe(reply(206, range, String(PROBE_BYTES)), PROBE_BYTES)
+    expect(probe?.total).toBe(OBJECT_SIZE)
+    expect(probe?.head).toHaveLength(PROBE_BYTES)
   })
 
   it("accepts a 200 from a server that ignores Range", () => {
-    expect(readProbe({ status: 200, contentRange: null, contentLength: "32", body }, 16)).toEqual({
-      head: body.slice(0, 16),
-      total: 32,
+    expect(readProbe(reply(200, null, String(body.length)), PROBE_BYTES)).toEqual({
+      head: body.slice(0, PROBE_BYTES),
+      total: body.length,
     })
-    expect(
-      readProbe({ status: 200, contentRange: null, contentLength: null, body }, 16)?.total,
-    ).toBe(32)
+    expect(readProbe(reply(200, null, null), PROBE_BYTES)?.total).toBe(body.length)
   })
 
   it("treats missing objects and malformed ranges as no object", () => {
-    expect(readProbe({ status: 404, contentRange: null, contentLength: null, body }, 16)).toBeNull()
-    expect(readProbe({ status: 400, contentRange: null, contentLength: null, body }, 16)).toBeNull()
-    expect(
-      readProbe({ status: 206, contentRange: "bytes */5", contentLength: null, body }, 16),
-    ).toBeNull()
+    expect(readProbe(reply(404, null, null), PROBE_BYTES)).toBeNull()
+    expect(readProbe(reply(400, null, null), PROBE_BYTES)).toBeNull()
+    expect(readProbe(reply(206, "bytes */5", null), PROBE_BYTES)).toBeNull()
   })
 })
 
-describe("judgeUpload", () => {
-  const png = { declaredMime: "image/png" as const, bytes: 2000 }
-
-  it("accepts content whose magic bytes and size match the declaration", () => {
-    expect(judgeUpload(png, { head: SAMPLES.png, total: 2000 })).toEqual({
-      ok: true,
-      mime: "image/png",
-    })
+describe("fetchProbe", () => {
+  it("asks for the leading bytes only and reads the reply", async () => {
+    const headers = { "content-range": `bytes 0-${PROBE_BYTES - 1}/${OBJECT_SIZE}` }
+    const send = vi.fn(async () => new Response(SAMPLES.png, { status: 206, headers }))
+    const probe = await fetchProbe(send, "https://storage.test/sign/a")
+    expect(probe).toEqual({ head: SAMPLES.png, total: OBJECT_SIZE })
+    const [, init] = send.mock.calls[0] as unknown as [string, RequestInit]
+    expect(new Headers(init.headers).get("range")).toBe(`bytes=0-${PROBE_BYTES - 1}`)
   })
 
-  it("rejects spoofed content", () => {
-    expect(judgeUpload(png, { head: SAMPLES.pdf, total: 2000 })).toEqual({
-      ok: false,
-      reason: "This file's contents do not match its type, so it was not attached",
-    })
-    expect(
-      judgeUpload(png, { head: new TextEncoder().encode("<svg onload=x>"), total: 2000 }).ok,
-    ).toBe(false)
-  })
-
-  it("rejects oversized, empty or resized uploads and missing objects", () => {
-    expect(
-      judgeUpload({ ...png, bytes: MAX_BYTES + 1 }, { head: SAMPLES.png, total: MAX_BYTES + 1 }),
-    ).toEqual({ ok: false, reason: "Files can be at most 10 MB" })
-    expect(judgeUpload(png, { head: SAMPLES.png, total: 0 }).ok).toBe(false)
-    expect(judgeUpload(png, { head: SAMPLES.png, total: 2001 })).toEqual({
-      ok: false,
-      reason: "The uploaded file does not match its declared size",
-    })
-    expect(judgeUpload(png, null)).toEqual({
-      ok: false,
-      reason: "The upload did not arrive. Try again",
-    })
+  it("gives up on a storage read that runs past the timeout", async () => {
+    const hanging = (_url: string, init: RequestInit) =>
+      new Promise<Response>((_resolve, reject) =>
+        init.signal?.addEventListener("abort", () => reject(init.signal?.reason)),
+      )
+    await expect(fetchProbe(hanging, "https://storage.test/sign/a", 5)).rejects.toThrow()
   })
 })

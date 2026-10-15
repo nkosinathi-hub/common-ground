@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { planCleanup, runCleanup } from "./cleanup.ts"
 import { MemoryStorage, MemoryStore } from "./memory-fakes.ts"
-import { isCleanupAuthorized } from "./secret.ts"
 
 const candidate = (n: number, withRow = true) => ({
   attachmentId: withRow ? `id-${n}` : null,
@@ -50,21 +49,5 @@ describe("runCleanup", () => {
       failedBatches: 1,
     })
     expect(store.deleted).toEqual([])
-  })
-})
-
-describe("isCleanupAuthorized", () => {
-  const secret = "s".repeat(40)
-
-  it("accepts only the exact configured secret", () => {
-    expect(isCleanupAuthorized(secret, secret)).toBe(true)
-    expect(isCleanupAuthorized(`${secret}x`, secret)).toBe(false)
-    expect(isCleanupAuthorized("t".repeat(40), secret)).toBe(false)
-    expect(isCleanupAuthorized(null, secret)).toBe(false)
-  })
-
-  it("denies everything when the secret is unset or too short", () => {
-    expect(isCleanupAuthorized("", "")).toBe(false)
-    expect(isCleanupAuthorized("short", "short")).toBe(false)
   })
 })

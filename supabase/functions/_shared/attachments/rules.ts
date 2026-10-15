@@ -8,7 +8,7 @@ export interface UploadIntent {
   readonly bytes: number
 }
 
-export interface ValidUpload {
+interface ValidUpload {
   readonly filename: string
   readonly mime: AttachmentMime
   readonly bytes: number

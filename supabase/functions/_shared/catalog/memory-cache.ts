@@ -1,4 +1,4 @@
-import type { CacheEntry, CacheStore } from "./cache.ts"
+import type { CacheEntry, CacheStore, CacheWrite } from "./cache.ts"
 
 /** In-memory CacheStore for tests and local experiments. */
 export class MemoryCache implements CacheStore {
@@ -8,7 +8,7 @@ export class MemoryCache implements CacheStore {
     return this.entries.get(key) ?? null
   }
 
-  async put(key: string, response: unknown, fetchedAt: Date, expiresAt: Date) {
+  async put({ key, response, fetchedAt, expiresAt }: CacheWrite) {
     this.entries.set(key, {
       response,
       fetchedAt: fetchedAt.toISOString(),

@@ -1,18 +1,6 @@
+import type { RateLimit } from "../http/gate.ts"
 import type { Probe } from "./probe.ts"
 import type { AttachmentMime, AttachmentRow } from "./types.ts"
-
-export const RATE_LIMIT = { bucket: "attachments_start", max: 20, windowSeconds: 3600 } as const
-export const DOWNLOAD_SECONDS = 60
-
-/** Caller checks; the Edge Function entry implements them with Supabase. */
-export interface AttachmentsGate {
-  /** Verifies the caller JWT and returns its user id, or null. */
-  userFor(token: string): Promise<string | null>
-  /** public.is_space_member called as the caller. */
-  isMember(token: string, spaceId: string): Promise<boolean>
-  /** Consumes one upload start from the caller's rate-limit bucket. */
-  consume(userId: string): Promise<boolean>
-}
 
 export interface PendingUpload {
   readonly spaceId: string
@@ -48,3 +36,15 @@ export interface ObjectStorage {
   signedUrl(path: string, seconds: number, downloadAs?: string): Promise<string>
   remove(paths: readonly string[]): Promise<void>
 }
+
+export const DOWNLOAD_SECONDS = 60
+
+/**
+ * One bucket per action. Starts are the expensive part (storage and a pending row); finalize
+ * reads object bytes; downloads sign URLs, one per preview, so they get a larger, shorter window.
+ */
+export const RATE_LIMITS = {
+  start: { bucket: "attachments_start", max: 20, windowSeconds: 3600 },
+  finalize: { bucket: "attachments_finalize", max: 40, windowSeconds: 3600 },
+  download: { bucket: "attachments_download", max: 120, windowSeconds: 60 },
+} as const satisfies Record<string, RateLimit>

@@ -12,10 +12,18 @@ export interface CacheEntry {
   readonly expiresAt: string
 }
 
+/** A fresh TMDB answer to keep until it expires. */
+export interface CacheWrite {
+  readonly key: string
+  readonly response: unknown
+  readonly fetchedAt: Date
+  readonly expiresAt: Date
+}
+
 /** Storage port for the cache; the Edge Function implements it with the service-role client. */
 export interface CacheStore {
   get(key: string): Promise<CacheEntry | null>
-  put(key: string, response: unknown, fetchedAt: Date, expiresAt: Date): Promise<void>
+  put(write: CacheWrite): Promise<void>
   expire(key: string, at: Date): Promise<void>
 }
 

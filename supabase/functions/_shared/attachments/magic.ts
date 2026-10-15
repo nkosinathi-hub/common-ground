@@ -1,11 +1,11 @@
 import type { AttachmentMime } from "./types.ts"
 
+type Signature = { readonly offset: number; readonly bytes: readonly number[] }
+
 /** Bytes to read from the start of an object: enough for every signature below. */
 export const PROBE_BYTES = 16
 
 const ascii = (text: string): number[] => [...text].map((c) => c.charCodeAt(0))
-
-type Signature = { readonly offset: number; readonly bytes: readonly number[] }
 
 const SIGNATURES: Record<AttachmentMime, readonly Signature[]> = {
   "image/jpeg": [{ offset: 0, bytes: [0xff, 0xd8, 0xff] }],

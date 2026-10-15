@@ -1,4 +1,4 @@
-import { sniffMime } from "./magic.ts"
+import { PROBE_BYTES, sniffMime } from "./magic.ts"
 import { checkSize } from "./rules.ts"
 import type { AttachmentMime, AttachmentRow } from "./types.ts"
 
@@ -8,12 +8,19 @@ export interface Probe {
   readonly total: number
 }
 
-export interface RangeReply {
+interface RangeReply {
   readonly status: number
   readonly contentRange: string | null
   readonly contentLength: string | null
   readonly body: Uint8Array
 }
+
+type Verdict = { ok: true; mime: AttachmentMime } | { ok: false; reason: string }
+
+type Fetch = (url: string, init: RequestInit) => Promise<Response>
+
+/** Storage answers a ranged read quickly; a slow one fails finalize with 503 and can be retried. */
+const PROBE_TIMEOUT_MS = 10_000
 
 /**
  * Reads a reply to `Range: bytes=0-N`. A 206 carries the size in Content-Range; a server
@@ -32,13 +39,26 @@ export function readProbe(reply: RangeReply, probeBytes: number): Probe | null {
   return null
 }
 
-export type Verdict = { ok: true; mime: AttachmentMime } | { ok: false; reason: string }
+/** Fetches the leading bytes of a signed object URL, giving up after the timeout. */
+export async function fetchProbe(send: Fetch, url: string, timeoutMs = PROBE_TIMEOUT_MS) {
+  const response = await send(url, {
+    headers: { Range: `bytes=0-${PROBE_BYTES - 1}` },
+    signal: AbortSignal.timeout(timeoutMs),
+  })
+  const reply = {
+    status: response.status,
+    contentRange: response.headers.get("content-range"),
+    contentLength: response.headers.get("content-length"),
+    body: new Uint8Array(await response.arrayBuffer()),
+  }
+  return readProbe(reply, PROBE_BYTES)
+}
 
 /** Decides whether an upload is what it was declared to be. */
 export function judgeUpload(
   row: Pick<AttachmentRow, "declaredMime" | "bytes">,
   probe: Probe | null,
-) {
+): Verdict {
   const verdict = (reason: string): Verdict => ({ ok: false, reason })
   if (!probe) return verdict("The upload did not arrive. Try again")
   const size = checkSize(probe.total)
@@ -48,5 +68,5 @@ export function judgeUpload(
   const sniffed = sniffMime(probe.head)
   if (sniffed !== row.declaredMime)
     return verdict("This file's contents do not match its type, so it was not attached")
-  return { ok: true, mime: sniffed } as Verdict
+  return { ok: true, mime: sniffed }
 }

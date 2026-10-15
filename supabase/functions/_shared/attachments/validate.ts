@@ -1,4 +1,4 @@
-import { isUuid } from "./paths.ts"
+import { isUuid } from "../http/request.ts"
 import type { Checked } from "./rules.ts"
 
 export type AttachmentsRequest =
@@ -19,6 +19,10 @@ export type AttachmentsRequest =
   | { readonly action: "cleanup" }
 
 const fail = (message: string): Checked<AttachmentsRequest> => ({ ok: false, message })
+
+/** The scheduled cleanup comes from CI with a secret, not from a browser. */
+export const isCleanupRequest = (raw: unknown): boolean =>
+  typeof raw === "object" && raw !== null && (raw as { action?: unknown }).action === "cleanup"
 
 function parseStart(body: Record<string, unknown>): Checked<AttachmentsRequest> {
   if (!isUuid(body.spaceId) || !isUuid(body.ideaId)) return fail("Choose an idea first")

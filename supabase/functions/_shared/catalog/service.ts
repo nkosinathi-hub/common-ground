@@ -8,7 +8,8 @@ import {
   type CacheStore,
 } from "./cache.ts"
 import { detailsPath, mapDetails } from "./details.ts"
-import { failure, type Outcome } from "./outcome.ts"
+import type { Outcome } from "../http/outcome.ts"
+import { failure } from "./outcome.ts"
 import { mapSearch, searchPath } from "./search.ts"
 import type { TmdbClient, TmdbFailure } from "./tmdb-client.ts"
 import type { CatalogType, DetailsResponse, SearchResponse } from "./types.ts"
@@ -57,7 +58,12 @@ export function createCatalogService({
       const fetchedAt = now()
       const mapped = spec.map(result.body)
       await cache
-        .put(spec.key, mapped, fetchedAt, expiryFor(spec.kind, fetchedAt))
+        .put({
+          key: spec.key,
+          response: mapped,
+          fetchedAt,
+          expiresAt: expiryFor(spec.kind, fetchedAt),
+        })
         .catch(() => undefined)
       return { ok: true, body: { ...mapped, checkedAt: fetchedAt.toISOString(), stale: false } }
     }

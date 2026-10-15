@@ -1,13 +1,13 @@
 import type { AttachmentsStore, CleanupCandidate, ObjectStorage } from "./ports.ts"
 
-export const CLEANUP_BATCH = 100
+const CLEANUP_BATCH = 100
 
-export interface CleanupBatch {
+interface CleanupBatch {
   readonly paths: readonly string[]
   readonly attachmentIds: readonly string[]
 }
 
-export interface CleanupReport {
+interface CleanupReport {
   readonly removedObjects: number
   readonly deletedRows: number
   readonly failedBatches: number

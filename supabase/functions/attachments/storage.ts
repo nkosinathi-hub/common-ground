@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2"
-import { PROBE_BYTES } from "../_shared/attachments/magic.ts"
 import type { ObjectStorage } from "../_shared/attachments/ports.ts"
-import { readProbe } from "../_shared/attachments/probe.ts"
+import { fetchProbe } from "../_shared/attachments/probe.ts"
 
 const BUCKET = "attachments"
 const PROBE_URL_SECONDS = 30
@@ -20,19 +19,7 @@ export function createObjectStorage(admin: SupabaseClient): ObjectStorage {
     async probe(path) {
       const { data, error } = await bucket().createSignedUrl(path, PROBE_URL_SECONDS)
       if (error || !data) return null
-      const response = await fetch(data.signedUrl, {
-        headers: { Range: `bytes=0-${PROBE_BYTES - 1}` },
-      })
-      const body = new Uint8Array(await response.arrayBuffer())
-      return readProbe(
-        {
-          status: response.status,
-          contentRange: response.headers.get("content-range"),
-          contentLength: response.headers.get("content-length"),
-          body,
-        },
-        PROBE_BYTES,
-      )
+      return fetchProbe((url, init) => fetch(url, init), data.signedUrl)
     },
 
     async signedUrl(path, seconds, downloadAs) {

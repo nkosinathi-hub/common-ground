@@ -53,10 +53,3 @@ export interface Freshness {
 
 export type SearchResponse = SearchPage & Freshness
 export type DetailsResponse = TitleDetails & Freshness
-
-export type CatalogErrorKind =
-  "validation" | "unauthenticated" | "denied" | "not_found" | "rate_limited" | "unavailable"
-
-export interface CatalogErrorBody {
-  readonly error: { readonly kind: CatalogErrorKind; readonly message: string }
-}

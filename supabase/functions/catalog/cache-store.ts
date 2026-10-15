@@ -20,7 +20,7 @@ export function createCacheStore(admin: SupabaseClient): CacheStore {
       return entry
     },
 
-    async put(key, response, fetchedAt, expiresAt) {
+    async put({ key, response, fetchedAt, expiresAt }) {
       const row = {
         cache_key: key,
         response,

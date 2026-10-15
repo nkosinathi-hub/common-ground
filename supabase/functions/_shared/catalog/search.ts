@@ -1,7 +1,7 @@
 import { mapTitle, type RawTitle } from "./map-title.ts"
 import type { CatalogType, SearchPage } from "./types.ts"
 
-export const MAX_PAGES = 20
+const MAX_PAGES = 20
 
 export const searchPath = (query: string, page: number): string =>
   `search/multi?query=${encodeURIComponent(query)}&page=${page}&include_adult=false&language=en-US`

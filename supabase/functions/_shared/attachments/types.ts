@@ -11,7 +11,7 @@ export const ALLOWED_TYPES = {
 
 export type AttachmentMime = keyof typeof ALLOWED_TYPES
 
-export type AttachmentStatus = "pending" | "ready" | "rejected"
+type AttachmentStatus = "pending" | "ready" | "rejected"
 
 export interface AttachmentRow {
   readonly id: string
@@ -37,6 +37,3 @@ export interface AttachmentDto {
   readonly bytes: number
   readonly createdAt: string
 }
-
-export type AttachmentsErrorKind =
-  "validation" | "unauthenticated" | "denied" | "not_found" | "rate_limited" | "unavailable"

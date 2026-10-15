@@ -3,7 +3,7 @@ import type { Availability, ProviderCategory, ProviderCategoryKey, Region } from
 
 export const HOME_REGION = "ZA"
 
-export const CATEGORIES: readonly { key: ProviderCategoryKey; label: string }[] = [
+const CATEGORIES: readonly { key: ProviderCategoryKey; label: string }[] = [
   { key: "flatrate", label: "Subscription" },
   { key: "free", label: "Free" },
   { key: "ads", label: "With ads" },

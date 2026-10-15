@@ -1,4 +1,5 @@
 // In-memory ports for Vitest. Not used by the deployed function.
+import { PROBE_BYTES } from "./magic.ts"
 import { buildObjectPath } from "./paths.ts"
 import type { AttachmentsStore, CleanupCandidate, ObjectStorage, PendingUpload } from "./ports.ts"
 import type { Probe } from "./probe.ts"
@@ -74,7 +75,7 @@ export class MemoryStorage implements ObjectStorage {
 
   async probe(path: string): Promise<Probe | null> {
     const bytes = this.objects.get(path)
-    return bytes ? { head: bytes.slice(0, 16), total: bytes.length } : null
+    return bytes ? { head: bytes.slice(0, PROBE_BYTES), total: bytes.length } : null
   }
 
   async signedUrl(path: string, seconds: number, downloadAs?: string) {

@@ -56,7 +56,8 @@ export function createStore(admin: SupabaseClient): AttachmentsStore {
 
     async find(attachmentId) {
       const { data, error } = await table().select(COLUMNS).eq("id", attachmentId).maybeSingle()
-      return error ? fail("attachment lookup") : data ? toRow(data) : null
+      if (error) return fail("attachment lookup")
+      return data ? toRow(data) : null
     },
 
     async markReady(attachmentId, mime) {
@@ -66,7 +67,8 @@ export function createStore(admin: SupabaseClient): AttachmentsStore {
         .eq("status", "pending")
         .select(COLUMNS)
         .maybeSingle()
-      return error ? fail("attachment finalize") : data ? toRow(data) : null
+      if (error) return fail("attachment finalize")
+      return data ? toRow(data) : null
     },
 
     async markRejected(attachmentId) {
