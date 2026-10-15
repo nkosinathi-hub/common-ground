@@ -1,9 +1,9 @@
 import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
+import { newestFirst } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
 import type { Task, UpcomingTask } from "../domain"
-import { newestFirst } from "./newest-first"
 import * as rows from "./rows"
 
 const toPage = (data: rows.TaskRow[]): Page<Task> => {

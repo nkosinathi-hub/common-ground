@@ -1,10 +1,10 @@
 import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
+import { newestFirst } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { IdeaPatch, IdeasRepository, NewIdea } from "../application/ports"
 import type { Brief, Idea } from "../domain"
 import { IDEA_COLUMNS, toIdea, type IdeaRow } from "./idea-row"
-import { newestFirst } from "./newest-first"
 
 const toPage = (rows: IdeaRow[]): Page<Idea> => {
   const items = rows.map(toIdea)

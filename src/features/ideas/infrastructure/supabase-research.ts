@@ -1,9 +1,9 @@
 import type { Cursor, Page, Result } from "@/shared/domain"
+import { newestFirst } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { ChildCollection, ResearchRepository } from "../application/ports"
 import type { Hypothesis, HypothesisStatus, IdeaNote, LinkInput, ResearchLink } from "../domain"
-import { newestFirst } from "./newest-first"
 import * as rows from "./research-rows"
 
 class SupabaseNotes implements ChildCollection<IdeaNote, string> {
