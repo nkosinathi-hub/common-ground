@@ -1,0 +1,44 @@
+# The fast guard steps. No services; each job is independent and runs in parallel.
+format:
+  extends: .on-change
+  stage: static
+  script: [pnpm format:check]
+
+static:
+  extends: .on-change
+  stage: static
+  script: [pnpm exec tsx scripts/guard/static-checks.ts]
+
+lint:
+  extends: .on-change
+  stage: static
+  script: [pnpm lint]
+
+check:
+  extends: .on-change
+  stage: static
+  script: [pnpm check]
+
+unit:
+  extends: .on-change
+  stage: test
+  script: [pnpm exec vitest run --coverage]
+  coverage: '/All files[^|]*\|\s*([\d.]+)/'
+  artifacts:
+    when: always
+    paths: [coverage/]
+    expire_in: 1 week
+
+build:
+  extends: .on-change
+  stage: build
+  script: [pnpm build]
+  artifacts:
+    paths: [dist/]
+    expire_in: 1 day
+
+bundle:
+  extends: .on-change
+  stage: build
+  needs: [build]
+  script: [pnpm exec tsx scripts/guard/bundle-scan.ts]
