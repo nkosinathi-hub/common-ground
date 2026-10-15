@@ -1,55 +1,47 @@
-import type { AppError, Cursor, Result } from "@/shared/domain"
-import type { Member } from "../application/ports"
-import type { TasksUseCases } from "../application/tasks-use-cases"
+import type { AppError, Cursor, MemberRef, Result } from "@/shared/domain"
+import { PagedList } from "@/shared/ui"
+import type { IdeaPlace } from "../application/ports"
+import type { TasksContext } from "./context"
 import type { Milestone, Task } from "../domain"
 
-/** Tasks, members and milestones for one idea. */
+type View = "list" | "kanban"
+
+/** One idea's tasks, paged newest first, with the members and milestones their pickers offer. */
 export class TasksState {
-  items = $state<Task[]>([])
-  members = $state<Member[]>([])
+  readonly list: PagedList<Task, Cursor>
+  members = $state<MemberRef[]>([])
   milestones = $state<Milestone[]>([])
-  next = $state<Cursor | null>(null)
-  loading = $state(true)
-  error = $state<AppError | null>(null)
-  view = $state<"list" | "kanban">("list")
+  view = $state<View>("list")
 
   constructor(
-    readonly uc: TasksUseCases,
-    private readonly ids: () => { spaceId: string; ideaId: string },
-  ) {}
+    readonly services: TasksContext,
+    private readonly place: () => IdeaPlace,
+  ) {
+    this.list = new PagedList((after) => services.tasks.list(place().ideaId, after))
+  }
 
-  async load(more = false): Promise<void> {
-    this.loading = true
-    const { spaceId, ideaId } = this.ids()
-    const [page, members, milestones] = await Promise.all([
-      this.uc.list(ideaId, more ? this.next : null),
-      more ? null : this.uc.members(spaceId),
-      more ? null : this.uc.milestones(ideaId),
+  async load(): Promise<void> {
+    const { spaceId, ideaId } = this.place()
+    const [, members, milestones] = await Promise.all([
+      this.list.load(),
+      this.services.tasks.members(spaceId),
+      this.services.milestones.list(ideaId),
     ])
-    this.loading = false
-    if (!page.ok) return void (this.error = page.error)
-    this.error = null
-    this.items = more ? [...this.items, ...page.value.items] : [...page.value.items]
-    this.next = page.value.next
-    if (members?.ok) this.members = members.value
-    if (milestones?.ok) this.milestones = milestones.value
+    if (members.ok) this.members = members.value
+    if (milestones.ok) this.milestones = milestones.value
   }
 
-  /** Applies a task write to the list; returns the error for the caller to show. */
-  async apply(write: Promise<Result<Task>>): Promise<AppError | null> {
-    const result = await write
-    if (!result.ok) return result.error
-    const exists = this.items.some((t) => t.id === result.value.id)
-    this.items = exists
-      ? this.items.map((t) => (t.id === result.value.id ? result.value : t))
-      : [result.value, ...this.items]
-    return null
+  /** Adds a new task at the top; returns the error for the form to show. */
+  create(title: string, dueDate: string | null): Promise<AppError | null> {
+    return this.list.add(this.services.tasks.create(this.place(), { title, dueDate }))
   }
 
-  async remove(id: string): Promise<AppError | null> {
-    const result = await this.uc.remove(id)
-    if (!result.ok) return result.error
-    this.items = this.items.filter((t) => t.id !== id)
-    return null
+  /** Applies an edit to one task; returns the error for the card to show. */
+  update(write: Promise<Result<Task>>): Promise<AppError | null> {
+    return this.list.replace(write)
+  }
+
+  remove(id: string): Promise<AppError | null> {
+    return this.list.remove(id, this.services.tasks.remove(id))
   }
 }

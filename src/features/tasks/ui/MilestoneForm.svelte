@@ -3,7 +3,7 @@
   import { Input } from "$lib/components/ui/input"
   import { Flag } from "@lucide/svelte"
   import type { AppError } from "@/shared/domain"
-  import type { MilestoneInput } from "../domain"
+  import { TITLE_MAX, type MilestoneInput } from "../domain"
 
   interface Props {
     error: AppError | null
@@ -25,7 +25,7 @@
     class="w-56"
     aria-label="Milestone title"
     placeholder="New milestone"
-    maxlength={200}
+    maxlength={TITLE_MAX}
     bind:value={draft.title}
     aria-invalid={error?.field === "title" ? true : undefined}
   />

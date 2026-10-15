@@ -8,11 +8,18 @@
   import TaskFields from "./TaskFields.svelte"
   import type { TasksState } from "./tasks-state.svelte"
 
-  let { task, board }: { task: Task; board: TasksState } = $props()
+  interface Props {
+    task: Task
+    board: TasksState
+  }
+
+  let { task, board }: Props = $props()
   let open = $state(false)
   let error = $state<string | null>(null)
   const overdue = $derived(isOverdue(task, todayDateOnly()))
-  const remove = async () => (error = (await board.remove(task.id))?.message ?? null)
+  async function remove() {
+    error = (await board.remove(task.id))?.message ?? null
+  }
 </script>
 
 <article class="flex flex-col gap-2 rounded-lg border bg-card p-3" data-testid="task-card">

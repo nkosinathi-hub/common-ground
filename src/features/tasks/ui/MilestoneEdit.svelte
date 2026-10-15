@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import type { Milestone, MilestoneInput } from "../domain"
+  import { TITLE_MAX, type Milestone, type MilestoneInput } from "../domain"
 
   interface Props {
     milestone: Milestone
@@ -22,7 +22,7 @@
 </script>
 
 <form class="flex flex-wrap items-end gap-2" onsubmit={submit} aria-label="Edit milestone">
-  <Input class="w-56" aria-label="Milestone title" maxlength={200} bind:value={draft.title} />
+  <Input class="w-56" aria-label="Milestone title" maxlength={TITLE_MAX} bind:value={draft.title} />
   <label class="flex flex-col text-xs"
     >Target date <Input type="date" class="h-8" bind:value={draft.targetDate} /></label
   >

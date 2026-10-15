@@ -2,25 +2,32 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
-  import { ErrorState, Loading } from "@/shared/ui"
-  import { groupByStatus } from "../domain"
+  import { ErrorState, LoadMore, Loading } from "@/shared/ui"
+  import { groupByStatus, TITLE_MAX } from "../domain"
   import { useTasks } from "./context"
   import { STATUS_LABELS } from "./labels"
   import TaskCard from "./TaskCard.svelte"
   import { TasksState } from "./tasks-state.svelte"
 
-  let { spaceId, ideaId }: { spaceId: string; ideaId: string } = $props()
+  interface Props {
+    spaceId: string
+    ideaId: string
+  }
+
+  let { spaceId, ideaId }: Props = $props()
   const board = new TasksState(useTasks(), () => ({ spaceId, ideaId }))
-  $effect(() => void board.load())
+  const list = board.list
+  // Reloads when the idea changes: the place callback reads spaceId and ideaId.
+  $effect(() => {
+    void board.load()
+  })
 
   let title = $state("")
   let due = $state("")
   let error = $state<string | null>(null)
   async function add(event: SubmitEvent) {
     event.preventDefault()
-    const failure = await board.apply(
-      board.uc.create(spaceId, ideaId, { title, dueDate: due || null }),
-    )
+    const failure = await board.create(title, due || null)
     error = failure?.message ?? null
     if (failure) return
     title = ""
@@ -35,7 +42,7 @@
         class="w-56"
         aria-label="Task title"
         placeholder="New task"
-        maxlength={200}
+        maxlength={TITLE_MAX}
         bind:value={title}
       />
       <label class="flex flex-col text-xs"
@@ -60,13 +67,13 @@
   </div>
   {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
 
-  {#if board.error}
-    <ErrorState error={board.error} onRetry={() => board.load()} />
-  {:else if board.loading && board.items.length === 0}
+  {#if list.error && list.items.length === 0}
+    <ErrorState error={list.error} onRetry={() => board.load()} />
+  {:else if list.loading && list.items.length === 0}
     <Loading label="Loading tasks" />
   {:else if board.view === "kanban"}
     <div class="flex snap-x gap-3 overflow-x-auto pb-2">
-      {#each groupByStatus(board.items) as column (column.status)}
+      {#each groupByStatus(list.items) as column (column.status)}
         <section
           class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-lg bg-muted/40 p-2"
           aria-label={STATUS_LABELS[column.status]}
@@ -80,11 +87,9 @@
     </div>
   {:else}
     <div class="grid gap-2 md:grid-cols-2">
-      {#each board.items as task (task.id)}<TaskCard {task} {board} />
+      {#each list.items as task (task.id)}<TaskCard {task} {board} />
       {:else}<p class="text-sm text-muted-foreground">No tasks yet.</p>{/each}
     </div>
   {/if}
-  {#if board.next}<Button variant="outline" size="sm" onclick={() => board.load(true)}
-      >Load more</Button
-    >{/if}
+  <LoadMore {list} />
 </div>

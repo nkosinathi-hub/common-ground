@@ -12,35 +12,36 @@
     onRemove: () => void
   }
 
-  let { milestone: m, onToggle, onEdit, onRemove }: Props = $props()
+  let { milestone, onToggle, onEdit, onRemove }: Props = $props()
   let editing = $state(false)
 </script>
 
 <li class="flex items-center justify-between gap-2 rounded-lg border p-3" data-testid="milestone">
   {#if editing}
-    <MilestoneEdit milestone={m} onSave={onEdit} onCancel={() => (editing = false)} />
+    <MilestoneEdit {milestone} onSave={onEdit} onCancel={() => (editing = false)} />
   {:else}
     <label class="flex items-center gap-2">
       <input
         type="checkbox"
-        checked={m.completedAt !== null}
+        checked={milestone.completedAt !== null}
         onchange={(e) => onToggle(e.currentTarget.checked)}
       />
-      <span class={m.completedAt ? "text-muted-foreground line-through" : "font-medium"}
-        >{m.title}</span
+      <span class={milestone.completedAt ? "text-muted-foreground line-through" : "font-medium"}
+        >{milestone.title}</span
       >
     </label>
     <span class="flex items-center gap-2 text-xs">
-      {#if m.targetDate}<span class="text-muted-foreground">Target {formatDue(m.targetDate)}</span
+      {#if milestone.targetDate}<span class="text-muted-foreground"
+          >Target {formatDue(milestone.targetDate)}</span
         >{/if}
       <Button
         size="icon"
         variant="ghost"
-        aria-label="Edit milestone {m.title}"
+        aria-label="Edit milestone {milestone.title}"
         onclick={() => (editing = true)}><Pencil /></Button
       >
       <DeleteButton
-        label="Delete milestone {m.title}"
+        label="Delete milestone {milestone.title}"
         what="this milestone"
         description="Tasks linked to it stay, without a milestone."
         onConfirm={onRemove}

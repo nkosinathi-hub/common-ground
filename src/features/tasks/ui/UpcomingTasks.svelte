@@ -6,16 +6,23 @@
   import { dueState, formatDue, type UpcomingTask } from "../domain"
   import { useTasks } from "./context"
 
-  let { spaceId, taskHref }: { spaceId: string; taskHref: (ideaId: string) => string } = $props()
-  const uc = useTasks()
-  const tasks = new Resource<UpcomingTask[]>(() => uc.upcoming(untrack(() => spaceId)))
+  const LABEL = { overdue: "Overdue", today: "Due today", soon: "Due" } as const
+
+  interface Props {
+    spaceId: string
+    taskHref: (ideaId: string) => string
+  }
+
+  let { spaceId, taskHref }: Props = $props()
+  const service = useTasks().tasks
+  const tasks = new Resource<UpcomingTask[]>(() => service.upcoming(untrack(() => spaceId)))
+  // Reloads when Home switches to another space.
   $effect(() => {
     void spaceId
     void tasks.load()
   })
 
   const today = todayDateOnly()
-  const LABEL = { overdue: "Overdue", today: "Due today", soon: "Due" } as const
 </script>
 
 <section aria-labelledby="upcoming-heading" class="flex flex-col gap-2">

@@ -1,15 +1,26 @@
 import { getContext, setContext } from "svelte"
-import type { TasksUseCases } from "../application/tasks-use-cases"
+import type { ChecklistService } from "../application/checklist-service"
+import type { MilestonesService } from "../application/milestones-service"
+import type { TasksService } from "../application/tasks-service"
 
 const KEY = Symbol("tasks")
 
-/** Called by src/app/composition.ts with use cases bound to real adapters. */
-export function provideTasks(useCases: TasksUseCases): void {
-  setContext(KEY, useCases)
+export interface TasksContext {
+  readonly tasks: TasksService
+  readonly checklist: ChecklistService
+  readonly milestones: MilestonesService
 }
 
-export function useTasks(): TasksUseCases {
-  const useCases = getContext<TasksUseCases | undefined>(KEY)
-  if (!useCases) throw new Error("provideTasks was not called above this component")
-  return useCases
+/** Called once by the composition root (src/app/composition). */
+export function provideTasks(value: TasksContext): void {
+  setContext(KEY, value)
 }
+
+export function useTasks(): TasksContext {
+  const value = getContext<TasksContext | undefined>(KEY)
+  if (!value) throw new Error("Tasks are not provided: call provideTasks")
+  return value
+}
+
+/** The context map for render({ context }) in component tests. */
+export const tasksContext = (value: TasksContext) => new Map([[KEY, value]])

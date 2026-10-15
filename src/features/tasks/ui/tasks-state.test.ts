@@ -1,44 +1,55 @@
 import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
-import { makeTasksUseCases } from "../application/tasks-use-cases"
+import { ChecklistService } from "../application/checklist-service"
+import { MilestonesService } from "../application/milestones-service"
+import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
 import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
 import { TasksState } from "./tasks-state.svelte"
 
 const setup = () => {
   const members = new FakeMembers()
-  const tasks = new InMemoryTasks(members)
-  const uc = makeTasksUseCases({
-    tasks,
-    checklist: new InMemoryChecklist(),
-    milestones: new InMemoryMilestones(),
-    members,
-  })
-  return { tasks, board: new TasksState(uc, () => ({ spaceId: "s", ideaId: "i" })) }
+  const repository = new InMemoryTasks(members)
+  const services = {
+    tasks: new TasksService(repository, members),
+    checklist: new ChecklistService(new InMemoryChecklist()),
+    milestones: new MilestonesService(new InMemoryMilestones()),
+  }
+  return { repository, board: new TasksState(services, () => ({ spaceId: "s", ideaId: "i" })) }
 }
 
 describe("TasksState", () => {
-  it("loads tasks with members and milestones, applies writes and removes", async () => {
+  it("loads tasks with the members and milestones the pickers offer", async () => {
     const { board } = setup()
+    await board.services.milestones.add(
+      { spaceId: "s", ideaId: "i" },
+      { title: "Open", targetDate: null },
+    )
     await board.load()
-    expect(board.members).toHaveLength(2)
-    expect(
-      await board.apply(board.uc.create("s", "i", { title: "Lease", dueDate: null })),
-    ).toBeNull()
-    const id = board.items[0]!.id
-    expect(await board.apply(board.uc.move(id, "done"))).toBeNull()
-    expect(board.items[0]!.status).toBe("done")
-    expect(await board.apply(board.uc.assign(id, "stranger"))).toMatchObject({ kind: "validation" })
-    expect(await board.remove(id)).toBeNull()
-    expect(await board.remove(id)).toMatchObject({ kind: "not_found" })
-    await board.load(true)
-    expect(board.items).toEqual([])
+    expect(board.members.map((member) => member.id)).toEqual(["ana", "ben"])
+    expect(board.milestones.map((milestone) => milestone.title)).toEqual(["Open"])
+    expect(board.list.loading).toBe(false)
   })
 
-  it("keeps a load error", async () => {
-    const { tasks, board } = setup()
-    tasks.list = async () => err(appError("network", "down"))
+  it("adds new tasks on top, applies edits and removes", async () => {
+    const { board } = setup()
     await board.load()
-    expect(board.error?.kind).toBe("network")
+    expect(await board.create("Lease", null)).toBeNull()
+    expect(await board.create(" ", null)).toMatchObject({ field: "title" })
+    const id = board.list.items[0]!.id
+    expect(await board.update(board.services.tasks.move(id, "done"))).toBeNull()
+    expect(board.list.items[0]!.status).toBe("done")
+    const refused = await board.update(board.services.tasks.assign(id, "stranger"))
+    expect(refused).toMatchObject({ kind: "validation" })
+    expect(await board.remove(id)).toBeNull()
+    expect(board.list.items).toEqual([])
+    expect(await board.remove(id)).toMatchObject({ kind: "not_found" })
+  })
+
+  it("keeps a load error on the list", async () => {
+    const { repository, board } = setup()
+    repository.list = async () => err(appError("network", "down"))
+    await board.load()
+    expect(board.list.error?.kind).toBe("network")
   })
 })
