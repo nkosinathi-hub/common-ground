@@ -1,51 +1,46 @@
 #!/usr/bin/env bash
-# Writes TMDB credentials into supabase/functions/.env (gitignored) for `supabase functions serve`.
-# With --remote it also pushes them to the linked Supabase project as function secrets.
-# Secret values are never printed: only key names and file paths reach the terminal.
+# Puts TMDB credentials into supabase/functions/.env (gitignored) for `supabase functions serve`,
+# keeping every other key in that file. With --remote it pushes ONLY the TMDB keys to the linked
+# project, so production ALLOWED_ORIGINS and CLEANUP_SECRET are never overwritten.
+# Secret values are never printed: only key names reach the terminal.
 set -euo pipefail
 
 KEYS_FILE="${TMDB_KEYS_FILE:-$HOME/Downloads/tmdb keys}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT/supabase/functions/.env"
-ORIGINS="http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:4173,http://localhost:4173"
+LOCAL_ORIGINS="http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:4173,http://localhost:4173"
 
-if [[ ! -r "$KEYS_FILE" ]]; then
-  echo "TMDB keys file not found: $KEYS_FILE" >&2
-  exit 1
-fi
+[[ -r "$KEYS_FILE" ]] || { echo "TMDB keys file not found: $KEYS_FILE (set TMDB_KEYS_FILE)" >&2; exit 1; }
 
-# Value after the first "Label:" on the matching line, whitespace trimmed.
+# Value after "<label>:" on the first line that starts with the label. Fixed-string match.
 value_of() {
-  grep -m1 -E "^[[:space:]]*$1[[:space:]]*:" "$KEYS_FILE" \
-    | sed -E "s/^[[:space:]]*$1[[:space:]]*:[[:space:]]*//; s/[[:space:]]+$//" \
-    | tr -d '\r' || true
+  awk -v label="$1" '{ line = $0; sub(/^[ \t]+/, "", line) }
+    index(line, label ":") == 1 { v = substr(line, length(label) + 2); gsub(/^[ \t]+|[ \t\r]+$/, "", v); print v; exit }' "$KEYS_FILE"
 }
 
 token="$(value_of "TMDB Access Token")"
 api_key="$(value_of "TMDB")"
-
-if [[ ! "$token" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]]; then
-  echo "No TMDB access token (JWT) found in $KEYS_FILE" >&2
-  exit 1
-fi
-if [[ -n "$api_key" && ! "$api_key" =~ ^[0-9a-fA-F]{32}$ ]]; then
-  echo "TMDB API key line is not a 32-character key; leaving TMDB_API_KEY empty" >&2
-  api_key=""
-fi
+[[ "$token" =~ ^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$ ]] || { echo "No TMDB access token in $KEYS_FILE" >&2; exit 1; }
+[[ -z "$api_key" || "$api_key" =~ ^[0-9a-fA-F]{32}$ ]] || { echo "Ignoring malformed TMDB API key" >&2; api_key=""; }
 
 umask 077
 tmp="$(mktemp "$ENV_FILE.XXXXXX")"
+trap 'rm -f "$tmp" "${remote_tmp:-}"' EXIT
+
+# Keep existing keys except the ones this script owns; add local origins only if none are set.
 {
-  printf 'TMDB_ACCESS_TOKEN=%s\n' "$token"
-  printf 'TMDB_API_KEY=%s\n' "$api_key"
-  printf 'TMDB_BASE_URL=%s\n' "${TMDB_BASE_URL:-https://api.themoviedb.org/3}"
-  printf 'ALLOWED_ORIGINS=%s\n' "${ALLOWED_ORIGINS:-$ORIGINS}"
+  [[ -f "$ENV_FILE" ]] && grep -v -E '^(TMDB_ACCESS_TOKEN|TMDB_API_KEY|TMDB_BASE_URL)=' "$ENV_FILE" || true
+  printf 'TMDB_ACCESS_TOKEN=%s\nTMDB_API_KEY=%s\nTMDB_BASE_URL=%s\n' \
+    "$token" "$api_key" "${TMDB_BASE_URL:-https://api.themoviedb.org/3}"
+  [[ -f "$ENV_FILE" ]] && grep -q '^ALLOWED_ORIGINS=' "$ENV_FILE" || printf 'ALLOWED_ORIGINS=%s\n' "$LOCAL_ORIGINS"
 } > "$tmp"
 mv "$tmp" "$ENV_FILE"
-unset token api_key
 echo "Wrote $(cut -d= -f1 "$ENV_FILE" | paste -sd, -) to $ENV_FILE"
 
 if [[ "${1:-}" == "--remote" ]]; then
-  (cd "$ROOT" && pnpm exec supabase secrets set --env-file supabase/functions/.env > /dev/null)
-  echo "Pushed function secrets to the linked Supabase project"
+  remote_tmp="$(mktemp)"
+  grep -E '^(TMDB_ACCESS_TOKEN|TMDB_API_KEY|TMDB_BASE_URL)=' "$ENV_FILE" > "$remote_tmp"
+  (cd "$ROOT" && pnpm exec supabase secrets set --env-file "$remote_tmp" > /dev/null)
+  echo "Pushed TMDB_ACCESS_TOKEN, TMDB_API_KEY, TMDB_BASE_URL to the linked Supabase project"
 fi
+unset token api_key
