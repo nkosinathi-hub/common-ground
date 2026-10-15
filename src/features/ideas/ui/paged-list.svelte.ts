@@ -1,5 +1,4 @@
-import type { AppError, Result } from "@/shared/domain"
-import { type Cursor, type Page } from "@/shared/domain"
+import { type AppError, type Cursor, type Page, type Result } from "@/shared/domain"
 
 /** Rune store for one paged child list (newest first) with optimistic-free add and remove. */
 export class PagedList<T extends { id: string }> {

@@ -15,7 +15,7 @@ import type {
   TaskPatch,
   TasksRepository,
 } from "../application/ports"
-import type { Task } from "../domain"
+import { sortUpcoming, type Task, type UpcomingTask } from "../domain"
 import { Store } from "./in-memory-store"
 
 export class FakeMembers implements MemberDirectory {
@@ -33,6 +33,7 @@ export class FakeMembers implements MemberDirectory {
 /** Mirrors the database rule: an assignee must be a current member. */
 export class InMemoryTasks implements TasksRepository {
   readonly store = new Store<Task>()
+  readonly ideaTitles = new Map<string, string>()
   constructor(private readonly members = new FakeMembers()) {}
 
   async list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
@@ -67,5 +68,17 @@ export class InMemoryTasks implements TasksRepository {
 
   async remove(id: string) {
     return this.store.remove(id)
+  }
+
+  async upcoming(spaceId: string, limit: number): Promise<Result<UpcomingTask[]>> {
+    const open = this.store.where(
+      (t) => t.spaceId === spaceId && t.status !== "done" && t.dueDate !== null,
+    )
+    const rows = open.map((t) => ({
+      ...t,
+      dueDate: t.dueDate!,
+      ideaTitle: this.ideaTitles.get(t.ideaId) ?? "",
+    }))
+    return ok(sortUpcoming(rows).slice(0, limit))
   }
 }

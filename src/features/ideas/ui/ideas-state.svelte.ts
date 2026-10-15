@@ -1,7 +1,6 @@
-import type { AppError } from "@/shared/domain"
+import { type AppError, type Cursor } from "@/shared/domain"
 import type { CaptureInput, IdeasUseCases } from "../application/ideas-use-cases"
 import { filterIdeas, type Idea, type IdeaFilter, type IdeaStage } from "../domain"
-import { type Cursor } from "@/shared/domain"
 
 /** Page state for the ideas list and board. Filters run client-side over loaded pages. */
 export class IdeasState {

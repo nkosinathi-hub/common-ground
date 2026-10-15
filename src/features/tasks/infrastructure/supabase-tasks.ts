@@ -4,7 +4,7 @@ import { removed } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
 import type { Task } from "../domain"
-import { TASK_COLUMNS, taskPatchRow, toTask } from "./rows"
+import { TASK_COLUMNS, taskPatchRow, toTask, toUpcoming, UPCOMING_COLUMNS } from "./rows"
 import { many, one, table } from "./table"
 
 export class SupabaseTasks implements TasksRepository {
@@ -52,5 +52,17 @@ export class SupabaseTasks implements TasksRepository {
 
   remove(id: string) {
     return removed(table(this.db, "tasks").delete().eq("id", id).select("id"))
+  }
+
+  upcoming(spaceId: string, limit: number) {
+    const query = table(this.db, "tasks")
+      .select(UPCOMING_COLUMNS)
+      .eq("space_id", spaceId)
+      .neq("status", "done")
+      .not("due_date", "is", null)
+      .order("due_date")
+      .order("title")
+      .limit(limit)
+    return many(query, toUpcoming)
   }
 }

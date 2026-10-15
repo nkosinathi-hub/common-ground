@@ -1,4 +1,4 @@
-import type { Result } from "@/shared/domain"
+import { type Cursor, type Result } from "@/shared/domain"
 import {
   validateHypothesis,
   validateNote,
@@ -6,7 +6,6 @@ import {
   type HypothesisStatus,
   type LinkInput,
 } from "../domain"
-import { type Cursor } from "@/shared/domain"
 import type { ResearchRepository } from "./ports"
 
 const guarded = async <V, T>(
