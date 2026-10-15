@@ -1,0 +1,30 @@
+import { describe, expect, it } from "vitest"
+import { contentSecurityPolicy, cspPlugin } from "./csp"
+
+describe("contentSecurityPolicy", () => {
+  const policy = contentSecurityPolicy("https://abc.supabase.co")
+
+  it("allows only this origin, Supabase (https and wss) and TMDB images", () => {
+    expect(policy).toContain("default-src 'self'")
+    expect(policy).toContain("connect-src 'self' https://abc.supabase.co wss://abc.supabase.co")
+    expect(policy).toContain(
+      "img-src 'self' data: blob: https://image.tmdb.org https://abc.supabase.co",
+    )
+    expect(policy).toContain("script-src 'self'")
+    expect(policy).toContain("object-src 'none'")
+    expect(policy).not.toContain("unsafe-eval")
+  })
+
+  it("supports a local http stack", () => {
+    expect(contentSecurityPolicy("http://127.0.0.1:54321")).toContain("ws://127.0.0.1:54321")
+  })
+
+  it("rejects a missing or invalid Supabase URL", () => {
+    expect(() => contentSecurityPolicy("")).toThrow(/VITE_SUPABASE_URL/)
+  })
+
+  it("injects a meta tag into the page head", () => {
+    const html = cspPlugin("https://abc.supabase.co").transformIndexHtml("<head></head>")
+    expect(html).toMatch(/<head><meta http-equiv="Content-Security-Policy" content="default-src/)
+  })
+})

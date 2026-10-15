@@ -1,13 +1,21 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte"
 import tailwindcss from "@tailwindcss/vite"
 import { fileURLToPath } from "node:url"
+import { loadEnv } from "vite"
 import { defineConfig } from "vitest/config"
+import { cspPlugin } from "./scripts/vite/csp"
 
 const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta.url))
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: process.env.PAGES_BASE_PATH ?? "/",
-  plugins: [tailwindcss(), svelte()],
+  plugins: [
+    tailwindcss(),
+    svelte(),
+    ...(process.env.VITEST
+      ? []
+      : [cspPlugin(loadEnv(mode, process.cwd(), "VITE_").VITE_SUPABASE_URL ?? "")]),
+  ],
   resolve: {
     ...(process.env.VITEST ? { conditions: ["browser"] } : {}),
     alias: { $lib: src("lib"), "@": src("") },
@@ -34,4 +42,4 @@ export default defineConfig({
       thresholds: { lines: 90, functions: 90, branches: 85, statements: 90 },
     },
   },
-})
+}))
