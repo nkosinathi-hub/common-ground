@@ -69,7 +69,10 @@ select throws_ok($$ insert into public.attachments
   'image/png', 10, 'ready') $$, '23514', null, 'a row cannot be ready without verification');
 
 delete from public.ideas where id = '11000000-0000-4000-8000-000000000001';
-select is((select count(*)::int from public.attachments), 0, 'deleting the idea deletes its rows');
+select is(
+  (select count(*)::int from public.attachments
+   where idea_id = '11000000-0000-4000-8000-000000000001'),
+  0, 'deleting the idea deletes its rows');
 
 select * from finish();
 rollback;

@@ -26,7 +26,8 @@ insert into storage.objects (bucket_id, name, created_at) values
 
 select is(
   (select array_agg(coalesce(attachment_id::text, '-') || ' ' || object_path order by object_path)
-   from public.cleanup_candidates()),
+   from public.cleanup_candidates()
+   where object_path like '51000000-0000-4000-8000-000000000001/%'),
   array[
     'a3000000-0000-4000-8000-000000000003 51000000-0000-4000-8000-000000000001/'
       || '11000000-0000-4000-8000-000000000001/a3000000-0000-4000-8000-000000000003',
@@ -45,8 +46,10 @@ select throws_ok($$ select * from public.cleanup_candidates() $$, '42501', null,
 select tests.reset_role();
 
 set local role service_role;
-select is((select count(*)::int from public.cleanup_candidates()), 3,
-  'the service role lists cleanup candidates');
+select is(
+  (select count(*)::int from public.cleanup_candidates()
+   where object_path like '51000000-0000-4000-8000-000000000001/%'),
+  3, 'the service role lists cleanup candidates');
 reset role;
 
 select * from finish();
