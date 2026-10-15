@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 import { createClient } from "@supabase/supabase-js"
 import { execSync } from "node:child_process"
+import { withRetry } from "./retry"
 import { parseStatusEnv } from "../../../scripts/setup/supabase"
 import { dockerHost } from "../../../scripts/setup/system"
 
@@ -53,12 +54,14 @@ export const uniqueEmail = (handle: string) =>
 /** Creates a verified account directly, for tests that are not about sign-up itself. */
 export async function createUser(handle: string): Promise<TestUser> {
   const user = { email: uniqueEmail(handle), password: "correct horse battery", name: handle }
-  const { error } = await admin().auth.admin.createUser({
-    email: user.email,
-    password: user.password,
-    email_confirm: true,
-    user_metadata: { display_name: handle },
+  await withRetry(async () => {
+    const { error } = await admin().auth.admin.createUser({
+      email: user.email,
+      password: user.password,
+      email_confirm: true,
+      user_metadata: { display_name: handle },
+    })
+    if (error) throw error
   })
-  if (error) throw error
   return user
 }
