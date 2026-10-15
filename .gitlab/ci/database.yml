@@ -1,4 +1,6 @@
-# Local Supabase inside docker-in-docker for pgTAP and Playwright.
+# Local Supabase inside docker-in-docker (GitLab.com shared runners run dind privileged).
+# The stack publishes its ports on the dind host `docker`; socat forwards them to 127.0.0.1 so
+# the CLI, the built app and Mailpit links work exactly as they do on a laptop.
 .supabase:
   services:
     - name: docker:27-dind
@@ -7,24 +9,33 @@
   variables:
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_PIPELINE_SOURCE != "schedule"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq docker.io socat >/dev/null
+    - for p in 54321 54322 54324; do (socat TCP-LISTEN:$p,fork,reuseaddr TCP:docker:$p &); done
+    - corepack enable && corepack prepare pnpm@10.34.3 --activate
+    - pnpm install --frozen-lockfile
 
+# pgTAP: RLS isolation, RPCs, invites. Required on every MR: it is the security gate.
 database:
-  extends: .supabase
-  stage: database
+  extends: [.on-change, .supabase]
+  stage: test
+  timeout: 30m
   script:
-    - apt-get update -qq && apt-get install -y -qq docker.io >/dev/null
-    - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor
+    - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor,edge-runtime
     - pnpm exec supabase test db
 
+# Playwright against a full local stack. Manual and non-blocking: it pulls every Supabase
+# image and a browser, which is slow on shared runners. `pnpm guard:e2e` is the local gate.
 e2e:
   extends: .supabase
   stage: e2e
-  image: mcr.microsoft.com/playwright:v1.64.1-noble
+  timeout: 45m
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+      allow_failure: true
   script:
-    - apt-get update -qq && apt-get install -y -qq docker.io >/dev/null
+    - pnpm exec playwright install --with-deps chromium
     - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor
     - pnpm exec tsx scripts/e2e/env.ts > .env.local
     - pnpm build
