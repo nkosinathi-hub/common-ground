@@ -5,7 +5,7 @@ import { capture, dockerHost, run } from "./system"
 import { checkVersions, parseMise } from "./versions"
 
 // pnpm setup: one entry point on Linux, macOS and Windows. Safe to run again at any time.
-const options = parseArgs(process.argv.slice(2))
+let options = parseArgs([])
 const log = (message: string) => console.log(`== setup: ${message}`)
 
 function tools(): void {
@@ -50,6 +50,7 @@ function dotenv(overrides: Record<string, string>): void {
 }
 
 try {
+  options = parseArgs(process.argv.slice(2))
   tools()
   const overrides = options.skipStack ? {} : envOverrides(stack(engineEnv()))
   dotenv(overrides)
