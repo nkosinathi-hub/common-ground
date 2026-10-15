@@ -2,11 +2,20 @@
   import { Bell, CheckCheck } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Popover from "$lib/components/ui/popover"
-  import { describeNotification, subjectHref } from "../domain/notification"
+  import { describeNotification, subjectHref, type Notification } from "../domain/notification"
   import { useNotifications } from "./context"
+
+  /** The badge stops counting here; more reads as "9+". */
+  const BADGE_MAX = 9
 
   const { store } = useNotifications()
   let open = $state(false)
+  const badge = $derived(store.unread > BADGE_MAX ? `${BADGE_MAX}+` : String(store.unread))
+
+  function follow(item: Notification) {
+    void store.open(item)
+    open = false
+  }
   const when = (iso: string) =>
     new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
 </script>
@@ -26,7 +35,7 @@
           <span
             class="absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground"
           >
-            {store.unread > 9 ? "9+" : store.unread}
+            {badge}
           </span>
         {/if}
       </Button>
@@ -41,15 +50,18 @@
         </Button>
       {/if}
     </div>
+    {#if store.error}
+      <div role="alert" class="flex items-center justify-between gap-2 border-b px-3 py-2 text-sm">
+        <span class="text-destructive">{store.error.message}</span>
+        <Button size="sm" variant="ghost" onclick={() => store.refresh()}>Try again</Button>
+      </div>
+    {/if}
     <ul class="max-h-96 overflow-y-auto">
       {#each store.items as item (item.id)}
         <li>
           <a
             href={subjectHref(item.spaceId, item.subjectType, item.subjectId)}
-            onclick={() => {
-              void store.open(item)
-              open = false
-            }}
+            onclick={() => follow(item)}
             class="flex gap-2 px-3 py-2 text-sm hover:bg-muted"
           >
             <span

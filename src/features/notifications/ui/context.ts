@@ -1,13 +1,23 @@
 import { getContext, setContext } from "svelte"
-import type { ActivityGateway } from "../application/ports"
+import type { NotificationsService } from "../application/notifications-service"
 import type { NotificationsStore } from "./notifications.svelte"
+
+export interface NotificationsContext {
+  readonly service: NotificationsService
+  readonly store: NotificationsStore
+}
 
 const KEY = Symbol("notifications")
 
-export interface NotificationsContext {
-  readonly store: NotificationsStore
-  readonly activity: ActivityGateway
+export function provideNotifications(value: NotificationsContext): void {
+  setContext(KEY, value)
 }
 
-export const provideNotifications = (value: NotificationsContext) => setContext(KEY, value)
-export const useNotifications = (): NotificationsContext => getContext<NotificationsContext>(KEY)
+export function useNotifications(): NotificationsContext {
+  const value = getContext<NotificationsContext | undefined>(KEY)
+  if (!value)
+    throw new Error(
+      "Notifications is not provided: call provideNotifications in the composition root",
+    )
+  return value
+}

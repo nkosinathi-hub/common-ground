@@ -1,4 +1,4 @@
-import { buildHash } from "@/shared/domain"
+import { buildHash, FORMER_MEMBER } from "@/shared/domain"
 
 export interface Notification {
   readonly id: string
@@ -20,19 +20,21 @@ export interface ActivityEvent {
   readonly createdAt: string
 }
 
-const who = (name: string | null) => name ?? "Former member"
+const who = (name: string | null) => name ?? FORMER_MEMBER
 
 const MESSAGES: Record<string, (actor: string) => string> = {
-  invite_accepted: (a) => `${a} joined your space`,
-  recommendation: (a) => `${a} recommended something for you`,
-  mention: (a) => `${a} mentioned you`,
-  task_assigned: (a) => `${a} assigned you a task`,
-  ownership_received: (a) => `${a} made you the owner`,
-  member_removed: (a) => `${a} removed a member`,
+  invite_accepted: (actor) => `${actor} joined your space`,
+  recommendation: (actor) => `${actor} recommended something for you`,
+  mention: (actor) => `${actor} mentioned you`,
+  task_assigned: (actor) => `${actor} assigned you a task`,
+  ownership_received: (actor) => `${actor} made you the owner`,
+  member_removed: (actor) => `${actor} removed a member`,
 }
 
-export function describeNotification(n: Pick<Notification, "type" | "actorName">): string {
-  return (MESSAGES[n.type] ?? ((a: string) => `${a} did something`))(who(n.actorName))
+const SOMETHING = (actor: string) => `${actor} did something`
+
+export function describeNotification(note: Pick<Notification, "type" | "actorName">): string {
+  return (MESSAGES[note.type] ?? SOMETHING)(who(note.actorName))
 }
 
 const ACTIVITY: Record<string, string> = {
@@ -46,8 +48,9 @@ const ACTIVITY: Record<string, string> = {
   task_completed: "finished a task",
 }
 
-export function describeActivity(e: Pick<ActivityEvent, "eventType" | "actorName">): string {
-  return `${who(e.actorName)} ${ACTIVITY[e.eventType] ?? e.eventType.replaceAll("_", " ")}`
+export function describeActivity(event: Pick<ActivityEvent, "eventType" | "actorName">): string {
+  const action = ACTIVITY[event.eventType] ?? event.eventType.replaceAll("_", " ")
+  return `${who(event.actorName)} ${action}`
 }
 
 /** Where a notification leads. Unknown subjects fall back to the space home. */
@@ -67,6 +70,5 @@ export function subjectHref(spaceId: string, subjectType: string, subjectId: str
   }
 }
 
-export const unreadCount = (items: readonly Notification[]) => items.filter((n) => !n.readAt).length
-
-export const isoNow = (clock: () => number = Date.now): string => new Date(clock()).toISOString()
+export const unreadCount = (items: readonly Notification[]) =>
+  items.filter((note) => !note.readAt).length

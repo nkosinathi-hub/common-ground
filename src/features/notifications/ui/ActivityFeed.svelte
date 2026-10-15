@@ -1,30 +1,44 @@
 <script lang="ts">
   import { History } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import type { Cursor } from "@/shared/domain"
-  import { EmptyState, ErrorState } from "@/shared/ui"
-  import type { AppError } from "@/shared/domain"
+  import type { AppError, Cursor } from "@/shared/domain"
+  import { EmptyState, ErrorState, Loading } from "@/shared/ui"
   import { describeActivity, type ActivityEvent } from "../domain/notification"
   import { useNotifications } from "./context"
 
-  let { spaceId, limit = false }: { spaceId: string; limit?: boolean } = $props()
-  const { activity } = useNotifications()
+  interface Props {
+    spaceId: string
+    /** Show only the latest few, without paging, for the home page. */
+    limit?: boolean
+  }
+
+  const LATEST = 6
+
+  let { spaceId, limit = false }: Props = $props()
+  const { service } = useNotifications()
   let items = $state<ActivityEvent[]>([])
   let next = $state<Cursor | null>(null)
   let error = $state<AppError | null>(null)
+  let loading = $state(true)
 
   async function load(after: Cursor | null) {
-    const page = await activity.list(spaceId, after)
-    if (!page.ok) return void (error = page.error)
+    const page = await service.activityIn(spaceId, after)
+    loading = false
+    if (!page.ok) {
+      error = page.error
+      return
+    }
     error = null
     items = after ? [...items, ...page.value.items] : [...page.value.items]
     next = page.value.next
   }
   $effect(() => void load(null))
-  const shown = $derived(limit ? items.slice(0, 6) : items)
+  const shown = $derived(limit ? items.slice(0, LATEST) : items)
 </script>
 
-{#if error}
+{#if loading}
+  <Loading label="Gathering recent activity" />
+{:else if error}
   <ErrorState {error} onRetry={() => load(null)} />
 {:else if items.length === 0}
   <EmptyState
