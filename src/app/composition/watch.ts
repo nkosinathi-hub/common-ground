@@ -1,4 +1,5 @@
-import { provideWatch, WatchService, type MemberDirectory } from "@/features/watch"
+import { provideWatch, WatchService } from "@/features/watch"
+import type { MemberDirectory } from "@/shared/domain"
 import { SupabaseWatchGateway } from "@/features/watch/infrastructure/supabase-watch-gateway"
 import type { Db } from "@/shared/infrastructure/supabase"
 
