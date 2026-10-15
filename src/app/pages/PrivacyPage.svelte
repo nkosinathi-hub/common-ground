@@ -33,4 +33,28 @@
     delete your account. Deleting your account removes your personal information; content you wrote
     in shared spaces stays, credited to "Former member".
   </p>
+  <h2 class="text-lg font-semibold">Exporting your data</h2>
+  <ul class="list-disc pl-5">
+    <li>
+      "Download my data" gives you a JSON file with your profile, your sign-in email, the spaces you
+      belong to and how much you have added to each kind of content.
+    </li>
+    <li>
+      Any member can export a space they belong to: its details, the members' display names and
+      everything added there. Exports never include invite links, notifications or file download
+      links, and nobody else's email address.
+    </li>
+  </ul>
+  <h2 class="text-lg font-semibold">Deleting your account</h2>
+  <ul class="list-disc pl-5">
+    <li>You confirm with your password and by typing DELETE. It cannot be undone.</li>
+    <li>
+      If you own a space other people still belong to, make someone else the owner or delete that
+      space first. Spaces where you are the only member are deleted with your account.
+    </li>
+    <li>
+      Your profile, sign-in details and memberships are removed straight away. What you wrote in
+      shared spaces stays for the other members, without your name.
+    </li>
+  </ul>
 </main>
