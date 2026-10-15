@@ -9,3 +9,8 @@ pre-commit:
     lint:
       glob: "*.{ts,js,svelte}"
       run: pnpm exec eslint {staged_files}
+
+commit-msg:
+  commands:
+    conventional:
+      run: pnpm exec tsx scripts/guard/commit-message.ts {1}
