@@ -5,7 +5,14 @@ Rules every change follows. `pnpm guard` enforces the mechanical ones.
 ## Layout
 
 ```
-src/app/                    composition root, router, shell
+src/app/                    router (routing/), shell (shell/), pages (pages/)
+src/app/composition/        the only place adapters are built and provided as context:
+  index.ts                  compose() and provideServices(), wires the modules below
+  core.ts                   auth, account, spaces, catalog, notifications
+  members.ts                space membership as the shared MemberDirectory
+  watch.ts                  watch
+  ideas.ts                  ideas, research, tasks, budget
+  collaboration.ts          comments, recommendations, attachments
 src/shared/domain/          Result, Money, DateOnly, ids, errors (pure)
 src/shared/infrastructure/  Supabase client, generated database types
 src/shared/ui/              cross-feature Svelte primitives (states, layout)
@@ -19,8 +26,10 @@ src/features/<name>/
   index.ts         public surface; other features and src/app import only this
 supabase/migrations/        one concern per file, timestamped
 supabase/tests/database/<feature>/*.test.sql   pgTAP
-supabase/functions/<name>/index.ts             thin Deno entry
+supabase/functions/<name>/index.ts             thin Deno entry (Deno adapters beside it)
 supabase/functions/_shared/                    pure TS, unit-tested by Vitest
+supabase/functions/_deno/                      Deno-only adapters shared by the entries
+                                               (npm:@supabase/supabase-js); not deployed
 ```
 
 ## Layer rules (scripts/guard/layers-rule.ts, scripts/guard/layers-classify.ts)
@@ -47,9 +56,23 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
 
 ## Database
 
-- Migration file names: `YYYYMMDDHHMMSS_<concern>.sql`. Reserved ranges for the v0.1 build:
-  `20261015000000-20261015099999` core, `20261015100000-20261015199999` watch,
-  `20261015200000-20261015299999` ideas, `20261015300000-20261015399999` collaboration.
+- Migration file names: `YYYYMMDDHHMMSS_<concern>.sql`. Ranges used by the v0.1 build (all on
+  `20261015`, so only the time part is shown; files sort and apply in this order):
+
+  | Range           | Concern                                                                  |
+  | --------------- | ------------------------------------------------------------------------ |
+  | `000100-001299` | foundation: profiles, spaces, membership, notifications, invites         |
+  | `001300-001999` | spaces and invites fixes (`001300` delete reauth, `001500` polish)       |
+  | `100000-149999` | watch: items, progress, sessions, list                                   |
+  | `150000-159999` | catalog: cache, rate limits                                              |
+  | `200000-209999` | ideas: briefs, research, milestones, tasks, budget, rules, activity      |
+  | `300000-349999` | comments and recommendations                                             |
+  | `350000-359999` | attachments: table, storage, RPCs, column grants (`350100-350400`)       |
+  | `400000-409999` | account: export and delete (`450000-459999` for account follow-ups)      |
+  | `990000`        | function grants; runs last, revokes PUBLIC/anon EXECUTE on all functions |
+
+  Pick the next free slot in your concern's range; never reuse or renumber an applied file.
+
 - Every table: RLS enabled, deny by default, policies use `public.is_space_member(space_id)` /
   `public.is_space_owner(space_id)`; never read JWT claims for membership.
 - Child rows carry `space_id`; cross-space parents are prevented with composite foreign keys
