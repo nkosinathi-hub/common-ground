@@ -1,14 +1,5 @@
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
-import { join } from "node:path"
-
-const FORBIDDEN = [/sb_secret_[A-Za-z0-9_-]+/, /"role"\s*:\s*"service_role"/, /service_role/]
-
-function walk(dir: string): string[] {
-  return readdirSync(dir).flatMap((name) => {
-    const path = join(dir, name)
-    return statSync(path).isDirectory() ? walk(path) : [path]
-  })
-}
+import { existsSync, readFileSync } from "node:fs"
+import { scanDir } from "./bundle-rules"
 
 function secretValues(): string[] {
   const envFile = "supabase/functions/.env"
@@ -19,11 +10,7 @@ function secretValues(): string[] {
     .filter((value) => value.length >= 16)
 }
 
-const values = secretValues()
-const hits = walk("dist").filter((path) => {
-  const text = readFileSync(path, "utf8")
-  return FORBIDDEN.some((rule) => rule.test(text)) || values.some((v) => text.includes(v))
-})
+const hits = scanDir("dist", secretValues())
 
 for (const path of hits) console.error(`${path}: contains a server-side secret`)
 if (hits.length > 0) process.exit(1)
