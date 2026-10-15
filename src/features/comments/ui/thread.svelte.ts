@@ -1,7 +1,11 @@
 import { SvelteSet } from "svelte/reactivity"
 import { ok, type AppError, type Cursor, type Result } from "@/shared/domain"
 import type { CommentsService } from "../application/comments-service"
+import type { NewComment } from "../application/ports"
 import { isConcealed, type Comment, type ParentRef } from "../domain/comment"
+
+/** What the composer hands over; the thread adds where it belongs. */
+export type Draft = Pick<NewComment, "body" | "spoiler" | "mentionIds">
 
 /** One thread: newest page first, shown oldest at the top, with older pages loaded above. */
 export class ThreadState {
@@ -49,14 +53,8 @@ export class ThreadState {
     return ok(undefined)
   }
 
-  async post(body: string, spoiler: boolean, mentionIds: readonly string[]) {
-    const posted = await this.service.post({
-      spaceId: this.spaceId,
-      parent: this.parent,
-      body,
-      spoiler,
-      mentionIds,
-    })
+  async post(draft: Draft) {
+    const posted = await this.service.post({ ...draft, spaceId: this.spaceId, parent: this.parent })
     if (posted.ok) this.items = [...this.items, posted.value]
     return posted
   }

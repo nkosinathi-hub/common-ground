@@ -4,23 +4,19 @@
   import { Button } from "$lib/components/ui/button"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import type { Result } from "@/shared/domain"
+  import { memberName, type MemberRef, type Result } from "@/shared/domain"
   import { FormState } from "@/shared/ui"
   import { MAX_BODY } from "../domain/comment"
-  import { nameOf, type MemberRef } from "../domain/mentions"
   import { ComposerState } from "./composer.svelte"
   import MentionPicker from "./MentionPicker.svelte"
+  import type { Draft } from "./thread.svelte"
 
-  type Draft = ComposerState["draft"]
-  let {
-    members,
-    me,
-    onSubmit,
-  }: {
+  interface Props {
     members: readonly MemberRef[]
     me: string
     onSubmit: (draft: Draft) => Promise<Result<unknown>>
-  } = $props()
+  }
+  let { members, me, onSubmit }: Props = $props()
 
   const composer = new ComposerState()
   const form = new FormState()
@@ -55,10 +51,10 @@
       {#each composer.mentionIds as mentioned (mentioned)}
         <li>
           <Badge variant="secondary">
-            @{nameOf(mentioned, members)}
+            @{memberName(members, mentioned)}
             <button
               type="button"
-              aria-label={`Do not mention ${nameOf(mentioned, members)}`}
+              aria-label={`Do not mention ${memberName(members, mentioned)}`}
               onclick={() => composer.unmention(mentioned)}><X class="size-3" /></button
             >
           </Badge>

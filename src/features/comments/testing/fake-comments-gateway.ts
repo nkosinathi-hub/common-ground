@@ -1,5 +1,5 @@
 import { appError, err, ok, type AppError, type Cursor } from "@/shared/domain"
-import type { CommentsGateway, NewComment } from "../application/ports"
+import type { CommentsGateway, NewComment, ThreadPageRequest } from "../application/ports"
 import type { Comment, ParentRef } from "../domain/comment"
 
 const START = Date.parse("2026-10-15T10:00:00.000Z")
@@ -39,11 +39,11 @@ export class FakeCommentsGateway implements CommentsGateway {
     }
   }
 
-  async list(spaceId: string, parent: ParentRef, before: Cursor | null, size: number) {
+  async list({ spaceId, parent, after, size }: ThreadPageRequest) {
     if (this.failWith) return err(this.failWith)
     const rows = this.rows
       .filter((c) => c.spaceId === spaceId && sameParent(c.parent, parent))
-      .filter((c) => !before || olderThan(c, before))
+      .filter((c) => !after || olderThan(c, after))
       .sort(newestFirst)
     return ok(rows.slice(0, size))
   }

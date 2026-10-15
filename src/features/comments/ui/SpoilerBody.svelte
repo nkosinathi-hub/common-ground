@@ -2,8 +2,12 @@
   import { EyeOff } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
 
-  let { body, concealed, onReveal }: { body: string; concealed: boolean; onReveal: () => void } =
-    $props()
+  interface Props {
+    body: string
+    concealed: boolean
+    onReveal: () => void
+  }
+  let { body, concealed, onReveal }: Props = $props()
 </script>
 
 {#if concealed}

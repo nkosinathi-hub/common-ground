@@ -1,20 +1,16 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import type { MemberRef } from "../domain/mentions"
+  import type { MemberRef } from "@/shared/domain"
   import type { ComposerState } from "./composer.svelte"
 
-  let {
-    composer,
-    members,
-    me,
-    onDone,
-  }: {
+  interface Props {
     composer: ComposerState
     members: readonly MemberRef[]
     me: string
     onDone: () => void
-  } = $props()
+  }
+  let { composer, members, me, onDone }: Props = $props()
 
   const options = $derived(composer.candidates(members, me))
   let input = $state<HTMLInputElement | null>(null)

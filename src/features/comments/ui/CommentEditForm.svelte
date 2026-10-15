@@ -6,17 +6,13 @@
   import { toast } from "@/shared/ui"
   import { MAX_BODY } from "../domain/comment"
 
-  let {
-    body,
-    spoiler,
-    onSave,
-    onDone,
-  }: {
+  interface Props {
     body: string
     spoiler: boolean
     onSave: (body: string, spoiler: boolean) => Promise<Result<unknown>>
     onDone: () => void
-  } = $props()
+  }
+  let { body, spoiler, onSave, onDone }: Props = $props()
 
   // Seeded once from the comment; later prop changes must not overwrite what is being typed.
   let draft = $state(untrack(() => body))

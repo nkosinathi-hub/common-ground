@@ -9,14 +9,16 @@ export interface NewComment {
   readonly mentionIds: readonly string[]
 }
 
+/** One page of a thread: newest first, strictly older than `after` when given. */
+export interface ThreadPageRequest {
+  readonly spaceId: string
+  readonly parent: ParentRef
+  readonly after: Cursor | null
+  readonly size: number
+}
+
 export interface CommentsGateway {
-  /** Newest first, strictly older than `before` when given. */
-  list(
-    spaceId: string,
-    parent: ParentRef,
-    before: Cursor | null,
-    size: number,
-  ): Promise<Result<Comment[]>>
+  list(request: ThreadPageRequest): Promise<Result<Comment[]>>
   post(input: NewComment): Promise<Result<Comment>>
   edit(id: string, body: string, spoiler: boolean): Promise<Result<Comment>>
   remove(id: string): Promise<Result<void>>

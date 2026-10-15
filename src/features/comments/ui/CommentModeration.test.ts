@@ -3,12 +3,12 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CommentsService } from "../application/comments-service"
 import { MEMBERS, PARENT, SPACE, threadGateway } from "../testing/render-thread"
 import CommentThread from "./CommentThread.svelte"
-import { COMMENTS_CONTEXT } from "./context"
+import { commentsContext } from "./context"
 
 function setup(isOwner: boolean) {
   const gateway = threadGateway()
   gateway.seed(SPACE, PARENT, 1, "me")
-  const context = new Map([[COMMENTS_CONTEXT, new CommentsService(gateway)]])
+  const context = commentsContext({ service: new CommentsService(gateway) })
   const props = { spaceId: SPACE, parent: PARENT, me: "me", isOwner, members: MEMBERS }
   render(CommentThread, { props, context })
   return gateway
@@ -44,17 +44,17 @@ describe("CommentThread moderation", () => {
   it("only offers delete on my own comments to members", async () => {
     setup(false)
     expect(
-      within(await article("Comment by Zola")).queryByRole("button", { name: "Delete" }),
+      within(await article("Comment by Zola")).queryByRole("button", { name: "Delete comment" }),
     ).toBeNull()
     expect(
-      within(await article("Comment by Nkosi")).getByRole("button", { name: "Delete" }),
+      within(await article("Comment by Nkosi")).getByRole("button", { name: "Delete comment" }),
     ).toBeInTheDocument()
   })
 
   it("lets the owner remove anyone's comment after confirming", async () => {
     const gateway = setup(true)
     const theirs = await article("Comment by Zola")
-    await fireEvent.click(within(theirs).getByRole("button", { name: "Delete" }))
+    await fireEvent.click(within(theirs).getByRole("button", { name: "Delete comment" }))
     const dialog = await screen.findByRole("alertdialog")
     await fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }))
     await waitFor(() => expect(screen.queryByText("Comment 1")).toBeNull())

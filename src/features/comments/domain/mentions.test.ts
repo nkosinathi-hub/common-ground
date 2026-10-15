@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FORMER_MEMBER, mentionCandidates, nameOf, namesOf } from "./mentions"
+import { mentionCandidates } from "./mentions"
 
 const members = [
   { id: "me", displayName: "Nkosi" },
@@ -17,12 +17,5 @@ describe("mention picker", () => {
     expect(mentionCandidates(members, " AN ", "me", []).map((m) => m.id)).toEqual(["d", "c"])
     expect(mentionCandidates(members, "an", "me", ["d"]).map((m) => m.id)).toEqual(["c"])
     expect(mentionCandidates(members, "q", "me", [])).toEqual([])
-  })
-
-  it("renders ids as names and labels people who left", () => {
-    expect(nameOf("b", members)).toBe("Zola")
-    expect(nameOf("gone", members)).toBe(FORMER_MEMBER)
-    expect(nameOf(null, members)).toBe(FORMER_MEMBER)
-    expect(namesOf(["c", "gone"], members)).toEqual(["anele", FORMER_MEMBER])
   })
 })

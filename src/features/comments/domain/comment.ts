@@ -1,6 +1,13 @@
-import { appError, err, ok, type Cursor, type Result } from "@/shared/domain"
+import { appError, err, ok, type Cursor, type MemberRef, type Result } from "@/shared/domain"
 
 export type ParentKind = "watch" | "idea"
+
+/** Who is reading a thread: decides what they may change and how authors are named. */
+export interface Viewer {
+  readonly me: string
+  readonly isOwner: boolean
+  readonly members: readonly MemberRef[]
+}
 
 /** What a thread hangs off: a saved title or an idea. */
 export interface ParentRef {

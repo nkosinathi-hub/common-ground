@@ -1,34 +1,22 @@
 <script lang="ts">
-  import { Pencil, Trash2 } from "@lucide/svelte"
+  import { Pencil } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import type { Result } from "@/shared/domain"
-  import { ConfirmDialog, toast } from "@/shared/ui"
-  import { canDelete, canEdit, type Comment } from "../domain/comment"
-  import { nameOf, namesOf, type MemberRef } from "../domain/mentions"
+  import { memberName } from "@/shared/domain"
+  import { DeleteButton, toast } from "@/shared/ui"
+  import { canDelete, canEdit, type Comment, type Viewer } from "../domain/comment"
   import CommentEditForm from "./CommentEditForm.svelte"
   import SpoilerBody from "./SpoilerBody.svelte"
+  import type { ThreadState } from "./thread.svelte"
 
-  let {
-    comment,
-    members,
-    me,
-    isOwner,
-    concealed,
-    onReveal,
-    onEdit,
-    onDelete,
-  }: {
+  interface Props {
     comment: Comment
-    members: readonly MemberRef[]
-    me: string
-    isOwner: boolean
-    concealed: boolean
-    onReveal: () => void
-    onEdit: (body: string, spoiler: boolean) => Promise<Result<unknown>>
-    onDelete: () => Promise<Result<unknown>>
-  } = $props()
+    thread: ThreadState
+    viewer: Viewer
+  }
+  let { comment, thread, viewer }: Props = $props()
 
-  const author = $derived(nameOf(comment.authorId, members))
+  const author = $derived(memberName(viewer.members, comment.authorId))
+  const mentioned = $derived(comment.mentionIds.map((id) => memberName(viewer.members, id)))
   const when = $derived(
     new Date(comment.createdAt).toLocaleString("en-ZA", {
       dateStyle: "medium",
@@ -36,17 +24,16 @@
     }),
   )
   let editing = $state(false)
-  let confirming = $state(false)
 
   async function remove() {
-    const removed = await onDelete()
+    const removed = await thread.remove(comment.id)
     if (!removed.ok) toast.error(removed.error.message)
   }
 </script>
 
 <article class="grid gap-1 rounded-lg border p-3" aria-label={`Comment by ${author}`}>
   <header class="flex flex-wrap items-baseline gap-x-2 text-sm">
-    <span class="font-medium">{author}{comment.authorId === me ? " (you)" : ""}</span>
+    <span class="font-medium">{author}{comment.authorId === viewer.me ? " (you)" : ""}</span>
     <time class="text-xs text-muted-foreground" datetime={comment.createdAt}>{when}</time>
     {#if comment.edited}<span class="text-xs text-muted-foreground">(edited)</span>{/if}
   </header>
@@ -54,40 +41,33 @@
     <CommentEditForm
       body={comment.body}
       spoiler={comment.spoiler}
-      onSave={onEdit}
+      onSave={(body, spoiler) => thread.edit(comment.id, body, spoiler)}
       onDone={() => (editing = false)}
     />
   {:else}
-    <SpoilerBody body={comment.body} {concealed} {onReveal} />
-    {#if comment.mentionIds.length > 0}
-      <p class="text-xs text-muted-foreground">
-        Mentioned {namesOf(comment.mentionIds, members).join(", ")}
-      </p>
+    <SpoilerBody
+      body={comment.body}
+      concealed={thread.concealed(comment)}
+      onReveal={() => thread.reveal(comment.id)}
+    />
+    {#if mentioned.length > 0}
+      <p class="text-xs text-muted-foreground">Mentioned {mentioned.join(", ")}</p>
     {/if}
-    <div class="flex gap-1">
-      {#if canEdit(comment, me)}
+    <div class="flex items-center gap-1">
+      {#if canEdit(comment, viewer.me)}
         <Button size="sm" variant="ghost" onclick={() => (editing = true)}>
           <Pencil aria-hidden="true" />Edit
         </Button>
       {/if}
-      {#if canDelete(comment, me, isOwner)}
-        <Button
-          size="sm"
-          variant="ghost"
-          class="text-destructive"
-          onclick={() => (confirming = true)}
-        >
-          <Trash2 aria-hidden="true" />Delete
-        </Button>
+      {#if canDelete(comment, viewer.me, viewer.isOwner)}
+        <DeleteButton
+          label="Delete comment"
+          what="this comment"
+          size="icon-sm"
+          description="It is removed for everyone in this space. This cannot be undone."
+          onConfirm={remove}
+        />
       {/if}
     </div>
   {/if}
 </article>
-
-<ConfirmDialog
-  bind:open={confirming}
-  title="Delete this comment?"
-  description="It is removed for everyone in this space. This cannot be undone."
-  confirmLabel="Delete"
-  onConfirm={remove}
-/>

@@ -1,4 +1,5 @@
-import { mentionCandidates, type MemberRef } from "../domain/mentions"
+import type { MemberRef } from "@/shared/domain"
+import { mentionCandidates } from "../domain/mentions"
 
 /** Composer draft. Mentions are picked from members and kept as ids beside the text. */
 export class ComposerState {

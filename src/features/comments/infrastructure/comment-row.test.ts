@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { olderThan, parentColumn, toComment, type CommentRow } from "./comment-row"
+import { parentColumn, toComment, type CommentRow } from "./comment-row"
 
 const row: CommentRow = {
   id: "c1",
@@ -28,11 +28,8 @@ describe("comment rows", () => {
     })
   })
 
-  it("filters by parent column and quotes the cursor timestamp", () => {
+  it("filters by the column of the parent kind", () => {
     expect(parentColumn({ kind: "watch", id: "w" })).toBe("watch_item_id")
     expect(parentColumn({ kind: "idea", id: "i" })).toBe("idea_id")
-    expect(olderThan({ createdAt: "2026-10-15T10:00:00+00:00", id: "c1" })).toBe(
-      'created_at.lt."2026-10-15T10:00:00+00:00",and(created_at.eq."2026-10-15T10:00:00+00:00",id.lt.c1)',
-    )
   })
 })

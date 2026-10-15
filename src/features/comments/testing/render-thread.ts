@@ -1,5 +1,5 @@
 import type { ParentRef } from "../domain/comment"
-import type { MemberRef } from "../domain/mentions"
+import type { MemberRef } from "@/shared/domain"
 import { FakeCommentsGateway } from "./fake-comments-gateway"
 
 export const SPACE = "s1"

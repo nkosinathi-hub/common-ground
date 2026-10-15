@@ -11,11 +11,12 @@ export class CommentsService {
   async page(
     spaceId: string,
     parent: ParentRef,
-    before: Cursor | null,
+    after: Cursor | null,
   ): Promise<Result<Page<Comment>>> {
-    const rows = await this.gateway.list(spaceId, parent, before, this.pageSize)
+    const size = this.pageSize
+    const rows = await this.gateway.list({ spaceId, parent, after, size })
     if (!rows.ok) return rows
-    return ok({ items: rows.value, next: nextCursor(rows.value, this.pageSize) })
+    return ok({ items: rows.value, next: nextCursor(rows.value, size) })
   }
 
   async post(input: NewComment): Promise<Result<Comment>> {

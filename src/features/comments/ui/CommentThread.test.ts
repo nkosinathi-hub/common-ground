@@ -3,10 +3,10 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CommentsService } from "../application/comments-service"
 import { MEMBERS, PARENT, SPACE, threadGateway } from "../testing/render-thread"
 import CommentThread from "./CommentThread.svelte"
-import { COMMENTS_CONTEXT } from "./context"
+import { commentsContext } from "./context"
 
 function setup(isOwner = false, gateway = threadGateway()) {
-  const context = new Map([[COMMENTS_CONTEXT, new CommentsService(gateway, 2)]])
+  const context = commentsContext({ service: new CommentsService(gateway, 2) })
   const props = { spaceId: SPACE, parent: PARENT, me: "me", isOwner, members: MEMBERS }
   return { gateway, view: render(CommentThread, { props, context }) }
 }

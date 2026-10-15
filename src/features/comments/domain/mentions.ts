@@ -1,10 +1,4 @@
-/** A space member as the thread needs them: an id to store and a name to show. */
-export interface MemberRef {
-  readonly id: string
-  readonly displayName: string
-}
-
-export const FORMER_MEMBER = "Former member"
+import type { MemberRef } from "@/shared/domain"
 
 /** Members the composer may mention: everyone but me and those already chosen. */
 export function mentionCandidates(
@@ -19,9 +13,3 @@ export function mentionCandidates(
     .filter((m) => m.displayName.toLocaleLowerCase().includes(needle))
     .sort((a, b) => a.displayName.localeCompare(b.displayName, undefined, { sensitivity: "base" }))
 }
-
-export const nameOf = (id: string | null, members: readonly MemberRef[]): string =>
-  members.find((m) => m.id === id)?.displayName ?? FORMER_MEMBER
-
-export const namesOf = (ids: readonly string[], members: readonly MemberRef[]): string[] =>
-  ids.map((id) => nameOf(id, members))

@@ -42,7 +42,7 @@ describe("ThreadState", () => {
   it("appends posts, edits in place keeping mentions, and removes", async () => {
     const { thread } = setup(0)
     await thread.load()
-    await thread.post("New one", false, ["b"])
+    await thread.post({ body: "New one", spoiler: false, mentionIds: ["b"] })
     expect(bodies(thread)).toEqual(["New one"])
     const id = thread.items[0]?.id ?? ""
     await thread.edit(id, "Changed", true)
@@ -55,7 +55,7 @@ describe("ThreadState", () => {
     const { gateway, thread } = setup(1)
     await thread.load()
     gateway.failWith = { kind: "denied", message: "No" }
-    expect((await thread.post("x", false, [])).ok).toBe(false)
+    expect((await thread.post({ body: "x", spoiler: false, mentionIds: [] })).ok).toBe(false)
     expect((await thread.edit("c1", "y", false)).ok).toBe(false)
     expect((await thread.remove("c1")).ok).toBe(false)
     expect(bodies(thread)).toEqual(["Comment 1"])
@@ -64,7 +64,7 @@ describe("ThreadState", () => {
   it("keeps spoilers concealed until revealed", async () => {
     const { thread } = setup(0)
     await thread.load()
-    await thread.post("Twist", true, [])
+    await thread.post({ body: "Twist", spoiler: true, mentionIds: [] })
     const comment = thread.items[0]
     if (!comment) throw new Error("expected a comment")
     expect(thread.concealed(comment)).toBe(true)
