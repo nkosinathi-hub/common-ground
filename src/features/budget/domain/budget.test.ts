@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  budgetSummary,
-  CURRENCIES,
-  totalsByCategory,
-  validateEntry,
-  type BudgetEntry,
-} from "./budget"
+import { budgetTotals, totalsByCategory, validateEntry, type BudgetEntry } from "./budget"
 
 const entry = (category: string, estimated: number, actual: number): BudgetEntry => ({
   id: category + estimated,
@@ -21,18 +15,18 @@ const entry = (category: string, estimated: number, actual: number): BudgetEntry
 describe("budget money arithmetic", () => {
   it("totals estimated and actual in minor units without float drift", () => {
     const entries = [entry("Rent", 10, 20), entry("Rent", 20, 10), entry("Stock", 1, 0)]
-    const summary = budgetSummary(entries, "ZAR")
+    const summary = budgetTotals(entries, "ZAR")
     expect(summary.estimated).toEqual({ minor: 31, currency: "ZAR" })
     expect(summary.actual).toEqual({ minor: 30, currency: "ZAR" })
     expect(summary.variance).toEqual({ minor: -1, currency: "ZAR" })
   })
 
   it("reports overspend as positive variance", () => {
-    expect(budgetSummary([entry("Rent", 100_00, 150_50)], "ZAR").variance.minor).toBe(50_50)
+    expect(budgetTotals([entry("Rent", 100_00, 150_50)], "ZAR").variance.minor).toBe(50_50)
   })
 
   it("handles an empty budget", () => {
-    expect(budgetSummary([], "USD").variance).toEqual({ minor: 0, currency: "USD" })
+    expect(budgetTotals([], "USD").variance).toEqual({ minor: 0, currency: "USD" })
   })
 
   it("groups totals per category", () => {
@@ -75,9 +69,5 @@ describe("validateEntry", () => {
     expect(validateEntry({ category: "", label: "x", estimated: "1", actual: "" }, "ZAR").ok).toBe(
       false,
     )
-  })
-
-  it("offers ZAR first", () => {
-    expect(CURRENCIES[0]).toBe("ZAR")
   })
 })

@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { InMemoryBudget } from "../testing/in-memory-budget"
-import { makeBudgetUseCases } from "./budget-use-cases"
+import { BudgetService } from "./budget-service"
 
 const form = { category: "Rent", label: "Deposit", estimated: "1500", actual: "" }
 
 async function setup() {
-  const budget = makeBudgetUseCases(new InMemoryBudget())
-  const added = await budget.add("s", "i", form, "ZAR")
+  const budget = new BudgetService(new InMemoryBudget())
+  const added = await budget.add({ spaceId: "s", ideaId: "i", currency: "ZAR" }, form)
   if (!added.ok) throw new Error("add failed")
   return { budget, base: added.value }
 }
