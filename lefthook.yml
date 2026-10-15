@@ -1,0 +1,16 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,js,svelte,json,css,md,yml}"
+      run: pnpm exec prettier --check {staged_files}
+    static:
+      run: pnpm exec tsx scripts/guard/static-checks.ts
+    lint:
+      glob: "*.{ts,js,svelte}"
+      run: pnpm exec eslint {staged_files}
+
+commit-msg:
+  commands:
+    conventional:
+      run: pnpm exec tsx scripts/guard/commit-message.ts {1}

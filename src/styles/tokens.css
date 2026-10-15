@@ -1,0 +1,57 @@
+/* Warm neutral palette. Accent tokens are overridden per space template in themes.css. */
+:root {
+  --radius: 0.75rem;
+  --background: #faf9f6;
+  --foreground: #30382e;
+  --card: #ffffff;
+  --card-foreground: #30382e;
+  --popover: #ffffff;
+  --popover-foreground: #30382e;
+  --primary: #526b4a;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f1e9;
+  --secondary-foreground: #30382e;
+  --muted: #f3f1e9;
+  --muted-foreground: #676a60;
+  --accent: #e8eddf;
+  --accent-foreground: #30382e;
+  --destructive: #b3412e;
+  --border: #e6e6dd;
+  --input: #dcdcd1;
+  --ring: #526b4a;
+  --sidebar: #f4f3ed;
+  --sidebar-foreground: #30382e;
+  --sidebar-accent: #e8eddf;
+  --sidebar-border: #e6e6dd;
+  --banner: #e9eddf;
+  --highlight: #f6e9dc;
+  --clay: #8f6343;
+}
+
+.dark {
+  --background: #1d211c;
+  --foreground: #ecebe4;
+  --card: #252a24;
+  --card-foreground: #ecebe4;
+  --popover: #252a24;
+  --popover-foreground: #ecebe4;
+  --primary: #a9c19d;
+  --primary-foreground: #1d211c;
+  --secondary: #2f352d;
+  --secondary-foreground: #ecebe4;
+  --muted: #2f352d;
+  --muted-foreground: #b3b5aa;
+  --accent: #34402f;
+  --accent-foreground: #ecebe4;
+  --destructive: #e4826f;
+  --border: #3a4137;
+  --input: #454d42;
+  --ring: #a9c19d;
+  --sidebar: #222720;
+  --sidebar-foreground: #ecebe4;
+  --sidebar-accent: #34402f;
+  --sidebar-border: #3a4137;
+  --banner: #2b3328;
+  --highlight: #3b3128;
+  --clay: #d0a27f;
+}
