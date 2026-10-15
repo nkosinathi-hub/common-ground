@@ -31,8 +31,10 @@
     }
   })
 
+  // Keyed on the id only: token refreshes replace the user object but must not reload data.
+  const userId = $derived(session.user?.id ?? null)
   $effect(() => {
-    if (!session.user) return spacesStore.clear()
+    if (!userId) return spacesStore.clear()
     void spacesStore.refresh()
     return services.notifications.start()
   })

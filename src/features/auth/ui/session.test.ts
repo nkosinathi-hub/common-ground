@@ -20,3 +20,18 @@ describe("SessionStore", () => {
     session.dispose()
   })
 })
+
+describe("SessionStore identity", () => {
+  it("keeps the same user object across token refreshes", async () => {
+    const gateway = new FakeAuthGateway()
+    const service = new AuthService(gateway, { origin: "http://x", basePath: "/" })
+    const session = new SessionStore(service)
+    await session.start()
+    await service.signUp({ email: "a@b.co", password: "long password", displayName: "A" })
+    await service.exchangeCode("user-1")
+    const first = session.user
+    gateway.onChange(() => {})
+    ;(gateway as unknown as { emit: (e: string) => void }).emit("refreshed")
+    expect(session.user).toBe(first)
+  })
+})

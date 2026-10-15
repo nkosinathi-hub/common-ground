@@ -12,7 +12,7 @@ export class SessionStore {
 
   async start(): Promise<void> {
     this.stop = this.service.onChange((event, user) => {
-      this.user = user
+      if (!sameUser(this.user, user)) this.user = user
       if (event === "password_recovery") this.recovering = true
     })
     this.user = await this.service.currentUser()
@@ -23,3 +23,12 @@ export class SessionStore {
     this.stop?.()
   }
 }
+
+const sameUser = (a: SessionUser | null, b: SessionUser | null) =>
+  a === b ||
+  (a !== null &&
+    b !== null &&
+    a.id === b.id &&
+    a.email === b.email &&
+    a.displayName === b.displayName &&
+    a.emailConfirmed === b.emailConfirmed)
