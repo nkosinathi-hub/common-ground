@@ -32,8 +32,9 @@
   })
 
   $effect(() => {
-    if (session.user) void spacesStore.refresh()
-    else spacesStore.clear()
+    if (!session.user) return spacesStore.clear()
+    void spacesStore.refresh()
+    return services.notifications.start()
   })
 
   const spacesReady = $derived(

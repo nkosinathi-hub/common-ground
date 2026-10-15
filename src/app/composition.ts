@@ -1,5 +1,10 @@
 import { AuthService, SessionStore, provideAuth } from "@/features/auth"
 import { SupabaseAuthGateway } from "@/features/auth/infrastructure/supabase-auth-gateway"
+import { NotificationsStore, provideNotifications } from "@/features/notifications"
+import {
+  SupabaseActivity,
+  SupabaseNotifications,
+} from "@/features/notifications/infrastructure/supabase-notifications"
 import { CatalogService, SupabaseCatalogGateway, setCatalogService } from "@/features/catalog"
 import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
 import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-space"
@@ -23,7 +28,9 @@ export function compose(db: Db = createSupabase()) {
   )
   const spacesStore = new SpacesStore(spaces)
   const catalog = new CatalogService(new SupabaseCatalogGateway(db))
-  return { db, auth, session, spaces, spacesStore, catalog }
+  const notifications = new NotificationsStore(new SupabaseNotifications(db))
+  const activity = new SupabaseActivity(db)
+  return { db, auth, session, spaces, spacesStore, catalog, notifications, activity }
 }
 
 export type Services = ReturnType<typeof compose>
@@ -32,4 +39,5 @@ export function provideServices(services: Services): void {
   provideAuth({ service: services.auth, session: services.session })
   provideSpaces({ service: services.spaces, store: services.spacesStore })
   setCatalogService(services.catalog)
+  provideNotifications({ store: services.notifications, activity: services.activity })
 }

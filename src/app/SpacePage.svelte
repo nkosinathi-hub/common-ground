@@ -1,5 +1,6 @@
 <script lang="ts">
   import { useAuth } from "@/features/auth"
+  import { NotificationsBell } from "@/features/notifications"
   import { SettingsPage, useSpaces } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
   import HomePage from "./pages/HomePage.svelte"
@@ -28,6 +29,7 @@
 
 {#key space.id}
   <AppShell spaceId={space.id} current={section} theme={space.template} onSignOut={signOut}>
+    {#snippet actions()}<NotificationsBell />{/snippet}
     {#if route.name === "home"}
       <HomePage {space} />
     {:else if route.name === "watch" || route.name === "watch-item"}
