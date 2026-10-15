@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(9);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -23,6 +23,7 @@ select is(jsonb_array_length(public.export_me() -> 'memberships'), 1, 'one membe
 select is(public.export_me() #>> '{memberships,0,name}', 'Us', 'membership names the space');
 select is(public.export_me() #>> '{memberships,0,role}', 'owner', 'membership carries the role');
 select is((public.export_me() #>> '{counts,ideas}')::int, 2, 'counts only rows the caller authored');
+select ok(public.export_me() -> 'counts' ? 'comments', 'other author columns are counted too');
 select ok(not (public.export_me() -> 'counts' ? 'activity_events'),
   'tables without an author column are not counted');
 

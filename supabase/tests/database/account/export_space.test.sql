@@ -1,5 +1,5 @@
 begin;
-select plan(11);
+select plan(13);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -19,19 +19,12 @@ insert into public.notifications
   (recipient_id, space_id, type, subject_type, subject_id, deduplication_key)
   select tests.user_id('ben'), id, 'idea_added', 'idea', id, 'k1' from space_ref;
 
--- Attachments may not exist yet on this branch; a stand-in proves the column projection.
-do $$ begin
-  if to_regclass('public.attachments') is null then
-    create table public.attachments (
-      id uuid primary key default gen_random_uuid(), space_id uuid not null,
-      filename text, declared_mime text, verified_mime text, bytes int, object_path text,
-      status text, signed_url text, created_at timestamptz not null default now());
-    insert into public.attachments
-      (space_id, filename, declared_mime, verified_mime, bytes, object_path, status, signed_url)
-      select id, f, 'application/pdf', 'application/pdf', 3, 'p/' || f, s, 'https://secret'
-      from space_ref, (values ('a.pdf', 'ready'), ('b.pdf', 'pending')) v (f, s);
-  end if;
-end $$;
+insert into public.attachments
+  (space_id, idea_id, filename, declared_mime, verified_mime, bytes, status, finalized_at)
+  select i.space_id, i.id, f, 'application/pdf', 'application/pdf', 3, st::public.attachment_status,
+    case when st = 'ready' then now() end
+  from public.ideas i join space_ref r on r.id = i.space_id,
+    (values ('a.pdf', 'ready'), ('b.pdf', 'pending')) v (f, st);
 
 select throws_ok($$ select public.export_space((select id from space_ref)) $$,
   '28000', null, 'signed-out callers cannot export');
@@ -60,7 +53,13 @@ select ok(
       public.export_space((select id from space_ref)) #> '{tables,attachments}') a,
       jsonb_object_keys(a) k
     where k not in ('id', 'filename', 'declared_mime', 'verified_mime', 'bytes', 'object_path')),
-  'attachments are projected to safe columns, never signed URLs');
+  'attachments are projected to safe columns');
+select is(
+  (public.export_space((select id from space_ref)) #> '{tables,attachments,0}') - 'id',
+  jsonb_build_object('filename', 'a.pdf', 'declared_mime', 'application/pdf',
+    'verified_mime', 'application/pdf', 'bytes', 3,
+    'object_path', (select object_path from public.attachments where filename = 'a.pdf')),
+  'a finished upload is exported with its storage path');
 select ok(
   not exists (
     select 1 from jsonb_array_elements(
@@ -70,6 +69,9 @@ select ok(
 select ok(
   jsonb_typeof(public.export_space((select id from space_ref)) #> '{tables,activity_events}')
     = 'array', 'activity is exported');
+select ok(
+  jsonb_typeof(public.export_space((select id from space_ref)) #> '{tables,comment_mentions}')
+    = 'array', 'comment mentions are exported through their comments');
 
 select tests.act_as('eve');
 select throws_ok($$ select public.export_space((select id from space_ref)) $$,

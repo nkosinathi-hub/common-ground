@@ -37,16 +37,20 @@ set search_path = ''
 as $$
 declare
   rows jsonb;
-  ready text := '';
+  scope text := 't.space_id = $1';
 begin
-  if tbl <> all (public.export_table_names()) or to_regclass('public.' || tbl) is null
-     or not public.has_column(tbl, 'space_id') then
+  if tbl <> all (public.export_table_names()) or to_regclass('public.' || tbl) is null then
     return null;
   end if;
-  if tbl = 'attachments' then ready := ' and to_jsonb(t) ->> ''status'' = ''ready'''; end if;
+  if tbl = 'comment_mentions' then
+    scope := 't.comment_id in (select c.id from public.comments c where c.space_id = $1)';
+  elsif not public.has_column(tbl, 'space_id') then
+    return null;
+  end if;
+  if tbl = 'attachments' then scope := scope || ' and t.status::text = ''ready'''; end if;
   execute format(
     'select coalesce(jsonb_agg(r order by r ->> ''created_at'', r ->> ''id''), ''[]''::jsonb)
-     from (select to_jsonb(t) r from public.%I t where t.space_id = $1%s) s', tbl, ready)
+     from (select to_jsonb(t) r from public.%I t where %s) s', tbl, scope)
     using target_space into rows;
   if tbl = 'attachments' then
     select coalesce(jsonb_agg((
