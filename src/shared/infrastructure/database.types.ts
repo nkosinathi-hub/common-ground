@@ -31,6 +31,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"budget_entries": {
+                  Row: {
+                    "actual_minor": number,"category": string,"created_at": string,"created_by": string | null,"estimated_minor": number,"id": string,"idea_id": string,"label": string,"space_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "actual_minor"?: number,"category": string,"created_at"?: string,"created_by"?: string | null,"estimated_minor"?: number,"id"?: string,"idea_id": string,"label": string,"space_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "actual_minor"?: number,"category"?: string,"created_at"?: string,"created_by"?: string | null,"estimated_minor"?: number,"id"?: string,"idea_id"?: string,"label"?: string,"space_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "budget_entries_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "budget_entries_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
                 },"catalog_cache": {
                   Row: {
                     "cache_key": string,"expires_at": string,"fetched_at": string,"response": NonNullable<Json>
@@ -44,6 +70,110 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"hypotheses": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"idea_id": string,"space_id": string,"statement": string,"status": Database["public"]['Enums']["hypothesis_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id": string,"space_id": string,"statement": string,"status"?: Database["public"]['Enums']["hypothesis_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id"?: string,"space_id"?: string,"statement"?: string,"status"?: Database["public"]['Enums']["hypothesis_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "hypotheses_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "hypotheses_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"idea_notes": {
+                  Row: {
+                    "body": string,"created_at": string,"created_by": string | null,"id": string,"idea_id": string,"space_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id": string,"space_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id"?: string,"space_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "idea_notes_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "idea_notes_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"ideas": {
+                  Row: {
+                    "brief": NonNullable<Json>,"created_at": string,"created_by": string | null,"currency": string,"id": string,"space_id": string,"stage": Database["public"]['Enums']["idea_stage"],"tags": (string)[],"template": Database["public"]['Enums']["idea_template"],"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "brief"?: NonNullable<Json>,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"space_id": string,"stage"?: Database["public"]['Enums']["idea_stage"],"tags"?: (string)[],"template"?: Database["public"]['Enums']["idea_template"],"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "brief"?: NonNullable<Json>,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"space_id"?: string,"stage"?: Database["public"]['Enums']["idea_stage"],"tags"?: (string)[],"template"?: Database["public"]['Enums']["idea_template"],"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "ideas_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "ideas_space_id_fkey"
+      columns: ["space_id"]
+isOneToOne: false
+      referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"milestones": {
+                  Row: {
+                    "completed_at": string | null,"created_at": string,"created_by": string | null,"id": string,"idea_id": string,"space_id": string,"target_date": string | null,"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "completed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id": string,"space_id": string,"target_date"?: string | null,"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "completed_at"?: string | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"idea_id"?: string,"space_id"?: string,"target_date"?: string | null,"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "milestones_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "milestones_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    }
                   ]
                 },"notifications": {
                   Row: {
@@ -109,6 +239,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"research_links": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"description": string,"id": string,"idea_id": string,"space_id": string,"title": string,"updated_at": string,"url": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"description"?: string,"id"?: string,"idea_id": string,"space_id": string,"title": string,"updated_at"?: string,"url": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"description"?: string,"id"?: string,"idea_id"?: string,"space_id"?: string,"title"?: string,"updated_at"?: string,"url"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "research_links_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "research_links_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
     }
                   ]
                 },"space_invites": {
@@ -189,6 +345,64 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"task_checklist_items": {
+                  Row: {
+                    "created_at": string,"done": boolean,"id": string,"label": string,"position": number,"space_id": string,"task_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"done"?: boolean,"id"?: string,"label": string,"position"?: number,"space_id": string,"task_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"done"?: boolean,"id"?: string,"label"?: string,"position"?: number,"space_id"?: string,"task_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "task_checklist_items_space_id_task_id_fkey"
+      columns: ["space_id","task_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"tasks": {
+                  Row: {
+                    "assignee_id": string | null,"created_at": string,"created_by": string | null,"description": string,"due_date": string | null,"id": string,"idea_id": string,"milestone_id": string | null,"priority": Database["public"]['Enums']["task_priority"],"space_id": string,"status": Database["public"]['Enums']["task_status"],"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assignee_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string,"due_date"?: string | null,"id"?: string,"idea_id": string,"milestone_id"?: string | null,"priority"?: Database["public"]['Enums']["task_priority"],"space_id": string,"status"?: Database["public"]['Enums']["task_status"],"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "assignee_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"description"?: string,"due_date"?: string | null,"id"?: string,"idea_id"?: string,"milestone_id"?: string | null,"priority"?: Database["public"]['Enums']["task_priority"],"space_id"?: string,"status"?: Database["public"]['Enums']["task_status"],"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "tasks_assignee_id_fkey"
+      columns: ["assignee_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "tasks_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "tasks_space_id_milestone_id_fkey"
+      columns: ["space_id","milestone_id"]
+isOneToOne: false
+      referencedRelation: "milestones"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -197,6 +411,9 @@ isOneToOne: false
           Functions: {
             "after_member_left":
 { Args: { "member": string,"target_space": string }; Returns: undefined
+                           },
+"change_idea_currency":
+{ Args: { "clear_entries": boolean,"idea": string,"new_currency": string }; Returns: undefined
                            },
 "consume_rate_limit":
 { Args: { "bucket_name": string,"max_requests": number,"target_user": string,"window_seconds": number }; Returns: boolean
@@ -227,6 +444,9 @@ isOneToOne: false
 "is_space_owner":
 { Args: { "target_space": string }; Returns: boolean
                            },
+"is_valid_idea_brief":
+{ Args: { "brief": Json }; Returns: boolean
+                           },
 "leave_space":
 { Args: { "target_space": string }; Returns: undefined
                            },
@@ -250,10 +470,13 @@ isOneToOne: false
                            },
 "transfer_ownership":
 { Args: { "new_owner": string,"target_space": string }; Returns: undefined
+                           },
+"update_idea_brief":
+{ Args: { "brief": Json,"expected_updated_at": string,"idea": string }; Returns: string
                            }
           }
           Enums: {
-            "space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank"
+            "hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -369,7 +592,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"]
+            "hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"]
           }
         }
 } as const
