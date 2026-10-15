@@ -38,12 +38,13 @@ describe("tasks use cases, edges", () => {
     expect((await uc.addMilestone("s", "i", { title: "", targetDate: null })).ok).toBe(false)
     const ms = await uc.addMilestone("s", "i", { title: "Open", targetDate: null })
     if (!ms.ok) throw new Error("milestone failed")
-    const moved = await uc.retargetMilestone(ms.value.id, {
+    const moved = await uc.retargetMilestone(ms.value, {
       title: "Open",
       targetDate: "2027-01-01",
     })
-    expect(moved.ok && moved.value.targetDate).toBe("2027-01-01")
-    const reopened = await uc.completeMilestone(ms.value.id, false)
+    if (!moved.ok) throw new Error("retarget failed")
+    expect(moved.value.targetDate).toBe("2027-01-01")
+    const reopened = await uc.completeMilestone(moved.value, false)
     expect(reopened.ok && reopened.value.completedAt).toBeNull()
     expect((await uc.milestones("i")).ok).toBe(true)
     expect((await uc.removeMilestone(ms.value.id)).ok).toBe(true)

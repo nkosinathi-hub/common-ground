@@ -1,10 +1,13 @@
+import { appError, err, ok } from "@/shared/domain"
 import { removed, settle, type QueryReply } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { BudgetRepository } from "../application/ports"
 import type { BudgetEntry, EntryValues } from "../domain"
 
 type Row = Record<string, unknown>
-const COLUMNS = "id, idea_id, category, label, estimated_minor, actual_minor, created_at"
+const STALE = "Someone else changed this. Reload to see their version"
+const COLUMNS =
+  "id, idea_id, category, label, estimated_minor, actual_minor, created_at, updated_at"
 
 const toEntry = (r: Row): BudgetEntry => ({
   id: r.id as string,
@@ -14,6 +17,7 @@ const toEntry = (r: Row): BudgetEntry => ({
   estimatedMinor: Number(r.estimated_minor),
   actualMinor: Number(r.actual_minor),
   createdAt: r.created_at as string,
+  updatedAt: r.updated_at as string,
 })
 const toRow = (v: EntryValues) => ({
   category: v.category,
@@ -52,15 +56,19 @@ export class SupabaseBudget implements BudgetRepository {
     )
   }
 
-  update(id: string, values: EntryValues) {
-    return settle(
+  /** Filtered on the updated_at the client saw: zero rows back means someone changed it first. */
+  async update(id: string, expectedUpdatedAt: string, values: EntryValues) {
+    const rows = await settle(
       this.table()
         .update(toRow(values) as never)
         .eq("id", id)
-        .select(COLUMNS)
-        .single(),
-      (r) => toEntry(r as Row),
+        .eq("updated_at", expectedUpdatedAt)
+        .select(COLUMNS),
+      (data) => (data as Row[]).map(toEntry),
     )
+    if (!rows.ok) return rows
+    const [first] = rows.value
+    return first === undefined ? err(appError("conflict", STALE)) : ok(first)
   }
 
   remove(id: string) {

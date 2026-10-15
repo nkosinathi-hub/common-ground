@@ -10,7 +10,7 @@ describe("budget use cases", () => {
     const added = await budget.add("s", "i", form, "ZAR")
     expect(added.ok && added.value).toMatchObject({ estimatedMinor: 150000, actualMinor: 120050 })
     if (!added.ok) return
-    const updated = await budget.update(added.value.id, { ...form, actual: "0" }, "ZAR")
+    const updated = await budget.update(added.value, { ...form, actual: "0" }, "ZAR")
     expect(updated.ok && updated.value.actualMinor).toBe(0)
     expect((await budget.add("s", "i", { ...form, estimated: "abc" }, "ZAR")).ok).toBe(false)
   })

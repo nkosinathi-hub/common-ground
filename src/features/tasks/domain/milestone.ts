@@ -7,6 +7,8 @@ export interface Milestone {
   readonly title: string
   readonly targetDate: DateOnly | null
   readonly completedAt: string | null
+  /** Exact server timestamp string; edits send it back as their precondition. */
+  readonly updatedAt: string
 }
 
 export interface MilestoneInput {

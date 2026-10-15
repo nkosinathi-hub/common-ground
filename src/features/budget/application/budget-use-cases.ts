@@ -1,5 +1,5 @@
 import { appError, err, isCurrencyCode } from "@/shared/domain"
-import { validateEntry, type EntryForm } from "../domain"
+import { validateEntry, type BudgetEntry, type EntryForm } from "../domain"
 import type { BudgetRepository } from "./ports"
 
 export function makeBudgetUseCases(repo: BudgetRepository) {
@@ -12,9 +12,9 @@ export function makeBudgetUseCases(repo: BudgetRepository) {
       return values.ok ? repo.add(spaceId, ideaId, values.value) : values
     },
 
-    async update(id: string, form: EntryForm, currency: string) {
+    async update(base: BudgetEntry, form: EntryForm, currency: string) {
       const values = validateEntry(form, currency)
-      return values.ok ? repo.update(id, values.value) : values
+      return values.ok ? repo.update(base.id, base.updatedAt, values.value) : values
     },
 
     async changeCurrency(ideaId: string, code: string, clearEntries: boolean) {

@@ -2,6 +2,7 @@
   import type { AppError } from "@/shared/domain"
   import { ErrorState, Loading } from "@/shared/ui"
   import { budgetSummary, type BudgetEntry, type EntryForm as Form } from "../domain"
+  import { STALE_COPY } from "./conflict"
   import BudgetSummary from "./BudgetSummary.svelte"
   import BudgetTable from "./BudgetTable.svelte"
   import { useBudget } from "./context"
@@ -38,11 +39,20 @@
     if (result.ok) entries = [...entries, result.value]
     return result.ok ? null : result.error
   }
-  let removeError = $state<string | null>(null)
+  /** A stale edit shows the conflict copy and reloads the lines; other errors stay on the row. */
+  async function edit(base: BudgetEntry, form: Form) {
+    const result = await budget.update(base, form, currency)
+    if (result.ok) entries = entries.map((e) => (e.id === base.id ? result.value : e))
+    if (result.ok || result.error.kind !== "conflict") return result.ok ? null : result.error
+    notice = STALE_COPY
+    await load()
+    return null
+  }
+  let notice = $state<string | null>(null)
   async function remove(id: string) {
     const result = await budget.remove(id)
     if (result.ok) entries = entries.filter((e) => e.id !== id)
-    removeError = result.ok ? null : result.error.message
+    notice = result.ok ? null : result.error.message
   }
   const summary = $derived(budgetSummary(entries, currency))
 </script>
@@ -62,7 +72,7 @@
   {:else}
     <BudgetSummary totals={summary} />
     <EntryForm {currency} onSubmit={add} />
-    <BudgetTable {entries} {currency} onRemove={remove} />
-    {#if removeError}<p class="text-sm text-destructive" role="alert">{removeError}</p>{/if}
+    <BudgetTable {entries} {currency} onEdit={edit} onRemove={remove} />
   {/if}
+  {#if notice}<p class="text-sm text-destructive" role="alert">{notice}</p>{/if}
 </section>

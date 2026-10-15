@@ -17,7 +17,8 @@ export const TASK_COLUMNS =
   "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_at, updated_at"
 export const UPCOMING_COLUMNS = "id, idea_id, title, status, due_date, ideas(title)"
 export const ITEM_COLUMNS = "id, task_id, label, done, position"
-export const MILESTONE_COLUMNS = "id, space_id, idea_id, title, target_date, completed_at"
+export const MILESTONE_COLUMNS =
+  "id, space_id, idea_id, title, target_date, completed_at, updated_at"
 
 export const toTask = (r: Row): Task => ({
   id: s(r.id),
@@ -49,6 +50,7 @@ export const toMilestone = (r: Row): Milestone => ({
   title: s(r.title),
   targetDate: n(r.target_date) as DateOnly | null,
   completedAt: n(r.completed_at),
+  updatedAt: s(r.updated_at),
 })
 
 const KEYS: Record<keyof TaskPatch, string> = {

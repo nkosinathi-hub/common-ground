@@ -54,8 +54,10 @@ export interface MilestonesRepository {
     title: string,
     targetDate: DateOnly | null,
   ): Promise<Result<Milestone>>
+  /** Fails with kind "conflict" when the row's updated_at is no longer expectedUpdatedAt. */
   update(
     id: string,
+    expectedUpdatedAt: string,
     patch: { title?: string; targetDate?: DateOnly | null; completedAt?: string | null },
   ): Promise<Result<Milestone>>
   remove(id: string): Promise<Result<void>>

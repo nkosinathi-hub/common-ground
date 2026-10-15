@@ -13,7 +13,7 @@ describe("budget use cases, edges", () => {
     )
     if (!added.ok) throw new Error("add failed")
     const bad = await budget.update(
-      added.value.id,
+      added.value,
       { category: "", label: "x", estimated: "1", actual: "" },
       "ZAR",
     )

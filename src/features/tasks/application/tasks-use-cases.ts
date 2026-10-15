@@ -6,7 +6,14 @@ import {
   validateMilestone,
   validateTaskInput,
 } from "../domain"
-import type { ChecklistItem, MilestoneInput, TaskInput, TaskPriority, TaskStatus } from "../domain"
+import type {
+  ChecklistItem,
+  Milestone,
+  MilestoneInput,
+  TaskInput,
+  TaskPriority,
+  TaskStatus,
+} from "../domain"
 import type {
   ChecklistRepository,
   MemberDirectory,
@@ -70,11 +77,11 @@ export function makeTasksUseCases({ tasks, checklist, milestones, members }: Tas
         ? milestones.create(spaceId, ideaId, valid.value.title, valid.value.targetDate)
         : valid
     },
-    completeMilestone: (id: string, done: boolean, now = new Date()) =>
-      milestones.update(id, { completedAt: done ? now.toISOString() : null }),
-    async retargetMilestone(id: string, input: MilestoneInput) {
+    completeMilestone: (base: Milestone, done: boolean, now = new Date()) =>
+      milestones.update(base.id, base.updatedAt, { completedAt: done ? now.toISOString() : null }),
+    async retargetMilestone(base: Milestone, input: MilestoneInput) {
       const valid = validateMilestone(input)
-      return valid.ok ? milestones.update(id, valid.value) : valid
+      return valid.ok ? milestones.update(base.id, base.updatedAt, valid.value) : valid
     },
     removeMilestone: (id: string) => milestones.remove(id),
   }

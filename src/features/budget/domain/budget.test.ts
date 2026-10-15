@@ -10,6 +10,7 @@ import {
 const entry = (category: string, estimated: number, actual: number): BudgetEntry => ({
   id: category + estimated,
   ideaId: "i",
+  updatedAt: "",
   category,
   label: "x",
   estimatedMinor: estimated,

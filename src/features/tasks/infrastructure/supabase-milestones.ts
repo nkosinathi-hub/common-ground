@@ -3,7 +3,7 @@ import { removed } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { MilestonesRepository } from "../application/ports"
 import { MILESTONE_COLUMNS, toMilestone } from "./rows"
-import { many, one, table } from "./table"
+import { guarded, many, one, table } from "./table"
 
 export class SupabaseMilestones implements MilestonesRepository {
   constructor(private readonly db: Db) {}
@@ -29,6 +29,7 @@ export class SupabaseMilestones implements MilestonesRepository {
   }
   update(
     id: string,
+    expectedUpdatedAt: string,
     patch: { title?: string; targetDate?: DateOnly | null; completedAt?: string | null },
   ) {
     const row = {
@@ -37,12 +38,12 @@ export class SupabaseMilestones implements MilestonesRepository {
       completed_at: patch.completedAt,
     }
     const defined = Object.fromEntries(Object.entries(row).filter(([, v]) => v !== undefined))
-    return one(
+    return guarded(
       table(this.db, "milestones")
         .update(defined as never)
         .eq("id", id)
-        .select(MILESTONE_COLUMNS)
-        .single(),
+        .eq("updated_at", expectedUpdatedAt)
+        .select(MILESTONE_COLUMNS),
       toMilestone,
     )
   }

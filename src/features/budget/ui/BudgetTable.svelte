@@ -1,18 +1,18 @@
 <script lang="ts">
-  import { formatMoney, money } from "@/shared/domain"
-  import { DeleteButton } from "@/shared/ui"
-  import { totalsByCategory, type BudgetEntry } from "../domain"
+  import { formatMoney, type AppError } from "@/shared/domain"
+  import { totalsByCategory, type BudgetEntry, type EntryForm } from "../domain"
+  import BudgetRow from "./BudgetRow.svelte"
 
-  let {
-    entries,
-    currency,
-    onRemove,
-  }: { entries: readonly BudgetEntry[]; currency: string; onRemove: (id: string) => void } =
-    $props()
+  interface Props {
+    entries: readonly BudgetEntry[]
+    currency: string
+    onEdit: (base: BudgetEntry, form: EntryForm) => Promise<AppError | null>
+    onRemove: (id: string) => void
+  }
 
-  const fmt = (minor: number) => formatMoney(money(minor, currency))
+  let { entries, currency, onEdit, onRemove }: Props = $props()
   const categories = $derived(totalsByCategory(entries, currency))
-  const num = "p-1 text-right tabular-nums"
+  const numeric = "p-1 text-right tabular-nums"
 </script>
 
 <div class="overflow-x-auto">
@@ -27,31 +27,24 @@
       </tr>
     </thead>
     <tbody>
-      {#each entries as e (e.id)}
-        <tr class="border-t">
-          <td class="p-1">{e.category}</td>
-          <td class="p-1">{e.label}</td>
-          <td class={num}>{fmt(e.estimatedMinor)}</td>
-          <td class={num}>{fmt(e.actualMinor)}</td>
-          <td class="p-1 text-right">
-            <DeleteButton
-              label="Delete {e.label}"
-              what="this budget line"
-              onConfirm={() => onRemove(e.id)}
-            />
-          </td>
-        </tr>
+      {#each entries as entry (entry.id)}
+        <BudgetRow
+          {entry}
+          {currency}
+          onEdit={(form) => onEdit(entry, form)}
+          onRemove={() => onRemove(entry.id)}
+        />
       {:else}
         <tr><td colspan="5" class="p-1 text-muted-foreground">No budget lines yet.</td></tr>
       {/each}
     </tbody>
     {#if categories.length > 1}
       <tfoot>
-        {#each categories as c (c.category)}
+        {#each categories as group (group.category)}
           <tr class="border-t font-medium">
-            <td class="p-1" colspan="2">{c.category} total</td>
-            <td class={num}>{formatMoney(c.estimated)}</td>
-            <td class={num}>{formatMoney(c.actual)}</td>
+            <td class="p-1" colspan="2">{group.category} total</td>
+            <td class={numeric}>{formatMoney(group.estimated)}</td>
+            <td class={numeric}>{formatMoney(group.actual)}</td>
             <td></td>
           </tr>
         {/each}

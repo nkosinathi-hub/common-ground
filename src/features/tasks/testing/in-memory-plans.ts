@@ -1,4 +1,4 @@
-import { ok, type DateOnly, type Result } from "@/shared/domain"
+import { appError, err, ok, type DateOnly, type Result } from "@/shared/domain"
 import type { ChecklistRepository, MilestonesRepository } from "../application/ports"
 import type { ChecklistItem, Milestone } from "../domain"
 import { Store } from "./in-memory-store"
@@ -19,8 +19,14 @@ export class InMemoryChecklist implements ChecklistRepository {
   }
 }
 
+/** Behaves like the adapter: an edit from a stale updatedAt fails with kind "conflict". */
 export class InMemoryMilestones implements MilestonesRepository {
   readonly store = new Store<Milestone>()
+  private tick = 0
+  private stamp() {
+    this.tick += 1
+    return new Date(Date.UTC(2026, 9, 15, 1, 0, this.tick)).toISOString()
+  }
   async list(ideaId: string): Promise<Result<Milestone[]>> {
     return ok(this.store.where((m) => m.ideaId === ideaId))
   }
@@ -32,10 +38,13 @@ export class InMemoryMilestones implements MilestonesRepository {
       title,
       targetDate,
       completedAt: null,
+      updatedAt: this.stamp(),
     })
   }
-  async update(id: string, patch: Partial<Milestone>) {
-    return this.store.patch(id, patch)
+  async update(id: string, expectedUpdatedAt: string, patch: Partial<Milestone>) {
+    const row = this.store.rows.get(id)
+    if (row && row.updatedAt !== expectedUpdatedAt) return err(appError("conflict", "Changed"))
+    return this.store.patch(id, { ...patch, updatedAt: this.stamp() })
   }
   async remove(id: string) {
     return this.store.remove(id)

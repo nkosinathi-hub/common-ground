@@ -1,19 +1,22 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
-  import { Input } from "$lib/components/ui/input"
-  import { Flag } from "@lucide/svelte"
   import type { AppError, Result } from "@/shared/domain"
   import { ErrorState, Loading } from "@/shared/ui"
-  import { milestoneProgress, type Milestone } from "../domain"
+  import { milestoneProgress, type Milestone, type MilestoneInput } from "../domain"
+  import { STALE_COPY } from "./conflict"
   import { useTasks } from "./context"
+  import MilestoneForm from "./MilestoneForm.svelte"
   import MilestoneItem from "./MilestoneItem.svelte"
 
-  let { spaceId, ideaId }: { spaceId: string; ideaId: string } = $props()
+  interface Props {
+    spaceId: string
+    ideaId: string
+  }
+
+  let { spaceId, ideaId }: Props = $props()
   const uc = useTasks()
   let items = $state<Milestone[]>([])
   let loadError = $state<AppError | null>(null)
   let loading = $state(true)
-  let draft = $state({ title: "", targetDate: "" })
   let error = $state<AppError | null>(null)
 
   async function load() {
@@ -25,22 +28,20 @@
   }
   $effect(() => void load())
 
+  /** Applies a write; a stale edit shows the conflict copy and reloads the list. */
   async function run<T>(write: Promise<Result<T>>, apply: (value: T) => void) {
     const result = await write
     if (result.ok) apply(result.value)
     error = result.ok ? null : result.error
+    if (!result.ok && result.error.kind === "conflict") {
+      error = { ...result.error, message: STALE_COPY }
+      await load()
+    }
+    return result.ok
   }
   const replace = (m: Milestone) => (items = items.map((i) => (i.id === m.id ? m : i)))
-  const add = (e: SubmitEvent) => (
-    e.preventDefault(),
-    run(
-      uc.addMilestone(spaceId, ideaId, {
-        title: draft.title,
-        targetDate: draft.targetDate || null,
-      }),
-      (m) => ((items = [...items, m]), (draft = { title: "", targetDate: "" })),
-    )
-  )
+  const add = (input: MilestoneInput) =>
+    run(uc.addMilestone(spaceId, ideaId, input), (m) => (items = [...items, m]))
   const progress = $derived(milestoneProgress(items))
 </script>
 
@@ -50,20 +51,7 @@
         >({progress.done} of {progress.total} complete)</span
       >{/if}
   </h2>
-  <form class="flex flex-wrap items-end gap-2" onsubmit={add}>
-    <Input
-      class="w-56"
-      aria-label="Milestone title"
-      placeholder="New milestone"
-      maxlength={200}
-      bind:value={draft.title}
-      aria-invalid={error?.field === "title" ? true : undefined}
-    />
-    <label class="flex flex-col text-xs"
-      >Target date <Input type="date" class="h-8" bind:value={draft.targetDate} /></label
-    >
-    <Button type="submit" size="sm" disabled={!draft.title.trim()}><Flag />Add milestone</Button>
-  </form>
+  <MilestoneForm {error} onAdd={add} />
   {#if error}<p class="text-sm text-destructive" role="alert">{error.message}</p>{/if}
   {#if loadError}
     <ErrorState error={loadError} onRetry={load} />
@@ -74,7 +62,8 @@
       {#each items as m (m.id)}
         <MilestoneItem
           milestone={m}
-          onToggle={(done) => run(uc.completeMilestone(m.id, done), replace)}
+          onToggle={(done) => run(uc.completeMilestone(m, done), replace)}
+          onEdit={(input) => run(uc.retargetMilestone(m, input), replace)}
           onRemove={() =>
             run(uc.removeMilestone(m.id), () => (items = items.filter((i) => i.id !== m.id)))}
         />

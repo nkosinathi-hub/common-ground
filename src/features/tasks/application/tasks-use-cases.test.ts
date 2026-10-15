@@ -64,9 +64,9 @@ describe("tasks use cases", () => {
     if (!ms.ok) throw new Error("milestone failed")
     const linked = await uc.linkMilestone(task.id, ms.value.id)
     expect(linked.ok && linked.value.milestoneId).toBe(ms.value.id)
-    const done = await uc.completeMilestone(ms.value.id, true, new Date("2026-10-15T08:00:00Z"))
+    const done = await uc.completeMilestone(ms.value, true, new Date("2026-10-15T08:00:00Z"))
     expect(done.ok && done.value.completedAt).toBe("2026-10-15T08:00:00.000Z")
-    expect((await uc.retargetMilestone(ms.value.id, { title: "Open", targetDate: "bad" })).ok).toBe(
+    expect((await uc.retargetMilestone(ms.value, { title: "Open", targetDate: "bad" })).ok).toBe(
       false,
     )
   })

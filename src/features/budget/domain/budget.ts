@@ -18,6 +18,8 @@ export interface BudgetEntry {
   readonly estimatedMinor: number
   readonly actualMinor: number
   readonly createdAt: string
+  /** Exact server timestamp string; edits send it back as their precondition. */
+  readonly updatedAt: string
 }
 
 export interface EntryValues {
