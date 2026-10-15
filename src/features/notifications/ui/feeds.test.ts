@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/sv
 import { afterEach, describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { notificationsSetup } from "../testing/notifications-setup"
-import Provided from "../testing/Provided.svelte"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import ActivityFeed from "./ActivityFeed.svelte"
 import { provideNotifications } from "./context"
 import NotificationsBell from "./NotificationsBell.svelte"

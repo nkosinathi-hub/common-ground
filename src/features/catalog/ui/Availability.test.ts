@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CatalogService } from "../application/catalog-service"
 import { FakeCatalogGateway } from "../testing/fake-catalog-gateway"
 import { SPACE_ID, listing, region } from "../testing/fixtures"
-import Provided from "../testing/Provided.svelte"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import Availability from "./Availability.svelte"
 import { provideCatalog } from "./context"
 

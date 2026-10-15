@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it } from "vitest"
 import { CatalogService, provideCatalog } from "@/features/catalog"
 import { SPACE_ID, item } from "../testing/fixtures"
-import Provided from "../testing/Provided.svelte"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import { emptyCatalogGateway, watchFakes } from "../testing/render-context"
 import { provideWatch } from "./context"
 import WatchPage from "./WatchPage.svelte"

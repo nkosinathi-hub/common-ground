@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
-import Provided from "../testing/Provided.svelte"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import { spacesSetup } from "../testing/spaces-setup"
 import { provideSpaces } from "./context"
 import NewSpacePage from "./NewSpacePage.svelte"
