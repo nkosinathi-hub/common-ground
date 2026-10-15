@@ -58,7 +58,8 @@ select is(
   (public.export_space((select id from space_ref)) #> '{tables,attachments,0}') - 'id',
   jsonb_build_object('filename', 'a.pdf', 'declared_mime', 'application/pdf',
     'verified_mime', 'application/pdf', 'bytes', 3,
-    'object_path', (select object_path from public.attachments where filename = 'a.pdf')),
+    'object_path', (select space_id || '/' || idea_id || '/' || id from public.attachments
+      where filename = 'a.pdf')),
   'a finished upload is exported with its storage path');
 select ok(
   not exists (

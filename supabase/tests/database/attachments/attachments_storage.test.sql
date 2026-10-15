@@ -31,7 +31,7 @@ select is((select allowed_mime_types from storage.buckets where id = 'attachment
 
 select tests.act_as('ana');
 select is((select array_agg(name) from storage.objects where bucket_id = 'attachments'),
-  (select array_agg(object_path) from public.attachments where status = 'ready'),
+  (select array_agg(space_id || '/' || idea_id || '/' || id) from public.attachments),
   'a member reads finalized objects only, not pending or stray ones');
 select throws_ok($$ insert into storage.objects (bucket_id, name) values ('attachments',
   '51000000-0000-4000-8000-000000000001/11000000-0000-4000-8000-000000000001/mine') $$,
@@ -45,7 +45,8 @@ select tests.act_as('eve');
 select is((select count(*)::int from storage.objects where bucket_id = 'attachments'), 0,
   'a nonmember reads no objects');
 select ok(not public.can_read_attachment_object(
-  (select object_path from public.attachments where id = 'a1000000-0000-4000-8000-000000000001')),
+  '51000000-0000-4000-8000-000000000001/11000000-0000-4000-8000-000000000001/'
+  || 'a1000000-0000-4000-8000-000000000001'),
   'a nonmember cannot read a known object path');
 
 select tests.act_as_anon();

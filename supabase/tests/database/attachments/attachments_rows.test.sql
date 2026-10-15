@@ -30,7 +30,8 @@ select is((select object_path from public.attachments where id = 'a1000000-0000-
 
 select tests.act_as('bob');
 select is((select count(*)::int from public.attachments), 1, 'member sees the finalized row only');
-select is((select count(*)::int from public.attachments where status = 'pending'), 0,
+select is((select count(*)::int from public.attachments
+  where id = 'a2000000-0000-4000-8000-000000000002'), 0,
   'pending rows are invisible to members');
 select throws_ok($$ insert into public.attachments (space_id, idea_id, filename, declared_mime, bytes)
   values ('51000000-0000-4000-8000-000000000001', '11000000-0000-4000-8000-000000000001', 'x.pdf',
