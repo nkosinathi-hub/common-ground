@@ -1,4 +1,5 @@
-import { AccountService, provideAccount, SupabaseAccountRepository } from "@/features/account"
+import { AccountService, provideAccount } from "@/features/account"
+import { SupabaseAccountRepository } from "@/features/account/infrastructure/supabase-account-repository"
 import { AuthService, SessionStore, provideAuth } from "@/features/auth"
 import { SupabaseAuthGateway } from "@/features/auth/infrastructure/supabase-auth-gateway"
 import {
