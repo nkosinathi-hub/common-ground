@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 import { createClient } from "@supabase/supabase-js"
 import { execSync } from "node:child_process"
+import { readFileSync } from "node:fs"
 import { withRetry } from "./retry"
 import { parseStatusEnv } from "../../../scripts/setup/supabase"
 import { dockerHost } from "../../../scripts/setup/system"
@@ -8,6 +9,9 @@ import { dockerHost } from "../../../scripts/setup/system"
 let cached: Record<string, string> | null = null
 
 function status(): Record<string, string> {
+  // A saved `supabase status -o env` output, for machines where the CLI call is slow.
+  const saved = process.env.E2E_STACK_ENV
+  if (saved) return parseStatusEnv(readFileSync(saved, "utf8"))
   const host = dockerHost()
   const env = { ...process.env, ...(host ? { DOCKER_HOST: host } : {}) }
   const out = execSync("pnpm -s exec supabase status -o env", {
@@ -54,14 +58,17 @@ export const uniqueEmail = (handle: string) =>
 /** Creates a verified account directly, for tests that are not about sign-up itself. */
 export async function createUser(handle: string): Promise<TestUser> {
   const user = { email: uniqueEmail(handle), password: "correct horse battery", name: handle }
+  let attempts = 0
   await withRetry(async () => {
+    attempts++
     const { error } = await admin().auth.admin.createUser({
       email: user.email,
       password: user.password,
       email_confirm: true,
       user_metadata: { display_name: handle },
     })
-    if (error) throw error
+    // A timed-out attempt can still have created the user; the retry then finds it exists.
+    if (error && !(attempts > 1 && error.code === "email_exists")) throw error
   })
   return user
 }
