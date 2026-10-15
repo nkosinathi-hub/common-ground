@@ -54,7 +54,11 @@ export class FakeSpacesGateway implements SpacesGateway {
   revokeInvite = async () => ok(undefined)
   async previewInvite(token: string) {
     const valid = this.tokens.has(token)
-    return ok({ spaceName: valid ? "Us" : null, inviterName: null, status: valid ? "valid" : "invalid" } as const)
+    return ok({
+      spaceName: valid ? "Us" : null,
+      inviterName: null,
+      status: valid ? "valid" : "invalid",
+    } as const)
   }
   async redeemInvite(token: string) {
     const spaceId = this.tokens.get(token)

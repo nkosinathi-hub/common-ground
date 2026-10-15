@@ -25,15 +25,15 @@ supabase/functions/_shared/                    pure TS, unit-tested by Vitest
 
 ## Layer rules (scripts/guard/layers.ts)
 
-| From | May import |
-|---|---|
-| shared/domain | shared/domain |
-| feature domain | shared/domain, own domain |
-| feature application | shared/domain, own domain, own application, other features' index.ts |
-| feature infrastructure | shared/domain, shared/infrastructure, own domain, own application |
-| feature ui | shared/domain, shared/ui, lib, own domain, own application, own ui, other features' index.ts |
-| feature testing | shared/domain, own domain, own application |
-| app | anything |
+| From                   | May import                                                                                   |
+| ---------------------- | -------------------------------------------------------------------------------------------- |
+| shared/domain          | shared/domain                                                                                |
+| feature domain         | shared/domain, own domain                                                                    |
+| feature application    | shared/domain, own domain, own application, other features' index.ts                         |
+| feature infrastructure | shared/domain, shared/infrastructure, own domain, own application                            |
+| feature ui             | shared/domain, shared/ui, lib, own domain, own application, own ui, other features' index.ts |
+| feature testing        | shared/domain, own domain, own application                                                   |
+| app                    | anything                                                                                     |
 
 `@supabase/supabase-js` is imported only from `shared/infrastructure` and feature `infrastructure`.
 UI receives use cases through Svelte context set in `src/app/composition.ts`, never by importing an adapter.

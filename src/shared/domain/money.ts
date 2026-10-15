@@ -11,7 +11,7 @@ export const isCurrencyCode = (code: string): boolean => /^[A-Z]{3}$/.test(code)
 const AMOUNT = /^(\d{1,12})(?:[.,](\d{1,2}))?$/
 
 export function parseMoney(input: string, currency: string): Result<Money> {
-  const compact = input.replace(/[\s ]/g, "")
+  const compact = input.replace(/[\s\u00a0]/g, "")
   const match = AMOUNT.exec(compact)
   if (!match) return err(appError("validation", "Enter a positive amount with up to 2 decimals"))
   const whole = Number(match[1])

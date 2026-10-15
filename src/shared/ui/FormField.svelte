@@ -33,8 +33,8 @@
     required
   />
   {#if error}
-    <p id={`${id}-error`} class="text-destructive text-sm">{error}</p>
+    <p id={`${id}-error`} class="text-sm text-destructive">{error}</p>
   {:else if hint}
-    <p id={`${id}-hint`} class="text-muted-foreground text-xs">{hint}</p>
+    <p id={`${id}-hint`} class="text-xs text-muted-foreground">{hint}</p>
   {/if}
 </div>

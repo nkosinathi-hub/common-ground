@@ -16,7 +16,10 @@ describe("auth callback", () => {
       kind: "error",
       reason: "expired",
     })
-    expect(parseAuthCallback("", "#error=server_error")).toEqual({ kind: "error", reason: "invalid" })
+    expect(parseAuthCallback("", "#error=server_error")).toEqual({
+      kind: "error",
+      reason: "invalid",
+    })
   })
 
   it("does nothing on normal navigation", () => {

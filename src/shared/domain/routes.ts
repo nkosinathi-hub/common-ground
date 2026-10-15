@@ -45,7 +45,8 @@ export function parseHash(hash: string): Route {
   if (parts[0] === "invite" && parts.length === 2) {
     return TOKEN.test(parts[1]!) ? { name: "invite", token: parts[1]! } : notFound
   }
-  if (parts[0] === "s" && parts[1] && UUID.test(parts[1])) return parseSpace(parts[1], parts.slice(2))
+  if (parts[0] === "s" && parts[1] && UUID.test(parts[1]))
+    return parseSpace(parts[1], parts.slice(2))
   return notFound
 }
 

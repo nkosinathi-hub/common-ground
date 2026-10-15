@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { appError, err, ok } from "@/shared/domain"
+import { appError, err, ok, type Result } from "@/shared/domain"
 import { Resource } from "./resource.svelte"
 
 describe("Resource", () => {
@@ -21,8 +21,10 @@ describe("Resource", () => {
   })
 
   it("ignores stale responses", async () => {
-    const resolvers: ((v: ReturnType<typeof ok<number>>) => void)[] = []
-    const r = new Resource(() => new Promise((resolve) => resolvers.push(resolve)))
+    const resolvers: ((v: Result<number>) => void)[] = []
+    const r = new Resource<number>(
+      () => new Promise<Result<number>>((resolve) => resolvers.push(resolve)),
+    )
     const first = r.load()
     const second = r.load()
     resolvers[1]!(ok(2))

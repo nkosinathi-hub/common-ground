@@ -64,7 +64,9 @@ export class FakeAuthGateway implements AuthGateway {
 
   async reauthenticate(password: string) {
     const account = this.user && this.accounts.get(this.user.email)
-    return account?.password === password ? ok(undefined) : err(appError("denied", "Password is incorrect"))
+    return account?.password === password
+      ? ok(undefined)
+      : err(appError("denied", "Password is incorrect"))
   }
 
   async exchangeCode(code: string): Promise<Result<SessionUser>> {

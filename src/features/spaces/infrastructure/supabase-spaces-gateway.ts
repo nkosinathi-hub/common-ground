@@ -10,7 +10,8 @@ type Reply<T> = { data: T | null; error: { code?: string; message?: string } | n
 
 const unwrap = <T>({ data, error }: Reply<T>): Result<T> =>
   error ? err(toAppError(error)) : ok(data as T)
-const unit = ({ error }: Reply<unknown>): Result<void> => (error ? err(toAppError(error)) : ok(undefined))
+const unit = ({ error }: Reply<unknown>): Result<void> =>
+  error ? err(toAppError(error)) : ok(undefined)
 
 export class SupabaseSpacesGateway implements SpacesGateway {
   constructor(private readonly db: Db) {}
@@ -35,7 +36,9 @@ export class SupabaseSpacesGateway implements SpacesGateway {
   }
 
   create = async (name: string, template: SpaceTemplateId) =>
-    unwrap<string>(await this.db.rpc("create_space", { space_name: name, space_template: template }))
+    unwrap<string>(
+      await this.db.rpc("create_space", { space_name: name, space_template: template }),
+    )
 
   rename = async (spaceId: string, name: string, template: SpaceTemplateId) =>
     unit(await this.db.from("spaces").update({ name, template }).eq("id", spaceId))
@@ -58,7 +61,8 @@ export class SupabaseSpacesGateway implements SpacesGateway {
     )
   }
 
-  leave = async (spaceId: string) => unit(await this.db.rpc("leave_space", { target_space: spaceId }))
+  leave = async (spaceId: string) =>
+    unit(await this.db.rpc("leave_space", { target_space: spaceId }))
   removeMember = async (spaceId: string, userId: string) =>
     unit(await this.db.rpc("remove_member", { target_space: spaceId, member: userId }))
   transferOwnership = async (spaceId: string, userId: string) =>
@@ -69,8 +73,10 @@ export class SupabaseSpacesGateway implements SpacesGateway {
   invites = (spaceId: string) => invitesOf(this.db, spaceId, (row) => inviteStatus(row, new Date()))
   createInvite = async (spaceId: string) =>
     unwrap<string>(await this.db.rpc("create_invite", { target_space: spaceId }))
-  revokeInvite = async (inviteId: string) => unit(await this.db.rpc("revoke_invite", { invite: inviteId }))
-  redeemInvite = async (token: string) => unwrap<string>(await this.db.rpc("redeem_invite", { token }))
+  revokeInvite = async (inviteId: string) =>
+    unit(await this.db.rpc("revoke_invite", { invite: inviteId }))
+  redeemInvite = async (token: string) =>
+    unwrap<string>(await this.db.rpc("redeem_invite", { token }))
 
   async previewInvite(token: string): Promise<Result<InvitePreview>> {
     const rows = unwrap(await this.db.rpc("invite_preview", { token }))

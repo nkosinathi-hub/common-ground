@@ -15,11 +15,21 @@ export default defineConfig({
   build: { sourcemap: false, target: "es2023" },
   test: {
     environment: "jsdom",
-    include: ["src/**/*.test.ts", "supabase/functions/_shared/**/*.test.ts", "scripts/**/*.test.ts"],
+    include: [
+      "src/**/*.test.ts",
+      "supabase/functions/_shared/**/*.test.ts",
+      "scripts/**/*.test.ts",
+    ],
     setupFiles: ["src/test-setup.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/**/domain/**", "src/**/application/**", "src/shared/**", "supabase/functions/_shared/**"],
+      include: [
+        "src/**/domain/**",
+        "src/**/application/**",
+        "src/shared/domain/**",
+        "src/**/*.svelte.ts",
+        "supabase/functions/_shared/**",
+      ],
       exclude: ["**/*.test.ts", "**/index.ts", "**/ports.ts", "**/types.ts", "**/*.types.ts"],
       thresholds: { lines: 90, functions: 90, branches: 85, statements: 90 },
     },

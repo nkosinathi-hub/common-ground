@@ -23,12 +23,20 @@
     : "We will email you a link to choose a new password."}
 >
   {#if sent}
-    <p role="status" class="text-sm">If an account exists for {email}, a reset link is on its way.</p>
+    <p role="status" class="text-sm">
+      If an account exists for {email}, a reset link is on its way.
+    </p>
   {:else}
     <form class="grid gap-4" onsubmit={submit} novalidate>
-      <FormField id="email" label="Email" type="email" autocomplete="email" bind:value={email}
-        error={form.fieldError("email")} />
-      {#if form.formError}<p role="alert" class="text-destructive text-sm">{form.formError}</p>{/if}
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        autocomplete="email"
+        bind:value={email}
+        error={form.fieldError("email")}
+      />
+      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
       <Button type="submit" disabled={form.pending}>Send reset link</Button>
     </form>
   {/if}

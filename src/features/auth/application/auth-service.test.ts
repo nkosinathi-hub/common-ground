@@ -4,7 +4,10 @@ import { AuthService } from "./auth-service"
 
 const setup = () => {
   const gateway = new FakeAuthGateway()
-  const service = new AuthService(gateway, { origin: "https://x.github.io", basePath: "/common-ground/" })
+  const service = new AuthService(gateway, {
+    origin: "https://x.github.io",
+    basePath: "/common-ground/",
+  })
   return { gateway, service }
 }
 const input = { email: "Ana@Example.com", password: "a long password", displayName: "Ana" }
@@ -14,7 +17,11 @@ describe("AuthService", () => {
     const { gateway, service } = setup()
     expect((await service.signUp(input)).ok).toBe(true)
     expect(gateway.sent).toEqual([
-      { kind: "verify", email: "ana@example.com", redirectTo: "https://x.github.io/common-ground/?next=home" },
+      {
+        kind: "verify",
+        email: "ana@example.com",
+        redirectTo: "https://x.github.io/common-ground/?next=home",
+      },
     ])
   })
 
@@ -48,5 +55,16 @@ describe("AuthService", () => {
     expect((await service.updatePassword("short")).ok).toBe(false)
     expect((await service.updatePassword("another long one")).ok).toBe(true)
     expect((await service.reauthenticate("another long one")).ok).toBe(true)
+  })
+})
+
+describe("AuthService passthroughs", () => {
+  it("resends verification and validates sign-in email", async () => {
+    const { gateway, service } = setup()
+    expect((await service.signIn("bad", "x")).ok).toBe(false)
+    expect((await service.resendVerification("bad")).ok).toBe(false)
+    await service.resendVerification("a@b.co")
+    expect(gateway.sent.at(-1)?.kind).toBe("verify")
+    expect(await service.currentUser()).toBeNull()
   })
 })

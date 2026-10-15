@@ -9,11 +9,20 @@ export type AuthCallback =
 export function parseAuthCallback(search: string, hash: string): AuthCallback {
   const query = new URLSearchParams(search)
   const fragment = new URLSearchParams(hash.replace(/^#/, ""))
-  const error = query.get("error_code") ?? query.get("error") ?? fragment.get("error_code") ?? fragment.get("error")
-  if (error) return { kind: "error", reason: /expired|otp_expired/.test(error) ? "expired" : "invalid" }
+  const error =
+    query.get("error_code") ??
+    query.get("error") ??
+    fragment.get("error_code") ??
+    fragment.get("error")
+  if (error)
+    return { kind: "error", reason: /expired|otp_expired/.test(error) ? "expired" : "invalid" }
   const code = query.get("code")
   if (!code) return { kind: "none" }
-  return { kind: "code", code, next: query.get("next") === "new-password" ? "new-password" : "home" }
+  return {
+    kind: "code",
+    code,
+    next: query.get("next") === "new-password" ? "new-password" : "home",
+  }
 }
 
 /** Redirect target for emails: the app root under the Pages base path, plus a `next` hint. */

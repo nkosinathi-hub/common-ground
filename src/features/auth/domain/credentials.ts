@@ -20,7 +20,8 @@ export function validateEmail(email: string): Result<string> {
 export function validatePassword(password: string): Result<string> {
   if (password.length < MIN_PASSWORD)
     return err(appError("validation", `Use at least ${MIN_PASSWORD} characters`, "password"))
-  if (password.length > 128) return err(appError("validation", "Use at most 128 characters", "password"))
+  if (password.length > 128)
+    return err(appError("validation", "Use at most 128 characters", "password"))
   return ok(password)
 }
 

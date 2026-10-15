@@ -26,13 +26,19 @@ describe("layer rule", () => {
   })
 
   it("allows supabase in infrastructure and fakes in tests", () => {
-    expect(checkFile("src/features/ideas/infrastructure/r.ts", imp("@supabase/supabase-js"))).toEqual([])
-    expect(checkFile("src/features/ideas/application/a.test.ts", imp("../testing/fake"))).toEqual([])
+    expect(
+      checkFile("src/features/ideas/infrastructure/r.ts", imp("@supabase/supabase-js")),
+    ).toEqual([])
+    expect(checkFile("src/features/ideas/application/a.test.ts", imp("../testing/fake"))).toEqual(
+      [],
+    )
     expect(checkFile("src/features/ideas/application/a.ts", imp("../testing/fake"))).toHaveLength(1)
   })
 
   it("ignores packages and the composition root", () => {
     expect(checkFile("src/features/ideas/domain/x.ts", imp("svelte"))).toEqual([])
-    expect(checkFile("src/app/composition.ts", imp("@/features/ideas/infrastructure/r"))).toEqual([])
+    expect(checkFile("src/app/composition.ts", imp("@/features/ideas/infrastructure/r"))).toEqual(
+      [],
+    )
   })
 })

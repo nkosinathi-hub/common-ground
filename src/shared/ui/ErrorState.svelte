@@ -20,8 +20,8 @@
 </script>
 
 <div role="alert" class="flex flex-col items-center gap-3 rounded-xl border px-6 py-10 text-center">
-  <view.icon class="text-muted-foreground size-6" aria-hidden="true" />
+  <view.icon class="size-6 text-muted-foreground" aria-hidden="true" />
   <h2 class="font-semibold">{view.title}</h2>
-  <p class="text-muted-foreground text-sm">{error.message}</p>
+  <p class="text-sm text-muted-foreground">{error.message}</p>
   {#if onRetry && view.retry}<Button variant="outline" onclick={onRetry}>Try again</Button>{/if}
 </div>

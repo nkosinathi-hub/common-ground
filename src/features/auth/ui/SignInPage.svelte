@@ -25,11 +25,22 @@
 
 <AuthCard title="Welcome back" description="Sign in to your shared spaces.">
   <form class="grid gap-4" onsubmit={submit} novalidate>
-    <FormField id="email" label="Email" type="email" autocomplete="email" bind:value={email}
-      error={form.fieldError("email")} />
-    <FormField id="password" label="Password" type="password" autocomplete="current-password"
-      bind:value={password} />
-    {#if form.formError}<p role="alert" class="text-destructive text-sm">{form.formError}</p>{/if}
+    <FormField
+      id="email"
+      label="Email"
+      type="email"
+      autocomplete="email"
+      bind:value={email}
+      error={form.fieldError("email")}
+    />
+    <FormField
+      id="password"
+      label="Password"
+      type="password"
+      autocomplete="current-password"
+      bind:value={password}
+    />
+    {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
     {#if unverified && !resent}
       <Button type="button" variant="outline" onclick={resend}>Resend verification email</Button>
     {:else if resent}
@@ -39,6 +50,10 @@
   </form>
   {#snippet footer()}
     <a class="underline-offset-4 hover:underline" href="#/auth/reset">Forgot your password?</a>
-    <span>New here? <a class="text-primary underline-offset-4 hover:underline" href="#/auth/sign-up">Create an account</a></span>
+    <span
+      >New here? <a class="text-primary underline-offset-4 hover:underline" href="#/auth/sign-up"
+        >Create an account</a
+      ></span
+    >
   {/snippet}
 </AuthCard>

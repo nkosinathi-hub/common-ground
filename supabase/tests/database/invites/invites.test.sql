@@ -12,7 +12,7 @@ grant all on t to authenticated;
 insert into t select public.create_invite((select id from public.spaces limit 1));
 
 select is((select count(*) from public.space_invites)::int, 1, 'owner sees the invite');
-select is((select token_hash from public.space_invites limit 1), null, 'hash is not readable');
+select throws_ok($$ select token_hash from public.space_invites $$, '42501', null, 'hash is not readable');
 
 select tests.act_as('eve');
 select is((select count(*) from public.space_invites)::int, 0, 'strangers cannot list invites');

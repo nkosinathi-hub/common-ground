@@ -1,7 +1,9 @@
 import { execSync } from "node:child_process"
 
 const e2e = process.argv.includes("--e2e")
-const DOCKER = { DOCKER_HOST: process.env.DOCKER_HOST ?? "unix:///run/user/1000/podman/podman.sock" }
+const DOCKER = {
+  DOCKER_HOST: process.env.DOCKER_HOST ?? "unix:///run/user/1000/podman/podman.sock",
+}
 
 const steps: [string, string][] = [
   ["format", "pnpm -s format:check"],
@@ -10,7 +12,7 @@ const steps: [string, string][] = [
   ["check", "pnpm -s check"],
   ["unit", "pnpm -s vitest run --coverage"],
   ["supabase", "pnpm -s supabase status >/dev/null 2>&1 || pnpm -s supabase start"],
-  ["db", "pnpm -s supabase db reset --local >/dev/null && pnpm -s supabase test db"],
+  ["db", "pnpm -s supabase migration up --local >/dev/null && pnpm -s supabase test db"],
   ["build", "pnpm -s build"],
   ["bundle", "tsx scripts/guard/bundle-scan.ts"],
 ]

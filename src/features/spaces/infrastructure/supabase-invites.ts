@@ -22,7 +22,11 @@ export async function invitesOf(
       id: r.id,
       createdAt: r.created_at,
       expiresAt: r.expires_at,
-      status: statusOf({ redeemedAt: r.redeemed_at, revokedAt: r.revoked_at, expiresAt: r.expires_at }),
+      status: statusOf({
+        redeemedAt: r.redeemed_at,
+        revokedAt: r.revoked_at,
+        expiresAt: r.expires_at,
+      }),
     })),
   )
 }

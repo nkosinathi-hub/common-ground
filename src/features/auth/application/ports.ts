@@ -3,7 +3,12 @@ import type { AuthEvent, SessionUser } from "../domain/session"
 
 export interface AuthGateway {
   currentUser(): Promise<SessionUser | null>
-  signUp(email: string, password: string, displayName: string, redirectTo: string): Promise<Result<void>>
+  signUp(
+    email: string,
+    password: string,
+    displayName: string,
+    redirectTo: string,
+  ): Promise<Result<void>>
   signIn(email: string, password: string): Promise<Result<SessionUser>>
   signOut(): Promise<Result<void>>
   requestPasswordReset(email: string, redirectTo: string): Promise<Result<void>>

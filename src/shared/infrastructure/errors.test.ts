@@ -9,8 +9,12 @@ describe("toAppError", () => {
   })
 
   it("keeps validation messages but hides other internals", () => {
-    expect(toAppError({ code: "P0001", message: "Space limit reached" }).message).toBe("Space limit reached")
-    expect(toAppError({ code: "42501", message: "policy x on table y" }).message).not.toContain("policy")
+    expect(toAppError({ code: "P0001", message: "Space limit reached" }).message).toBe(
+      "Space limit reached",
+    )
+    expect(toAppError({ code: "42501", message: "policy x on table y" }).message).not.toContain(
+      "policy",
+    )
   })
 
   it("falls back to HTTP status and network", () => {

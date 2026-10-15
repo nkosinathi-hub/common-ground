@@ -1,9 +1,7 @@
 import type { AppError, Result } from "@/shared/domain"
 
 export type ResourceState<T> =
-  | { status: "loading" }
-  | { status: "ready"; value: T }
-  | { status: "error"; error: AppError }
+  { status: "loading" } | { status: "ready"; value: T } | { status: "error"; error: AppError }
 
 /** Reactive async loader with retry; ignores responses from superseded loads. */
 export class Resource<T> {
@@ -21,7 +19,9 @@ export class Resource<T> {
     if (this.state.status !== "ready") this.state = { status: "loading" }
     const result = await this.loader()
     if (mine !== this.generation) return
-    this.state = result.ok ? { status: "ready", value: result.value } : { status: "error", error: result.error }
+    this.state = result.ok
+      ? { status: "ready", value: result.value }
+      : { status: "error", error: result.error }
   }
 
   retry = () => {

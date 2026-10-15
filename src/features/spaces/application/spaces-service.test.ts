@@ -7,7 +7,8 @@ function setup(password = "right password") {
   const gateway = new FakeSpacesGateway()
   const active = new MemoryActiveSpace()
   const auth = {
-    reauthenticate: async (p: string) => (p === password ? ok(undefined) : err(appError("denied", "no"))),
+    reauthenticate: async (p: string) =>
+      p === password ? ok(undefined) : err(appError("denied", "no")),
   }
   return { gateway, active, service: new SpacesService(gateway, active, auth, "https://x.io/cg/") }
 }

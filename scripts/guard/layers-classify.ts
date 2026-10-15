@@ -28,7 +28,8 @@ export function classify(path: string): Location {
   if (parts[1] === "lib") return { zone: "lib" }
   if (parts[1] === "shared") {
     const sub = parts[2]
-    if (sub === "domain" || sub === "infrastructure" || sub === "ui") return { zone: `shared-${sub}` }
+    if (sub === "domain" || sub === "infrastructure" || sub === "ui")
+      return { zone: `shared-${sub}` }
     return { zone: "other" }
   }
   if (parts[1] === "features" && parts[2]) {
@@ -43,7 +44,8 @@ export function classify(path: string): Location {
 export function resolveImport(fromPath: string, specifier: string): string | null {
   if (specifier.startsWith("@/")) return `src/${specifier.slice(2)}`
   if (specifier === "$lib" || specifier.startsWith("$lib/")) return `src/lib${specifier.slice(4)}`
-  if (specifier.startsWith(".")) return posix.normalize(posix.join(posix.dirname(fromPath), specifier))
+  if (specifier.startsWith("."))
+    return posix.normalize(posix.join(posix.dirname(fromPath), specifier))
   return null
 }
 

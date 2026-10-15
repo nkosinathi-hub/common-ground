@@ -18,9 +18,16 @@
 
 <AuthCard title="Choose a new password">
   <form class="grid gap-4" onsubmit={submit} novalidate>
-    <FormField id="password" label="New password" type="password" autocomplete="new-password"
-      bind:value={password} error={form.fieldError("password")} hint={`At least ${MIN_PASSWORD} characters.`} />
-    {#if form.formError}<p role="alert" class="text-destructive text-sm">{form.formError}</p>{/if}
+    <FormField
+      id="password"
+      label="New password"
+      type="password"
+      autocomplete="new-password"
+      bind:value={password}
+      error={form.fieldError("password")}
+      hint={`At least ${MIN_PASSWORD} characters.`}
+    />
+    {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
     <Button type="submit" disabled={form.pending}>Save password</Button>
   </form>
 </AuthCard>

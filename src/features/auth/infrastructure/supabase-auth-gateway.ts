@@ -38,8 +38,10 @@ export class SupabaseAuthGateway implements AuthGateway {
 
   async signIn(email: string, password: string): Promise<Result<SessionUser>> {
     const { data, error } = await this.db.auth.signInWithPassword({ email, password })
-    if (error?.code === "email_not_confirmed") return err(appError("denied", "Confirm your email first"))
-    if (error || !data.user) return err(appError("unauthenticated", "Email or password is incorrect"))
+    if (error?.code === "email_not_confirmed")
+      return err(appError("denied", "Confirm your email first"))
+    if (error || !data.user)
+      return err(appError("unauthenticated", "Email or password is incorrect"))
     return ok(toUser(data.user))
   }
 
@@ -49,9 +51,18 @@ export class SupabaseAuthGateway implements AuthGateway {
     done((await this.db.auth.resetPasswordForEmail(email, { redirectTo })).error)
 
   resendVerification = async (email: string, redirectTo: string) =>
-    done((await this.db.auth.resend({ type: "signup", email, options: { emailRedirectTo: redirectTo } })).error)
+    done(
+      (
+        await this.db.auth.resend({
+          type: "signup",
+          email,
+          options: { emailRedirectTo: redirectTo },
+        })
+      ).error,
+    )
 
-  updatePassword = async (password: string) => done((await this.db.auth.updateUser({ password })).error)
+  updatePassword = async (password: string) =>
+    done((await this.db.auth.updateUser({ password })).error)
 
   async reauthenticate(password: string) {
     const user = await this.currentUser()
@@ -62,7 +73,8 @@ export class SupabaseAuthGateway implements AuthGateway {
 
   async exchangeCode(code: string): Promise<Result<SessionUser>> {
     const { data, error } = await this.db.auth.exchangeCodeForSession(code)
-    if (error || !data.user) return err(appError("validation", "This link has expired or was already used"))
+    if (error || !data.user)
+      return err(appError("validation", "This link has expired or was already used"))
     return ok(toUser(data.user))
   }
 

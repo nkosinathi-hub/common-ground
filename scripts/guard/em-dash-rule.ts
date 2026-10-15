@@ -9,6 +9,8 @@ export function findEmDashes(files: readonly { path: string; text: string }[]): 
   return files.flatMap((file) =>
     file.text
       .split("\n")
-      .flatMap((text, index) => (text.includes(EM_DASH) ? [{ path: file.path, line: index + 1 }] : [])),
+      .flatMap((text, index) =>
+        text.includes(EM_DASH) ? [{ path: file.path, line: index + 1 }] : [],
+      ),
   )
 }

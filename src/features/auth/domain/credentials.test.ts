@@ -17,6 +17,9 @@ describe("credentials", () => {
     const bad = validateSignUp({ email: "a@b.co", password: "1234567890", displayName: " " })
     expect(bad.ok ? null : bad.error.field).toBe("displayName")
     const good = validateSignUp({ email: "A@b.co", password: "1234567890", displayName: " Ana " })
-    expect(good).toEqual({ ok: true, value: { email: "a@b.co", password: "1234567890", displayName: "Ana" } })
+    expect(good).toEqual({
+      ok: true,
+      value: { email: "a@b.co", password: "1234567890", displayName: "Ana" },
+    })
   })
 })

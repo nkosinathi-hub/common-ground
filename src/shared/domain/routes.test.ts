@@ -42,7 +42,12 @@ describe("hash routes", () => {
   })
 
   it("rejects malformed ids, tabs and unknown paths", () => {
-    for (const hash of ["#/s/not-a-uuid/home", `#/s/${id}/ideas/${other}/hack`, "#/nope", "#/invite/"]) {
+    for (const hash of [
+      "#/s/not-a-uuid/home",
+      `#/s/${id}/ideas/${other}/hack`,
+      "#/nope",
+      "#/invite/",
+    ]) {
       expect(parseHash(hash)).toEqual({ name: "not-found" })
     }
   })

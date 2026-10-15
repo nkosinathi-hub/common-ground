@@ -1,6 +1,11 @@
 import { type Result } from "@/shared/domain"
 import { callbackUrl, type CallbackNext } from "../domain/callback"
-import { validateEmail, validatePassword, validateSignUp, type SignUpInput } from "../domain/credentials"
+import {
+  validateEmail,
+  validatePassword,
+  validateSignUp,
+  type SignUpInput,
+} from "../domain/credentials"
 import type { SessionUser } from "../domain/session"
 import type { AuthGateway } from "./ports"
 

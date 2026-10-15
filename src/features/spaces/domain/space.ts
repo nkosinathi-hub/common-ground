@@ -51,6 +51,9 @@ export function inviteStatus(
 export const inviteLink = (appUrl: string, token: string) => `${appUrl}#/invite/${token}`
 
 /** Picks the remembered space if the user still belongs to it, else the first one. */
-export function chooseActiveSpace(spaces: readonly Space[], remembered: string | null): Space | null {
+export function chooseActiveSpace(
+  spaces: readonly Space[],
+  remembered: string | null,
+): Space | null {
   return spaces.find((s) => s.id === remembered) ?? spaces[0] ?? null
 }
