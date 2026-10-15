@@ -1,18 +1,28 @@
 <script lang="ts">
   import type { Component, Snippet } from "svelte"
+  import Illustration from "./Illustration.svelte"
 
   let {
     icon: Icon,
     title,
     description,
+    illustration = false,
     children,
-  }: { icon?: Component; title: string; description?: string; children?: Snippet } = $props()
+  }: {
+    icon?: Component
+    title: string
+    description?: string
+    illustration?: boolean
+    children?: Snippet
+  } = $props()
 </script>
 
 <div
   class="flex flex-col items-center gap-3 rounded-xl border border-dashed px-6 py-12 text-center"
 >
-  {#if Icon}
+  {#if illustration}
+    <Illustration class="h-28" />
+  {:else if Icon}
     <div class="rounded-full bg-accent p-3 text-primary">
       <Icon class="size-6" aria-hidden="true" />
     </div>

@@ -7,6 +7,7 @@
   import { UpcomingTasks } from "@/features/tasks"
   import { ContinueWatching } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
+  import { Illustration } from "@/shared/ui"
   import { templateFor, type Space } from "@/features/spaces"
 
   let { space }: { space: Space } = $props()
@@ -16,9 +17,12 @@
 </script>
 
 <div class="grid gap-6">
-  <section class="rounded-2xl bg-banner px-6 py-8">
-    <h1 class="text-2xl font-semibold">{greeting}, {session.user?.displayName}</h1>
-    <p class="mt-1 text-muted-foreground">{template.headline} {template.welcome}</p>
+  <section class="flex items-center justify-between gap-6 rounded-2xl bg-banner px-6 py-8">
+    <div>
+      <h1 class="text-2xl font-semibold">{greeting}, {session.user?.displayName}</h1>
+      <p class="mt-1 text-muted-foreground">{template.headline} {template.welcome}</p>
+    </div>
+    <Illustration class="hidden h-24 shrink-0 sm:block" />
   </section>
   <Card.Root>
     <Card.Header><Card.Title>Continue watching</Card.Title></Card.Header>
