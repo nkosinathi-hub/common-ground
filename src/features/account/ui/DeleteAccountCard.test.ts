@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { AccountService } from "../application/account-service"
 import { FakeAccountRepository, FakeReauthenticator } from "../testing/fake-account"
-import { ACCOUNT_CONTEXT } from "./context"
+import { accountContext } from "./context"
 import DeleteAccountCard from "./DeleteAccountCard.svelte"
 
 function setup() {
@@ -12,7 +12,7 @@ function setup() {
   const service = new AccountService(repo, new FakeReauthenticator())
   render(DeleteAccountCard, {
     props: { onDeleted },
-    context: new Map([[ACCOUNT_CONTEXT, { service }]]),
+    context: accountContext({ service }),
   })
   const fill = async (password: string, confirmation: string) => {
     await fireEvent.input(screen.getByLabelText("Your password"), { target: { value: password } })

@@ -6,7 +6,11 @@
   import { CONFIRM_WORD } from "../domain/account"
   import { useAccount } from "./context"
 
-  let { onDeleted }: { onDeleted: () => void } = $props()
+  interface Props {
+    onDeleted: () => void
+  }
+
+  let { onDeleted }: Props = $props()
   const { service } = useAccount()
   const form = new FormState()
   let password = $state("")

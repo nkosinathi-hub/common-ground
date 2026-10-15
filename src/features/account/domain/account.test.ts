@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  authorLabel,
-  CONFIRM_WORD,
-  exportFilename,
-  validateConfirmation,
-  validateDisplayName,
-} from "./account"
+import { CONFIRM_WORD, exportFilename, validateConfirmation, validateDisplayName } from "./account"
 
 const day = new Date(2026, 9, 5, 23, 30)
 
@@ -44,13 +38,5 @@ describe("validateDisplayName", () => {
       expect(result.ok).toBe(false)
       if (!result.ok) expect(result.error.field).toBe("displayName")
     }
-  })
-})
-
-describe("authorLabel", () => {
-  it("names former members when the author is gone", () => {
-    expect(authorLabel("Ana")).toBe("Ana")
-    expect(authorLabel(null)).toBe("Former member")
-    expect(authorLabel(undefined)).toBe("Former member")
   })
 })

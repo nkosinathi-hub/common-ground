@@ -1,5 +1,6 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
-import type { AccountRepository, Reauthenticator } from "../application/ports"
+import type { AccountAuth, AccountRepository } from "../application/ports"
+import { MIN_PASSWORD } from "../domain/account"
 
 export class FakeAccountRepository implements AccountRepository {
   readonly calls: string[] = []
@@ -31,7 +32,7 @@ export class FakeAccountRepository implements AccountRepository {
   }
 }
 
-export class FakeReauthenticator implements Reauthenticator {
+export class FakeReauthenticator implements AccountAuth {
   password = "correct horse"
 
   async reauthenticate(password: string): Promise<Result<void>> {
@@ -41,8 +42,8 @@ export class FakeReauthenticator implements Reauthenticator {
   }
 
   async updatePassword(password: string): Promise<Result<void>> {
-    if (password.length < 10)
-      return err(appError("validation", "Use at least 10 characters", "password"))
+    if (password.length < MIN_PASSWORD)
+      return err(appError("validation", `Use at least ${MIN_PASSWORD} characters`, "password"))
     this.password = password
     return ok(undefined)
   }

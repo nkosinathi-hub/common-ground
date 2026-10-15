@@ -1,6 +1,6 @@
 import { err, ok, type Result } from "@/shared/domain"
 import { exportFilename, validateConfirmation, validateDisplayName } from "../domain/account"
-import type { AccountRepository, Reauthenticator } from "./ports"
+import type { AccountAuth, AccountRepository } from "./ports"
 
 export interface ExportFile {
   readonly filename: string
@@ -15,7 +15,7 @@ export interface SpaceRef {
 export class AccountService {
   constructor(
     private readonly repo: AccountRepository,
-    private readonly auth: Reauthenticator,
+    private readonly auth: AccountAuth,
     private readonly now: () => Date = () => new Date(),
   ) {}
 

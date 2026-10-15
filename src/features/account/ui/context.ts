@@ -1,17 +1,22 @@
 import { getContext, setContext } from "svelte"
 import type { AccountService } from "../application/account-service"
 
-/** Context key under which src/app/composition.ts provides the account feature. */
-export const ACCOUNT_CONTEXT = Symbol("account")
-
+/** Provided by src/app/composition/core.ts with the service bound to real adapters. */
 export interface AccountContext {
   readonly service: AccountService
 }
 
-export const provideAccount = (value: AccountContext) => setContext(ACCOUNT_CONTEXT, value)
+const KEY = Symbol("account")
+
+/** The context entries provideAccount sets; component tests pass them to render(). */
+export const accountContext = (value: AccountContext) => new Map([[KEY, value]])
+
+export function provideAccount(value: AccountContext): void {
+  setContext(KEY, value)
+}
 
 export function useAccount(): AccountContext {
-  const value = getContext<AccountContext | undefined>(ACCOUNT_CONTEXT)
+  const value = getContext<AccountContext | undefined>(KEY)
   if (!value)
     throw new Error("Account is not provided: call provideAccount in the composition root")
   return value

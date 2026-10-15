@@ -2,6 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import { FormField, FormState, toast } from "@/shared/ui"
+  import { MIN_PASSWORD } from "../domain/account"
   import { useAccount } from "./context"
 
   const { service } = useAccount()
@@ -37,7 +38,7 @@
         autocomplete="new-password"
         bind:value={next}
         error={form.fieldError("password")}
-        hint="At least 10 characters."
+        hint={`At least ${MIN_PASSWORD} characters.`}
       />
       {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
       <Button type="submit" class="w-fit" disabled={form.pending}>Change password</Button>

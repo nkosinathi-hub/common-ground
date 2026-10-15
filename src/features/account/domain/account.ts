@@ -1,7 +1,9 @@
 import { appError, err, ok, todayDateOnly, type Result } from "@/shared/domain"
 
 export const CONFIRM_WORD = "DELETE"
-export const FORMER_MEMBER = "Former member"
+export const DISPLAY_NAME_MAX = 80
+/** The auth service refuses shorter passwords; the account page states the same floor. */
+export const MIN_PASSWORD = 10
 
 const slug = (name: string): string =>
   name
@@ -22,10 +24,7 @@ export function validateConfirmation(value: string): Result<void> {
 
 export function validateDisplayName(name: string): Result<string> {
   const trimmed = name.trim()
-  return trimmed.length >= 1 && trimmed.length <= 80
+  return trimmed.length >= 1 && trimmed.length <= DISPLAY_NAME_MAX
     ? ok(trimmed)
-    : err(appError("validation", "Use 1 to 80 characters", "displayName"))
+    : err(appError("validation", `Use 1 to ${DISPLAY_NAME_MAX} characters`, "displayName"))
 }
-
-/** Authors are kept as ids; once an account is deleted the id is null. */
-export const authorLabel = (name: string | null | undefined): string => name ?? FORMER_MEMBER

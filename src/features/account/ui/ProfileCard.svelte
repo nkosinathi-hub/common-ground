@@ -4,7 +4,12 @@
   import { FormField, FormState, toast } from "@/shared/ui"
   import { useAccount } from "./context"
 
-  let { userId, displayName }: { userId: string; displayName: string } = $props()
+  interface Props {
+    userId: string
+    displayName: string
+  }
+
+  let { userId, displayName }: Props = $props()
   const { service } = useAccount()
   const form = new FormState()
   // Seeded once from the prop; the field is the user's draft from then on.

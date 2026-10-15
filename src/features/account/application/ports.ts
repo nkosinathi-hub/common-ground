@@ -1,4 +1,4 @@
-import type { Result } from "@/shared/domain"
+import type { Reauthenticator, Result } from "@/shared/domain"
 
 export interface AccountRepository {
   exportSpace(spaceId: string): Promise<Result<unknown>>
@@ -7,8 +7,10 @@ export interface AccountRepository {
   updateDisplayName(userId: string, name: string): Promise<Result<void>>
 }
 
-/** Satisfied structurally by the auth feature's AuthService. */
-export interface Reauthenticator {
-  reauthenticate(password: string): Promise<Result<void>>
+/** Sets a new password for the signed-in user. */
+export interface PasswordUpdater {
   updatePassword(password: string): Promise<Result<void>>
 }
+
+/** Satisfied structurally by the auth feature's AuthService. */
+export type AccountAuth = Reauthenticator & PasswordUpdater

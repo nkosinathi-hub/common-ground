@@ -8,7 +8,11 @@
   import { useAccount } from "./context"
   import { downloadFile } from "./download"
 
-  let { spaces }: { spaces: readonly SpaceRef[] } = $props()
+  interface Props {
+    spaces: readonly SpaceRef[]
+  }
+
+  let { spaces }: Props = $props()
   const { service } = useAccount()
   let busy = $state<string | null>(null)
 
