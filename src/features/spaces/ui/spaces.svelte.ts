@@ -3,17 +3,23 @@ import type { AppError } from "@/shared/domain"
 import type { SpacesService } from "../application/spaces-service"
 import type { Space } from "../domain/space"
 
+export type SpacesStatus = "idle" | "loading" | "ready" | "error"
+
 /** Memberships for the signed-in user. Cleared on sign-out so no content lingers. */
 export class SpacesStore {
   spaces = $state<Space[]>([])
   active = $state<Space | null>(null)
-  status = $state<"idle" | "loading" | "ready" | "error">("idle")
+  status = $state<SpacesStatus>("idle")
+  /** Why the last load failed; NewSpacePage shows it with a retry. */
   error = $state<AppError | null>(null)
 
   constructor(private readonly service: SpacesService) {}
 
   async refresh(): Promise<void> {
-    untrack(() => (this.status = this.status === "ready" ? "ready" : "loading"))
+    // A reload of ready data keeps showing it; only a first load shows loading.
+    untrack(() => {
+      if (this.status !== "ready") this.status = "loading"
+    })
     const loaded = await this.service.load()
     if (!loaded.ok) {
       this.status = "error"
@@ -22,6 +28,7 @@ export class SpacesStore {
     }
     this.spaces = loaded.value.spaces
     this.active = loaded.value.active
+    this.error = null
     this.status = "ready"
   }
 
@@ -39,6 +46,7 @@ export class SpacesStore {
     if (untrack(() => this.status === "idle")) return
     this.spaces = []
     this.active = null
+    this.error = null
     this.status = "idle"
     this.service.forget()
   }

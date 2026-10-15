@@ -1,21 +1,23 @@
-import { appError, err, ok } from "@/shared/domain"
+import { appError, err, ok, type Result } from "@/shared/domain"
 import type { ActiveSpaceStore, SpacesGateway } from "../application/ports"
-import type { Invite, Member, Space } from "../domain/space"
+import type { InviteRecord, Member, Space } from "../domain/space"
 
 export class MemoryActiveSpace implements ActiveSpaceStore {
   value: string | null = null
   read = () => this.value
-  write = (id: string | null) => void (this.value = id)
+  write(spaceId: string | null) {
+    this.value = spaceId
+  }
 }
 
 export class FakeSpacesGateway implements SpacesGateway {
   spaces: Space[] = []
   memberList: Member[] = []
-  inviteList: Invite[] = []
+  inviteList: InviteRecord[] = []
   tokens = new Map<string, string>()
   calls: string[] = []
 
-  async listMine() {
+  async listMine(): Promise<Result<Space[]>> {
     return ok([...this.spaces])
   }
   async create(name: string, template: Space["template"]) {

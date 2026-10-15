@@ -2,13 +2,17 @@
   import { cn } from "$lib/utils"
   import { SPACE_TEMPLATES, type SpaceTemplateId } from "../domain/templates"
 
-  let {
-    value = $bindable("couple"),
-    onPick,
-  }: {
+  interface Props {
     value?: SpaceTemplateId
     onPick?: (id: SpaceTemplateId) => void
-  } = $props()
+  }
+
+  let { value = $bindable("couple"), onPick }: Props = $props()
+
+  function choose(id: SpaceTemplateId) {
+    value = id
+    onPick?.(id)
+  }
 </script>
 
 <div role="radiogroup" aria-label="Kind of space" class="grid gap-3 sm:grid-cols-2">
@@ -18,10 +22,7 @@
       role="radio"
       aria-checked={value === template.id}
       data-space-theme={template.id}
-      onclick={() => {
-        value = template.id
-        onPick?.(template.id)
-      }}
+      onclick={() => choose(template.id)}
       class={cn(
         "rounded-xl border bg-banner/60 p-4 text-left transition-shadow",
         value === template.id ? "border-primary ring-2 ring-primary" : "hover:border-primary/50",

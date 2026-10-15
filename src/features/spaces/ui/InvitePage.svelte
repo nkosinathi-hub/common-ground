@@ -4,21 +4,26 @@
   import * as Card from "$lib/components/ui/card"
   import { buildHash } from "@/shared/domain"
   import { AsyncView, FormState, Resource } from "@/shared/ui"
+  import type { InvitePreviewStatus } from "../domain/space"
   import { useSpaces } from "./context"
 
-  let { token }: { token: string } = $props()
-  const { service, store } = useSpaces()
-  const preview = new Resource(() => service.previewInvite(token))
-  const form = new FormState()
-  $effect(() => void preview.load())
+  interface Props {
+    token: string
+  }
 
-  const COPY: Record<string, string> = {
+  const COPY: Record<Exclude<InvitePreviewStatus, "valid">, string> = {
     invalid: "This invitation link is not valid. Ask for a new one.",
     used: "This invitation was already used. Each link works once.",
     revoked: "This invitation was cancelled by the space owner.",
     expired: "This invitation expired. Links last seven days.",
     member: "You are already in this space.",
   }
+
+  let { token }: Props = $props()
+  const { service, store } = useSpaces()
+  const preview = new Resource(() => service.previewInvite(token))
+  const form = new FormState()
+  $effect(() => void preview.load())
 
   async function accept() {
     const joined = await form.run(() => service.redeemInvite(token))

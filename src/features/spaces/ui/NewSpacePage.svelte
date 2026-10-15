@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { buildHash } from "@/shared/domain"
-  import { FormField, FormState } from "@/shared/ui"
+  import { ErrorState, FormField, FormState } from "@/shared/ui"
   import { templateFor, type SpaceTemplateId } from "../domain/templates"
   import { useSpaces } from "./context"
   import TemplatePicker from "./TemplatePicker.svelte"
@@ -34,6 +34,10 @@
       link instead? Open it and you will join their space.
     </p>
   </div>
+  {#if store.status === "error" && store.error}
+    <!-- Loading memberships failed, so the app could not tell whether you have spaces yet. -->
+    <ErrorState error={store.error} onRetry={() => store.refresh()} />
+  {/if}
   <form class="grid gap-5" onsubmit={submit} novalidate>
     <TemplatePicker bind:value={template} onPick={pick} />
     <div oninput={() => (touched = true)}>

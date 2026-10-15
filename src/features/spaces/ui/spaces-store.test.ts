@@ -1,19 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { appError, err, ok } from "@/shared/domain"
-import { SpacesService } from "../application/spaces-service"
-import { FakeSpacesGateway, MemoryActiveSpace } from "../testing/fake-spaces"
+import { appError, err } from "@/shared/domain"
+import { spacesSetup } from "../testing/spaces-setup"
 import { SpacesStore } from "./spaces.svelte"
 
 const setup = () => {
-  const gateway = new FakeSpacesGateway()
-  const active = new MemoryActiveSpace()
-  const service = new SpacesService(
-    gateway,
-    active,
-    { reauthenticate: async () => ok(undefined) },
-    "x/",
-  )
-  return { gateway, active, store: new SpacesStore(service) }
+  const spaces = spacesSetup()
+  return { ...spaces, store: new SpacesStore(spaces.service) }
 }
 
 describe("SpacesStore", () => {
@@ -38,10 +30,16 @@ describe("SpacesStore", () => {
     expect(active.value).toBeNull()
   })
 
-  it("reports load failures", async () => {
+  it("reports load failures, then recovers on retry", async () => {
     const { gateway, store } = setup()
-    Object.assign(gateway, { listMine: async () => err(appError("network", "down")) })
+    const listMine = gateway.listMine.bind(gateway)
+    gateway.listMine = async () => err(appError("network", "down"))
     await store.refresh()
     expect(store.status).toBe("error")
+    expect(store.error?.kind).toBe("network")
+    gateway.listMine = listMine
+    await store.refresh()
+    expect(store.status).toBe("ready")
+    expect(store.error).toBeNull()
   })
 })

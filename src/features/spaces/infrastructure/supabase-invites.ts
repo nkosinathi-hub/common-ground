@@ -1,32 +1,36 @@
-import { err, ok, type Result } from "@/shared/domain"
-import { toAppError } from "@/shared/infrastructure/errors"
+import type { Result } from "@/shared/domain"
+import { settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { Invite, InviteStatus } from "../domain/space"
+import { previewStatus, type InvitePreview, type InviteRecord } from "../domain/space"
 
-type Row = { redeemedAt: string | null; revokedAt: string | null; expiresAt: string }
+/** The owner's settings page lists only the latest invites. */
+const RECENT_INVITES = 50
 
-export async function invitesOf(
-  db: Db,
-  spaceId: string,
-  statusOf: (row: Row) => InviteStatus,
-): Promise<Result<Invite[]>> {
-  const { data, error } = await db
+export function invitesOf(db: Db, spaceId: string): Promise<Result<InviteRecord[]>> {
+  const query = db
     .from("space_invites")
     .select("id, created_at, expires_at, redeemed_at, revoked_at")
     .eq("space_id", spaceId)
     .order("created_at", { ascending: false })
-    .limit(50)
-  if (error) return err(toAppError(error))
-  return ok(
-    (data ?? []).map((r) => ({
-      id: r.id,
-      createdAt: r.created_at,
-      expiresAt: r.expires_at,
-      status: statusOf({
-        redeemedAt: r.redeemed_at,
-        revokedAt: r.revoked_at,
-        expiresAt: r.expires_at,
-      }),
+    .limit(RECENT_INVITES)
+  return settle(query, (rows) =>
+    rows.map((row) => ({
+      id: row.id,
+      createdAt: row.created_at,
+      expiresAt: row.expires_at,
+      redeemedAt: row.redeemed_at,
+      revokedAt: row.revoked_at,
     })),
   )
+}
+
+export function previewOf(db: Db, token: string): Promise<Result<InvitePreview>> {
+  return settle(db.rpc("invite_preview", { token }), (rows) => {
+    const row = rows[0]
+    return {
+      spaceName: row?.space_name ?? null,
+      inviterName: row?.inviter_name ?? null,
+      status: previewStatus(row?.status),
+    }
+  })
 }

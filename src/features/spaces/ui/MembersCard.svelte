@@ -6,14 +6,27 @@
   import { AsyncView, ConfirmDialog, Resource, toast } from "@/shared/ui"
   import type { Member, Space } from "../domain/space"
   import { useSpaces } from "./context"
+  import { MEMBER_ACTIONS, type MemberAction } from "./member-actions"
 
-  let { space, me }: { space: Space; me: string } = $props()
+  interface Props {
+    space: Space
+    me: string
+  }
+
+  interface Pending {
+    readonly member: Member
+    readonly action: MemberAction
+  }
+
+  let { space, me }: Props = $props()
   const { service, store } = useSpaces()
   const members = new Resource(() => service.members(space.id))
   $effect(() => void members.load())
-  let pending = $state<{ member: Member; action: "remove" | "transfer" } | null>(null)
+  let pending = $state<Pending | null>(null)
   let open = $state(false)
-  const ask = (member: Member, action: "remove" | "transfer") => {
+  const copy = $derived(pending ? MEMBER_ACTIONS[pending.action] : null)
+
+  function ask(member: Member, action: MemberAction) {
     pending = { member, action }
     open = true
   }
@@ -26,12 +39,11 @@
         ? await service.removeMember(space.id, member.userId)
         : await service.transferOwnership(space.id, member.userId)
     pending = null
-    if (!result.ok) return toast.error(result.error.message)
-    toast.success(
-      action === "remove"
-        ? `${member.displayName} was removed`
-        : `${member.displayName} now owns this space`,
-    )
+    if (!result.ok) {
+      toast.error(result.error.message)
+      return
+    }
+    toast.success(MEMBER_ACTIONS[action].done(member.displayName))
     await Promise.all([members.load(), store.refresh()])
   }
 </script>
@@ -69,17 +81,13 @@
   </Card.Content>
 </Card.Root>
 
-{#if pending}
+{#if pending && copy}
   <ConfirmDialog
     bind:open
-    title={pending.action === "remove"
-      ? `Remove ${pending.member.displayName}?`
-      : `Hand ownership to ${pending.member.displayName}?`}
-    description={pending.action === "remove"
-      ? "They lose access to everything in this space right away. What they wrote stays, credited to them."
-      : "You become a regular member. Only the owner manages members and can delete the space."}
-    confirmLabel={pending.action === "remove" ? "Remove" : "Transfer"}
-    destructive={pending.action === "remove"}
+    title={copy.title(pending.member.displayName)}
+    description={copy.description}
+    confirmLabel={copy.confirmLabel}
+    destructive={copy.destructive}
     onConfirm={confirm}
   />
 {/if}

@@ -12,8 +12,8 @@ export interface SpaceTemplate {
   readonly invitation: string
 }
 
-export const SPACE_TEMPLATES: readonly SpaceTemplate[] = [
-  {
+const TEMPLATES: Readonly<Record<SpaceTemplateId, SpaceTemplate>> = {
+  couple: {
     id: "couple",
     label: "Couples",
     audience: "You and your partner",
@@ -23,7 +23,7 @@ export const SPACE_TEMPLATES: readonly SpaceTemplate[] = [
     welcome: "Save a story for date night.",
     invitation: "Give your shared dreams a place to grow.",
   },
-  {
+  friends: {
     id: "friends",
     label: "Friends",
     audience: "You and your friends",
@@ -33,7 +33,7 @@ export const SPACE_TEMPLATES: readonly SpaceTemplate[] = [
     welcome: "Line up your next movie night.",
     invitation: "Make something great with your favourite people.",
   },
-  {
+  family: {
     id: "family",
     label: "Family",
     audience: "Your family circle",
@@ -43,7 +43,7 @@ export const SPACE_TEMPLATES: readonly SpaceTemplate[] = [
     welcome: "Find a story the whole family will love.",
     invitation: "Turn a little family idea into your next adventure.",
   },
-  {
+  blank: {
     id: "blank",
     label: "Make it your own",
     audience: "Any kind of circle",
@@ -53,8 +53,14 @@ export const SPACE_TEMPLATES: readonly SpaceTemplate[] = [
     welcome: "Save a story for your next quiet night.",
     invitation: "Give that 'what if' a place to grow.",
   },
-]
+}
 
+export const SPACE_TEMPLATES: readonly SpaceTemplate[] = TEMPLATE_IDS.map((id) => TEMPLATES[id])
+
+const isTemplateId = (id: string | null | undefined): id is SpaceTemplateId =>
+  TEMPLATE_IDS.some((known) => known === id)
+
+/** Unknown or missing templates fall back to the open, blank one. */
 export function templateFor(id: string | null | undefined): SpaceTemplate {
-  return SPACE_TEMPLATES.find((t) => t.id === id) ?? SPACE_TEMPLATES[3]!
+  return isTemplateId(id) ? TEMPLATES[id] : TEMPLATES.blank
 }

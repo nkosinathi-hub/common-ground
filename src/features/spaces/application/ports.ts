@@ -1,5 +1,5 @@
 import type { Result } from "@/shared/domain"
-import type { Invite, InvitePreview, Member, Space } from "../domain/space"
+import type { InvitePreview, InviteRecord, Member, Space } from "../domain/space"
 import type { SpaceTemplateId } from "../domain/templates"
 
 export interface SpacesGateway {
@@ -11,7 +11,7 @@ export interface SpacesGateway {
   removeMember(spaceId: string, userId: string): Promise<Result<void>>
   transferOwnership(spaceId: string, userId: string): Promise<Result<void>>
   delete(spaceId: string, confirmName: string): Promise<Result<void>>
-  invites(spaceId: string): Promise<Result<Invite[]>>
+  invites(spaceId: string): Promise<Result<InviteRecord[]>>
   createInvite(spaceId: string): Promise<Result<string>>
   revokeInvite(inviteId: string): Promise<Result<void>>
   previewInvite(token: string): Promise<Result<InvitePreview>>
@@ -22,8 +22,4 @@ export interface SpacesGateway {
 export interface ActiveSpaceStore {
   read(): string | null
   write(spaceId: string | null): void
-}
-
-export interface Reauthenticator {
-  reauthenticate(password: string): Promise<Result<void>>
 }

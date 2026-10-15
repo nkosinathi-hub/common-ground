@@ -7,7 +7,11 @@
   import type { Space } from "../domain/space"
   import { useSpaces } from "./context"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service } = useSpaces()
   const invites = new Resource(() => service.invites(space.id))
   $effect(() => void invites.load())
@@ -18,7 +22,10 @@
     busy = true
     const made = await service.createInviteLink(space.id)
     busy = false
-    if (!made.ok) return toast.error(made.error.message)
+    if (!made.ok) {
+      toast.error(made.error.message)
+      return
+    }
     link = made.value
     await invites.load()
   }
@@ -34,8 +41,11 @@
   }
 
   async function revoke(id: string) {
-    const done = await service.revokeInvite(id)
-    if (!done.ok) return toast.error(done.error.message)
+    const revoked = await service.revokeInvite(id)
+    if (!revoked.ok) {
+      toast.error(revoked.error.message)
+      return
+    }
     await invites.load()
   }
 

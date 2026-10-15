@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { chooseActiveSpace, inviteLink, inviteStatus, validateSpaceName, type Space } from "./space"
-import { templateFor } from "./templates"
+import {
+  chooseActiveSpace,
+  inviteLink,
+  inviteStatus,
+  previewStatus,
+  validateSpaceName,
+  type Space,
+} from "./space"
+import { SPACE_TEMPLATES, templateFor } from "./templates"
 
 const space = (id: string): Space => ({ id, name: id, template: "blank", role: "member" })
 const now = new Date("2026-10-15T12:00:00Z")
@@ -13,11 +20,23 @@ describe("space rules", () => {
   })
 
   it("derives invite status, consumed invites never look open", () => {
-    const base = { redeemedAt: null, revokedAt: null, expiresAt: "2026-10-20T00:00:00Z" }
+    const base = {
+      id: "i",
+      createdAt: "2026-10-14T00:00:00Z",
+      redeemedAt: null,
+      revokedAt: null,
+      expiresAt: "2026-10-20T00:00:00Z",
+    }
     expect(inviteStatus(base, now)).toBe("open")
     expect(inviteStatus({ ...base, redeemedAt: "2026-10-14T00:00:00Z" }, now)).toBe("used")
     expect(inviteStatus({ ...base, revokedAt: "2026-10-14T00:00:00Z" }, now)).toBe("revoked")
     expect(inviteStatus({ ...base, expiresAt: "2026-10-15T11:59:59Z" }, now)).toBe("expired")
+  })
+
+  it("reads unknown or missing preview statuses as invalid", () => {
+    expect(previewStatus("member")).toBe("member")
+    expect(previewStatus("surprise")).toBe("invalid")
+    expect(previewStatus(undefined)).toBe("invalid")
   })
 
   it("builds hash invite links", () => {
@@ -30,8 +49,10 @@ describe("space rules", () => {
     expect(chooseActiveSpace([], "a")).toBeNull()
   })
 
-  it("falls back to the blank template", () => {
+  it("lists templates in order and falls back to the blank one", () => {
+    expect(SPACE_TEMPLATES.map((t) => t.id)).toEqual(["couple", "friends", "family", "blank"])
     expect(templateFor("couple").label).toBe("Couples")
     expect(templateFor("weird").id).toBe("blank")
+    expect(templateFor(null).id).toBe("blank")
   })
 })

@@ -5,7 +5,11 @@
   import type { Space } from "../domain/space"
   import { useSpaces } from "./context"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   let leaving = $state(false)
@@ -14,7 +18,10 @@
 
   async function leave() {
     const left = await service.leave(space.id)
-    if (!left.ok) return toast.error(left.error.message)
+    if (!left.ok) {
+      toast.error(left.error.message)
+      return
+    }
     await store.refresh()
     location.hash = "#/"
   }

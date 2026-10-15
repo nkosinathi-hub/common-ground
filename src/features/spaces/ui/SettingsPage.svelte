@@ -11,8 +11,13 @@
   import MembersCard from "./MembersCard.svelte"
   import TemplatePicker from "./TemplatePicker.svelte"
 
-  let { space, me, extra }: { space: Space; me: string; extra?: import("svelte").Snippet } =
-    $props()
+  interface Props {
+    space: Space
+    /** The signed-in user's id, so their own row is marked and cannot be removed. */
+    me: string
+  }
+
+  let { space, me }: Props = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   let name = $state(untrack(() => space.name))
@@ -51,6 +56,5 @@
     <InvitesCard {space} />
   {/if}
   <MembersCard {space} {me} />
-  {@render extra?.()}
   <DangerZone {space} />
 </div>

@@ -19,6 +19,15 @@ export interface Member {
 
 export type InviteStatus = "open" | "used" | "revoked" | "expired"
 
+/** An invite as stored: its status depends on the time it is looked at. */
+export interface InviteRecord {
+  readonly id: string
+  readonly createdAt: string
+  readonly expiresAt: string
+  readonly redeemedAt: string | null
+  readonly revokedAt: string | null
+}
+
 export interface Invite {
   readonly id: string
   readonly createdAt: string
@@ -26,26 +35,41 @@ export interface Invite {
   readonly status: InviteStatus
 }
 
+const PREVIEW_STATUSES = ["valid", "invalid", "used", "revoked", "expired", "member"] as const
+export type InvitePreviewStatus = (typeof PREVIEW_STATUSES)[number]
+
 export interface InvitePreview {
   readonly spaceName: string | null
   readonly inviterName: string | null
-  readonly status: "valid" | "invalid" | "used" | "revoked" | "expired" | "member"
+  readonly status: InvitePreviewStatus
 }
+
+export const MAX_SPACE_NAME = 80
 
 export function validateSpaceName(name: string): Result<string> {
   const trimmed = name.trim()
-  return trimmed.length >= 1 && trimmed.length <= 80
+  return trimmed.length >= 1 && trimmed.length <= MAX_SPACE_NAME
     ? ok(trimmed)
-    : err(appError("validation", "Name your space (up to 80 characters)", "name"))
+    : err(appError("validation", `Name your space (up to ${MAX_SPACE_NAME} characters)`, "name"))
 }
 
-export function inviteStatus(
-  row: { redeemedAt: string | null; revokedAt: string | null; expiresAt: string },
-  now: Date,
-): InviteStatus {
-  if (row.revokedAt) return "revoked"
-  if (row.redeemedAt) return "used"
-  return new Date(row.expiresAt) <= now ? "expired" : "open"
+export function inviteStatus(record: InviteRecord, now: Date): InviteStatus {
+  if (record.revokedAt) return "revoked"
+  if (record.redeemedAt) return "used"
+  return new Date(record.expiresAt) <= now ? "expired" : "open"
+}
+
+/** The invite as the owner sees it at `now`. */
+export const inviteAt = (record: InviteRecord, now: Date): Invite => ({
+  id: record.id,
+  createdAt: record.createdAt,
+  expiresAt: record.expiresAt,
+  status: inviteStatus(record, now),
+})
+
+/** Anything the preview RPC answers that this client does not know reads as invalid. */
+export function previewStatus(raw: string | undefined): InvitePreviewStatus {
+  return PREVIEW_STATUSES.find((status) => status === raw) ?? "invalid"
 }
 
 export const inviteLink = (appUrl: string, token: string) => `${appUrl}#/invite/${token}`
