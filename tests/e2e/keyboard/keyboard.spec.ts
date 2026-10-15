@@ -34,10 +34,6 @@ test("sign in, create a space and capture an idea by keyboard", async ({ page })
 })
 
 test("the skip link moves focus to the main content", async ({ page }) => {
-  test.fail(
-    true,
-    'href="#main" is read as a hash route, so the skip link opens the not-found page (src/app/shell/AppShell.svelte:33)',
-  )
   await signIn(page, await createUser("skip"))
   const spaceId = await createSpace(page, "Skip space")
   await page.goto(`./#/s/${spaceId}/home`)

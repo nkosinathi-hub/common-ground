@@ -27,10 +27,16 @@
     document.documentElement.dataset.spaceTheme = theme
     return () => delete document.documentElement.dataset.spaceTheme
   })
+  /** The router reads every hash as a route, so the skip link moves focus itself. */
+  function skipToMain(event: MouseEvent) {
+    event.preventDefault()
+    document.getElementById("main")?.focus()
+  }
 </script>
 
 <a
   href="#main"
+  onclick={skipToMain}
   class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-background focus:p-2"
 >
   Skip to content
