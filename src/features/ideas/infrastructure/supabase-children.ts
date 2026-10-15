@@ -1,15 +1,10 @@
-import { err, ok, type Result } from "@/shared/domain"
-import { toAppError } from "@/shared/infrastructure/errors"
+import { nextCursor, PAGE_SIZE, type Cursor, type Page, type Result } from "@/shared/domain"
+import { olderThan } from "@/shared/infrastructure/paging"
+import { removed, settle, type QueryReply } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { ChildCollection } from "../application/ports"
-import { nextCursor, PAGE_SIZE, type Cursor, type Page } from "@/shared/domain"
-import { afterCursor } from "./keyset"
 
 type Row = Record<string, unknown>
-type Response = {
-  data: unknown
-  error: { code?: string; message?: string; status?: number } | null
-}
 
 export interface ChildTable<T, Input> {
   readonly table: string
@@ -18,13 +13,10 @@ export interface ChildTable<T, Input> {
   readonly toRow: (input: Input) => Row
 }
 
-export const single = async <T>(
-  query: PromiseLike<Response>,
+export const single = <T>(
+  query: PromiseLike<QueryReply>,
   map: (row: Row) => T,
-): Promise<Result<T>> => {
-  const { data, error } = await query
-  return error ? err(toAppError(error)) : ok(map(data as Row))
-}
+): Promise<Result<T>> => settle(query, (data) => map(data as Row))
 
 /** One PostgREST table keyed by idea_id, paged newest first. */
 export class SupabaseChildren<T extends Cursor, Input> implements ChildCollection<T, Input> {
@@ -40,16 +32,14 @@ export class SupabaseChildren<T extends Cursor, Input> implements ChildCollectio
     )
   }
 
-  async list(ideaId: string, after: Cursor | null): Promise<Result<Page<T>>> {
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<T>>> {
     let query = this.from().select(this.spec.columns).eq("idea_id", ideaId)
-    if (after) query = query.or(afterCursor(after))
-    const { data, error } = await query
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
-      .limit(PAGE_SIZE)
-    if (error) return err(toAppError(error))
-    const items = (data as unknown as Row[]).map(this.spec.toModel)
-    return ok({ items, next: nextCursor(items) })
+    if (after) query = query.or(olderThan(after))
+    const page = query.order("created_at", { ascending: false }).order("id", { ascending: false })
+    return settle(page.limit(PAGE_SIZE), (data) => {
+      const items = (data as Row[]).map(this.spec.toModel)
+      return { items, next: nextCursor(items) }
+    })
   }
 
   add(spaceId: string, ideaId: string, input: Input): Promise<Result<T>> {
@@ -64,7 +54,6 @@ export class SupabaseChildren<T extends Cursor, Input> implements ChildCollectio
   }
 
   async remove(id: string): Promise<Result<void>> {
-    const { error } = await this.from().delete().eq("id", id)
-    return error ? err(toAppError(error)) : ok(undefined)
+    return removed(this.from().delete().eq("id", id).select("id"))
   }
 }

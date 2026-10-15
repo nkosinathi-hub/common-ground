@@ -1,6 +1,11 @@
-import { err, toDateOnly } from "@/shared/domain"
-import { type Cursor } from "@/shared/domain"
-import { nextPosition, validateLabel, validateMilestone, validateTaskInput } from "../domain"
+import { err, toDateOnly, type Cursor } from "@/shared/domain"
+import {
+  nextPosition,
+  UPCOMING_LIMIT,
+  validateLabel,
+  validateMilestone,
+  validateTaskInput,
+} from "../domain"
 import type { ChecklistItem, MilestoneInput, TaskInput, TaskPriority, TaskStatus } from "../domain"
 import type {
   ChecklistRepository,
@@ -20,6 +25,7 @@ export function makeTasksUseCases({ tasks, checklist, milestones, members }: Tas
   return {
     members: (spaceId: string) => members.members(spaceId),
     list: (ideaId: string, after: Cursor | null) => tasks.list(ideaId, after),
+    upcoming: (spaceId: string) => tasks.upcoming(spaceId, UPCOMING_LIMIT),
     remove: (id: string) => tasks.remove(id),
 
     async create(spaceId: string, ideaId: string, input: TaskInput) {

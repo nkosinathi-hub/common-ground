@@ -1,7 +1,12 @@
-import type { DateOnly, Result } from "@/shared/domain"
-import { type Cursor, type Page } from "@/shared/domain"
-
-import type { ChecklistItem, Milestone, Task, TaskPriority, TaskStatus } from "../domain"
+import type { Cursor, DateOnly, Page, Result } from "@/shared/domain"
+import type {
+  ChecklistItem,
+  Milestone,
+  Task,
+  TaskPriority,
+  TaskStatus,
+  UpcomingTask,
+} from "../domain"
 
 export interface NewTask {
   readonly spaceId: string
@@ -25,6 +30,8 @@ export interface TasksRepository {
   create(input: NewTask): Promise<Result<Task>>
   update(id: string, patch: TaskPatch): Promise<Result<Task>>
   remove(id: string): Promise<Result<void>>
+  /** Open tasks with a due date in a space, soonest first. */
+  upcoming(spaceId: string, limit: number): Promise<Result<UpcomingTask[]>>
 }
 
 export interface ChecklistRepository {

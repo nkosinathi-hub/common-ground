@@ -1,4 +1,4 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { appError, type Cursor, err, ok, type Result } from "@/shared/domain"
 import {
   cleanBrief,
   normalizeTags,
@@ -9,7 +9,6 @@ import {
   type IdeaStage,
   type IdeaTemplate,
 } from "../domain"
-import { type Cursor } from "@/shared/domain"
 import type { IdeasRepository } from "./ports"
 
 export type SaveBriefOutcome =

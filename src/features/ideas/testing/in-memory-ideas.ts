@@ -1,7 +1,15 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import {
+  appError,
+  type Cursor,
+  err,
+  nextCursor,
+  ok,
+  type Page,
+  PAGE_SIZE,
+  type Result,
+} from "@/shared/domain"
 import type { IdeaPatch, IdeasRepository, NewIdea } from "../application/ports"
 import { type Brief, type Idea } from "../domain"
-import { nextCursor, PAGE_SIZE, type Cursor, type Page } from "@/shared/domain"
 
 const stamp = (n: number) => new Date(Date.UTC(2026, 9, 15, 0, 0, n)).toISOString()
 

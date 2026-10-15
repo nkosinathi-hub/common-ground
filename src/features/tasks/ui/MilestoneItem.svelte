@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
-  import { Trash2 } from "@lucide/svelte"
+  import { DeleteButton } from "@/shared/ui"
   import { formatDue, type Milestone } from "../domain"
 
   let {
@@ -24,13 +23,11 @@
   <span class="flex items-center gap-2 text-xs">
     {#if m.targetDate}<span class="text-muted-foreground">Target {formatDue(m.targetDate)}</span
       >{/if}
-    <Button
-      variant="ghost"
-      size="icon-xs"
-      aria-label="Delete milestone {m.title}"
-      onclick={onRemove}
-    >
-      <Trash2 />
-    </Button>
+    <DeleteButton
+      label="Delete milestone {m.title}"
+      what="this milestone"
+      description="Tasks linked to it stay, without a milestone."
+      onConfirm={onRemove}
+    />
   </span>
 </li>

@@ -1,7 +1,8 @@
+import { removed } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { ChecklistRepository } from "../application/ports"
 import { ITEM_COLUMNS, toItem } from "./rows"
-import { many, none, one, table } from "./table"
+import { many, one, table } from "./table"
 
 export class SupabaseChecklist implements ChecklistRepository {
   constructor(private readonly db: Db) {}
@@ -36,6 +37,6 @@ export class SupabaseChecklist implements ChecklistRepository {
     )
   }
   remove(id: string) {
-    return none(table(this.db, "task_checklist_items").delete().eq("id", id))
+    return removed(table(this.db, "task_checklist_items").delete().eq("id", id).select("id"))
   }
 }

@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { Trash2 } from "@lucide/svelte"
   import { HYPOTHESIS_STATUSES, type Hypothesis, type HypothesisStatus, type Idea } from "../domain"
+  import { DeleteButton } from "@/shared/ui"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
   import { PagedList } from "./paged-list.svelte"
@@ -61,13 +61,14 @@
                 >{LABELS[status]}</option
               >{/each}
           </select>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Delete hypothesis"
-            onclick={() => list.remove(hypothesis.id, research.removeHypothesis(hypothesis.id))}
-            ><Trash2 /></Button
-          >
+          <DeleteButton
+            label="Delete hypothesis"
+            what="this hypothesis"
+            onConfirm={async () =>
+              (error =
+                (await list.remove(hypothesis.id, research.removeHypothesis(hypothesis.id)))
+                  ?.message ?? null)}
+          />
         </div>
       </li>
     {/each}

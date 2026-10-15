@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
-  import { Trash2 } from "@lucide/svelte"
   import { formatMoney, money } from "@/shared/domain"
+  import { DeleteButton } from "@/shared/ui"
   import { totalsByCategory, type BudgetEntry } from "../domain"
 
   let {
@@ -35,14 +34,11 @@
           <td class={num}>{fmt(e.estimatedMinor)}</td>
           <td class={num}>{fmt(e.actualMinor)}</td>
           <td class="p-1 text-right">
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label="Delete {e.label}"
-              onclick={() => onRemove(e.id)}
-            >
-              <Trash2 />
-            </Button>
+            <DeleteButton
+              label="Delete {e.label}"
+              what="this budget line"
+              onConfirm={() => onRemove(e.id)}
+            />
           </td>
         </tr>
       {:else}

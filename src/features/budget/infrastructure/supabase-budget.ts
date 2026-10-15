@@ -1,14 +1,9 @@
-import { err, ok, type Result } from "@/shared/domain"
-import { toAppError } from "@/shared/infrastructure/errors"
+import { removed, settle, type QueryReply } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { BudgetRepository } from "../application/ports"
 import type { BudgetEntry, EntryValues } from "../domain"
 
 type Row = Record<string, unknown>
-type Response = {
-  data: unknown
-  error: { code?: string; message?: string; status?: number } | null
-}
 const COLUMNS = "id, idea_id, category, label, estimated_minor, actual_minor, created_at"
 
 const toEntry = (r: Row): BudgetEntry => ({
@@ -26,14 +21,6 @@ const toRow = (v: EntryValues) => ({
   estimated_minor: v.estimatedMinor,
   actual_minor: v.actualMinor,
 })
-
-async function settle<T>(
-  query: PromiseLike<Response>,
-  map: (data: unknown) => T,
-): Promise<Result<T>> {
-  const { data, error } = await query
-  return error ? err(toAppError(error)) : ok(map(data))
-}
 
 export class SupabaseBudget implements BudgetRepository {
   constructor(private readonly db: Db) {}
@@ -77,12 +64,13 @@ export class SupabaseBudget implements BudgetRepository {
   }
 
   remove(id: string) {
-    return settle(this.table().delete().eq("id", id), () => undefined)
+    return removed(this.table().delete().eq("id", id).select("id"))
   }
 
   changeCurrency(ideaId: string, currency: string, clearEntries: boolean) {
-    const rpc = (this.db as unknown as { rpc: (fn: string, args: object) => PromiseLike<Response> })
-      .rpc
+    const rpc = (
+      this.db as unknown as { rpc: (fn: string, args: object) => PromiseLike<QueryReply> }
+    ).rpc
     return settle(
       rpc.call(this.db, "change_idea_currency", {
         idea: ideaId,
