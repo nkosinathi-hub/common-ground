@@ -1,0 +1,6 @@
+export type { CommentsGateway, NewComment } from "./application/ports"
+export { CommentsService } from "./application/comments-service"
+export type { Comment, ParentKind, ParentRef } from "./domain/comment"
+export type { MemberRef } from "./domain/mentions"
+export { COMMENTS_CONTEXT, provideComments, useComments } from "./ui/context"
+export { default as CommentThread } from "./ui/CommentThread.svelte"
