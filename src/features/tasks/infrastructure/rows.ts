@@ -1,17 +1,18 @@
 import type { DateOnly } from "@/shared/domain"
+import type { Tables } from "@/shared/infrastructure/database.types"
 import type { TaskPatch } from "../application/ports"
-import type {
-  ChecklistItem,
-  Milestone,
-  Task,
-  TaskPriority,
-  TaskStatus,
-  UpcomingTask,
-} from "../domain"
+import type { ChecklistItem, Milestone, Task, UpcomingTask } from "../domain"
 
-type Row = Record<string, unknown>
-const s = (v: unknown) => v as string
-const n = (v: unknown) => (v ?? null) as string | null
+type TaskTable = Tables<"tasks">
+export type TaskRow = Omit<TaskTable, "created_by">
+export type UpcomingRow = Pick<TaskTable, "id" | "idea_id" | "title" | "status" | "due_date"> & {
+  readonly ideas: { readonly title: string } | null
+}
+export type ItemRow = Pick<
+  Tables<"task_checklist_items">,
+  "id" | "task_id" | "label" | "done" | "position"
+>
+export type MilestoneRow = Omit<Tables<"milestones">, "created_by" | "created_at">
 
 export const TASK_COLUMNS =
   "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_at, updated_at"
@@ -20,57 +21,58 @@ export const ITEM_COLUMNS = "id, task_id, label, done, position"
 export const MILESTONE_COLUMNS =
   "id, space_id, idea_id, title, target_date, completed_at, updated_at"
 
-export const toTask = (r: Row): Task => ({
-  id: s(r.id),
-  spaceId: s(r.space_id),
-  ideaId: s(r.idea_id),
-  title: s(r.title),
-  description: s(r.description),
-  status: r.status as TaskStatus,
-  priority: r.priority as TaskPriority,
-  dueDate: n(r.due_date) as DateOnly | null,
-  assigneeId: n(r.assignee_id),
-  milestoneId: n(r.milestone_id),
-  createdAt: s(r.created_at),
-  updatedAt: s(r.updated_at),
+// due_date and target_date are Postgres date columns: always YYYY-MM-DD, so DateOnly holds.
+const dateOnly = (value: string | null) => value as DateOnly | null
+
+export const toTask = (row: TaskRow): Task => ({
+  id: row.id,
+  spaceId: row.space_id,
+  ideaId: row.idea_id,
+  title: row.title,
+  description: row.description,
+  status: row.status,
+  priority: row.priority,
+  dueDate: dateOnly(row.due_date),
+  assigneeId: row.assignee_id,
+  milestoneId: row.milestone_id,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
 })
 
-export const toItem = (r: Row): ChecklistItem => ({
-  id: s(r.id),
-  taskId: s(r.task_id),
-  label: s(r.label),
-  done: Boolean(r.done),
-  position: Number(r.position),
+export const toItem = (row: ItemRow): ChecklistItem => ({
+  id: row.id,
+  taskId: row.task_id,
+  label: row.label,
+  done: row.done,
+  position: row.position,
 })
 
-export const toMilestone = (r: Row): Milestone => ({
-  id: s(r.id),
-  spaceId: s(r.space_id),
-  ideaId: s(r.idea_id),
-  title: s(r.title),
-  targetDate: n(r.target_date) as DateOnly | null,
-  completedAt: n(r.completed_at),
-  updatedAt: s(r.updated_at),
+export const toMilestone = (row: MilestoneRow): Milestone => ({
+  id: row.id,
+  spaceId: row.space_id,
+  ideaId: row.idea_id,
+  title: row.title,
+  targetDate: dateOnly(row.target_date),
+  completedAt: row.completed_at,
+  updatedAt: row.updated_at,
 })
 
-const KEYS: Record<keyof TaskPatch, string> = {
-  title: "title",
-  description: "description",
-  status: "status",
-  priority: "priority",
-  dueDate: "due_date",
-  assigneeId: "assignee_id",
-  milestoneId: "milestone_id",
-}
+/** The upcoming query filters out null due dates, so every row has one. */
+export const toUpcoming = (row: UpcomingRow): UpcomingTask => ({
+  id: row.id,
+  ideaId: row.idea_id,
+  ideaTitle: row.ideas?.title ?? "",
+  title: row.title,
+  status: row.status,
+  dueDate: row.due_date as DateOnly,
+})
 
-export const taskPatchRow = (patch: TaskPatch): Row =>
-  Object.fromEntries(Object.entries(patch).map(([k, v]) => [KEYS[k as keyof TaskPatch], v]))
-
-export const toUpcoming = (r: Row): UpcomingTask => ({
-  id: s(r.id),
-  ideaId: s(r.idea_id),
-  ideaTitle: (r.ideas as { title?: string } | null)?.title ?? "",
-  title: s(r.title),
-  status: r.status as TaskStatus,
-  dueDate: s(r.due_date) as DateOnly,
+export const taskPatchRow = (patch: TaskPatch) => ({
+  title: patch.title,
+  description: patch.description,
+  status: patch.status,
+  priority: patch.priority,
+  due_date: patch.dueDate,
+  assignee_id: patch.assigneeId,
+  milestone_id: patch.milestoneId,
 })

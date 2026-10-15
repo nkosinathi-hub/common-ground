@@ -13,6 +13,9 @@ export type TaskStatus = (typeof TASK_STATUSES)[number]
 export const TASK_PRIORITIES = ["low", "medium", "high", "urgent"] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 
+/** Longest task or milestone title, in characters. */
+export const TITLE_MAX = 200
+
 export interface Task {
   readonly id: string
   readonly spaceId: string
@@ -37,7 +40,7 @@ export function validateTaskInput(
   input: TaskInput,
 ): Result<{ title: string; dueDate: DateOnly | null }> {
   const title = input.title.trim()
-  if (title.length < 1 || title.length > 200) {
+  if (title.length < 1 || title.length > TITLE_MAX) {
     return err(appError("validation", "Give the task a title of up to 200 characters", "title"))
   }
   if (!input.dueDate) return ok({ title, dueDate: null })

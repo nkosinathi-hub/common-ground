@@ -5,27 +5,23 @@ import {
   ok,
   PAGE_SIZE,
   type Cursor,
+  type MemberDirectory,
+  type MemberRef,
   type Page,
   type Result,
 } from "@/shared/domain"
-import type {
-  Member,
-  MemberDirectory,
-  NewTask,
-  TaskPatch,
-  TasksRepository,
-} from "../application/ports"
+import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
 import { sortUpcoming, type Task, type UpcomingTask } from "../domain"
 import { Store } from "./in-memory-store"
 
 export class FakeMembers implements MemberDirectory {
   constructor(
-    public list: Member[] = [
+    public list: MemberRef[] = [
       { id: "ana", displayName: "Ana" },
       { id: "ben", displayName: "Ben" },
     ],
   ) {}
-  async members(): Promise<Result<Member[]>> {
+  async members(): Promise<Result<MemberRef[]>> {
     return ok(this.list)
   }
 }

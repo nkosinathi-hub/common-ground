@@ -1,68 +1,53 @@
-import { nextCursor, ok, PAGE_SIZE, type Cursor, type Page, type Result } from "@/shared/domain"
-import { olderThan } from "@/shared/infrastructure/paging"
-import { removed } from "@/shared/infrastructure/query"
+import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
+import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
-import type { Task } from "../domain"
-import { TASK_COLUMNS, taskPatchRow, toTask, toUpcoming, UPCOMING_COLUMNS } from "./rows"
-import { many, one, table } from "./table"
+import type { Task, UpcomingTask } from "../domain"
+import { newestFirst } from "./newest-first"
+import * as rows from "./rows"
+
+const toPage = (data: rows.TaskRow[]): Page<Task> => {
+  const items = data.map(rows.toTask)
+  return { items, next: nextCursor(items) }
+}
 
 export class SupabaseTasks implements TasksRepository {
   constructor(private readonly db: Db) {}
 
-  async list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
-    let query = table(this.db, "tasks").select(TASK_COLUMNS).eq("idea_id", ideaId)
-    if (after) query = query.or(olderThan(after))
-    const rows = await many(
-      query
-        .order("created_at", { ascending: false })
-        .order("id", { ascending: false })
-        .limit(PAGE_SIZE),
-      toTask,
-    )
-    return rows.ok ? ok({ items: rows.value, next: nextCursor(rows.value) }) : rows
+  private get tasks() {
+    return this.db.from("tasks")
   }
 
-  create(input: NewTask) {
-    const row = {
-      space_id: input.spaceId,
-      idea_id: input.ideaId,
-      title: input.title,
-      due_date: input.dueDate,
-    }
-    return one(
-      table(this.db, "tasks")
-        .insert(row as never)
-        .select(TASK_COLUMNS)
-        .single(),
-      toTask,
-    )
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
+    const query = this.tasks.select(rows.TASK_COLUMNS).eq("idea_id", ideaId)
+    return settle(newestFirst(query, after), toPage)
   }
 
-  update(id: string, patch: TaskPatch) {
-    return one(
-      table(this.db, "tasks")
-        .update(taskPatchRow(patch) as never)
-        .eq("id", id)
-        .select(TASK_COLUMNS)
-        .single(),
-      toTask,
-    )
+  create(input: NewTask): Promise<Result<Task>> {
+    const { spaceId, ideaId, title, dueDate } = input
+    const row = { space_id: spaceId, idea_id: ideaId, title, due_date: dueDate }
+    return settle(this.tasks.insert(row).select(rows.TASK_COLUMNS).single(), rows.toTask)
   }
 
-  remove(id: string) {
-    return removed(table(this.db, "tasks").delete().eq("id", id).select("id"))
+  update(id: string, patch: TaskPatch): Promise<Result<Task>> {
+    const query = this.tasks.update(rows.taskPatchRow(patch)).eq("id", id)
+    return settle(query.select(rows.TASK_COLUMNS).single(), rows.toTask)
   }
 
-  upcoming(spaceId: string, limit: number) {
-    const query = table(this.db, "tasks")
-      .select(UPCOMING_COLUMNS)
+  remove(id: string): Promise<Result<void>> {
+    return removed(this.tasks.delete().eq("id", id).select("id"))
+  }
+
+  /** Open tasks with a due date, soonest first; the idea title comes along for the link. */
+  upcoming(spaceId: string, limit: number): Promise<Result<UpcomingTask[]>> {
+    const query = this.tasks
+      .select(rows.UPCOMING_COLUMNS)
       .eq("space_id", spaceId)
       .neq("status", "done")
       .not("due_date", "is", null)
       .order("due_date")
       .order("title")
       .limit(limit)
-    return many(query, toUpcoming)
+    return settle(query, (data) => data.map(rows.toUpcoming))
   }
 }

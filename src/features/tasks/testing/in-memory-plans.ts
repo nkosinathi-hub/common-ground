@@ -1,5 +1,11 @@
-import { appError, err, ok, type DateOnly, type Result } from "@/shared/domain"
-import type { ChecklistRepository, MilestonesRepository } from "../application/ports"
+import { appError, err, ok, type Result } from "@/shared/domain"
+import type {
+  ChecklistRepository,
+  MilestonePatch,
+  MilestonesRepository,
+  NewChecklistItem,
+  NewMilestone,
+} from "../application/ports"
 import type { ChecklistItem, Milestone } from "../domain"
 import { Store } from "./in-memory-store"
 
@@ -8,7 +14,7 @@ export class InMemoryChecklist implements ChecklistRepository {
   async list(taskId: string): Promise<Result<ChecklistItem[]>> {
     return ok(this.store.where((i) => i.taskId === taskId).sort((a, b) => a.position - b.position))
   }
-  async add(_spaceId: string, taskId: string, label: string, position: number) {
+  async add({ taskId, label, position }: NewChecklistItem) {
     return this.store.put({ id: this.store.nextId("item"), taskId, label, position, done: false })
   }
   async update(id: string, patch: { label?: string; done?: boolean }) {
@@ -30,18 +36,11 @@ export class InMemoryMilestones implements MilestonesRepository {
   async list(ideaId: string): Promise<Result<Milestone[]>> {
     return ok(this.store.where((m) => m.ideaId === ideaId))
   }
-  async create(spaceId: string, ideaId: string, title: string, targetDate: DateOnly | null) {
-    return this.store.put({
-      id: this.store.nextId("ms"),
-      spaceId,
-      ideaId,
-      title,
-      targetDate,
-      completedAt: null,
-      updatedAt: this.stamp(),
-    })
+  async create(milestone: NewMilestone) {
+    const id = this.store.nextId("ms")
+    return this.store.put({ ...milestone, id, completedAt: null, updatedAt: this.stamp() })
   }
-  async update(id: string, expectedUpdatedAt: string, patch: Partial<Milestone>) {
+  async update(id: string, expectedUpdatedAt: string, patch: MilestonePatch) {
     const row = this.store.rows.get(id)
     if (row && row.updatedAt !== expectedUpdatedAt) return err(appError("conflict", "Changed"))
     return this.store.patch(id, { ...patch, updatedAt: this.stamp() })

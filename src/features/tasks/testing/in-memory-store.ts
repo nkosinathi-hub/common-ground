@@ -3,15 +3,15 @@ import { appError, err, ok, type Result } from "@/shared/domain"
 /** Minimal keyed store the task fakes share. */
 export class Store<T extends { id: string }> {
   readonly rows = new Map<string, T>()
-  private n = 0
+  private count = 0
 
   nextId(prefix: string): string {
-    this.n += 1
-    return `${prefix}-${this.n}`
+    this.count += 1
+    return `${prefix}-${this.count}`
   }
 
   stamp(): string {
-    return new Date(Date.UTC(2026, 9, 15, 0, 0, this.n)).toISOString()
+    return new Date(Date.UTC(2026, 9, 15, 0, 0, this.count)).toISOString()
   }
 
   put(row: T): Result<T> {
