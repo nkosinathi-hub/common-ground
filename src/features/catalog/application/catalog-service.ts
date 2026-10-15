@@ -3,14 +3,19 @@ import { validatePage, validateQuery } from "../domain/rules"
 import type { SearchPage, TitleDetails, TitleRef } from "../domain/types"
 import type { CatalogGateway } from "./ports"
 
+export interface SearchInput {
+  readonly spaceId: string
+  /** As typed: trimmed and checked here. */
+  readonly query: string
+  readonly page?: number
+}
+
 /** Catalog use cases. Every call takes an optional AbortSignal so stale requests can be cancelled. */
 export class CatalogService {
   constructor(private readonly gateway: CatalogGateway) {}
 
   async search(
-    spaceId: string,
-    query: string,
-    page = 1,
+    { spaceId, query, page = 1 }: SearchInput,
     signal?: AbortSignal,
   ): Promise<Result<SearchPage>> {
     const validQuery = validateQuery(query)

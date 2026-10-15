@@ -4,7 +4,7 @@ import { LatestRequest } from "../application/latest-request"
 import { validateQuery } from "../domain/rules"
 import type { SearchPage } from "../domain/types"
 
-export const SEARCH_DEBOUNCE_MS = 300
+const SEARCH_DEBOUNCE_MS = 300
 
 /** Debounced, cancellable catalog search. The query is never cleared by a failure. */
 export class SearchState {
@@ -58,7 +58,7 @@ export class SearchState {
     this.error = null
     const { query, page } = this
     const run = await this.latest.run((signal) =>
-      this.service.search(this.spaceId(), query, page, signal),
+      this.service.search({ spaceId: this.spaceId(), query, page }, signal),
     )
     if (!run.current) return
     this.loading = false

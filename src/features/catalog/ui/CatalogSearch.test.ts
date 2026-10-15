@@ -4,11 +4,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { CatalogService } from "../application/catalog-service"
 import { FakeCatalogGateway } from "../testing/fake-catalog-gateway"
 import { SPACE_ID, title } from "../testing/fixtures"
+import Provided from "../testing/Provided.svelte"
 import CatalogSearch from "./CatalogSearch.svelte"
-import { CATALOG_CONTEXT } from "./context"
+import { provideCatalog } from "./context"
 
 const OUTAGE_MESSAGE = "The catalog is unavailable right now. Your search is kept."
-
 const settle = async (ms = 0) => {
   await vi.advanceTimersByTimeAsync(ms)
   await tick()
@@ -19,8 +19,9 @@ function setup() {
   gateway.titles = [title(1, "Dune"), title(2, "Dune: Part Two"), title(3, "Arrival")]
   const onPick = vi.fn()
   const onManual = vi.fn()
-  const context = new Map([[CATALOG_CONTEXT, new CatalogService(gateway)]])
-  render(CatalogSearch, { props: { spaceId: SPACE_ID, onPick, onManual }, context })
+  const provide = () => provideCatalog(new CatalogService(gateway))
+  const props = { spaceId: SPACE_ID, onPick, onManual }
+  render(Provided, { props: { provide, component: CatalogSearch, props } })
   const input = screen.getByRole("searchbox") as HTMLInputElement
   const type = (value: string) => fireEvent.input(input, { target: { value } })
   return { gateway, onPick, onManual, input, type }

@@ -1,17 +1,16 @@
 import { getContext, setContext } from "svelte"
 import type { CatalogService } from "../application/catalog-service"
 
-/** Context key under which src/app/composition.ts provides the CatalogService. */
-export const CATALOG_CONTEXT = Symbol("catalog-service")
+const KEY = Symbol("catalog")
 
-export const setCatalogService = (service: CatalogService): CatalogService =>
-  setContext(CATALOG_CONTEXT, service)
+/** Called once by the composition root, above every catalog component. */
+export function provideCatalog(service: CatalogService): void {
+  setContext(KEY, service)
+}
 
-export function getCatalogService(): CatalogService {
-  const service = getContext<CatalogService | undefined>(CATALOG_CONTEXT)
+export function useCatalog(): CatalogService {
+  const service = getContext<CatalogService | undefined>(KEY)
   if (!service)
-    throw new Error(
-      "CatalogService is not provided: call setCatalogService in the composition root",
-    )
+    throw new Error("Catalog is not provided: call provideCatalog in the composition root")
   return service
 }

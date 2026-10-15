@@ -6,7 +6,7 @@
   import { QUERY_MAX } from "../domain/rules"
   import type { CatalogTitle } from "../domain/types"
   import Attribution from "./Attribution.svelte"
-  import { getCatalogService } from "./context"
+  import { useCatalog } from "./context"
   import Pagination from "./Pagination.svelte"
   import SearchResults from "./SearchResults.svelte"
   import { SearchState } from "./search-state.svelte"
@@ -19,7 +19,7 @@
 
   let { spaceId, onPick, onManual }: Props = $props()
 
-  const search = new SearchState(getCatalogService(), () => spaceId)
+  const search = new SearchState(useCatalog(), () => spaceId)
   onDestroy(() => search.dispose())
 </script>
 

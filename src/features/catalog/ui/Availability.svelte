@@ -7,7 +7,7 @@
   import type { CatalogType } from "../domain/types"
   import Attribution from "./Attribution.svelte"
   import { AvailabilityState } from "./availability-state.svelte"
-  import { getCatalogService } from "./context"
+  import { useCatalog } from "./context"
   import OtherCountries from "./OtherCountries.svelte"
   import RegionListing from "./RegionListing.svelte"
 
@@ -19,7 +19,7 @@
 
   let { spaceId, type, id }: Props = $props()
 
-  const listing = new AvailabilityState(getCatalogService())
+  const listing = new AvailabilityState(useCatalog())
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
   const checked = $derived(
     listing.details
@@ -31,6 +31,7 @@
   )
 
   $effect(() => {
+    // Reload when the title or space changes; the load itself must not become a dependency.
     const ref = { type, id }
     const space = spaceId
     untrack(() => void listing.load(space, ref))

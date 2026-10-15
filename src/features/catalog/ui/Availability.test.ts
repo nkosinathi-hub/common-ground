@@ -3,14 +3,16 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CatalogService } from "../application/catalog-service"
 import { FakeCatalogGateway } from "../testing/fake-catalog-gateway"
 import { SPACE_ID, listing, region } from "../testing/fixtures"
+import Provided from "../testing/Provided.svelte"
 import Availability from "./Availability.svelte"
-import { CATALOG_CONTEXT } from "./context"
+import { provideCatalog } from "./context"
 
 function setup(configure: (gateway: FakeCatalogGateway) => void) {
   const gateway = new FakeCatalogGateway()
   configure(gateway)
-  const context = new Map([[CATALOG_CONTEXT, new CatalogService(gateway)]])
-  const view = render(Availability, { props: { spaceId: SPACE_ID, type: "movie", id: 1 }, context })
+  const provide = () => provideCatalog(new CatalogService(gateway))
+  const props = { spaceId: SPACE_ID, type: "movie", id: 1 }
+  const view = render(Provided, { props: { provide, component: Availability, props } })
   return { gateway, view }
 }
 

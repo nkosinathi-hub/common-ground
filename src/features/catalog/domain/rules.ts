@@ -1,6 +1,14 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { Availability, MediaKind, Region } from "./types"
 
+export type PosterSize = "w92" | "w185" | "w342"
+
+export interface SplitAvailability {
+  readonly home: Region | null
+  readonly others: readonly Region[]
+  readonly fallback: boolean
+}
+
 export const HOME_REGION = "ZA"
 export const QUERY_MIN = 2
 export const QUERY_MAX = 160
@@ -8,16 +16,8 @@ export const PAGE_MAX = 20
 
 const POSTER_PATH = /^\/[A-Za-z0-9_-][A-Za-z0-9_.-]*$/
 
-export type PosterSize = "w92" | "w185" | "w342"
-
 export function posterUrl(path: string | null, size: PosterSize = "w185"): string | null {
   return path && POSTER_PATH.test(path) ? `https://image.tmdb.org/t/p/${size}${path}` : null
-}
-
-export interface SplitAvailability {
-  readonly home: Region | null
-  readonly others: readonly Region[]
-  readonly fallback: boolean
 }
 
 export function splitAvailability(availability: Availability): SplitAvailability {

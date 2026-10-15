@@ -13,15 +13,15 @@ const setup = () => {
 describe("CatalogService", () => {
   it("searches with a trimmed query in the given space", async () => {
     const { gateway, service } = setup()
-    const result = await service.search(SPACE_ID, "  dune ", 1)
+    const result = await service.search({ spaceId: SPACE_ID, query: "  dune ", page: 1 })
     expect(result.ok && result.value.results.map((t) => t.id)).toEqual([1, 2])
     expect(gateway.calls[0]?.request).toEqual({ spaceId: SPACE_ID, query: "dune", page: 1 })
   })
 
   it("rejects short queries and bad pages without calling the gateway", async () => {
     const { gateway, service } = setup()
-    expect((await service.search(SPACE_ID, "d")).ok).toBe(false)
-    expect((await service.search(SPACE_ID, "dune", 21)).ok).toBe(false)
+    expect((await service.search({ spaceId: SPACE_ID, query: "d" })).ok).toBe(false)
+    expect((await service.search({ spaceId: SPACE_ID, query: "dune", page: 21 })).ok).toBe(false)
     expect(gateway.calls).toEqual([])
   })
 
@@ -39,8 +39,12 @@ describe("LatestRequest", () => {
     const { gateway, service } = setup()
     const latest = new LatestRequest()
     gateway.hold = true
-    const first = latest.run((signal) => service.search(SPACE_ID, "dun", 1, signal))
-    const second = latest.run((signal) => service.search(SPACE_ID, "dune", 1, signal))
+    const first = latest.run((signal) =>
+      service.search({ spaceId: SPACE_ID, query: "dun" }, signal),
+    )
+    const second = latest.run((signal) =>
+      service.search({ spaceId: SPACE_ID, query: "dune" }, signal),
+    )
     gateway.release()
     expect(await first).toEqual({ current: false })
     expect(await second).toMatchObject({ current: true, value: { ok: true } })
@@ -51,7 +55,9 @@ describe("LatestRequest", () => {
     const { gateway, service } = setup()
     const latest = new LatestRequest()
     gateway.hold = true
-    const pending = latest.run((signal) => service.search(SPACE_ID, "dune", 1, signal))
+    const pending = latest.run((signal) =>
+      service.search({ spaceId: SPACE_ID, query: "dune" }, signal),
+    )
     latest.cancel()
     gateway.release()
     expect(await pending).toEqual({ current: false })
