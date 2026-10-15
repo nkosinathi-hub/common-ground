@@ -1,0 +1,6 @@
+export type * from "./domain/types"
+export type { ListRequest, MemberDirectory, WatchGateway } from "./application/ports"
+export { WatchService } from "./application/watch-service"
+export { provideWatch, useWatch, type WatchContext } from "./ui/context"
+export { default as WatchPage } from "./ui/WatchPage.svelte"
+export { default as WatchItemDetail } from "./ui/WatchItemDetail.svelte"
