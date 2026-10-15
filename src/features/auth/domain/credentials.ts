@@ -1,4 +1,4 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { appError, err, MIN_PASSWORD, ok, validateDisplayName, type Result } from "@/shared/domain"
 
 export interface SignUpInput {
   readonly email: string
@@ -6,11 +6,9 @@ export interface SignUpInput {
   readonly displayName: string
 }
 
-export const MIN_PASSWORD = 10
 export const MAX_PASSWORD = 128
 /** RFC 5321 limit on a forward path. */
 export const MAX_EMAIL = 254
-export const MAX_DISPLAY_NAME = 80
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -27,15 +25,6 @@ export function validatePassword(password: string): Result<string> {
   if (password.length > MAX_PASSWORD)
     return err(appError("validation", `Use at most ${MAX_PASSWORD} characters`, "password"))
   return ok(password)
-}
-
-export function validateDisplayName(name: string): Result<string> {
-  const trimmed = name.trim()
-  return trimmed.length >= 1 && trimmed.length <= MAX_DISPLAY_NAME
-    ? ok(trimmed)
-    : err(
-        appError("validation", `Enter a name up to ${MAX_DISPLAY_NAME} characters`, "displayName"),
-      )
 }
 
 export function validateSignUp(input: SignUpInput): Result<SignUpInput> {

@@ -1,6 +1,6 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { AccountAuth, AccountRepository } from "../application/ports"
-import { MIN_PASSWORD } from "../domain/account"
+import { MIN_PASSWORD } from "@/shared/domain"
 
 export class FakeAccountRepository implements AccountRepository {
   readonly calls: string[] = []

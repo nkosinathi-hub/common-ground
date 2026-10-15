@@ -2,7 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import { FormField, FormState, toast } from "@/shared/ui"
-  import { MIN_PASSWORD } from "../domain/account"
+  import { MIN_PASSWORD } from "@/shared/domain"
   import { useAccount } from "./context"
 
   const { service } = useAccount()

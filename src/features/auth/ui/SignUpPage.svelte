@@ -2,7 +2,7 @@
   import { MailCheck } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { FormField, FormState } from "@/shared/ui"
-  import { MIN_PASSWORD } from "../domain/credentials"
+  import { MIN_PASSWORD } from "@/shared/domain"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { CONFIRM_WORD, exportFilename, validateConfirmation, validateDisplayName } from "./account"
+import { CONFIRM_WORD, exportFilename, validateConfirmation } from "./account"
 
 const day = new Date(2026, 9, 5, 23, 30)
 
@@ -23,20 +23,5 @@ describe("validateConfirmation", () => {
     const wrong = validateConfirmation("delete")
     expect(wrong.ok).toBe(false)
     if (!wrong.ok) expect(wrong.error).toMatchObject({ kind: "validation", field: "confirmation" })
-  })
-})
-
-describe("validateDisplayName", () => {
-  it("trims and accepts 1 to 80 characters", () => {
-    expect(validateDisplayName("  Ana ")).toEqual({ ok: true, value: "Ana" })
-    expect(validateDisplayName("x".repeat(80)).ok).toBe(true)
-  })
-
-  it("rejects blank or too long names on the name field", () => {
-    for (const bad of ["   ", "x".repeat(81)]) {
-      const result = validateDisplayName(bad)
-      expect(result.ok).toBe(false)
-      if (!result.ok) expect(result.error.field).toBe("displayName")
-    }
   })
 })
