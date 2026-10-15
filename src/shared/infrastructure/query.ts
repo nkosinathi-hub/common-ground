@@ -1,29 +1,39 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import { toAppError } from "./errors"
 
-export interface QueryReply {
-  readonly data: unknown
-  readonly error: {
-    readonly code?: string
-    readonly message?: string
-    readonly status?: number
-  } | null
+export interface QueryError {
+  readonly code?: string
+  readonly message?: string
+  readonly status?: number
 }
 
-/** Awaits a PostgREST query and maps its data, or its error to an AppError. */
-export async function settle<T>(
-  query: PromiseLike<QueryReply>,
-  map: (data: unknown) => T,
+export interface QueryReply<D = unknown> {
+  readonly data: D | null
+  readonly error: QueryError | null
+}
+
+/** Awaits a typed PostgREST query or RPC and maps its data, or its error to an AppError. */
+export async function settle<D, T>(
+  query: PromiseLike<QueryReply<D>>,
+  map: (data: D) => T,
 ): Promise<Result<T>> {
   const { data, error } = await query
-  return error ? err(toAppError(error)) : ok(map(data))
+  return error ? err(toAppError(error)) : ok(map(data as D))
+}
+
+/** Awaits a write whose result is not needed. */
+export async function done(
+  query: PromiseLike<{ readonly error: QueryError | null }>,
+): Promise<Result<void>> {
+  const { error } = await query
+  return error ? err(toAppError(error)) : ok(undefined)
 }
 
 /**
  * Awaits a delete that selected the deleted ids. RLS refuses deletes silently (zero rows), so an
  * empty result means the caller may not delete it: only its author or the space owner can.
  */
-export async function removed(query: PromiseLike<QueryReply>): Promise<Result<void>> {
+export async function removed(query: PromiseLike<QueryReply<unknown>>): Promise<Result<void>> {
   const { data, error } = await query
   if (error) return err(toAppError(error))
   if (!Array.isArray(data) || data.length === 0) {
@@ -31,3 +41,6 @@ export async function removed(query: PromiseLike<QueryReply>): Promise<Result<vo
   }
   return ok(undefined)
 }
+
+/** Signed-out callers never send an empty string where Postgres expects a uuid. */
+export const signedOut = () => err(appError("unauthenticated", "Please sign in again"))
