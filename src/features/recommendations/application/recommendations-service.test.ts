@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { MAX_NOTE } from "../domain/recommendation"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
 import { RecommendationsService } from "./recommendations-service"
 
@@ -6,14 +7,20 @@ const setup = () => {
   const gateway = new FakeRecommendationsGateway()
   return { gateway, service: new RecommendationsService(gateway, 2) }
 }
+const send = (recipientIds: string[], note: string) => ({
+  itemId: "w1",
+  recipientIds,
+  note,
+  me: "me",
+})
 
 describe("RecommendationsService", () => {
   it("validates recipients and the note before sending", async () => {
     const { gateway, service } = setup()
-    expect((await service.send("w1", ["me"], "", "me")).ok).toBe(false)
-    expect((await service.send("w1", ["z"], "n".repeat(501), "me")).ok).toBe(false)
+    expect((await service.send(send(["me"], ""))).ok).toBe(false)
+    expect((await service.send(send(["z"], "n".repeat(MAX_NOTE + 1)))).ok).toBe(false)
     expect(gateway.calls).toEqual([])
-    expect((await service.send("w1", ["z", "a", "z"], "  ", "me")).ok).toBe(true)
+    expect((await service.send(send(["z", "a", "z"], "  "))).ok).toBe(true)
     expect(gateway.sent).toEqual([
       { itemId: "w1", recipientId: "z", note: null },
       { itemId: "w1", recipientId: "a", note: null },
@@ -22,8 +29,8 @@ describe("RecommendationsService", () => {
 
   it("surfaces the duplicate pending rule", async () => {
     const { service } = setup()
-    await service.send("w1", ["z"], "Go", "me")
-    expect(await service.send("w1", ["z"], "Again", "me")).toMatchObject({
+    await service.send(send(["z"], "Go"))
+    expect(await service.send(send(["z"], "Again"))).toMatchObject({
       ok: false,
       error: { kind: "validation" },
     })

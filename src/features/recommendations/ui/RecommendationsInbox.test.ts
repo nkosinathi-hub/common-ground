@@ -1,14 +1,15 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
+import { FORMER_MEMBER } from "@/shared/domain"
 import { RecommendationsService } from "../application/recommendations-service"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
-import { RECOMMENDATIONS_CONTEXT } from "./context"
+import { recommendationsContext } from "./context"
 import RecommendationsInbox from "./RecommendationsInbox.svelte"
 
 function setup(configure: (gateway: FakeRecommendationsGateway) => void) {
   const gateway = new FakeRecommendationsGateway()
   configure(gateway)
-  const context = new Map([[RECOMMENDATIONS_CONTEXT, new RecommendationsService(gateway, 2)]])
+  const context = recommendationsContext({ service: new RecommendationsService(gateway, 2) })
   const itemHref = (id: string) => `#/s/watch/${id}`
   render(RecommendationsInbox, { props: { spaceId: "s", itemHref }, context })
   return gateway
@@ -43,7 +44,7 @@ describe("RecommendationsInbox", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Show more" }))
     expect(await screen.findByText("Title 1")).toBeInTheDocument()
     expect(screen.getByText("A saved title")).toBeInTheDocument()
-    expect(screen.getByText("From a former member")).toBeInTheDocument()
+    expect(screen.getByText(`From ${FORMER_MEMBER}`)).toBeInTheDocument()
   })
 
   it("offers a retry when loading fails", async () => {

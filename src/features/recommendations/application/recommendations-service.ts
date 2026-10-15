@@ -7,29 +7,37 @@ import {
 } from "../domain/recommendation"
 import type { RecommendationsGateway } from "./ports"
 
+/** What the recommend dialog sends: the title, who to, an optional note, and who is sending. */
+export interface SendRequest {
+  readonly itemId: string
+  readonly recipientIds: readonly string[]
+  readonly note: string
+  readonly me: string
+}
+
 export class RecommendationsService {
   constructor(
     private readonly gateway: RecommendationsGateway,
     private readonly pageSize = PAGE_SIZE,
   ) {}
 
-  async send(
-    itemId: string,
-    recipientIds: readonly string[],
-    note: string,
-    me: string,
-  ): Promise<Result<string[]>> {
+  async send({ itemId, recipientIds, note, me }: SendRequest): Promise<Result<string[]>> {
     const recipients = validateRecipients(recipientIds, me)
     if (!recipients.ok) return recipients
     const cleanNote = validateNote(note)
     if (!cleanNote.ok) return cleanNote
-    return this.gateway.recommend(itemId, recipients.value, cleanNote.value)
+    return this.gateway.recommend({
+      itemId,
+      recipientIds: recipients.value,
+      note: cleanNote.value,
+    })
   }
 
-  async inbox(spaceId: string, before: Cursor | null): Promise<Result<Page<Recommendation>>> {
-    const rows = await this.gateway.inbox(spaceId, before, this.pageSize)
+  async inbox(spaceId: string, after: Cursor | null): Promise<Result<Page<Recommendation>>> {
+    const size = this.pageSize
+    const rows = await this.gateway.inbox({ spaceId, after, size })
     if (!rows.ok) return rows
-    return ok({ items: rows.value, next: nextCursor(rows.value, this.pageSize) })
+    return ok({ items: rows.value, next: nextCursor(rows.value, size) })
   }
 
   respond = (id: string, response: RecommendationResponse) => this.gateway.respond(id, response)

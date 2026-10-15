@@ -1,4 +1,4 @@
-import { appError, err, ok, type Cursor, type Result } from "@/shared/domain"
+import { appError, err, ok, type Cursor, type MemberRef, type Result } from "@/shared/domain"
 
 export type RecommendationStatus = "pending" | "acknowledged" | "dismissed"
 export type RecommendationResponse = Exclude<RecommendationStatus, "pending">
@@ -10,11 +10,6 @@ export interface Recommendation extends Cursor {
   readonly senderName: string | null
   readonly note: string | null
   readonly status: RecommendationStatus
-}
-
-export interface MemberRef {
-  readonly id: string
-  readonly displayName: string
 }
 
 export const MAX_NOTE = 500

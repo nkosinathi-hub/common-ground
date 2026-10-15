@@ -1,14 +1,23 @@
 import type { Cursor, Result } from "@/shared/domain"
 import type { Recommendation, RecommendationResponse } from "../domain/recommendation"
 
+/** One pending recommendation per recipient, with the same optional note. */
+export interface RecommendRequest {
+  readonly itemId: string
+  readonly recipientIds: readonly string[]
+  readonly note: string | null
+}
+
+/** Pending recommendations addressed to the signed-in member, newest first after `after`. */
+export interface InboxPageRequest {
+  readonly spaceId: string
+  readonly after: Cursor | null
+  readonly size: number
+}
+
 export interface RecommendationsGateway {
-  /** Creates one pending recommendation per recipient; returns their ids. */
-  recommend(
-    itemId: string,
-    recipientIds: readonly string[],
-    note: string | null,
-  ): Promise<Result<string[]>>
-  /** Pending recommendations addressed to the signed-in member, newest first. */
-  inbox(spaceId: string, before: Cursor | null, size: number): Promise<Result<Recommendation[]>>
+  /** Returns the ids of the recommendations created. */
+  recommend(request: RecommendRequest): Promise<Result<string[]>>
+  inbox(request: InboxPageRequest): Promise<Result<Recommendation[]>>
   respond(id: string, response: RecommendationResponse): Promise<Result<void>>
 }

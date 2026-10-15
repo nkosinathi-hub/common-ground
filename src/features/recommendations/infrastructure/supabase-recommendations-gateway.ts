@@ -1,28 +1,28 @@
-import type { SupabaseClient } from "@supabase/supabase-js"
-import { appError, err, ok, type Cursor, type Result } from "@/shared/domain"
-import { toAppError } from "@/shared/infrastructure/errors"
+import type { Result } from "@/shared/domain"
+import { olderThan } from "@/shared/infrastructure/paging"
+import { done, settle, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { RecommendationsGateway } from "../application/ports"
+import type {
+  InboxPageRequest,
+  RecommendationsGateway,
+  RecommendRequest,
+} from "../application/ports"
 import type { Recommendation, RecommendationResponse } from "../domain/recommendation"
 
-type Reply<T> = { data: T | null; error: { code?: string; message?: string } | null }
+// One literal, so the typed client can parse the embedded title and sender.
+const INBOX_COLUMNS = `id, space_id, watch_item_id, note, created_at, item:watch_items!recommendations_watch_item_fkey(title), sender:profiles!recommendations_sender_id_fkey(display_name)`
 
 interface InboxRow {
-  id: string
-  space_id: string
-  watch_item_id: string
-  note: string | null
-  status: Recommendation["status"]
-  created_at: string
-  item: { title: string } | null
-  sender: { display_name: string } | null
+  readonly id: string
+  readonly space_id: string
+  readonly watch_item_id: string
+  readonly note: string | null
+  readonly created_at: string
+  readonly item: { readonly title: string } | null
+  readonly sender: { readonly display_name: string } | null
 }
 
-const INBOX_COLUMNS =
-  "id, space_id, watch_item_id, note, status, created_at, " +
-  "item:watch_items!recommendations_watch_item_fkey(title), " +
-  "sender:profiles!recommendations_sender_id_fkey(display_name)"
-
+/** The inbox query selects pending rows only, so every row it maps is pending. */
 const toRecommendation = (row: InboxRow): Recommendation => ({
   id: row.id,
   createdAt: row.created_at,
@@ -31,53 +31,41 @@ const toRecommendation = (row: InboxRow): Recommendation => ({
   itemTitle: row.item?.title ?? null,
   senderName: row.sender?.display_name ?? null,
   note: row.note,
-  status: row.status,
+  status: "pending",
 })
 
 /** Reads through RLS (sender or recipient only); writes go through the recommendation RPCs. */
 export class SupabaseRecommendationsGateway implements RecommendationsGateway {
-  private readonly db: SupabaseClient
+  constructor(private readonly db: Db) {}
 
-  // The recommendations table arrives in the generated types once the watch migrations land.
-  constructor(db: Db) {
-    this.db = db as unknown as SupabaseClient
-  }
-
-  async recommend(itemId: string, recipientIds: readonly string[], note: string | null) {
-    const reply: Reply<string[]> = await this.db.rpc("recommend", {
+  recommend({ itemId, recipientIds, note }: RecommendRequest): Promise<Result<string[]>> {
+    // The RPC stores an empty note as null.
+    const reply = this.db.rpc("recommend", {
       item: itemId,
-      recipient_ids: recipientIds,
-      note,
+      recipient_ids: [...recipientIds],
+      note: note ?? "",
     })
-    return reply.error ? err(toAppError(reply.error)) : ok(reply.data ?? [])
+    return settle(reply, (ids) => ids ?? [])
   }
 
-  async inbox(
-    spaceId: string,
-    before: Cursor | null,
-    size: number,
-  ): Promise<Result<Recommendation[]>> {
+  async inbox({ spaceId, after, size }: InboxPageRequest): Promise<Result<Recommendation[]>> {
     const { data: auth } = await this.db.auth.getUser()
-    if (!auth.user) return err(appError("unauthenticated", "Please sign in again"))
+    if (!auth.user) return signedOut()
     let query = this.db
       .from("recommendations")
       .select(INBOX_COLUMNS)
       .eq("space_id", spaceId)
       .eq("recipient_id", auth.user.id)
       .eq("status", "pending")
-    if (before)
-      query = query.or(
-        `created_at.lt."${before.createdAt}",and(created_at.eq."${before.createdAt}",id.lt.${before.id})`,
-      )
-    const reply = (await query
+    if (after) query = query.or(olderThan(after))
+    const page = query
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
-      .limit(size)) as unknown as Reply<InboxRow[]>
-    return reply.error ? err(toAppError(reply.error)) : ok((reply.data ?? []).map(toRecommendation))
+      .limit(size)
+    return settle(page, (rows: InboxRow[]) => rows.map(toRecommendation))
   }
 
-  async respond(id: string, response: RecommendationResponse): Promise<Result<void>> {
-    const { error } = await this.db.rpc("respond_recommendation", { target: id, response })
-    return error ? err(toAppError(error)) : ok(undefined)
+  respond(id: string, response: RecommendationResponse): Promise<Result<void>> {
+    return done(this.db.rpc("respond_recommendation", { target: id, response }))
   }
 }

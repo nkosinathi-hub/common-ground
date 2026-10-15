@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it } from "vitest"
 import { RecommendationsService } from "../application/recommendations-service"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
-import { RECOMMENDATIONS_CONTEXT } from "./context"
+import { recommendationsContext } from "./context"
 import RecommendButton from "./RecommendButton.svelte"
 
 const MEMBERS = [
@@ -13,7 +13,7 @@ const MEMBERS = [
 
 function setup(members = MEMBERS) {
   const gateway = new FakeRecommendationsGateway()
-  const context = new Map([[RECOMMENDATIONS_CONTEXT, new RecommendationsService(gateway)]])
+  const context = recommendationsContext({ service: new RecommendationsService(gateway) })
   render(RecommendButton, { props: { spaceId: "s", itemId: "w1", members, me: "me" }, context })
   return gateway
 }

@@ -4,8 +4,9 @@
   import * as Dialog from "$lib/components/ui/dialog"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
+  import type { MemberRef } from "@/shared/domain"
   import { FormState, toast } from "@/shared/ui"
-  import { MAX_NOTE, recipientOptions, type MemberRef } from "../domain/recommendation"
+  import { MAX_NOTE, recipientOptions } from "../domain/recommendation"
   import { useRecommendations } from "./context"
 
   interface Props {
@@ -16,7 +17,7 @@
   }
   let { spaceId, itemId, members, me }: Props = $props()
 
-  const service = useRecommendations()
+  const { service } = useRecommendations()
   const form = new FormState()
   const options = $derived(recipientOptions(members, me))
   // Unique per title so several buttons on one page never share element ids.
@@ -30,7 +31,7 @@
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
-    const sent = await form.run(() => service.send(itemId, chosen, note, me))
+    const sent = await form.run(() => service.send({ itemId, recipientIds: chosen, note, me }))
     if (!sent.ok) return
     const names = options.filter((m) => chosen.includes(m.id)).map((m) => m.displayName)
     toast.success(`Recommended to ${names.join(", ")}`)

@@ -1,15 +1,22 @@
 import { getContext, setContext } from "svelte"
 import type { RecommendationsService } from "../application/recommendations-service"
 
-/** Context key under which src/app/composition.ts provides the RecommendationsService. */
-export const RECOMMENDATIONS_CONTEXT = Symbol("recommendations-service")
+const KEY = Symbol("recommendations")
 
-export const provideRecommendations = (service: RecommendationsService): RecommendationsService =>
-  setContext(RECOMMENDATIONS_CONTEXT, service)
-
-export function useRecommendations(): RecommendationsService {
-  const service = getContext<RecommendationsService | undefined>(RECOMMENDATIONS_CONTEXT)
-  if (!service)
-    throw new Error("RecommendationsService is not provided: call provideRecommendations")
-  return service
+export interface RecommendationsContext {
+  readonly service: RecommendationsService
 }
+
+/** Called once by the composition root (src/app/composition). */
+export function provideRecommendations(value: RecommendationsContext): void {
+  setContext(KEY, value)
+}
+
+export function useRecommendations(): RecommendationsContext {
+  const value = getContext<RecommendationsContext | undefined>(KEY)
+  if (!value) throw new Error("Recommendations are not provided: call provideRecommendations")
+  return value
+}
+
+/** The context map for render({ context }) in component tests. */
+export const recommendationsContext = (value: RecommendationsContext) => new Map([[KEY, value]])

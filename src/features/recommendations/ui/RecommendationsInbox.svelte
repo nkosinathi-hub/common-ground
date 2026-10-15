@@ -3,14 +3,18 @@
   import { Check, Inbox, X } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { EmptyState, ErrorState, Loading, toast } from "@/shared/ui"
-  import type { Result } from "@/shared/domain"
+  import { FORMER_MEMBER, type Result } from "@/shared/domain"
   import type { RecommendationResponse } from "../domain/recommendation"
   import { useRecommendations } from "./context"
   import { InboxState } from "./inbox.svelte"
 
-  let { spaceId, itemHref }: { spaceId: string; itemHref: (itemId: string) => string } = $props()
+  interface Props {
+    spaceId: string
+    itemHref: (itemId: string) => string
+  }
+  let { spaceId, itemHref }: Props = $props()
 
-  const service = useRecommendations()
+  const { service } = useRecommendations()
   const inbox = $derived(new InboxState(service, spaceId))
   $effect(() => {
     const current = inbox
@@ -43,7 +47,7 @@
           <a class="font-medium underline-offset-4 hover:underline" href={itemHref(rec.itemId)}
             >{rec.itemTitle ?? "A saved title"}</a
           >
-          <p class="text-xs text-muted-foreground">From {rec.senderName ?? "a former member"}</p>
+          <p class="text-xs text-muted-foreground">From {rec.senderName ?? FORMER_MEMBER}</p>
           {#if rec.note}<p class="text-sm break-words whitespace-pre-wrap">{rec.note}</p>{/if}
           <div class="flex gap-2">
             <Button
