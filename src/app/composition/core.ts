@@ -9,10 +9,9 @@ import { CatalogService, SupabaseCatalogGateway, setCatalogService } from "@/fea
 import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
 import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-space"
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
-import { createSupabase, type Db } from "@/shared/infrastructure/supabase"
+import type { Db } from "@/shared/infrastructure/supabase"
 
-/** The only place adapters are constructed. Features receive services through context. */
-export function compose(db: Db = createSupabase()) {
+export function composeCore(db: Db) {
   const basePath = import.meta.env.BASE_URL
   const appUrl = `${window.location.origin}${basePath}`
   const auth = new AuthService(new SupabaseAuthGateway(db), {
@@ -33,9 +32,7 @@ export function compose(db: Db = createSupabase()) {
   return { db, auth, session, spaces, spacesStore, catalog, notifications, activity }
 }
 
-export type Services = ReturnType<typeof compose>
-
-export function provideServices(services: Services): void {
+export function provideCore(services: ReturnType<typeof composeCore>): void {
   provideAuth({ service: services.auth, session: services.session })
   provideSpaces({ service: services.spaces, store: services.spacesStore })
   setCatalogService(services.catalog)
