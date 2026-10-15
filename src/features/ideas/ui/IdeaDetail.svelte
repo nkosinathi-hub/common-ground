@@ -7,6 +7,7 @@
   import IdeaHeader from "./IdeaHeader.svelte"
   import IdeaTabs, { type IdeaTab } from "./IdeaTabs.svelte"
   import OverviewTab from "./OverviewTab.svelte"
+  import ResearchTab from "./ResearchTab.svelte"
 
   let {
     spaceId,
@@ -58,7 +59,7 @@
       {#if tab === "overview"}
         {#key idea.id}<OverviewTab {idea} onSaved={(next) => (idea = next)} />{/key}
       {:else if tab === "research"}
-        {@render attachments?.(idea)}
+        <ResearchTab {idea} {attachments} />
       {:else if tab === "discussion"}
         {@render discussion?.(idea)}
       {/if}

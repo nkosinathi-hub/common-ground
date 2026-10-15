@@ -1,5 +1,15 @@
 import type { Cursor, Page, Result } from "@/shared/domain"
-import type { Brief, Idea, IdeaStage, IdeaTemplate } from "../domain"
+import type {
+  Brief,
+  Hypothesis,
+  HypothesisStatus,
+  Idea,
+  IdeaNote,
+  IdeaStage,
+  IdeaTemplate,
+  LinkInput,
+  ResearchLink,
+} from "../domain"
 
 export interface NewIdea {
   readonly spaceId: string
@@ -22,4 +32,19 @@ export interface IdeasRepository {
   /** Fails with kind "conflict" when expectedUpdatedAt is stale. Returns the new updatedAt. */
   updateBrief(id: string, expectedUpdatedAt: string, brief: Brief): Promise<Result<string>>
   remove(id: string): Promise<Result<void>>
+}
+
+/** A list of records hanging off one idea (notes, links, hypotheses). */
+export interface ChildCollection<T, Input> {
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<T>>>
+  add(spaceId: string, ideaId: string, input: Input): Promise<Result<T>>
+  remove(id: string): Promise<Result<void>>
+}
+
+export interface ResearchRepository {
+  readonly notes: ChildCollection<IdeaNote, string>
+  readonly links: ChildCollection<ResearchLink, LinkInput>
+  readonly hypotheses: ChildCollection<Hypothesis, string> & {
+    setStatus(id: string, status: HypothesisStatus): Promise<Result<Hypothesis>>
+  }
 }
