@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
-  import { ChevronDown, Trash2 } from "@lucide/svelte"
+  import { ChevronDown } from "@lucide/svelte"
   import { todayDateOnly } from "@/shared/domain"
+  import { DeleteButton } from "@/shared/ui"
   import { formatDue, isOverdue, type Task } from "../domain"
   import Checklist from "./Checklist.svelte"
   import TaskFields from "./TaskFields.svelte"
@@ -17,9 +18,12 @@
 <article class="flex flex-col gap-2 rounded-lg border bg-card p-3" data-testid="task-card">
   <div class="flex items-start justify-between gap-2">
     <p class="font-medium">{task.title}</p>
-    <Button variant="ghost" size="icon-xs" aria-label="Delete task {task.title}" onclick={remove}>
-      <Trash2 />
-    </Button>
+    <DeleteButton
+      label="Delete task {task.title}"
+      what="this task"
+      description="Its checklist is deleted too."
+      onConfirm={remove}
+    />
   </div>
   <TaskFields {task} {board} onError={(message) => (error = message)} />
   {#if task.dueDate}

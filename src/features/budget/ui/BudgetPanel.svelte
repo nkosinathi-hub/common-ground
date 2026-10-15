@@ -38,9 +38,11 @@
     if (result.ok) entries = [...entries, result.value]
     return result.ok ? null : result.error
   }
+  let removeError = $state<string | null>(null)
   async function remove(id: string) {
     const result = await budget.remove(id)
     if (result.ok) entries = entries.filter((e) => e.id !== id)
+    removeError = result.ok ? null : result.error.message
   }
   const summary = $derived(budgetSummary(entries, currency))
 </script>
@@ -61,5 +63,6 @@
     <BudgetSummary totals={summary} />
     <EntryForm {currency} onSubmit={add} />
     <BudgetTable {entries} {currency} onRemove={remove} />
+    {#if removeError}<p class="text-sm text-destructive" role="alert">{removeError}</p>{/if}
   {/if}
 </section>

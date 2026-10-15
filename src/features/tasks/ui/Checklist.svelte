@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { X } from "@lucide/svelte"
   import type { Result } from "@/shared/domain"
+  import { DeleteButton } from "@/shared/ui"
   import { checklistProgress, type ChecklistItem, type Task } from "../domain"
   import { useTasks } from "./context"
 
@@ -51,12 +50,11 @@
         <label for="item-{item.id}" class={item.done ? "text-muted-foreground line-through" : ""}
           >{item.label}</label
         >
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label="Remove {item.label}"
-          onclick={() => remove(item.id)}><X /></Button
-        >
+        <DeleteButton
+          label="Remove {item.label}"
+          what="this checklist item"
+          onConfirm={() => remove(item.id)}
+        />
       </li>
     {/each}
   </ul>

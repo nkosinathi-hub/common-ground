@@ -1,9 +1,10 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { ExternalLink, Trash2 } from "@lucide/svelte"
+  import { ExternalLink } from "@lucide/svelte"
   import type { AppError } from "@/shared/domain"
   import type { Idea, ResearchLink } from "../domain"
+  import { DeleteButton } from "@/shared/ui"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
   import { PagedList } from "./paged-list.svelte"
@@ -70,12 +71,11 @@
           <p class="truncate text-xs text-muted-foreground">{link.url}</p>
           {#if link.description}<p class="text-sm">{link.description}</p>{/if}
         </div>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Delete link {link.title}"
-          onclick={() => list.remove(link.id, research.removeLink(link.id))}><Trash2 /></Button
-        >
+        <DeleteButton
+          label="Delete link {link.title}"
+          what="this link"
+          onConfirm={async () => (error = await list.remove(link.id, research.removeLink(link.id)))}
+        />
       </li>
     {/each}
   </ul>

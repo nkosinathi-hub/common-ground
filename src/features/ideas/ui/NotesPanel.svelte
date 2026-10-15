@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { Trash2 } from "@lucide/svelte"
   import type { Idea, IdeaNote } from "../domain"
+  import { DeleteButton } from "@/shared/ui"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
   import { PagedList } from "./paged-list.svelte"
@@ -41,12 +41,12 @@
     {#each list.items as note (note.id)}
       <li class="flex items-start justify-between gap-2 rounded-lg border p-3" data-testid="note">
         <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Delete note"
-          onclick={() => list.remove(note.id, research.removeNote(note.id))}><Trash2 /></Button
-        >
+        <DeleteButton
+          label="Delete note"
+          what="this note"
+          onConfirm={async () =>
+            (error = (await list.remove(note.id, research.removeNote(note.id)))?.message ?? null)}
+        />
       </li>
     {/each}
   </ul>
