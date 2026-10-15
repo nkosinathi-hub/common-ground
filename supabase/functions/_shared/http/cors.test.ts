@@ -4,7 +4,7 @@ import { corsHeaders, isOriginAllowed, parseOrigins } from "./cors.ts"
 const allowed = parseOrigins(" http://127.0.0.1:5173 ,http://localhost:5173,, ")
 
 describe("parseOrigins", () => {
-  it("splits, trims and drops empties", () => {
+  it("reads a comma-separated allow list, ignoring blanks", () => {
     expect(allowed).toEqual(["http://127.0.0.1:5173", "http://localhost:5173"])
     expect(parseOrigins(undefined)).toEqual([])
   })
