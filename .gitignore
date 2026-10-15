@@ -12,3 +12,4 @@ playwright-report/
 *.tsbuildinfo
 .DS_Store
 .claude/
+.pnpm-store/
