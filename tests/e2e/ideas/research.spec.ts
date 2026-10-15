@@ -29,7 +29,11 @@ test("research survives a reload and refuses non-web links", async ({ page }) =>
 
   await page.getByLabel("New hypothesis").fill("Twenty copies sell out in a week")
   await page.getByRole("button", { name: "Add", exact: true }).click()
+  const saved = page.waitForResponse(
+    (r) => r.url().includes("/hypotheses") && r.request().method() === "PATCH",
+  )
   await page.getByTestId("hypothesis").getByLabel("Status").selectOption("validated")
+  expect((await saved).ok()).toBe(true)
 
   await page.reload()
   await expect(page.getByTestId("note")).toContainText("risograph")
