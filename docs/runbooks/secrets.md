@@ -1,8 +1,8 @@
 # Secrets
 
 Rule: secrets live in exactly one store per environment and never in git, the bundle or a log.
-`scripts/guard/bundle-scan.ts` fails the build if `dist/` contains a service-role marker, an
-`sb_secret_` key or any value from `supabase/functions/.env`.
+`scripts/guard/bundle-scan.ts` fails the build if `dist/` contains a service-role marker or JWT, an
+`sb_secret_` key, a TMDB access token or any value from `supabase/functions/.env`.
 
 | Secret                      | Used by                 | Local                             | Production                      |
 | --------------------------- | ----------------------- | --------------------------------- | ------------------------------- |
@@ -31,6 +31,19 @@ prints key names only, never values.
 Set under Settings > CI/CD > Variables, masked and protected (main only): `SUPABASE_ACCESS_TOKEN`,
 `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`, `TMDB_ACCESS_TOKEN`, `CLEANUP_SECRET`,
 `ALLOWED_ORIGINS`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`. See `.gitlab/ci/deploy.yml`.
+
+## Staging deploy
+
+`supabase-deploy-staging` (`.gitlab/ci/deploy.yml`) is a manual job on merge request pipelines
+and on pipelines started by hand (CI/CD > Run pipeline) on `1-v0-1`. The workflow rules start no
+push pipeline for `1-v0-1`, and while it has an open MR its pipelines are MR pipelines. The job
+pushes migrations and Edge Functions to a second Supabase project, so it needs one: Nkosi creates
+the staging project (free tier) and sets three masked CI variables, not protected, because MR
+branches are not protected branches: `STAGING_SUPABASE_ACCESS_TOKEN`,
+`STAGING_SUPABASE_PROJECT_REF` and `STAGING_SUPABASE_DB_PASSWORD`. Until then the job prints
+"Skipping staging deploy" and passes. Function secrets (`TMDB_ACCESS_TOKEN`, `ALLOWED_ORIGINS`) are
+set once on the staging project with `supabase secrets set --project-ref <staging ref>`. Never
+point the STAGING_ variables at the production project.
 
 ## GitHub repository variables
 

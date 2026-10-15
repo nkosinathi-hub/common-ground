@@ -15,6 +15,33 @@ supabase-deploy:
       TMDB_ACCESS_TOKEN="$TMDB_ACCESS_TOKEN" CLEANUP_SECRET="$CLEANUP_SECRET"
       ALLOWED_ORIGINS="$ALLOWED_ORIGINS"
 
+# Staging Supabase: migrations and Edge Functions to a second project. Manual, from an MR pipeline
+# or a "Run pipeline" (web) pipeline on 1-v0-1: the workflow rules start no push pipeline there.
+# Needs STAGING_SUPABASE_ACCESS_TOKEN, STAGING_SUPABASE_PROJECT_REF, STAGING_SUPABASE_DB_PASSWORD
+# (docs/runbooks/secrets.md); without them the job passes as a no-op.
+supabase-deploy-staging:
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: manual
+      allow_failure: true
+    - if: $CI_COMMIT_BRANCH == "1-v0-1" && $CI_PIPELINE_SOURCE == "web"
+      when: manual
+      allow_failure: true
+  script:
+    - |
+      if [ -z "$STAGING_SUPABASE_ACCESS_TOKEN" ] || [ -z "$STAGING_SUPABASE_PROJECT_REF" ] \
+        || [ -z "$STAGING_SUPABASE_DB_PASSWORD" ]; then
+        echo "Skipping staging deploy: set STAGING_SUPABASE_ACCESS_TOKEN, STAGING_SUPABASE_PROJECT_REF"
+        echo "and STAGING_SUPABASE_DB_PASSWORD (see docs/runbooks/secrets.md)."
+        exit 0
+      fi
+      export SUPABASE_ACCESS_TOKEN="$STAGING_SUPABASE_ACCESS_TOKEN"
+      pnpm exec supabase link --project-ref "$STAGING_SUPABASE_PROJECT_REF" \
+        --password "$STAGING_SUPABASE_DB_PASSWORD"
+      pnpm exec supabase db push --password "$STAGING_SUPABASE_DB_PASSWORD"
+      pnpm exec supabase functions deploy --project-ref "$STAGING_SUPABASE_PROJECT_REF"
+
 # Free-tier projects pause after a week idle. A daily schedule keeps production awake
 # and runs attachment cleanup.
 keep-alive:
