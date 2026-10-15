@@ -1,3 +1,4 @@
+import { AccountService, provideAccount, SupabaseAccountRepository } from "@/features/account"
 import { AuthService, SessionStore, provideAuth } from "@/features/auth"
 import { SupabaseAuthGateway } from "@/features/auth/infrastructure/supabase-auth-gateway"
 import { NotificationsStore, provideNotifications } from "@/features/notifications"
@@ -29,11 +30,13 @@ export function composeCore(db: Db) {
   const catalog = new CatalogService(new SupabaseCatalogGateway(db))
   const notifications = new NotificationsStore(new SupabaseNotifications(db))
   const activity = new SupabaseActivity(db)
-  return { db, auth, session, spaces, spacesStore, catalog, notifications, activity }
+  const account = new AccountService(new SupabaseAccountRepository(db), auth)
+  return { db, auth, account, session, spaces, spacesStore, catalog, notifications, activity }
 }
 
 export function provideCore(services: ReturnType<typeof composeCore>): void {
   provideAuth({ service: services.auth, session: services.session })
+  provideAccount({ service: services.account })
   provideSpaces({ service: services.spaces, store: services.spacesStore })
   setCatalogService(services.catalog)
   provideNotifications({ store: services.notifications, activity: services.activity })

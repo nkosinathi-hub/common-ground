@@ -673,6 +673,9 @@ isOneToOne: false
 "delete_comment":
 { Args: { "target": string }; Returns: undefined
                            },
+"delete_my_account":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "delete_space":
 { Args: { "confirm_name": string,"target_space": string }; Returns: undefined
                            },
@@ -695,6 +698,21 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"export_me":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"export_space":
+{ Args: { "target_space": string }; Returns: Json
+                           },
+"export_table_names":
+{ Args: Record<PropertyKey, never>; Returns: (string)[]
+                           },
+"export_table_rows":
+{ Args: { "target_space": string,"tbl": string }; Returns: Json
+                           },
+"has_column":
+{ Args: { "col": string,"tbl": string }; Returns: boolean
+                           },
 "hash_invite_token":
 { Args: { "token": string }; Returns: string
                            },
