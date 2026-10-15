@@ -3,22 +3,15 @@
   import { BudgetPanel } from "@/features/budget"
   import { MilestonesPanel, TasksTab } from "@/features/tasks"
   import { ErrorState, Loading } from "@/shared/ui"
-  import { appError, type AppError } from "@/shared/domain"
+  import { appError, err, type AppError, type IdeaTab, type Result } from "@/shared/domain"
   import type { Idea } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
-  import IdeaTabs, { type IdeaTab } from "./IdeaTabs.svelte"
+  import IdeaTabs from "./IdeaTabs.svelte"
   import OverviewTab from "./OverviewTab.svelte"
   import ResearchTab from "./ResearchTab.svelte"
 
-  let {
-    spaceId,
-    ideaId,
-    tab,
-    tabHref,
-    discussion,
-    attachments,
-  }: {
+  interface Props {
     spaceId: string
     ideaId: string
     tab: IdeaTab
@@ -27,26 +20,33 @@
     discussion?: Snippet<[Idea]>
     /** Attachment list for the research tab (attachments feature). */
     attachments?: Snippet<[Idea]>
-  } = $props()
+  }
+
+  let { spaceId, ideaId, tab, tabHref, discussion, attachments }: Props = $props()
 
   const ideas = useIdeas()
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)
 
-  async function load() {
-    const result = await ideas.get(ideaId)
-    // An idea is only shown under the space in the URL, so links never cross spaces.
-    const found = result.ok && result.value.spaceId === spaceId ? result.value : null
-    idea = found
-    error = found
-      ? null
-      : result.ok
-        ? appError("not_found", "That idea is not in this space")
-        : result.error
+  /** An idea is only shown under the space in the URL, so links never cross spaces. */
+  function inThisSpace(result: Result<Idea>): Result<Idea> {
+    if (!result.ok || result.value.spaceId === spaceId) return result
+    return err(appError("not_found", "That idea is not in this space"))
   }
+
+  async function load() {
+    const result = inThisSpace(await ideas.get(ideaId))
+    idea = result.ok ? result.value : null
+    error = result.ok ? null : result.error
+  }
+  // Loads on mount, and again if ideaId changes: load reads it before its first await.
   $effect(() => {
-    void load()
+    load()
   })
+
+  function setCurrency(currency: string) {
+    if (idea) idea = { ...idea, currency }
+  }
 </script>
 
 {#if error}
@@ -71,7 +71,7 @@
             spaceId={idea.spaceId}
             ideaId={idea.id}
             currency={idea.currency}
-            onCurrencyChanged={(currency) => idea && (idea = { ...idea, currency })}
+            onCurrencyChanged={setCurrency}
           />
         </div>
       {:else if tab === "discussion"}

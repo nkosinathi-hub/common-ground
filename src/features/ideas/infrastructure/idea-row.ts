@@ -1,21 +1,23 @@
-import type { Brief, Idea, IdeaStage, IdeaTemplate } from "../domain"
+import type { Tables } from "@/shared/infrastructure/database.types"
+import type { Brief, Idea } from "../domain"
+
+export type IdeaRow = Pick<
+  Tables<"ideas">,
+  | "id"
+  | "space_id"
+  | "title"
+  | "stage"
+  | "tags"
+  | "template"
+  | "brief"
+  | "currency"
+  | "created_by"
+  | "created_at"
+  | "updated_at"
+>
 
 export const IDEA_COLUMNS =
   "id, space_id, title, stage, tags, template, brief, currency, created_by, created_at, updated_at"
-
-export interface IdeaRow {
-  id: string
-  space_id: string
-  title: string
-  stage: IdeaStage
-  tags: string[]
-  template: IdeaTemplate
-  brief: Brief
-  currency: string
-  created_by: string | null
-  created_at: string
-  updated_at: string
-}
 
 export const toIdea = (row: IdeaRow): Idea => ({
   id: row.id,
@@ -24,7 +26,8 @@ export const toIdea = (row: IdeaRow): Idea => ({
   stage: row.stage,
   tags: row.tags,
   template: row.template,
-  brief: row.brief,
+  // jsonb holds what cleanBrief saved: an object of brief fields to text.
+  brief: row.brief as Brief,
   currency: row.currency,
   createdBy: row.created_by,
   createdAt: row.created_at,

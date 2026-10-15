@@ -1,25 +1,26 @@
 import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { InMemoryIdeas } from "../testing/in-memory-ideas"
-import { makeIdeasUseCases } from "./ideas-use-cases"
+import { IdeasService } from "./ideas-service"
 
 const setup = async () => {
   const repo = new InMemoryIdeas()
-  const ideas = makeIdeasUseCases(repo)
+  const ideas = new IdeasService(repo)
   const created = await ideas.capture({ spaceId: "s", title: "Zine" })
   if (!created.ok) throw new Error("capture failed")
   return { repo, ideas, idea: created.value }
 }
 
-describe("ideas use cases, edges", () => {
-  it("renames with validation, gets and removes", async () => {
+describe("IdeasService.saveBrief", () => {
+  it("saves the brief, then reports a conflict with the latest copy when stale", async () => {
     const { ideas, idea } = await setup()
-    expect((await ideas.rename(idea.id, "  ")).ok).toBe(false)
-    const renamed = await ideas.rename(idea.id, " Big zine ")
-    expect(renamed.ok && renamed.value.title).toBe("Big zine")
-    expect((await ideas.get(idea.id)).ok).toBe(true)
-    expect((await ideas.remove(idea.id)).ok).toBe(true)
-    expect((await ideas.get(idea.id)).ok).toBe(false)
+    const first = await ideas.saveBrief(idea, { pitch: "Mine" })
+    expect(first.ok && first.value.status).toBe("saved")
+    const stale = await ideas.saveBrief(idea, { pitch: "Old tab" })
+    expect(stale.ok && stale.value).toMatchObject({
+      status: "conflict",
+      latest: { brief: { pitch: "Mine" } },
+    })
   })
 
   it("rejects an oversized brief before saving", async () => {

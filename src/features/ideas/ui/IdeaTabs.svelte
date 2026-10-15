@@ -1,10 +1,11 @@
-<script lang="ts" module>
-  export const IDEA_TABS = ["overview", "research", "tasks", "milestones", "discussion"] as const
-  export type IdeaTab = (typeof IDEA_TABS)[number]
-</script>
-
 <script lang="ts">
-  let { current, href }: { current: IdeaTab; href: (tab: IdeaTab) => string } = $props()
+  import { IDEA_TABS, type IdeaTab } from "@/shared/domain"
+
+  interface Props {
+    current: IdeaTab
+    href: (tab: IdeaTab) => string
+  }
+
   const LABELS: Record<IdeaTab, string> = {
     overview: "Overview",
     research: "Research",
@@ -12,6 +13,8 @@
     milestones: "Milestones",
     discussion: "Discussion",
   }
+
+  let { current, href }: Props = $props()
 </script>
 
 <nav aria-label="Idea sections" class="border-b">

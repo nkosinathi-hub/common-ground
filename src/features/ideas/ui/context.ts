@@ -1,27 +1,35 @@
 import { getContext, setContext } from "svelte"
-import type { IdeasUseCases } from "../application/ideas-use-cases"
-import type { ResearchUseCases } from "../application/research-use-cases"
+import type { IdeasService } from "../application/ideas-service"
+import type { ResearchService } from "../application/research-service"
 
-const KEY = Symbol("ideas")
+const IDEAS = Symbol("ideas")
 const RESEARCH = Symbol("idea-research")
 
-/** Called by src/app/composition.ts with use cases bound to real adapters. */
-export function provideIdeas(useCases: IdeasUseCases): void {
-  setContext(KEY, useCases)
+/** The context entries the providers set; component tests pass them to render(). */
+export const ideasContext = (ideas: IdeasService, research?: ResearchService) =>
+  new Map<symbol, unknown>([
+    [IDEAS, ideas],
+    [RESEARCH, research],
+  ])
+
+/** Called by src/app/composition/ideas.ts with services bound to real adapters. */
+export function provideIdeas(service: IdeasService): void {
+  setContext(IDEAS, service)
 }
 
-export function useIdeas(): IdeasUseCases {
-  const useCases = getContext<IdeasUseCases | undefined>(KEY)
-  if (!useCases) throw new Error("provideIdeas was not called above this component")
-  return useCases
+export function provideResearch(service: ResearchService): void {
+  setContext(RESEARCH, service)
 }
 
-export function provideResearch(useCases: ResearchUseCases): void {
-  setContext(RESEARCH, useCases)
+export function useIdeas(): IdeasService {
+  const service = getContext<IdeasService | undefined>(IDEAS)
+  if (!service) throw new Error("Ideas are not provided: call provideIdeas in the composition root")
+  return service
 }
 
-export function useResearch(): ResearchUseCases {
-  const useCases = getContext<ResearchUseCases | undefined>(RESEARCH)
-  if (!useCases) throw new Error("provideResearch was not called above this component")
-  return useCases
+export function useResearch(): ResearchService {
+  const service = getContext<ResearchService | undefined>(RESEARCH)
+  if (!service)
+    throw new Error("Research is not provided: call provideResearch in the composition root")
+  return service
 }

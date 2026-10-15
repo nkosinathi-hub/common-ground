@@ -1,26 +1,44 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { ExternalLink } from "@lucide/svelte"
-  import type { AppError } from "@/shared/domain"
-  import type { Idea, ResearchLink } from "../domain"
-  import { DeleteButton } from "@/shared/ui"
+  import type { AppError, Cursor } from "@/shared/domain"
+  import {
+    LINK_DESCRIPTION_MAX,
+    LINK_TITLE_MAX,
+    URL_MAX,
+    type Idea,
+    type LinkInput,
+    type ResearchLink,
+  } from "../domain"
+  import { PagedList } from "@/shared/ui"
   import { useResearch } from "./context"
+  import LinkItem from "./LinkItem.svelte"
   import ListFooter from "./ListFooter.svelte"
-  import { PagedList } from "./paged-list.svelte"
 
-  let { idea }: { idea: Idea } = $props()
+  interface Props {
+    idea: Idea
+  }
+
+  const EMPTY: LinkInput = { url: "", title: "", description: "" }
+
+  let { idea }: Props = $props()
   const research = useResearch()
-  const list = new PagedList<ResearchLink>((after) => research.links(idea.id, after))
-  $effect(() => void list.load())
+  const list = new PagedList<ResearchLink, Cursor>((after) => research.links(idea.id, after))
+  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  $effect(() => {
+    list.load()
+  })
 
-  let draft = $state({ url: "", title: "", description: "" })
+  let draft = $state<LinkInput>({ ...EMPTY })
   let error = $state<AppError | null>(null)
 
   async function add(event: SubmitEvent) {
     event.preventDefault()
     error = await list.add(research.addLink(idea.spaceId, idea.id, draft))
-    if (!error) draft = { url: "", title: "", description: "" }
+    if (!error) draft = { ...EMPTY }
+  }
+  async function remove(id: string) {
+    error = await list.remove(id, research.removeLink(id))
   }
   const invalid = (field: string) => (error?.field === field ? true : undefined)
 </script>
@@ -32,13 +50,14 @@
       aria-label="Link URL"
       type="url"
       placeholder="https://"
+      maxlength={URL_MAX}
       bind:value={draft.url}
       aria-invalid={invalid("url")}
     />
     <Input
       aria-label="Link title"
       placeholder="Title"
-      maxlength={200}
+      maxlength={LINK_TITLE_MAX}
       bind:value={draft.title}
       aria-invalid={invalid("title")}
     />
@@ -46,7 +65,7 @@
       aria-label="Link description"
       class="sm:col-span-2"
       placeholder="Why it matters (optional)"
-      maxlength={2000}
+      maxlength={LINK_DESCRIPTION_MAX}
       bind:value={draft.description}
     />
     {#if error}<p class="text-sm text-destructive sm:col-span-2" role="alert">
@@ -56,27 +75,7 @@
   </form>
   <ul class="flex flex-col gap-2">
     {#each list.items as link (link.id)}
-      <li
-        class="flex items-start justify-between gap-2 rounded-lg border p-3"
-        data-testid="research-link"
-      >
-        <div class="min-w-0">
-          <a
-            href={link.url}
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            class="inline-flex items-center gap-1 font-medium hover:underline"
-            >{link.title}<ExternalLink class="size-3" /></a
-          >
-          <p class="truncate text-xs text-muted-foreground">{link.url}</p>
-          {#if link.description}<p class="text-sm">{link.description}</p>{/if}
-        </div>
-        <DeleteButton
-          label="Delete link {link.title}"
-          what="this link"
-          onConfirm={async () => (error = await list.remove(link.id, research.removeLink(link.id)))}
-        />
-      </li>
+      <LinkItem {link} onRemove={() => remove(link.id)} />
     {/each}
   </ul>
   <ListFooter {list} empty="No links yet." />

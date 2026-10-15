@@ -30,15 +30,19 @@ export interface Idea {
   readonly updatedAt: string
 }
 
+export const TITLE_MAX = 200
+export const TAGS_MAX = 20
+
 export function validateTitle(input: string): Result<string> {
   const title = input.trim()
-  if (title.length < 1 || title.length > 200) {
-    return err(appError("validation", "Give the idea a title of up to 200 characters", "title"))
+  if (title.length < 1 || title.length > TITLE_MAX) {
+    const message = `Give the idea a title of up to ${TITLE_MAX} characters`
+    return err(appError("validation", message, "title"))
   }
   return ok(title)
 }
 
 export function normalizeTags(input: readonly string[]): string[] {
   const tags = input.map((tag) => tag.trim().toLowerCase()).filter((tag) => tag.length > 0)
-  return [...new Set(tags)].slice(0, 20)
+  return [...new Set(tags)].slice(0, TAGS_MAX)
 }

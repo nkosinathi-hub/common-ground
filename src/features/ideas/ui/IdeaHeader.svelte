@@ -1,15 +1,21 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
-  import { IDEA_STAGES, type Idea } from "../domain"
+  import type { Result } from "@/shared/domain"
+  import { IDEA_STAGES, TITLE_MAX, type Idea, type IdeaStage } from "../domain"
   import { useIdeas } from "./context"
   import { STAGE_LABELS } from "./labels"
 
-  let { idea, onChange }: { idea: Idea; onChange: (idea: Idea) => void } = $props()
+  interface Props {
+    idea: Idea
+    onChange: (idea: Idea) => void
+  }
+
+  let { idea, onChange }: Props = $props()
   const ideas = useIdeas()
   let error = $state<string | null>(null)
 
-  async function apply(run: () => ReturnType<typeof ideas.rename>) {
-    const result = await run()
+  async function apply(change: Promise<Result<Idea>>) {
+    const result = await change
     error = result.ok ? null : result.error.message
     if (result.ok) onChange(result.value)
   }
@@ -22,8 +28,8 @@
     id="idea-title"
     class="h-10 text-xl font-semibold"
     value={idea.title}
-    maxlength={200}
-    onchange={(e) => apply(() => ideas.rename(idea.id, e.currentTarget.value))}
+    maxlength={TITLE_MAX}
+    onchange={(event) => apply(ideas.rename(idea.id, event.currentTarget.value))}
   />
   <div class="flex flex-wrap items-center gap-2 text-sm">
     <label class="flex items-center gap-2"
@@ -31,8 +37,8 @@
       <select
         class="h-8 rounded-lg border border-input bg-background px-2"
         value={idea.stage}
-        onchange={(e) =>
-          apply(() => ideas.moveStage(idea.id, e.currentTarget.value as Idea["stage"]))}
+        onchange={(event) =>
+          apply(ideas.moveStage(idea.id, event.currentTarget.value as IdeaStage))}
       >
         {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
           >{/each}
@@ -44,7 +50,7 @@
         class="max-w-sm"
         value={idea.tags.join(", ")}
         placeholder="food, pop-up"
-        onchange={(e) => apply(() => ideas.setTags(idea.id, tagsOf(e.currentTarget.value)))}
+        onchange={(event) => apply(ideas.setTags(idea.id, tagsOf(event.currentTarget.value)))}
       />
     </label>
   </div>

@@ -1,4 +1,4 @@
-import type { BriefField, IdeaStage } from "../domain"
+import type { BriefField, HypothesisStatus, IdeaStage } from "../domain"
 
 export const STAGE_LABELS: Record<IdeaStage, string> = {
   inbox: "Inbox",
@@ -19,4 +19,10 @@ export const BRIEF_LABELS: Record<BriefField, string> = {
   revenueModel: "Revenue model",
   successMeasures: "How we will know it worked",
   nextStep: "Next step",
+}
+
+export const HYPOTHESIS_LABELS: Record<HypothesisStatus, string> = {
+  untested: "Untested",
+  validated: "Validated",
+  invalidated: "Invalidated",
 }

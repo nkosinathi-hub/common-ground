@@ -3,8 +3,13 @@
   import { IDEA_STAGES, type Idea, type IdeaStage } from "../domain"
   import { STAGE_LABELS } from "./labels"
 
-  let { idea, href, onMove }: { idea: Idea; href: string; onMove: (stage: IdeaStage) => void } =
-    $props()
+  interface Props {
+    idea: Idea
+    href: string
+    onMove: (stage: IdeaStage) => void
+  }
+
+  let { idea, href, onMove }: Props = $props()
 </script>
 
 <article class="flex flex-col gap-2 rounded-lg border bg-card p-3" data-testid="idea-card">
@@ -20,7 +25,7 @@
     <select
       class="h-7 rounded-md border border-input bg-background px-1 text-xs"
       value={idea.stage}
-      onchange={(e) => onMove(e.currentTarget.value as IdeaStage)}
+      onchange={(event) => onMove(event.currentTarget.value as IdeaStage)}
     >
       {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
         >{/each}

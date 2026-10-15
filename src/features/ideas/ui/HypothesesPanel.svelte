@@ -1,22 +1,31 @@
 <script lang="ts">
+  import type { Cursor } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { HYPOTHESIS_STATUSES, type Hypothesis, type HypothesisStatus, type Idea } from "../domain"
-  import { DeleteButton } from "@/shared/ui"
+  import { DeleteButton, PagedList } from "@/shared/ui"
+  import {
+    HYPOTHESIS_MAX,
+    HYPOTHESIS_STATUSES,
+    type Hypothesis,
+    type HypothesisStatus,
+    type Idea,
+  } from "../domain"
   import { useResearch } from "./context"
+  import { HYPOTHESIS_LABELS } from "./labels"
   import ListFooter from "./ListFooter.svelte"
-  import { PagedList } from "./paged-list.svelte"
 
-  let { idea }: { idea: Idea } = $props()
-  const research = useResearch()
-  const list = new PagedList<Hypothesis>((after) => research.hypotheses(idea.id, after))
-  $effect(() => void list.load())
-
-  const LABELS: Record<HypothesisStatus, string> = {
-    untested: "Untested",
-    validated: "Validated",
-    invalidated: "Invalidated",
+  interface Props {
+    idea: Idea
   }
+
+  let { idea }: Props = $props()
+  const research = useResearch()
+  const list = new PagedList<Hypothesis, Cursor>((after) => research.hypotheses(idea.id, after))
+  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  $effect(() => {
+    list.load()
+  })
+
   let statement = $state("")
   let error = $state<string | null>(null)
 
@@ -26,8 +35,11 @@
     error = failure?.message ?? null
     if (!failure) statement = ""
   }
-  const setStatus = async (id: string, status: HypothesisStatus) => {
+  async function setStatus(id: string, status: HypothesisStatus) {
     error = (await list.replace(research.setHypothesisStatus(id, status)))?.message ?? null
+  }
+  async function remove(id: string) {
+    error = (await list.remove(id, research.removeHypothesis(id)))?.message ?? null
   }
 </script>
 
@@ -37,7 +49,7 @@
     <Input
       aria-label="New hypothesis"
       placeholder="We believe that..."
-      maxlength={1000}
+      maxlength={HYPOTHESIS_MAX}
       bind:value={statement}
     />
     <Button type="submit" size="sm" disabled={!statement.trim()}>Add</Button>
@@ -55,19 +67,17 @@
             aria-label="Status"
             class="h-7 rounded-md border border-input bg-background px-1 text-xs"
             value={hypothesis.status}
-            onchange={(e) => setStatus(hypothesis.id, e.currentTarget.value as HypothesisStatus)}
+            onchange={(event) =>
+              setStatus(hypothesis.id, event.currentTarget.value as HypothesisStatus)}
           >
             {#each HYPOTHESIS_STATUSES as status (status)}<option value={status}
-                >{LABELS[status]}</option
+                >{HYPOTHESIS_LABELS[status]}</option
               >{/each}
           </select>
           <DeleteButton
             label="Delete hypothesis"
             what="this hypothesis"
-            onConfirm={async () =>
-              (error =
-                (await list.remove(hypothesis.id, research.removeHypothesis(hypothesis.id)))
-                  ?.message ?? null)}
+            onConfirm={() => remove(hypothesis.id)}
           />
         </div>
       </li>

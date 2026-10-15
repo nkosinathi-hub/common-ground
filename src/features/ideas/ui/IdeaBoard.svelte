@@ -3,15 +3,13 @@
   import IdeaCard from "./IdeaCard.svelte"
   import { STAGE_LABELS } from "./labels"
 
-  let {
-    ideas,
-    ideaHref,
-    onMove,
-  }: {
+  interface Props {
     ideas: readonly Idea[]
     ideaHref: (id: string) => string
     onMove: (id: string, stage: IdeaStage) => void
-  } = $props()
+  }
+
+  let { ideas, ideaHref, onMove }: Props = $props()
 </script>
 
 <div class="flex snap-x gap-3 overflow-x-auto pb-2" aria-label="Ideas board">

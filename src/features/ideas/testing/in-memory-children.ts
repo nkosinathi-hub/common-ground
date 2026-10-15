@@ -29,11 +29,9 @@ export class InMemoryChildren<T extends Child, Input> implements ChildCollection
   }
 
   async add(_spaceId: string, ideaId: string, input: Input): Promise<Result<T>> {
-    const n = this.rows.size + 1
-    const row = this.build(
-      { id: `row-${n}`, ideaId, createdAt: new Date(Date.UTC(2026, 9, 15, 0, 0, n)).toISOString() },
-      input,
-    )
+    const position = this.rows.size + 1
+    const createdAt = new Date(Date.UTC(2026, 9, 15, 0, 0, position)).toISOString()
+    const row = this.build({ id: `row-${position}`, ideaId, createdAt }, input)
     this.rows.set(row.id, row)
     return ok(row)
   }

@@ -1,16 +1,23 @@
 <script lang="ts">
+  import type { Cursor } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import type { Idea, IdeaNote } from "../domain"
-  import { DeleteButton } from "@/shared/ui"
+  import { DeleteButton, PagedList } from "@/shared/ui"
+  import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
-  import { PagedList } from "./paged-list.svelte"
 
-  let { idea }: { idea: Idea } = $props()
+  interface Props {
+    idea: Idea
+  }
+
+  let { idea }: Props = $props()
   const research = useResearch()
-  const list = new PagedList<IdeaNote>((after) => research.notes(idea.id, after))
-  $effect(() => void list.load())
+  const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
+  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  $effect(() => {
+    list.load()
+  })
 
   let body = $state("")
   let error = $state<string | null>(null)
@@ -21,6 +28,9 @@
     error = failure?.message ?? null
     if (!failure) body = ""
   }
+  async function remove(id: string) {
+    error = (await list.remove(id, research.removeNote(id)))?.message ?? null
+  }
 </script>
 
 <section aria-labelledby="notes-heading" class="flex flex-col gap-3">
@@ -30,7 +40,7 @@
     <Textarea
       id="note-body"
       bind:value={body}
-      maxlength={10000}
+      maxlength={NOTE_MAX}
       placeholder="Jot something down"
       rows={2}
     />
@@ -41,12 +51,7 @@
     {#each list.items as note (note.id)}
       <li class="flex items-start justify-between gap-2 rounded-lg border p-3" data-testid="note">
         <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-        <DeleteButton
-          label="Delete note"
-          what="this note"
-          onConfirm={async () =>
-            (error = (await list.remove(note.id, research.removeNote(note.id)))?.message ?? null)}
-        />
+        <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
       </li>
     {/each}
   </ul>

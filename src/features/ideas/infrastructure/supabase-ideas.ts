@@ -1,59 +1,49 @@
-import { nextCursor, PAGE_SIZE, type Cursor, type Page, type Result } from "@/shared/domain"
-import { olderThan } from "@/shared/infrastructure/paging"
-import { removed, settle, type QueryReply } from "@/shared/infrastructure/query"
+import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
+import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { IdeaPatch, IdeasRepository, NewIdea } from "../application/ports"
 import type { Brief, Idea } from "../domain"
 import { IDEA_COLUMNS, toIdea, type IdeaRow } from "./idea-row"
+import { newestFirst } from "./newest-first"
 
-const toPage = (data: unknown): Page<Idea> => {
-  const items = (data as IdeaRow[]).map(toIdea)
+const toPage = (rows: IdeaRow[]): Page<Idea> => {
+  const items = rows.map(toIdea)
   return { items, next: nextCursor(items) }
 }
 
 export class SupabaseIdeas implements IdeasRepository {
   constructor(private readonly db: Db) {}
 
-  private one(query: PromiseLike<QueryReply>): Promise<Result<Idea>> {
-    return settle(query, (data) => toIdea(data as IdeaRow))
+  private get ideas() {
+    return this.db.from("ideas")
   }
 
   list(spaceId: string, after: Cursor | null): Promise<Result<Page<Idea>>> {
-    let query = this.db.from("ideas").select(IDEA_COLUMNS).eq("space_id", spaceId)
-    if (after) query = query.or(olderThan(after))
-    const page = query.order("created_at", { ascending: false }).order("id", { ascending: false })
-    return settle(page.limit(PAGE_SIZE), toPage)
+    const query = this.ideas.select(IDEA_COLUMNS).eq("space_id", spaceId)
+    return settle(newestFirst(query, after), toPage)
   }
 
-  get(id: string) {
-    return this.one(this.db.from("ideas").select(IDEA_COLUMNS).eq("id", id).single())
+  get(id: string): Promise<Result<Idea>> {
+    return settle(this.ideas.select(IDEA_COLUMNS).eq("id", id).single(), toIdea)
   }
 
-  create(input: NewIdea) {
-    const row = {
-      space_id: input.spaceId,
-      title: input.title,
-      template: input.template,
-      brief: input.brief,
-    }
-    return this.one(this.db.from("ideas").insert(row).select(IDEA_COLUMNS).single())
+  create(input: NewIdea): Promise<Result<Idea>> {
+    const { spaceId, title, template, brief } = input
+    const row = { space_id: spaceId, title, template, brief }
+    return settle(this.ideas.insert(row).select(IDEA_COLUMNS).single(), toIdea)
   }
 
-  update(id: string, patch: IdeaPatch) {
+  update(id: string, patch: IdeaPatch): Promise<Result<Idea>> {
     const row = { ...patch, tags: patch.tags ? [...patch.tags] : undefined }
-    return this.one(this.db.from("ideas").update(row).eq("id", id).select(IDEA_COLUMNS).single())
+    return settle(this.ideas.update(row).eq("id", id).select(IDEA_COLUMNS).single(), toIdea)
   }
 
   updateBrief(id: string, expectedUpdatedAt: string, brief: Brief): Promise<Result<string>> {
-    const call = this.db.rpc("update_idea_brief", {
-      idea: id,
-      expected_updated_at: expectedUpdatedAt,
-      brief,
-    })
-    return settle(call, (data) => data as string)
+    const args = { idea: id, expected_updated_at: expectedUpdatedAt, brief }
+    return settle(this.db.rpc("update_idea_brief", args), (updatedAt) => updatedAt)
   }
 
   remove(id: string): Promise<Result<void>> {
-    return removed(this.db.from("ideas").delete().eq("id", id).select("id"))
+    return removed(this.ideas.delete().eq("id", id).select("id"))
   }
 }

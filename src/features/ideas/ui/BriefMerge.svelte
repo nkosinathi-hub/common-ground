@@ -4,25 +4,30 @@
   import { changedFields, type Brief, type BriefField, type Idea } from "../domain"
   import { BRIEF_LABELS } from "./labels"
 
-  let {
-    mine,
-    latest,
-    onResolve,
-    onCancel,
-  }: {
+  type Side = "mine" | "theirs"
+
+  interface Props {
     mine: Brief
     latest: Idea
     onResolve: (merged: Brief) => void
     onCancel: () => void
-  } = $props()
+  }
+
+  let { mine, latest, onResolve, onCancel }: Props = $props()
 
   const fields = $derived(changedFields(mine, latest.brief))
-  let choice = $state<Partial<Record<BriefField, "mine" | "theirs">>>({})
+  let choice = $state<Partial<Record<BriefField, Side>>>({})
+
+  const sides = (field: BriefField): [Side, string, string | undefined][] => [
+    ["mine", "Your version", mine[field]],
+    ["theirs", "Their version", latest.brief[field]],
+  ]
+  const chosen = (field: BriefField): Side => choice[field] ?? "mine"
 
   function resolve() {
     const merged: Brief = { ...latest.brief }
     for (const field of fields)
-      merged[field] = (choice[field] ?? "mine") === "mine" ? mine[field] : latest.brief[field]
+      merged[field] = chosen(field) === "mine" ? mine[field] : latest.brief[field]
     onResolve(merged)
   }
 </script>
@@ -39,14 +44,14 @@
     {#each fields as field (field)}
       <fieldset class="flex flex-col gap-2">
         <legend class="text-sm font-medium">{BRIEF_LABELS[field]}</legend>
-        {#each [["mine", "Your version", mine[field]], ["theirs", "Their version", latest.brief[field]]] as [key, label, text] (key)}
+        {#each sides(field) as [key, label, text] (key)}
           <label class="flex items-start gap-2 rounded-md border p-2 text-sm">
             <input
               type="radio"
               name={field}
               value={key}
-              checked={(choice[field] ?? "mine") === key}
-              onchange={() => (choice = { ...choice, [field]: key as "mine" | "theirs" })}
+              checked={chosen(field) === key}
+              onchange={() => (choice = { ...choice, [field]: key })}
             />
             <span><span class="font-medium">{label}:</span> {text || "(empty)"}</span>
           </label>

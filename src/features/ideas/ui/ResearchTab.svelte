@@ -5,7 +5,12 @@
   import LinksPanel from "./LinksPanel.svelte"
   import NotesPanel from "./NotesPanel.svelte"
 
-  let { idea, attachments }: { idea: Idea; attachments?: Snippet<[Idea]> } = $props()
+  interface Props {
+    idea: Idea
+    attachments?: Snippet<[Idea]>
+  }
+
+  let { idea, attachments }: Props = $props()
 </script>
 
 <div class="grid gap-6 lg:grid-cols-2">

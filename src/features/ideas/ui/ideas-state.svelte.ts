@@ -1,48 +1,36 @@
-import { type AppError, type Cursor } from "@/shared/domain"
-import type { CaptureInput, IdeasUseCases } from "../application/ideas-use-cases"
+import type { AppError, Cursor } from "@/shared/domain"
+import { PagedList } from "@/shared/ui"
+import type { CaptureInput, IdeasService } from "../application/ideas-service"
 import { filterIdeas, type Idea, type IdeaFilter, type IdeaStage } from "../domain"
+
+type View = "list" | "board"
 
 /** Page state for the ideas list and board. Filters run client-side over loaded pages. */
 export class IdeasState {
-  items = $state<Idea[]>([])
-  next = $state<Cursor | null>(null)
-  loading = $state(false)
-  error = $state<AppError | null>(null)
+  readonly list: PagedList<Idea, Cursor>
   filter = $state<IdeaFilter>({})
-  view = $state<"list" | "board">("list")
-  visible = $derived(filterIdeas(this.items, this.filter))
+  view = $state<View>("list")
+  /** A refused stage move; load errors live on the list. */
+  moveError = $state<AppError | null>(null)
+  visible = $derived.by(() => filterIdeas(this.list.items, this.filter))
 
   constructor(
-    private readonly ideas: IdeasUseCases,
+    private readonly ideas: IdeasService,
     private readonly spaceId: () => string,
-  ) {}
+  ) {
+    this.list = new PagedList((after) => ideas.list(spaceId(), after))
+  }
 
-  async load(more = false): Promise<void> {
-    this.loading = true
-    const result = await this.ideas.list(this.spaceId(), more ? this.next : null)
-    this.loading = false
-    if (!result.ok) {
-      this.error = result.error
-      return
-    }
-    this.error = null
-    this.items = more ? [...this.items, ...result.value.items] : [...result.value.items]
-    this.next = result.value.next
+  load(): Promise<void> {
+    this.moveError = null
+    return this.list.load()
   }
 
   async capture(input: Omit<CaptureInput, "spaceId">): Promise<AppError | null> {
-    const result = await this.ideas.capture({ ...input, spaceId: this.spaceId() })
-    if (!result.ok) return result.error
-    this.items = [result.value, ...this.items]
-    return null
+    return this.list.add(this.ideas.capture({ ...input, spaceId: this.spaceId() }))
   }
 
   async move(id: string, stage: IdeaStage): Promise<void> {
-    const result = await this.ideas.moveStage(id, stage)
-    if (!result.ok) {
-      this.error = result.error
-      return
-    }
-    this.items = this.items.map((idea) => (idea.id === id ? result.value : idea))
+    this.moveError = await this.list.replace(this.ideas.moveStage(id, stage))
   }
 }

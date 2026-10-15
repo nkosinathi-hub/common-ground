@@ -3,11 +3,13 @@
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
   import type { AppError } from "@/shared/domain"
-  import { IDEA_TEMPLATE_OPTIONS, type IdeaTemplate } from "../domain"
+  import { IDEA_TEMPLATE_OPTIONS, TITLE_MAX, type IdeaTemplate } from "../domain"
 
-  let {
-    onCapture,
-  }: { onCapture: (title: string, template: IdeaTemplate) => Promise<AppError | null> } = $props()
+  interface Props {
+    onCapture: (title: string, template: IdeaTemplate) => Promise<AppError | null>
+  }
+
+  let { onCapture }: Props = $props()
 
   let title = $state("")
   let template = $state<IdeaTemplate>("blank")
@@ -30,7 +32,7 @@
     id="idea-capture"
     bind:value={title}
     placeholder="Capture an idea..."
-    maxlength={200}
+    maxlength={TITLE_MAX}
     aria-invalid={error ? true : undefined}
     aria-describedby={error ? "idea-capture-error" : undefined}
   />

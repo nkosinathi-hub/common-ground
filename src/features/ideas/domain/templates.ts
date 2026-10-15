@@ -35,6 +35,6 @@ export const IDEA_TEMPLATE_OPTIONS: readonly TemplateOption[] = [
 
 /** Starting brief: an empty prompt per focus field (saved blank fields are dropped). */
 export function templateBrief(id: IdeaTemplate): Brief {
-  const option = IDEA_TEMPLATE_OPTIONS.find((t) => t.id === id)
+  const option = IDEA_TEMPLATE_OPTIONS.find((candidate) => candidate.id === id)
   return Object.fromEntries((option?.focus ?? []).map((field) => [field, ""]))
 }

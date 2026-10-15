@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { Columns3, Lightbulb, List } from "@lucide/svelte"
-  import { EmptyState, ErrorState, Loading } from "@/shared/ui"
+  import { EmptyState, ErrorState, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
@@ -10,11 +10,17 @@
   import { IdeasState } from "./ideas-state.svelte"
   import QuickCapture from "./QuickCapture.svelte"
 
-  let { spaceId, ideaHref }: { spaceId: string; ideaHref: (ideaId: string) => string } = $props()
+  interface Props {
+    spaceId: string
+    ideaHref: (ideaId: string) => string
+  }
+
+  let { spaceId, ideaHref }: Props = $props()
 
   const board = new IdeasState(useIdeas(), () => spaceId)
+  // Loads on mount, and again if spaceId changes: load reads it before its first await.
   $effect(() => {
-    void board.load()
+    board.load()
   })
 </script>
 
@@ -38,13 +44,16 @@
   </header>
 
   <QuickCapture onCapture={(title, template) => board.capture({ title, template })} />
-  <IdeaFilters bind:filter={board.filter} tags={allTags(board.items)} />
+  <IdeaFilters bind:filter={board.filter} tags={allTags(board.list.items)} />
 
-  {#if board.error}
-    <ErrorState error={board.error} onRetry={() => board.load()} />
-  {:else if board.loading && board.items.length === 0}
+  {#if board.moveError}
+    <p class="text-sm text-destructive" role="alert">{board.moveError.message}</p>
+  {/if}
+  {#if board.list.error && board.list.items.length === 0}
+    <ErrorState error={board.list.error} onRetry={() => board.load()} />
+  {:else if board.list.loading && board.list.items.length === 0}
     <Loading label="Loading ideas" />
-  {:else if board.items.length === 0}
+  {:else if board.list.items.length === 0}
     <EmptyState
       icon={Lightbulb}
       title="No ideas yet"
@@ -62,9 +71,5 @@
     </div>
   {/if}
 
-  {#if board.next}
-    <Button variant="outline" disabled={board.loading} onclick={() => board.load(true)}
-      >Load more</Button
-    >
-  {/if}
+  <LoadMore list={board.list} />
 </div>

@@ -1,13 +1,19 @@
 import { describe, expect, it } from "vitest"
 import { InMemoryIdeas } from "../testing/in-memory-ideas"
-import { makeIdeasUseCases } from "./ideas-use-cases"
+import { IdeasService } from "./ideas-service"
 
 const setup = () => {
   const repo = new InMemoryIdeas()
-  return { repo, ideas: makeIdeasUseCases(repo) }
+  return { repo, ideas: new IdeasService(repo) }
 }
 
-describe("ideas use cases", () => {
+const captured = async (ideas: IdeasService) => {
+  const created = await ideas.capture({ spaceId: "s", title: "Zine" })
+  if (!created.ok) throw new Error("capture failed")
+  return created.value
+}
+
+describe("IdeasService", () => {
   it("captures with a title only, in the inbox", async () => {
     const { ideas } = setup()
     const result = await ideas.capture({ spaceId: "s", title: " Tea bar " })
@@ -27,24 +33,26 @@ describe("ideas use cases", () => {
 
   it("moves stage and retags with normalized tags", async () => {
     const { ideas } = setup()
-    const created = await ideas.capture({ spaceId: "s", title: "Zine" })
-    if (!created.ok) throw new Error("capture failed")
-    await ideas.moveStage(created.value.id, "building")
-    const tagged = await ideas.setTags(created.value.id, [" Art ", "art"])
+    const idea = await captured(ideas)
+    await ideas.moveStage(idea.id, "building")
+    const tagged = await ideas.setTags(idea.id, [" Art ", "art"])
     expect(tagged.ok && tagged.value).toMatchObject({ stage: "building", tags: ["art"] })
   })
 
-  it("saves the brief, then reports a conflict with the latest copy when stale", async () => {
+  it("renames with validation", async () => {
     const { ideas } = setup()
-    const created = await ideas.capture({ spaceId: "s", title: "Zine" })
-    if (!created.ok) throw new Error("capture failed")
-    const first = await ideas.saveBrief(created.value, { pitch: "Mine" })
-    expect(first.ok && first.value.status).toBe("saved")
-    const stale = await ideas.saveBrief(created.value, { pitch: "Old tab" })
-    expect(stale.ok && stale.value).toMatchObject({
-      status: "conflict",
-      latest: { brief: { pitch: "Mine" } },
-    })
+    const idea = await captured(ideas)
+    expect((await ideas.rename(idea.id, "  ")).ok).toBe(false)
+    const renamed = await ideas.rename(idea.id, " Big zine ")
+    expect(renamed.ok && renamed.value.title).toBe("Big zine")
+  })
+
+  it("deletes an idea so it can no longer be read", async () => {
+    const { ideas } = setup()
+    const idea = await captured(ideas)
+    expect((await ideas.get(idea.id)).ok).toBe(true)
+    expect((await ideas.remove(idea.id)).ok).toBe(true)
+    expect((await ideas.get(idea.id)).ok).toBe(false)
   })
 
   it("pages through the list 50 at a time", async () => {

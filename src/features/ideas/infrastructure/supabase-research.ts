@@ -1,65 +1,88 @@
+import type { Cursor, Page, Result } from "@/shared/domain"
+import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { ResearchRepository } from "../application/ports"
+import type { ChildCollection, ResearchRepository } from "../application/ports"
 import type { Hypothesis, HypothesisStatus, IdeaNote, LinkInput, ResearchLink } from "../domain"
-import { single, SupabaseChildren } from "./supabase-children"
+import { newestFirst } from "./newest-first"
+import * as rows from "./research-rows"
 
-const s = (value: unknown) => value as string
+class SupabaseNotes implements ChildCollection<IdeaNote, string> {
+  constructor(private readonly db: Db) {}
 
-const notes = {
-  table: "idea_notes",
-  columns: "id, idea_id, body, created_by, created_at",
-  toModel: (r: Record<string, unknown>): IdeaNote => ({
-    id: s(r.id),
-    ideaId: s(r.idea_id),
-    body: s(r.body),
-    createdBy: r.created_by as string | null,
-    createdAt: s(r.created_at),
-  }),
-  toRow: (body: string) => ({ body }),
-}
-
-const links = {
-  table: "research_links",
-  columns: "id, idea_id, url, title, description, created_at",
-  toModel: (r: Record<string, unknown>): ResearchLink => ({
-    id: s(r.id),
-    ideaId: s(r.idea_id),
-    url: s(r.url),
-    title: s(r.title),
-    description: s(r.description),
-    createdAt: s(r.created_at),
-  }),
-  toRow: (input: LinkInput) => ({ ...input }),
-}
-
-const hypotheses = {
-  table: "hypotheses",
-  columns: "id, idea_id, statement, status, created_at",
-  toModel: (r: Record<string, unknown>): Hypothesis => ({
-    id: s(r.id),
-    ideaId: s(r.idea_id),
-    statement: s(r.statement),
-    status: r.status as HypothesisStatus,
-    createdAt: s(r.created_at),
-  }),
-  toRow: (statement: string) => ({ statement }),
-}
-
-class SupabaseHypotheses extends SupabaseChildren<Hypothesis, string> {
-  setStatus(id: string, status: HypothesisStatus) {
-    const query = this.from()
-      .update({ status } as never)
-      .eq("id", id)
-      .select(this.spec.columns)
-      .single()
-    return single(query, this.spec.toModel)
+  private get table() {
+    return this.db.from("idea_notes")
   }
+
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<IdeaNote>>> {
+    const query = this.table.select(rows.NOTE_COLUMNS).eq("idea_id", ideaId)
+    return settle(newestFirst(query, after), rows.pageOf(rows.toNote))
+  }
+
+  add(spaceId: string, ideaId: string, body: string): Promise<Result<IdeaNote>> {
+    const row = { space_id: spaceId, idea_id: ideaId, body }
+    return settle(this.table.insert(row).select(rows.NOTE_COLUMNS).single(), rows.toNote)
+  }
+
+  remove = (id: string) => removed(this.table.delete().eq("id", id).select("id"))
 }
 
-export function supabaseResearch(db: Db): ResearchRepository {
-  return {
-    notes: new SupabaseChildren(db, notes),
-    links: new SupabaseChildren(db, links),
-    hypotheses: new SupabaseHypotheses(db, hypotheses),
+class SupabaseLinks implements ChildCollection<ResearchLink, LinkInput> {
+  constructor(private readonly db: Db) {}
+
+  private get table() {
+    return this.db.from("research_links")
+  }
+
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<ResearchLink>>> {
+    const query = this.table.select(rows.LINK_COLUMNS).eq("idea_id", ideaId)
+    return settle(newestFirst(query, after), rows.pageOf(rows.toLink))
+  }
+
+  add(spaceId: string, ideaId: string, input: LinkInput): Promise<Result<ResearchLink>> {
+    const row = { space_id: spaceId, idea_id: ideaId, ...input }
+    return settle(this.table.insert(row).select(rows.LINK_COLUMNS).single(), rows.toLink)
+  }
+
+  remove = (id: string) => removed(this.table.delete().eq("id", id).select("id"))
+}
+
+class SupabaseHypotheses implements ChildCollection<Hypothesis, string> {
+  constructor(private readonly db: Db) {}
+
+  private get table() {
+    return this.db.from("hypotheses")
+  }
+
+  list(ideaId: string, after: Cursor | null): Promise<Result<Page<Hypothesis>>> {
+    const query = this.table.select(rows.HYPOTHESIS_COLUMNS).eq("idea_id", ideaId)
+    return settle(newestFirst(query, after), rows.pageOf(rows.toHypothesis))
+  }
+
+  add(spaceId: string, ideaId: string, statement: string): Promise<Result<Hypothesis>> {
+    const row = { space_id: spaceId, idea_id: ideaId, statement }
+    return settle(
+      this.table.insert(row).select(rows.HYPOTHESIS_COLUMNS).single(),
+      rows.toHypothesis,
+    )
+  }
+
+  /** Status is the only column the app updates (and the only one granted). */
+  setStatus(id: string, status: HypothesisStatus): Promise<Result<Hypothesis>> {
+    const query = this.table.update({ status }).eq("id", id)
+    return settle(query.select(rows.HYPOTHESIS_COLUMNS).single(), rows.toHypothesis)
+  }
+
+  remove = (id: string) => removed(this.table.delete().eq("id", id).select("id"))
+}
+
+export class SupabaseResearch implements ResearchRepository {
+  readonly notes: SupabaseNotes
+  readonly links: SupabaseLinks
+  readonly hypotheses: SupabaseHypotheses
+
+  constructor(db: Db) {
+    this.notes = new SupabaseNotes(db)
+    this.links = new SupabaseLinks(db)
+    this.hypotheses = new SupabaseHypotheses(db)
   }
 }
