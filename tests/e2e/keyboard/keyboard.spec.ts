@@ -38,6 +38,8 @@ test("the skip link moves focus to the main content", async ({ page }) => {
   const spaceId = await createSpace(page, "Skip space")
   await page.goto(`./#/s/${spaceId}/home`)
   await page.reload()
+  // Tab only once the app has rendered, as a person would; a keypress during boot goes nowhere.
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible()
   await page.keyboard.press("Tab")
   await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused()
   await page.keyboard.press("Enter")
