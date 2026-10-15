@@ -11,17 +11,12 @@ export function composeCollaboration(db: Db) {
   return {
     comments: new CommentsService(new SupabaseCommentsGateway(db)),
     recommendations: new RecommendationsService(new SupabaseRecommendationsGateway(db)),
-    attachments: new AttachmentsService(
-      new SupabaseAttachmentsGateway(
-        db as unknown as ConstructorParameters<typeof SupabaseAttachmentsGateway>[0],
-      ),
-      new FetchUploader(),
-    ),
+    attachments: new AttachmentsService(new SupabaseAttachmentsGateway(db), new FetchUploader()),
   }
 }
 
 export function provideCollaboration(services: ReturnType<typeof composeCollaboration>): void {
-  provideComments(services.comments)
-  provideRecommendations(services.recommendations)
-  provideAttachments(services.attachments)
+  provideComments({ service: services.comments })
+  provideRecommendations({ service: services.recommendations })
+  provideAttachments({ service: services.attachments })
 }
