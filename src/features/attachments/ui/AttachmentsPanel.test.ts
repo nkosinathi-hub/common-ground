@@ -9,7 +9,7 @@ import {
   attachment,
 } from "../testing/fake-attachments"
 import AttachmentsPanel from "./AttachmentsPanel.svelte"
-import { ATTACHMENTS_CONTEXT } from "./context"
+import { attachmentsContext } from "./context"
 
 const opened = vi.hoisted(() => [] as string[])
 vi.mock("./open-url", () => ({ openUrl: (url: string) => opened.push(url) }))
@@ -21,7 +21,7 @@ function setup(props: { me?: string; isOwner?: boolean } = {}) {
     attachment("pic", { filename: "Sketch <b>.png", uploaderId: "me" }),
     attachment("doc", { filename: "plan.pdf", mime: "application/pdf", uploaderId: "them" }),
   ]
-  const context = new Map([[ATTACHMENTS_CONTEXT, new AttachmentsService(gateway, uploader)]])
+  const context = attachmentsContext({ service: new AttachmentsService(gateway, uploader) })
   render(AttachmentsPanel, {
     props: { spaceId: SPACE_ID, ideaId: IDEA_ID, me: props.me ?? "me", isOwner: !!props.isOwner },
     context,

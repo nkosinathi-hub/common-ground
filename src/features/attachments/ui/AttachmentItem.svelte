@@ -1,18 +1,20 @@
 <script lang="ts">
-  import { Download, FileText, Trash2 } from "@lucide/svelte"
+  import { Download, FileText } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
+  import { DeleteButton } from "@/shared/ui"
   import { formatBytes, kindOf } from "../domain/rules"
   import type { Attachment } from "../domain/types"
   import { useAttachments } from "./context"
   import { openUrl } from "./open-url"
 
-  let {
-    attachment,
-    deletable,
-    onDelete,
-  }: { attachment: Attachment; deletable: boolean; onDelete: (a: Attachment) => void } = $props()
+  interface Props {
+    attachment: Attachment
+    deletable: boolean
+    onDelete: (attachment: Attachment) => unknown
+  }
+  let { attachment, deletable, onDelete }: Props = $props()
 
-  const service = useAttachments()
+  const { service } = useAttachments()
   let preview = $state<string | null>(null)
   let failed = $state(false)
 
@@ -61,14 +63,12 @@
     </Button>
   {/if}
   {#if deletable}
-    <Button
-      size="sm"
-      variant="ghost"
-      class="text-destructive"
-      aria-label={`Delete ${attachment.filename}`}
-      onclick={() => onDelete(attachment)}
-    >
-      <Trash2 aria-hidden="true" />
-    </Button>
+    <DeleteButton
+      label={`Delete ${attachment.filename}`}
+      what={attachment.filename}
+      size="icon-sm"
+      description="Everyone in this space loses access to it. This cannot be undone."
+      onConfirm={() => onDelete(attachment)}
+    />
   {/if}
 </li>

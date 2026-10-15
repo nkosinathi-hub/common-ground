@@ -1,9 +1,13 @@
 <script lang="ts">
   import { Paperclip, Upload } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { ACCEPT } from "../domain/rules"
+  import { ACCEPT, formatBytes, MAX_BYTES } from "../domain/rules"
 
-  let { disabled, onPick }: { disabled: boolean; onPick: (file: File) => void } = $props()
+  interface Props {
+    disabled: boolean
+    onPick: (file: File) => void
+  }
+  let { disabled, onPick }: Props = $props()
 
   let input = $state<HTMLInputElement | null>(null)
 
@@ -33,5 +37,5 @@
 </div>
 <!-- Convenience hint only: the Edge Function re-checks type, size and the file's real bytes. -->
 <p class="text-xs text-muted-foreground">
-  JPEG, PNG, WebP or PDF, up to 10 MB. Files are checked again after upload.
+  JPEG, PNG, WebP or PDF, up to {formatBytes(MAX_BYTES)}. Files are checked again after upload.
 </p>

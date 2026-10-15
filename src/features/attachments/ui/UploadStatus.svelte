@@ -1,17 +1,22 @@
 <script lang="ts">
   import { LoaderCircle, X } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
+  import type { UploadPhase } from "../domain/types"
   import type { UploadState } from "./upload-state.svelte"
 
-  let { upload }: { upload: UploadState } = $props()
+  interface Props {
+    upload: UploadState
+  }
+  let { upload }: Props = $props()
 
-  const label = $derived(
-    upload.progress?.phase === "verifying"
-      ? "Checking the file"
-      : upload.progress?.phase === "uploading"
-        ? "Uploading"
-        : "Preparing",
-  )
+  const LABELS: Record<UploadPhase, string> = {
+    starting: "Preparing",
+    uploading: "Uploading",
+    verifying: "Checking the file",
+  }
+  const label = $derived(LABELS[upload.progress?.phase ?? "starting"])
+  // Width of the pulsing bar while no bytes have been counted yet.
+  const PENDING_PERCENT = 15
 </script>
 
 <div class="space-y-2 rounded-xl border p-3" aria-live="polite">
@@ -36,7 +41,7 @@
     <div
       class="h-full rounded-full bg-primary transition-[width]"
       class:animate-pulse={upload.percent === null}
-      style:width={`${upload.percent ?? 15}%`}
+      style:width={`${upload.percent ?? PENDING_PERCENT}%`}
     ></div>
   </div>
 </div>

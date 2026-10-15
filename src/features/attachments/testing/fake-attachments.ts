@@ -3,10 +3,10 @@ import type {
   AttachmentsGateway,
   Disposition,
   ObjectUploader,
-  PutOptions,
+  PutRequest,
   StartRequest,
 } from "../application/ports"
-import type { Attachment, AttachmentMime, FileLike } from "../domain/types"
+import type { Attachment, AttachmentMime } from "../domain/types"
 
 export const SPACE_ID = "0b9c2f6e-6a43-4c8e-9f0a-3d2b1c4e5f60"
 export const IDEA_ID = "1b9c2f6e-6a43-4c8e-9f0a-3d2b1c4e5f61"
@@ -32,6 +32,7 @@ export class FakeAttachmentsGateway implements AttachmentsGateway {
   failStart: AppError | null = null
   failFinalize: AppError | null = null
   failList: AppError | null = null
+  signedBase = "https://storage.test/signed/"
   private pending = new Map<string, StartRequest>()
 
   async list(spaceId: string, ideaId: string): Promise<Result<Attachment[]>> {
@@ -58,7 +59,7 @@ export class FakeAttachmentsGateway implements AttachmentsGateway {
 
   async signedUrl(id: string, disposition: Disposition) {
     this.urls.push({ id, disposition })
-    return ok(`https://storage.test/signed/${id}?d=${disposition}`)
+    return ok(`${this.signedBase}${id}?d=${disposition}`)
   }
 
   async remove(id: string): Promise<Result<void>> {
@@ -79,7 +80,7 @@ export class FakeUploader implements ObjectUploader {
     for (const resume of this.waiting.splice(0)) resume()
   }
 
-  async put(url: string, file: FileLike, mime: AttachmentMime, { signal, onProgress }: PutOptions) {
+  async put({ url, file, mime, signal, onProgress }: PutRequest) {
     this.puts.push({ url, mime, size: file.size })
     onProgress?.(Math.floor(file.size / 2), file.size)
     if (!this.autoFinish)

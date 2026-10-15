@@ -26,12 +26,15 @@ export interface AttachmentsGateway {
   remove(attachmentId: string): Promise<Result<void>>
 }
 
-export interface PutOptions {
+/** One file body for a signed upload URL. Aborting the signal cancels the request. */
+export interface PutRequest {
+  readonly url: string
+  readonly file: FileLike
+  readonly mime: AttachmentMime
   readonly signal?: AbortSignal
   readonly onProgress?: (loaded: number, total: number) => void
 }
 
-/** Sends the file body to a signed upload URL. Aborting the signal cancels the request. */
 export interface ObjectUploader {
-  put(url: string, file: FileLike, mime: AttachmentMime, options: PutOptions): Promise<Result<void>>
+  put(request: PutRequest): Promise<Result<void>>
 }

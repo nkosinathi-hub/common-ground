@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { toAttachmentsError } from "./attachments-errors"
-import { SupabaseAttachmentsGateway, type AttachmentsDb } from "./supabase-attachments-gateway"
+import type { Db } from "@/shared/infrastructure/supabase"
+import { SupabaseAttachmentsGateway } from "./supabase-attachments-gateway"
 
 const httpError = (status: number, body: unknown) => ({
   name: "FunctionsHttpError",
@@ -17,14 +18,15 @@ function fakeDb(reply: { data: unknown; error: unknown }) {
     from: vi.fn(() => ({ select: vi.fn(() => query) })),
     rpc: vi.fn(async () => reply),
   }
-  return { db, query, gateway: new SupabaseAttachmentsGateway(db as unknown as AttachmentsDb) }
+  return { db, query, gateway: new SupabaseAttachmentsGateway(db as unknown as Db) }
 }
 
 describe("SupabaseAttachmentsGateway", () => {
-  it("lists ready rows of one idea through RLS", async () => {
+  it("lists rows of one idea through RLS, skipping any without an allowed type", async () => {
     const row = { id: "a", space_id: "s", idea_id: "i", uploader_id: null, filename: "f.pdf" }
+    const pdf = { ...row, verified_mime: "application/pdf", bytes: 5, created_at: "t" }
     const { db, query, gateway } = fakeDb({
-      data: [{ ...row, verified_mime: "application/pdf", bytes: 5, created_at: "t" }],
+      data: [pdf, { ...pdf, id: "b", verified_mime: "image/svg+xml" }],
       error: null,
     })
     expect(await gateway.list("s", "i")).toMatchObject({

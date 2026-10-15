@@ -1,6 +1,7 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
-import type { ObjectUploader, PutOptions } from "../application/ports"
-import type { AttachmentMime, FileLike } from "../domain/types"
+import { cancelled } from "../application/attachments-service"
+import type { ObjectUploader, PutRequest } from "../application/ports"
+import { formatBytes, MAX_BYTES } from "../domain/rules"
 
 type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -11,12 +12,7 @@ type Fetch = (input: string, init: RequestInit) => Promise<Response>
 export class FetchUploader implements ObjectUploader {
   constructor(private readonly send: Fetch = (input, init) => fetch(input, init)) {}
 
-  async put(
-    url: string,
-    file: FileLike,
-    mime: AttachmentMime,
-    { signal, onProgress }: PutOptions,
-  ): Promise<Result<void>> {
+  async put({ url, file, mime, signal, onProgress }: PutRequest): Promise<Result<void>> {
     onProgress?.(0, file.size)
     try {
       const response = await this.send(url, {
@@ -29,14 +25,15 @@ export class FetchUploader implements ObjectUploader {
       onProgress?.(file.size, file.size)
       return ok(undefined)
     } catch {
-      if (signal?.aborted) return err(appError("validation", "Upload cancelled"))
+      if (signal?.aborted) return cancelled()
       return err(appError("network", "The upload stopped. Check your connection and try again"))
     }
   }
 }
 
 function uploadError(status: number) {
-  if (status === 413) return appError("validation", "Files can be at most 10 MB")
+  if (status === 413)
+    return appError("validation", `Files can be at most ${formatBytes(MAX_BYTES)}`)
   if (status === 415 || status === 400)
     return appError("validation", "Only JPEG, PNG, WebP and PDF files can be attached")
   if (status === 401 || status === 403)

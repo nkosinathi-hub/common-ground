@@ -1,7 +1,11 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { AttachmentKind, AttachmentMime } from "./types"
 
-export const MAX_BYTES = 10 * 1024 * 1024
+const KB = 1024
+const MB = 1024 * KB
+
+export const MAX_BYTES = 10 * MB
+export const MAX_FILENAME = 200
 
 const EXTENSIONS: Record<AttachmentMime, readonly string[]> = {
   "image/jpeg": ["jpg", "jpeg"],
@@ -15,7 +19,8 @@ export const ACCEPT = [...Object.keys(EXTENSIONS), ".jpg", ".jpeg", ".png", ".we
   ",",
 )
 
-const isMime = (value: string): value is AttachmentMime => Object.hasOwn(EXTENSIONS, value)
+export const isAttachmentMime = (value: string): value is AttachmentMime =>
+  Object.hasOwn(EXTENSIONS, value)
 
 const extensionOf = (name: string): string => {
   const dot = name.lastIndexOf(".")
@@ -29,6 +34,13 @@ export function mimeFromName(name: string): AttachmentMime | null {
   return match ? (match[0] as AttachmentMime) : null
 }
 
+/** Whole megabytes print without a decimal: 10 MB, 3.5 MB. */
+export function formatBytes(bytes: number): string {
+  if (bytes < KB) return `${bytes} B`
+  if (bytes < MB) return `${Math.round(bytes / KB)} KB`
+  return `${Number((bytes / MB).toFixed(1))} MB`
+}
+
 /**
  * A convenience precheck so people learn early that a file will not fit. It is NOT a
  * security control: the Edge Function re-checks everything and verifies the magic bytes.
@@ -40,24 +52,29 @@ export function precheckFile(file: {
 }): Result<AttachmentMime> {
   const name = file.name.trim()
   const mime = file.type || mimeFromName(name) || ""
-  if (!isMime(mime) || !EXTENSIONS[mime].includes(extensionOf(name)))
+  if (!isAttachmentMime(mime) || !EXTENSIONS[mime].includes(extensionOf(name)))
     return err(appError("validation", "Only JPEG, PNG, WebP and PDF files can be attached"))
   if (file.size < 1) return err(appError("validation", "This file is empty"))
-  if (file.size > MAX_BYTES) return err(appError("validation", "Files can be at most 10 MB"))
-  if (name.length > 200)
-    return err(appError("validation", "File names can be at most 200 characters"))
+  if (file.size > MAX_BYTES)
+    return err(appError("validation", `Files can be at most ${formatBytes(MAX_BYTES)}`))
+  if (name.length > MAX_FILENAME)
+    return err(appError("validation", `File names can be at most ${MAX_FILENAME} characters`))
   return ok(mime)
 }
 
 export const kindOf = (mime: AttachmentMime): AttachmentKind =>
   mime === "application/pdf" ? "pdf" : "image"
 
-export function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 /** Delete is offered to the uploader and to the space owner; the RPC enforces the same rule. */
 export const canDelete = (uploaderId: string | null, me: string, isOwner: boolean): boolean =>
   isOwner || (uploaderId !== null && uploaderId === me)
+
+/** Signed URLs come from the server; anything but http(s) is never rendered or opened. */
+export function isWebUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value)
+    return protocol === "https:" || protocol === "http:"
+  } catch {
+    return false
+  }
+}

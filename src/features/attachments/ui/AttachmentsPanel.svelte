@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { AsyncView, ConfirmDialog, Resource, toast } from "@/shared/ui"
+  import { AsyncView, Resource, toast } from "@/shared/ui"
   import { canDelete } from "../domain/rules"
   import type { Attachment } from "../domain/types"
   import AttachmentItem from "./AttachmentItem.svelte"
@@ -15,10 +15,9 @@
     me: string
     isOwner: boolean
   }
-
   let { spaceId, ideaId, me, isOwner }: Props = $props()
 
-  const service = useAttachments()
+  const { service } = useAttachments()
   const list = new Resource(() => service.list(spaceId, ideaId))
   $effect(() => {
     void [spaceId, ideaId]
@@ -30,18 +29,7 @@
     () => void list.load(),
   )
 
-  let pending = $state<Attachment | null>(null)
-  let confirmOpen = $state(false)
-
-  function askDelete(attachment: Attachment) {
-    pending = attachment
-    confirmOpen = true
-  }
-
-  async function confirmDelete() {
-    if (!pending) return
-    const { id, filename } = pending
-    pending = null
+  async function remove({ id, filename }: Attachment) {
     const result = await service.remove(id)
     if (!result.ok) return toast.error(result.error.message)
     toast.success(`${filename} was deleted`)
@@ -69,7 +57,7 @@
             <AttachmentItem
               {attachment}
               deletable={canDelete(attachment.uploaderId, me, isOwner)}
-              onDelete={askDelete}
+              onDelete={remove}
             />
           {/each}
         </ul>
@@ -77,13 +65,3 @@
     {/snippet}
   </AsyncView>
 </section>
-
-{#if pending}
-  <ConfirmDialog
-    bind:open={confirmOpen}
-    title={`Delete ${pending.filename}?`}
-    description="Everyone in this space loses access to it. This cannot be undone."
-    confirmLabel="Delete"
-    onConfirm={confirmDelete}
-  />
-{/if}
