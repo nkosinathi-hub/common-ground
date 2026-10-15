@@ -25,6 +25,7 @@ describe("notifications", () => {
     expect(describeNotification(n({ type: "task_assigned", actorName: null }))).toBe(
       "Former member assigned you a task",
     )
+    expect(describeNotification(n({ type: "member_left" }))).toBe("Ana left your space")
     expect(describeNotification(n({ type: "weird" }))).toBe("Ana did something")
   })
 

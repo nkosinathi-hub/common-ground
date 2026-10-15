@@ -29,6 +29,7 @@ const MESSAGES: Record<string, (actor: string) => string> = {
   task_assigned: (actor) => `${actor} assigned you a task`,
   ownership_received: (actor) => `${actor} made you the owner`,
   member_removed: (actor) => `${actor} removed a member`,
+  member_left: (actor) => `${actor} left your space`,
 }
 
 const SOMETHING = (actor: string) => `${actor} did something`
