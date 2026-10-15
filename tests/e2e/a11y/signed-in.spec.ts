@@ -27,7 +27,6 @@ const KNOWN: Record<string, string> = {
   "tablet:watch": RAIL,
   "tablet:ideas": RAIL,
   "desktop:new space": "color-contrast: .bg-primary text on the new space page",
-  "*:account": "page-has-heading-one: AccountPage.svelte has no h1",
 }
 
 let page: Page
