@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { greetingFor } from "../shell/greeting"
   import * as Card from "$lib/components/ui/card"
   import { useAuth } from "@/features/auth"
   import { ActivityFeed } from "@/features/notifications"
@@ -11,8 +12,7 @@
   let { space }: { space: Space } = $props()
   const { session } = useAuth()
   const template = $derived(templateFor(space.template))
-  const hour = new Date().getHours()
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"
+  const greeting = greetingFor(new Date().getHours())
 </script>
 
 <div class="grid gap-6">

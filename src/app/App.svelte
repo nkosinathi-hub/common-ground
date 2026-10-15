@@ -2,31 +2,28 @@
   import { onMount } from "svelte"
   import { Toaster } from "$lib/components/ui/sonner"
   import { Loading } from "@/shared/ui"
-  import { handleAuthCallback } from "./callback"
+  import { boot } from "./boot"
   import { compose, provideServices } from "./composition"
   import Page from "./Page.svelte"
-  import { pendingInvite } from "./routing/pending-invite"
-  import { resolveRoute } from "./routing/resolve"
+  import { RouteGate } from "./routing/gate.svelte"
   import { Router } from "./routing/router.svelte"
 
   const services = compose()
   provideServices(services)
+  const { session, spacesStore, notifications, auth } = services
   const router = new Router()
-  const { session, spacesStore } = services
+  const gate = new RouteGate(router, session, spacesStore)
   let booted = $state(false)
   let linkExpired = $state(false)
 
   onMount(() => {
-    const stop = router.start()
-    void (async () => {
-      const outcome = await handleAuthCallback(services.auth)
-      linkExpired = outcome === "expired"
-      if (outcome === "new-password") router.go({ name: "new-password" }, true)
-      await session.start()
+    const stopRouter = router.start()
+    void boot(services, router).then((result) => {
+      linkExpired = result.linkExpired
       booted = true
-    })()
+    })
     return () => {
-      stop()
+      stopRouter()
       session.dispose()
     }
   })
@@ -36,43 +33,29 @@
   $effect(() => {
     if (!userId) return spacesStore.clear()
     void spacesStore.refresh()
-    return services.notifications.start()
+    return notifications.start()
   })
 
-  const spacesReady = $derived(
-    !session.user || spacesStore.status === "ready" || spacesStore.status === "error",
-  )
-  const decision = $derived(
-    resolveRoute(router.route, {
-      signedIn: Boolean(session.user),
-      spaceIds: spacesStore.spaces.map((s) => s.id),
-      activeSpaceId: spacesStore.active?.id ?? null,
-      pendingInvite: router.route.name === "invite" ? null : pendingInvite.read(),
-    }),
-  )
+  $effect(() => gate.rememberInvite())
 
   $effect(() => {
-    if (router.route.name === "invite" && !session.user) pendingInvite.write(router.route.token)
-    if (router.route.name === "invite" && session.user) pendingInvite.write(null)
-  })
-
-  $effect(() => {
-    if (booted && spacesReady && decision.kind === "redirect") router.go(decision.route, true)
+    const decision = gate.decision
+    if (booted && gate.ready && decision.kind === "redirect") router.go(decision.route, true)
   })
 
   async function signOut() {
-    await services.auth.signOut()
+    await auth.signOut()
     spacesStore.clear()
     router.go({ name: "sign-in" }, true)
   }
 </script>
 
 <Toaster richColors position="top-center" />
-{#if !booted || !spacesReady}
+{#if !booted || !gate.ready}
   <div class="mx-auto max-w-md p-8"><Loading label="Opening Common Ground" /></div>
-{:else if decision.kind === "render"}
+{:else if gate.decision.kind === "render"}
   <Page
-    route={decision.route}
+    route={gate.decision.route}
     {linkExpired}
     {signOut}
     onPasswordSaved={() => router.go({ name: "entry" }, true)}

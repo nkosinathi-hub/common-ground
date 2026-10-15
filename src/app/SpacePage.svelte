@@ -8,7 +8,7 @@
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
   import QuickCapture from "./shell/QuickCapture.svelte"
-  import type { Section } from "./shell/nav"
+  import { sectionOf } from "./shell/nav"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
   let { route, signOut }: { route: SpaceRoute; signOut: () => void } = $props()
@@ -17,15 +17,7 @@
 
   $effect(() => void store.activate(route.spaceId))
   const space = $derived(store.spaces.find((s) => s.id === route.spaceId)!)
-  const section = $derived<Section | null>(
-    route.name === "home"
-      ? "home"
-      : route.name === "watch" || route.name === "watch-item"
-        ? "watch"
-        : route.name === "ideas" || route.name === "idea"
-          ? "ideas"
-          : null,
-  )
+  const section = $derived(sectionOf(route.name))
 </script>
 
 {#key space.id}
