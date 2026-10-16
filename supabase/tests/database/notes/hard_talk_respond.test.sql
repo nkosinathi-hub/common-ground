@@ -42,17 +42,24 @@ select is((select count(*)::int from public.space_note_responses) +
   (select count(*)::int from public.space_notes), 0, 'a third member sees neither note nor response');
 
 select tests.reset_role();
-update public.space_note_nudges set remind_at = now() - interval '1 minute';
-select is(public.deliver_note_nudges(), 1, 'a due reminder is delivered');
-select is(public.deliver_note_nudges(), 0, 'once');
-select is(pg_temp.count_of('nt_ben', 'note_nudge'), 1, 'as a notification to the reader only');
+update public.space_note_nudges set remind_at = now() - interval '1 minute'
+  where note_id = (select id from n where k = 'ht');
+select public.deliver_note_nudges();
+select ok((select sent_at is not null from public.space_note_nudges
+  where note_id = (select id from n where k = 'ht')), 'a due reminder is delivered');
+select public.deliver_note_nudges();
+select is(pg_temp.count_of('nt_ben', 'note_nudge'), 1, 'once');
+select is(pg_temp.count_of('nt_ana', 'note_nudge'), 0, 'to the reader only');
 
 select tests.act_as('nt_ben');
 select public.respond_to_note((select id from n where k = 'ht'), 'time', 1);
 select public.respond_to_note((select id from n where k = 'ht'), 'thanks', null);
 select tests.reset_role();
-update public.space_note_nudges set remind_at = now() - interval '1 minute' where sent_at is null;
-select is(public.deliver_note_nudges(), 0, 'a reminder is skipped once they have responded warmly');
+update public.space_note_nudges set remind_at = now() - interval '1 minute'
+  where sent_at is null and note_id = (select id from n where k = 'ht');
+select public.deliver_note_nudges();
+select is(pg_temp.count_of('nt_ben', 'note_nudge'), 1,
+  'a reminder is skipped once they have responded warmly');
 insert into public.space_note_responses (space_id, note_id, author_id, kind)
   select 'e7000000-0000-4000-8000-000000000001', (select id from n where k = 'ht'),
   tests.user_id('nt_ben'), 'here' from generate_series(1, 17);

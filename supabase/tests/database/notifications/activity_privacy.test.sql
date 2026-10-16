@@ -46,7 +46,7 @@ select is((select count(*)::int from jsonb_array_elements((public.export_space(
 select tests.act_as('ap_ana');
 delete from public.space_notes where id = (select id from n);
 select tests.reset_role();
-select is((select count(*)::int from public.activity_events where subject_type = 'space_note'),
+select is((select count(*)::int from public.activity_events where subject_id = (select id from n)),
   0, 'taking it back removes its entries');
 select is((select count(*)::int from public.notifications where subject_id = (select id from n)),
   0, 'and its notifications');
