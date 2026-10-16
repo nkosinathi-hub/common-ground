@@ -13,10 +13,11 @@ src/app/composition/        the only place adapters are built and provided as co
   watch.ts                  watch
   ideas.ts                  ideas, research, tasks, budget
   collaboration.ts          comments, recommendations, attachments
-src/shared/domain/          Result, Money, DateOnly, ids, errors (pure)
-src/shared/infrastructure/  Supabase client, generated database types, query and paging helpers
+src/shared/domain/          Result, Money, DateOnly, formatters, ids, errors (pure)
+src/shared/domain/testing/  FakeMemberDirectory: the one MemberDirectory fake
+src/shared/infrastructure/  Supabase client, database types, query, paging and Edge Function helpers
 src/shared/infrastructure/testing/  recordingClient: the one fake Supabase client for adapter tests
-src/shared/ui/              cross-feature Svelte primitives (states, layout)
+src/shared/ui/              cross-feature Svelte primitives (states, lists, forms); see ui-patterns.md
 src/shared/ui/testing/      Provided.svelte: renders a component inside its provided contexts
 src/lib/components/ui/      shadcn-svelte generated components
 src/features/<name>/
@@ -96,4 +97,4 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
 ## Commits
 
 Single-line conventional commits referencing the issue: `feat: invites, single-use redemption (#7)`.
-No Co-Authored-By trailers. All v0.1 work lands in branch `1-v0-1` and one MR.
+No Co-Authored-By trailers. v0.2 work lands in branch `2-v0-2` and one MR.

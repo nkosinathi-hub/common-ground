@@ -57,8 +57,8 @@ South Africa's Protection of Personal Information Act applies to members' data.
 - Openness: the privacy notice at `#/privacy`.
 - Access and correction: members export their personal data and each space as JSON.
 - Deletion: self-service account deletion.
-- Status: export and deletion are v0.1 requirements (plan item 18) not yet merged to `1-v0-1`;
-  until they land, the maintainer handles requests manually.
+- Status: export and deletion shipped in v0.1 (account page). An export holds only what the
+  member can see under RLS.
 - Security safeguards: the controls above. Breach response: rotate secrets, assess, notify
   affected members and the Information Regulator without undue delay.
 - Processors: Supabase (hosting), Resend (email), TMDB (catalog lookups carry no personal data).
