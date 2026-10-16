@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { notificationsSetup } from "../testing/notifications-setup"
 import Provided from "@/shared/ui/testing/Provided.svelte"
@@ -8,7 +8,19 @@ import { provideNotifications } from "./context"
 import NotificationsBell from "./NotificationsBell.svelte"
 import { NotificationsStore } from "./notifications.svelte"
 
-afterEach(cleanup)
+// A wide viewport, so the bell opens its popover.
+beforeEach(() =>
+  vi.stubGlobal("matchMedia", (media: string) => ({
+    matches: true,
+    media,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  })),
+)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 function setup() {
   const fakes = notificationsSetup()
