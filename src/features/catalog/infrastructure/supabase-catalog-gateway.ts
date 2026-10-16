@@ -1,8 +1,9 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import type { Result } from "@/shared/domain"
+import { invokeFunction } from "@/shared/infrastructure/functions"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { CatalogGateway, SearchRequest, TitleRequest } from "../application/ports"
 import type { SearchPage, TitleDetails } from "../domain/types"
-import { OUTAGE_MESSAGE, toCatalogError } from "./catalog-errors"
+import { CATALOG_COPY } from "./catalog-errors"
 
 type Functions = Pick<Db, "functions">
 
@@ -10,14 +11,8 @@ type Functions = Pick<Db, "functions">
 export class SupabaseCatalogGateway implements CatalogGateway {
   constructor(private readonly db: Functions) {}
 
-  private async invoke<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<Result<T>> {
-    try {
-      const { data, error } = await this.db.functions.invoke("catalog", { body, signal })
-      if (error) return err(await toCatalogError(error))
-      return ok(data as T)
-    } catch {
-      return err(appError("network", OUTAGE_MESSAGE))
-    }
+  private invoke<T>(body: Record<string, unknown>, signal?: AbortSignal): Promise<Result<T>> {
+    return invokeFunction<T>(this.db, "catalog", body, CATALOG_COPY, signal)
   }
 
   search({ spaceId, query, page }: SearchRequest, signal?: AbortSignal) {

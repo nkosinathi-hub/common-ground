@@ -7,7 +7,10 @@ interface Chain extends PromiseLike<unknown> {
   eq(...args: unknown[]): Chain
   rpc(...args: unknown[]): Chain
 }
-type Client = Chain & { auth: { getUser(): Promise<unknown> } }
+type Client = Chain & {
+  auth: { getUser(): Promise<unknown> }
+  functions: { invoke(...args: unknown[]): Promise<unknown> }
+}
 
 describe("recordingClient", () => {
   it("records every builder call and answers each await with the one reply", async () => {
@@ -31,6 +34,14 @@ describe("recordingClient", () => {
     expect(await db.rpc("a")).toEqual(first)
     expect(await db.from("t").select()).toEqual(second)
     expect(await db.from("t")).toEqual({ data: null, error: null })
+  })
+
+  it("records Edge Function calls and answers them from the same queue", async () => {
+    const reply = { data: { url: "u" }, error: null }
+    const { calls, client } = recordingClient([reply])
+    const db = client as Client
+    expect(await db.functions.invoke("attachments", { body: { a: 1 } })).toEqual(reply)
+    expect(calls).toEqual([["invoke", "attachments", { body: { a: 1 } }]])
   })
 
   it("is signed in as u1 by default, as given, or signed out", async () => {

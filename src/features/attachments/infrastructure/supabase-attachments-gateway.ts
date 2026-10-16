@@ -1,5 +1,6 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { ok, type Result } from "@/shared/domain"
 import type { Tables } from "@/shared/infrastructure/database.types"
+import { invokeFunction } from "@/shared/infrastructure/functions"
 import { done, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type {
@@ -10,7 +11,7 @@ import type {
 } from "../application/ports"
 import { isAttachmentMime } from "../domain/rules"
 import type { Attachment } from "../domain/types"
-import { toAttachmentsError } from "./attachments-errors"
+import { ATTACHMENTS_COPY } from "./attachments-errors"
 
 type AttachmentRow = Pick<
   Tables<"attachments">,
@@ -49,14 +50,8 @@ const toAttachments = (rows: readonly AttachmentRow[]): Attachment[] =>
 export class SupabaseAttachmentsGateway implements AttachmentsGateway {
   constructor(private readonly db: Db) {}
 
-  private async invoke<T>(body: Record<string, unknown>): Promise<Result<T>> {
-    try {
-      const { data, error } = await this.db.functions.invoke<T>("attachments", { body })
-      if (error) return err(await toAttachmentsError(error))
-      return ok(data as T)
-    } catch {
-      return err(appError("network", "Attachments are unavailable right now. Try again"))
-    }
+  private invoke<T>(body: Record<string, unknown>): Promise<Result<T>> {
+    return invokeFunction<T>(this.db, "attachments", body, ATTACHMENTS_COPY)
   }
 
   list(spaceId: string, ideaId: string): Promise<Result<Attachment[]>> {

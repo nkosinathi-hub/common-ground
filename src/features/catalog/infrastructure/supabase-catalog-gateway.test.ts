@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-import { OUTAGE_MESSAGE, toCatalogError } from "./catalog-errors"
+import { toFunctionError } from "@/shared/infrastructure/functions"
+import { CATALOG_COPY, OUTAGE_MESSAGE } from "./catalog-errors"
 import { SupabaseCatalogGateway } from "./supabase-catalog-gateway"
 
 const httpError = (status: number, body: unknown) => ({
@@ -51,7 +52,9 @@ describe("SupabaseCatalogGateway", () => {
   })
 })
 
-describe("toCatalogError", () => {
+const toCatalogError = (error: unknown) => toFunctionError(error, CATALOG_COPY)
+
+describe("catalog copy", () => {
   it("maps an unavailable catalog to a network outage that keeps the query", async () => {
     const error = await toCatalogError(
       httpError(503, { error: { kind: "unavailable", message: "x" } }),
