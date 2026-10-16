@@ -26,12 +26,13 @@ export class PagedList<T extends { id: string }, C = unknown> {
     return this.next !== null
   }
 
+  /** Untracked like Resource.load: an effect that calls it depends only on what it reads first. */
   async load(): Promise<void> {
     const mine = untrack(() => {
       this.loading = true
       return ++this.generation
     })
-    const result = await this.loader(null)
+    const result = await untrack(() => this.loader(null))
     if (mine !== this.generation) return
     this.loading = false
     this.settle(result, false)
@@ -42,7 +43,7 @@ export class PagedList<T extends { id: string }, C = unknown> {
     if (after === null || untrack(() => this.loadingMore)) return
     const mine = this.generation
     this.loadingMore = true
-    const result = await this.loader(after)
+    const result = await untrack(() => this.loader(after))
     if (mine !== this.generation) return
     this.loadingMore = false
     this.settle(result, true)
