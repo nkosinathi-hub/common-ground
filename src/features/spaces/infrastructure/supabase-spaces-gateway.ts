@@ -8,8 +8,6 @@ import { toSpace } from "./space-row"
 import { invitesOf, previewOf } from "./supabase-invites"
 import { SupabaseSpaceProfile } from "./supabase-space-profile"
 
-/** The create and redeem RPCs already return the id or token the port promises. */
-
 const SPACE_SELECT =
   "role, spaces!inner(id, name, template, tagline, description, theme, accent_color, icon, avatar_path, cover_path, home_cards, default_watch_intent, week_starts_on)"
 
