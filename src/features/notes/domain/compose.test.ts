@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { expiresAt, EXPIRY_CHOICES, recipientsFor } from "./compose"
+import { expiresAt, EXPIRY_CHOICES, recipientsFor, whoToWhom } from "./compose"
 
 describe("recipientsFor", () => {
   it("offers every member but the writer", () => {
@@ -27,5 +27,17 @@ describe("expiresAt", () => {
       "In a week",
       "In 30 days",
     ])
+  })
+})
+
+describe("whoToWhom", () => {
+  const note = { authorId: "ana", authorName: "Ana", recipient: { kind: "everyone" } } as const
+
+  it("reads from the viewer's side", () => {
+    expect(whoToWhom(note, "ana")).toBe("You to everyone")
+    expect(whoToWhom(note, "ben")).toBe("Ana to everyone")
+    const toBen = { ...note, recipient: { kind: "member", id: "ben", name: "Ben" } } as const
+    expect(whoToWhom(toBen, "ben")).toBe("Ana to you")
+    expect(whoToWhom(toBen, "ana")).toBe("You to Ben")
   })
 })

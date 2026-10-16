@@ -1,4 +1,5 @@
 import type { MemberRef } from "@/shared/domain"
+import type { Note } from "./note"
 
 export const EXPIRY_CHOICES = [
   { value: "never", label: "Never", days: null },
@@ -19,3 +20,10 @@ export function expiresAt(choice: Expiry, now: Date): string | null {
 /** A note goes to another member or to everyone, never to yourself. */
 export const recipientsFor = (members: readonly MemberRef[], me: string): MemberRef[] =>
   members.filter((member) => member.id !== me)
+
+/** "Ana to you", "You to Ben", "Ana to everyone": the note's people from the viewer's side. */
+export function whoToWhom(note: Pick<Note, "authorId" | "authorName" | "recipient">, me: string) {
+  const from = note.authorId === me ? "You" : note.authorName
+  if (note.recipient.kind === "everyone") return `${from} to everyone`
+  return `${from} to ${note.recipient.id === me ? "you" : note.recipient.name}`
+}
