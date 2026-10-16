@@ -11,8 +11,9 @@ import {
   type Result,
 } from "@/shared/domain"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
-import { sortUpcoming, type Task, type UpcomingTask } from "../domain"
+import type { Task, UpcomingTask } from "../domain"
 import { Store } from "./in-memory-store"
+import { sortUpcoming } from "./sql-mirror"
 
 export class FakeMembers implements MemberDirectory {
   constructor(

@@ -20,6 +20,3 @@ export function dueState(due: DateOnly, today: DateOnly): DueState {
   const order = compareDateOnly(due, today)
   return order < 0 ? "overdue" : order === 0 ? "today" : "soon"
 }
-
-export const sortUpcoming = (tasks: readonly UpcomingTask[]): UpcomingTask[] =>
-  [...tasks].sort((a, b) => compareDateOnly(a.dueDate, b.dueDate) || a.title.localeCompare(b.title))
