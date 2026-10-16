@@ -1,5 +1,5 @@
 import type { Result } from "@/shared/domain"
-import { done, settle, signedOut } from "@/shared/infrastructure/query"
+import { done, same, settle, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { SpacesGateway } from "../application/ports"
 import type { Member, Space } from "../domain/space"
@@ -9,7 +9,6 @@ import { invitesOf, previewOf } from "./supabase-invites"
 import { SupabaseSpaceProfile } from "./supabase-space-profile"
 
 /** The create and redeem RPCs already return the id or token the port promises. */
-const unchanged = <T>(value: T) => value
 
 const SPACE_SELECT =
   "role, spaces!inner(id, name, template, tagline, description, theme, accent_color, icon, avatar_path, cover_path, home_cards, default_watch_intent, week_starts_on)"
@@ -33,7 +32,7 @@ export class SupabaseSpacesGateway implements SpacesGateway {
   }
 
   create = (name: string, template: SpaceTemplateId) =>
-    settle(this.db.rpc("create_space", { space_name: name, space_template: template }), unchanged)
+    settle(this.db.rpc("create_space", { space_name: name, space_template: template }), same)
 
   updateProfile: SpacesGateway["updateProfile"] = (...args) => this.profile.updateProfile(...args)
   uploadMedia: SpacesGateway["uploadMedia"] = (...args) => this.profile.uploadMedia(...args)
@@ -67,8 +66,8 @@ export class SupabaseSpacesGateway implements SpacesGateway {
 
   invites = (spaceId: string) => invitesOf(this.db, spaceId)
   createInvite = (spaceId: string) =>
-    settle(this.db.rpc("create_invite", { target_space: spaceId }), unchanged)
+    settle(this.db.rpc("create_invite", { target_space: spaceId }), same)
   revokeInvite = (inviteId: string) => done(this.db.rpc("revoke_invite", { invite: inviteId }))
   previewInvite = (token: string) => previewOf(this.db, token)
-  redeemInvite = (token: string) => settle(this.db.rpc("redeem_invite", { token }), unchanged)
+  redeemInvite = (token: string) => settle(this.db.rpc("redeem_invite", { token }), same)
 }
