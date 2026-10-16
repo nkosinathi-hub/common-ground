@@ -3,13 +3,7 @@
   import { Trash2 } from "@lucide/svelte"
   import ConfirmDialog from "./ConfirmDialog.svelte"
 
-  let {
-    label,
-    what,
-    description = "This cannot be undone.",
-    size = "icon-xs",
-    onConfirm,
-  }: {
+  interface Props {
     /** Accessible name of the button, e.g. "Delete note". */
     label: string
     /** Shown in the dialog title, e.g. "this note". */
@@ -17,7 +11,15 @@
     description?: string
     size?: "icon-xs" | "icon-sm"
     onConfirm: () => unknown
-  } = $props()
+  }
+
+  let {
+    label,
+    what,
+    description = "This cannot be undone.",
+    size = "icon-xs",
+    onConfirm,
+  }: Props = $props()
 
   let open = $state(false)
 </script>

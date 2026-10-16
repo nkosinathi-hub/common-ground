@@ -1,7 +1,12 @@
 <script lang="ts">
   import { Skeleton } from "$lib/components/ui/skeleton"
 
-  let { rows = 3, label = "Loading" }: { rows?: number; label?: string } = $props()
+  interface Props {
+    rows?: number
+    label?: string
+  }
+
+  let { rows = 3, label = "Loading" }: Props = $props()
 </script>
 
 <div class="flex flex-col gap-3" role="status" aria-live="polite">

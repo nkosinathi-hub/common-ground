@@ -2,14 +2,7 @@
   import type { Component, Snippet } from "svelte"
   import Illustration from "./Illustration.svelte"
 
-  let {
-    icon: Icon,
-    title,
-    description,
-    illustration = false,
-    level = 2,
-    children,
-  }: {
+  interface Props {
     icon?: Component
     title: string
     description?: string
@@ -17,7 +10,16 @@
     /** Use 1 when the empty state is the whole page, e.g. not-found. */
     level?: 1 | 2
     children?: Snippet
-  } = $props()
+  }
+
+  let {
+    icon: Icon,
+    title,
+    description,
+    illustration = false,
+    level = 2,
+    children,
+  }: Props = $props()
 </script>
 
 <div

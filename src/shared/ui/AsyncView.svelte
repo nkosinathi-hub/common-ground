@@ -4,7 +4,12 @@
   import Loading from "./Loading.svelte"
   import type { Resource } from "./resource.svelte"
 
-  let { resource, children }: { resource: Resource<T>; children: Snippet<[T]> } = $props()
+  interface Props {
+    resource: Resource<T>
+    children: Snippet<[T]>
+  }
+
+  let { resource, children }: Props = $props()
 </script>
 
 {#if resource.state.status === "loading"}

@@ -3,7 +3,12 @@
   import { Button } from "$lib/components/ui/button"
   import type { AppError } from "@/shared/domain"
 
-  let { error, onRetry }: { error: AppError; onRetry?: () => void } = $props()
+  interface Props {
+    error: AppError
+    onRetry?: () => void
+  }
+
+  let { error, onRetry }: Props = $props()
 
   const view = $derived.by(() => {
     switch (error.kind) {

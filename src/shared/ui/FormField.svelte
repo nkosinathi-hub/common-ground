@@ -3,6 +3,16 @@
   import { Label } from "$lib/components/ui/label"
   import FormError from "./FormError.svelte"
 
+  interface Props {
+    id: string
+    label: string
+    value?: string
+    type?: string
+    autocomplete?: HTMLInputElement["autocomplete"]
+    error?: string | undefined
+    hint?: string
+  }
+
   let {
     id,
     label,
@@ -11,15 +21,7 @@
     autocomplete,
     error,
     hint,
-  }: {
-    id: string
-    label: string
-    value?: string
-    type?: string
-    autocomplete?: HTMLInputElement["autocomplete"]
-    error?: string | undefined
-    hint?: string
-  } = $props()
+  }: Props = $props()
 </script>
 
 <div class="grid gap-1.5">
