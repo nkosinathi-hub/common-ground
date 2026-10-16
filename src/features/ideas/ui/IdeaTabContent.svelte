@@ -22,8 +22,9 @@
   const setCurrency = (currency: string) => onChange({ ...idea, currency })
 </script>
 
-<!-- The section links above are a nav, not tabs, so this is a region named like its link. -->
-<section aria-label={TAB_LABELS[tab]}>
+<!-- The section links above are a nav, not tabs, so this is a region named after its link and
+     the idea ("Milestones for Tea bar"), which stays unique beside panels such as Milestones. -->
+<section aria-label="{TAB_LABELS[tab]} for {idea.title}">
   {#if tab === "overview"}
     {#key idea.id}<OverviewTab {idea} onSaved={onChange} />{/key}
   {:else if tab === "research"}

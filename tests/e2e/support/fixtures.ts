@@ -14,12 +14,9 @@ export async function captureIdea(page: Page, spaceId: string, title: string): P
   return new RegExp(`/ideas/(${UUID})/`).exec(page.url())![1]!
 }
 
-/**
- * The region an idea section renders in, named like its link ("tasks" is "Tasks"). It comes
- * first: the Milestones section holds a Milestones panel of the same name.
- */
+/** The region an idea section renders in, named after its link and the idea ("Tasks for Zine"). */
 export const ideaSection = (page: Page, tab: string) =>
-  page.getByRole("region", { name: tab[0]!.toUpperCase() + tab.slice(1), exact: true }).first()
+  page.getByRole("region", { name: new RegExp(`^${tab[0]!.toUpperCase()}${tab.slice(1)} for `) })
 
 /** Opens one section of an idea and waits for its region. */
 export async function openIdeaTab(page: Page, spaceId: string, ideaId: string, tab: string) {

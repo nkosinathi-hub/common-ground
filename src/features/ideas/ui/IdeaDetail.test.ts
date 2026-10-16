@@ -40,7 +40,7 @@ describe("IdeaDetail", () => {
 
   it("labels the open section with its visible name, not a tab panel without tabs", async () => {
     await setup("space-a")
-    expect(await screen.findByRole("region", { name: "Overview" })).toBeInTheDocument()
+    expect(await screen.findByRole("region", { name: "Overview for Tea bar" })).toBeInTheDocument()
     expect(screen.queryByRole("tabpanel")).toBeNull()
   })
 
