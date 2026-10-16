@@ -27,13 +27,22 @@ export class SupabaseWatchGateway extends SupabaseWatchProgress implements Watch
         this.db.from("watch_items").select(ITEM_COLUMNS).eq("space_id", spaceId).eq("id", itemId),
         (rows) => rows[0],
       ),
-      this.db.rpc("is_space_owner", { target_space: spaceId }),
-      this.db.from("watch_progress").select("status").eq("watch_item_id", itemId).eq("user_id", me),
+      settle(this.db.rpc("is_space_owner", { target_space: spaceId }), same),
+      settle(
+        this.db
+          .from("watch_progress")
+          .select("status")
+          .eq("watch_item_id", itemId)
+          .eq("user_id", me),
+        (rows) => rows[0]?.status,
+      ),
     ])
     if (!found.ok) return found
     if (!found.value) return err(GONE)
-    const canDelete = owner.data === true || found.value.created_by === me
-    return ok({ item: toItem(found.value, mine.data?.[0]?.status), canDelete })
+    if (!owner.ok) return owner
+    if (!mine.ok) return mine
+    const canDelete = owner.value === true || found.value.created_by === me
+    return ok({ item: toItem(found.value, mine.value), canDelete })
   }
 
   addCatalog = (spaceId: string, pick: T.CatalogPick, intent: T.SharedIntent) =>
