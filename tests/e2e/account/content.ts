@@ -1,14 +1,13 @@
 import { expect, type Page } from "@playwright/test"
-import { createClient } from "@supabase/supabase-js"
 import { readFile } from "node:fs/promises"
-import { admin, stack, type TestUser } from "../support/stack"
+import { signedInClient } from "../support/clients"
+import { admin, type TestUser } from "../support/stack"
 
-/** A signed-in API client for a test user, so content is written under that user's RLS. */
+/** A signed-in API client and its user id, so content is written under that user's RLS. */
 export async function asUser(user: TestUser) {
-  const key = stack().PUBLISHABLE_KEY ?? stack().ANON_KEY!
-  const client = createClient(stack().API_URL!, key, { auth: { persistSession: false } })
-  const { data, error } = await client.auth.signInWithPassword(user)
-  if (error) throw error
+  const client = await signedInClient(user)
+  const { data, error } = await client.auth.getUser()
+  if (error || !data.user) throw error ?? new Error(`${user.email} is not signed in`)
   return { client, userId: data.user.id }
 }
 

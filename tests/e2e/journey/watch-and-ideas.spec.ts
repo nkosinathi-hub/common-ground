@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { addTitle } from "../support/fixtures"
+import { addTitle, captureIdea } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -26,14 +26,7 @@ test("capture an idea and open every tab", async ({ page }) => {
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Big plans")
 
-  await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByLabel("Idea title").fill("Night market stall")
-  await page.getByRole("button", { name: "Capture", exact: true }).click()
-  await page
-    .getByRole("link", { name: /Night market stall/ })
-    .first()
-    .click()
-  await page.waitForURL(/#\/s\/.+\/ideas\/[0-9a-f-]{36}\/overview/)
+  await captureIdea(page, spaceId, "Night market stall")
   for (const tab of ["research", "tasks", "milestones", "discussion", "overview"]) {
     await page.goto(page.url().replace(/\/[a-z]+$/, `/${tab}`))
     await expect(page.getByLabel("Title", { exact: true }).first()).toHaveValue(
