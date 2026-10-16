@@ -1,5 +1,8 @@
 -- Gentle reminders on pg_cron every 5 minutes, without a session (public.notify records no actor).
 -- A reminder is retired unsent when the reader has since responded with here, talk or thanks.
+-- pg_cron is first needed here (calendar reminders enable it later too); creating it is idempotent.
+create extension if not exists pg_cron with schema pg_catalog;
+
 create or replace function public.deliver_note_nudges()
 returns integer
 language plpgsql
