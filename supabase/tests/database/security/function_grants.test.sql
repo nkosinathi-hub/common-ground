@@ -1,6 +1,8 @@
--- Deny by default for functions: anon executes nothing, internal helpers are server-only.
+-- Deny by default for functions: anon executes nothing, and authenticated executes exactly the
+-- client RPCs and the helpers that policies and checks call. A new function missing from the
+-- allow-list below fails this test until it is either revoked or deliberately listed.
 begin;
-select plan(3);
+select plan(4);
 
 select is(
   (select array_agg(p.proname order by p.proname)::text from pg_proc p
@@ -12,16 +14,36 @@ select is(
   (select array_agg(p.proname order by p.proname)::text from pg_proc p
      join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')
-      and p.proname in ('handle_new_user', 'set_updated_at', 'watch_items_normalise', 'notify',
-        'record_activity', 'after_member_left', 'consume_rate_limit', 'cleanup_candidates',
-        'hash_invite_token', 'require_recent_sign_in')),
-  null, 'triggers and internal helpers are not client-callable');
+      and p.prorettype = 'trigger'::regtype),
+  null, 'no trigger function is client-callable');
 
 select is(
-  (select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public' and p.prosecdef
+  (select array_agg(p.proname::text order by p.proname) from pg_proc p
+     join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and has_function_privilege('authenticated', p.oid, 'execute')),
+  (select array_agg(f order by f) from unnest(array[
+    -- client RPCs
+    'add_catalog_title', 'change_idea_currency', 'create_invite', 'create_space',
+    'delete_attachment', 'delete_comment', 'delete_my_account', 'delete_space', 'edit_comment',
+    'export_me', 'export_space', 'invite_idea_collaborator', 'invite_preview', 'leave_space',
+    'list_calendar', 'list_watch_items', 'log_watch_session', 'mark_note_read', 'ours',
+    'post_comment', 'post_note', 'recommend', 'redeem_invite', 'remove_idea_collaborator',
+    'remove_member', 'reply_to_note', 'respond_idea_invite', 'respond_recommendation',
+    'revoke_invite', 'rsvp_event', 'save_watch_progress', 'set_event_attendees',
+    'set_my_event_reminders', 'set_space_media', 'transfer_ownership', 'update_idea_brief',
+    -- called by policies, checks, triggers running as the caller, or invoker RPCs
+    'can_read_attachment_object', 'is_iana_time_zone', 'is_member_of', 'is_space_member',
+    'is_space_owner', 'is_valid_home_cards', 'is_valid_idea_brief', 'shares_space_with',
+    'space_media_quota_ok', 'space_media_space'
+  ]) f),
+  'authenticated executes exactly the allow-listed functions');
+
+select is(
+  (select array_agg(p.proname order by p.proname)::text from pg_proc p
+     join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
       and coalesce(array_to_string(p.proconfig, ','), '') not like '%search_path=%'),
-  0, 'every security definer function pins its search_path');
+  null, 'every public function pins its search_path');
 
 select * from finish();
 rollback;
