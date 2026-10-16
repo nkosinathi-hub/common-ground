@@ -35,8 +35,11 @@ Set under Settings > CI/CD > Variables, masked and protected (main only): `SUPAB
 ## Staging deploy
 
 `supabase-deploy-staging` (`.gitlab/ci/deploy.yml`) is a manual job on merge request pipelines
-and on pipelines started by hand (CI/CD > Run pipeline) on `1-v0-1`. The workflow rules start no
-push pipeline for `1-v0-1`, and while it has an open MR its pipelines are MR pipelines. The job
+and on pipelines started by hand (CI/CD > Run pipeline) on the release integration branch. That
+branch is matched by name, `<issue>-v<major>-<minor>` (`1-v0-1`, `2-v0-2`, ...), so a new release
+needs no CI change; feature branches such as `2-v0-2-notes` do not match. To deploy another
+branch, set the CI variable `STAGING_BRANCH` to its name. The workflow rules start no push
+pipeline for the integration branch, and while it has an open MR its pipelines are MR pipelines. The job
 pushes migrations and Edge Functions to a second Supabase project, so it needs one: Nkosi creates
 the staging project (free tier) and sets three masked CI variables, not protected, because MR
 branches are not protected branches: `STAGING_SUPABASE_ACCESS_TOKEN`,
