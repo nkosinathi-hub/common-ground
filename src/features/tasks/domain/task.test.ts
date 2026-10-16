@@ -1,13 +1,6 @@
-import { afterEach, describe, expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
-import {
-  formatDue,
-  groupByStatus,
-  isOverdue,
-  TASK_STATUSES,
-  validateTaskInput,
-  type Task,
-} from "./task"
+import { groupByStatus, isOverdue, TASK_STATUSES, validateTaskInput, type Task } from "./task"
 
 const task = (id: string, status: Task["status"], dueDate: string | null = null): Task => ({
   id,
@@ -24,13 +17,8 @@ const task = (id: string, status: Task["status"], dueDate: string | null = null)
   createdAt: "",
   updatedAt: "",
 })
-const zone = process.env.TZ
 
 describe("task", () => {
-  afterEach(() => {
-    process.env.TZ = zone
-  })
-
   it("has backlog, to-do, in-progress and done columns in order", () => {
     expect(TASK_STATUSES).toEqual(["backlog", "todo", "in_progress", "done"])
     const board = groupByStatus([task("a", "done"), task("b", "todo")])
@@ -43,16 +31,6 @@ describe("task", () => {
     const bad = validateTaskInput({ title: "x", dueDate: "2026-02-30" })
     expect(bad.ok ? null : bad.error.field).toBe("dueDate")
   })
-
-  // Switching TZ makes Node reload ICU zone data, which can take seconds on a loaded machine.
-  it.each(["Pacific/Auckland", "America/Los_Angeles", "UTC"])(
-    "shows the same due day in %s",
-    (tz) => {
-      process.env.TZ = tz
-      expect(formatDue("2026-10-15" as DateOnly)).toBe("15 Oct 2026")
-    },
-    30_000,
-  )
 
   it("is overdue only after the due day and never when done", () => {
     const today = "2026-10-15" as DateOnly

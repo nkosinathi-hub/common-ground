@@ -3,6 +3,7 @@
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
+  import { formatDay } from "@/shared/domain"
   import { AsyncView, Resource, toast } from "@/shared/ui"
   import type { Space } from "../domain/space"
   import { useSpaces } from "./context"
@@ -48,8 +49,6 @@
     }
     await invites.load()
   }
-
-  const date = (iso: string) => new Date(iso).toLocaleDateString()
 </script>
 
 <Card.Root>
@@ -80,7 +79,7 @@
           {#each list as invite (invite.id)}
             <li class="flex items-center gap-2 py-2">
               <span class="flex-1"
-                >Created {date(invite.createdAt)}, expires {date(invite.expiresAt)}</span
+                >Created {formatDay(invite.createdAt)}, expires {formatDay(invite.expiresAt)}</span
               >
               <Badge variant={invite.status === "open" ? "default" : "secondary"}
                 >{invite.status}</Badge

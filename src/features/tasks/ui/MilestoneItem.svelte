@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { formatDateOnly } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Pencil } from "@lucide/svelte"
   import { DeleteButton } from "@/shared/ui"
-  import { formatDue, type Milestone, type MilestoneInput } from "../domain"
+  import { type Milestone, type MilestoneInput } from "../domain"
   import MilestoneEdit from "./MilestoneEdit.svelte"
 
   interface Props {
@@ -33,7 +34,7 @@
     </label>
     <span class="flex items-center gap-2 text-xs">
       {#if milestone.targetDate}<span class="text-muted-foreground"
-          >Target {formatDue(milestone.targetDate)}</span
+          >Target {formatDateOnly(milestone.targetDate)}</span
         >{/if}
       <Button
         size="icon"

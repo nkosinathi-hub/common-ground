@@ -55,14 +55,3 @@ export const groupByStatus = (tasks: readonly Task[]) =>
 
 export const isOverdue = (task: Task, today: DateOnly): boolean =>
   task.status !== "done" && task.dueDate !== null && compareDateOnly(task.dueDate, today) < 0
-
-/** Formats a date-only value as a calendar day; never shifts with the viewer's time zone. */
-export function formatDue(date: DateOnly, locale = "en-GB"): string {
-  const day = new Date(`${date}T00:00:00Z`)
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(day)
-}

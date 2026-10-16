@@ -10,9 +10,10 @@ const evening = {
 }
 
 describe("when", () => {
-  it("titles months and days in en-GB, from dates that never shift", () => {
+  it("titles months and days in the shared locale, from dates that never shift", () => {
     expect(monthTitle({ year: 2026, month: 10 })).toBe("October 2026")
     expect(dayHeading(d("2026-10-16"))).toBe("Friday 16 October")
+    expect(dayHeading(d("2026-10-05"))).toBe("Monday 5 October")
     expect(cellLabel(d("2026-10-16"), 2)).toBe("Fri 16 October, 2 events")
     expect(cellLabel(d("2026-10-16"), 1)).toBe("Fri 16 October, 1 event")
     expect(cellLabel(d("2026-10-16"), 0)).toBe("Fri 16 October")

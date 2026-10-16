@@ -1,9 +1,8 @@
-import type { DateOnly } from "@/shared/domain"
+import { LOCALE, type DateOnly } from "@/shared/domain"
 import type { YearMonth } from "./days"
 import type { EventTiming } from "./types"
 import { localDay, localTime } from "./zone"
 
-const LOCALE = "en-GB"
 const dayFormat = (options: Intl.DateTimeFormatOptions, zone = "UTC") =>
   new Intl.DateTimeFormat(LOCALE, { ...options, timeZone: zone })
 const MONTH = dayFormat({ month: "long", year: "numeric" })
@@ -16,7 +15,7 @@ const atNoonUtc = (day: DateOnly) => new Date(`${day}T12:00:00Z`)
 export const monthTitle = ({ year, month }: YearMonth) =>
   MONTH.format(new Date(Date.UTC(year, month - 1, 15)))
 
-/** "Fri 16 October 2026", built from parts so ICU punctuation differences do not leak in. */
+/** "Fri 5 October 2026", built from parts so ICU punctuation differences do not leak in. */
 function spelled(format: Intl.DateTimeFormat, day: DateOnly, withYear: boolean): string {
   const parts = format.formatToParts(atNoonUtc(day))
   const part = (type: string) => parts.find((p) => p.type === type)!.value

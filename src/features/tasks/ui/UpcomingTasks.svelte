@@ -1,9 +1,9 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { CalendarCheck } from "@lucide/svelte"
-  import { todayDateOnly } from "@/shared/domain"
+  import { formatDateOnly, todayDateOnly } from "@/shared/domain"
   import { AsyncView, EmptyState, Resource } from "@/shared/ui"
-  import { dueState, formatDue, type UpcomingTask } from "../domain"
+  import { dueState, type UpcomingTask } from "../domain"
   import { useTasks } from "./context"
 
   const LABEL = { overdue: "Overdue", today: "Due today", soon: "Due" } as const
@@ -54,7 +54,7 @@
                     : 'text-muted-foreground'}"
                 >
                   {LABEL[state]}
-                  {formatDue(task.dueDate)}
+                  {formatDateOnly(task.dueDate)}
                 </span>
               </a>
             </li>

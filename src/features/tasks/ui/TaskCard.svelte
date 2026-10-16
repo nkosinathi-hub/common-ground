@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { ChevronDown } from "@lucide/svelte"
-  import { todayDateOnly } from "@/shared/domain"
+  import { formatDateOnly, todayDateOnly } from "@/shared/domain"
   import { DeleteButton } from "@/shared/ui"
-  import { formatDue, isOverdue, type Task } from "../domain"
+  import { isOverdue, type Task } from "../domain"
   import Checklist from "./Checklist.svelte"
   import TaskFields from "./TaskFields.svelte"
   import type { TasksState } from "./tasks-state.svelte"
@@ -38,7 +38,7 @@
   <TaskFields {task} {board} onError={(message) => (error = message)} />
   {#if task.dueDate}
     <p class="text-xs {overdue ? 'font-medium text-destructive' : 'text-muted-foreground'}">
-      {overdue ? "Overdue: " : "Due "}{formatDue(task.dueDate)}
+      {overdue ? "Overdue: " : "Due "}{formatDateOnly(task.dueDate)}
     </p>
   {/if}
   {#if error}<p class="text-xs text-destructive" role="alert">{error}</p>{/if}
