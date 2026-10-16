@@ -1,4 +1,4 @@
-import { buildHash, FORMER_MEMBER } from "@/shared/domain"
+import { buildHash, FORMER_MEMBER, type IdeaTab } from "@/shared/domain"
 import { ACTIVITY, MESSAGES } from "./messages"
 
 export interface Notification {
@@ -34,6 +34,12 @@ export function describeActivity(event: Pick<ActivityEvent, "eventType" | "actor
   return `${who(event.actorName)} ${action}`
 }
 
+/** Assignments open the idea's tasks; mentions and comments open its discussion. */
+function ideaTabFor(type: string | undefined): IdeaTab {
+  if (type === "task_assigned") return "tasks"
+  return type === "mention" || type === "idea_comment" ? "discussion" : "overview"
+}
+
 /** Where a notification leads. Unknown subjects fall back to the space home. */
 export function subjectHref(
   spaceId: string,
@@ -46,7 +52,7 @@ export function subjectHref(
     case "watch_item":
       return buildHash({ name: "watch-item", spaceId, itemId: subjectId })
     case "idea":
-      return buildHash({ name: "idea", spaceId, ideaId: subjectId, tab: "overview" })
+      return buildHash({ name: "idea", spaceId, ideaId: subjectId, tab: ideaTabFor(type) })
     case "task":
       return buildHash({ name: "ideas", spaceId })
     case "calendar_event":

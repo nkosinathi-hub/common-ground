@@ -39,6 +39,13 @@ describe("notifications", () => {
     expect(subjectHref("s", "calendar_event", "e")).toBe("#/s/s/calendar/e")
   })
 
+  it("opens the idea tab where the notification's subject lives", () => {
+    expect(subjectHref("s", "idea", "i", "task_assigned")).toBe("#/s/s/ideas/i/tasks")
+    expect(subjectHref("s", "idea", "i", "mention")).toBe("#/s/s/ideas/i/discussion")
+    expect(subjectHref("s", "idea", "i", "idea_comment")).toBe("#/s/s/ideas/i/discussion")
+    expect(subjectHref("s", "watch_item", "w", "mention")).toBe("#/s/s/watch/w")
+  })
+
   it("sends a removed member to their spaces, since the old space is closed to them", () => {
     expect(subjectHref("s", "space", "s", "member_removed")).toBe("#/")
   })
@@ -71,6 +78,7 @@ describe("notifications", () => {
       "milestone_completed",
       "space_customised",
       "idea_collaborator_joined",
+      "member_removed",
       "event_created",
     ])
       expect(describeActivity({ eventType, actorName: "Ana" })).not.toBe(

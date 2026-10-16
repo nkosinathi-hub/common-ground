@@ -30,6 +30,7 @@ export const ACTIVITY: Record<string, string> = {
   watched_together: "logged a watch together",
   idea_created: "captured an idea",
   idea_stage_changed: "moved an idea",
+  member_removed: "removed a member",
   task_created: "added a task",
   task_completed: "finished a task",
   milestone_completed: "reached a milestone",
