@@ -1,4 +1,4 @@
-import { PAGE_SIZE, type Cursor } from "@/shared/domain"
+import { nextCursor, PAGE_SIZE, type Cursor, type Page } from "@/shared/domain"
 
 /** PostgREST filter for keyset paging newest-first on (created_at, id). Values are quoted. */
 export function olderThan(cursor: Cursor): string {
@@ -21,3 +21,11 @@ export function newestFirst<Q extends Pageable<Q>>(query: Q, after: Cursor | nul
     .order("id", { ascending: false })
     .limit(PAGE_SIZE)
 }
+
+/** Maps one page of rows from newestFirst; a full page carries the cursor for the next one. */
+export const pageOf =
+  <R, T extends Cursor>(map: (row: R) => T) =>
+  (rows: readonly R[]): Page<T> => {
+    const items = rows.map(map)
+    return { items, next: nextCursor(items) }
+  }
