@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { inMemoryIdeasService } from "../testing/ideas-fixture"
-import { ideasContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideIdeas } from "./context"
 import IdeasPage from "./IdeasPage.svelte"
 
 async function setup() {
@@ -20,7 +21,9 @@ async function setup() {
   people.me = "ana"
   await service.respond(garden.id, true)
   const props = { spaceId: "s", me: "ana", ideaHref: () => "#" }
-  render(IdeasPage, { props, context: ideasContext(service) })
+  render(Provided, {
+    props: { provide: () => provideIdeas({ service }), component: IdeasPage, props },
+  })
   await screen.findByText("Ben's zine")
 }
 
@@ -45,9 +48,9 @@ describe("IdeasPage whose filter", () => {
 
   it("says nothing matches when the server finds none of the viewer's ideas", async () => {
     const { service } = inMemoryIdeasService()
-    render(IdeasPage, {
-      props: { spaceId: "s", me: "cy", ideaHref: () => "#" },
-      context: ideasContext(service),
+    const props = { spaceId: "s", me: "cy", ideaHref: () => "#" }
+    render(Provided, {
+      props: { provide: () => provideIdeas({ service }), component: IdeasPage, props },
     })
     await screen.findByText("No ideas yet")
     await fireEvent.change(screen.getByRole("combobox", { name: "Whose" }), {

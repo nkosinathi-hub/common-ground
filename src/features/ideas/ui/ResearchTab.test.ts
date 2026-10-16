@@ -2,9 +2,9 @@ import { cleanup, render, screen } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { ResearchService } from "../application/research-service"
 import type { Idea } from "../domain"
-import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { inMemoryResearch } from "../testing/in-memory-research"
-import { ideasContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideResearch } from "./context"
 import ResearchTab from "./ResearchTab.svelte"
 
 const idea = { id: "i", spaceId: "s", title: "Tea" } as Idea
@@ -15,8 +15,13 @@ async function setup(viewer: { me: string; isOwner: boolean }) {
   await research.addNote("s", "i", "Call the roaster")
   await research.addLink("s", "i", link)
   await research.addHypothesis("s", "i", "People pay")
-  const context = ideasContext(inMemoryIdeasService().service, research)
-  render(ResearchTab, { props: { idea, viewer }, context })
+  render(Provided, {
+    props: {
+      provide: () => provideResearch({ service: research }),
+      component: ResearchTab,
+      props: { idea, viewer },
+    },
+  })
   await screen.findByText("Call the roaster")
   await screen.findByText("People pay")
 }

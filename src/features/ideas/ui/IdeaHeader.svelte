@@ -25,7 +25,7 @@
   }
 
   let { idea, viewer, members, onChange, onPeopleChanged, onDeleted }: Props = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
   let error = $state<string | null>(null)
 
   async function apply(change: Promise<Result<Idea>>) {

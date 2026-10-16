@@ -13,7 +13,7 @@
   }
 
   let { idea, me, members, onAnswered }: Props = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
   const invite = $derived(invitationFor(idea, me))
   let pending = $state(false)
 

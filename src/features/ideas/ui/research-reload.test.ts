@@ -3,9 +3,9 @@ import { afterEach, describe, expect, it } from "vitest"
 import type { ChildCollection } from "../application/ports"
 import { ResearchService } from "../application/research-service"
 import type { Idea } from "../domain"
-import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { inMemoryResearch } from "../testing/in-memory-research"
-import { ideasContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideResearch } from "./context"
 import ResearchTab from "./ResearchTab.svelte"
 
 const idea = { id: "i", spaceId: "s", title: "Tea" } as Idea
@@ -24,11 +24,15 @@ describe("research panels", () => {
     count("notes", repo.notes)
     count("links", repo.links)
     count("hypotheses", repo.hypotheses)
-    const context = ideasContext(inMemoryIdeasService().service, new ResearchService(repo))
-    const view = render(ResearchTab, { props: { idea, viewer }, context })
+    const provide = () => provideResearch({ service: new ResearchService(repo) })
+    const view = render(Provided, {
+      props: { provide, component: ResearchTab, props: { idea, viewer } },
+    })
     await screen.findByText("No notes yet.")
-    await view.rerender({ idea: { ...idea, title: "Tea bar" }, viewer })
-    await view.rerender({ idea: { ...idea, id: "other" }, viewer })
+    // A props key is read as render options, so Provided's own `props` goes one level down.
+    const show = (next: Idea) => view.rerender({ props: { props: { idea: next, viewer } } })
+    await show({ ...idea, title: "Tea bar" })
+    await show({ ...idea, id: "other" })
     await screen.findByText("No hypotheses yet.")
     expect(loads.sort()).toEqual(["hypotheses", "hypotheses", "links", "links", "notes", "notes"])
   })

@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it } from "vitest"
 import { buildHash } from "@/shared/domain"
 import { inMemoryIdeasService } from "../testing/ideas-fixture"
-import { ideasContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideIdeas } from "./context"
 import IdeaDetail from "./IdeaDetail.svelte"
 
 async function setup(spaceId: string) {
@@ -17,7 +18,9 @@ async function setup(spaceId: string) {
     tabHref: () => "#",
     viewer,
   }
-  render(IdeaDetail, { props, context: ideasContext(service) })
+  render(Provided, {
+    props: { provide: () => provideIdeas({ service }), component: IdeaDetail, props },
+  })
 }
 
 afterEach(() => {

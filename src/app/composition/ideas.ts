@@ -25,8 +25,8 @@ export function composeIdeas(db: Db, members: MemberDirectory) {
 }
 
 export function provideIdeasFeatures(services: ReturnType<typeof composeIdeas>): void {
-  provideIdeas(services.ideas)
-  provideResearch(services.research)
+  provideIdeas({ service: services.ideas })
+  provideResearch({ service: services.research })
   provideTasks(services.tasks)
   provideBudget({ service: services.budget })
 }

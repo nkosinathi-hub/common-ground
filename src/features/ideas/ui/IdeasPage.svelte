@@ -20,7 +20,7 @@
   let { spaceId, me, ideaHref }: Props = $props()
 
   const board = new IdeasState(
-    useIdeas(),
+    useIdeas().service,
     () => spaceId,
     () => me,
   )

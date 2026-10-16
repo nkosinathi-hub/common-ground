@@ -16,7 +16,7 @@
   }
 
   let { open = $bindable(), idea, members, onSaved }: Props = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
   const invites = $derived(new Map(idea.collaborators.map((c) => [c.userId, c])))
   // Starts from who is on the idea now; the author is always on it.
   const picked = new SvelteSet(untrack(() => idea.collaborators.map((c) => c.userId)))

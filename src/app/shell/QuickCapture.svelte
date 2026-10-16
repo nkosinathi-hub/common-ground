@@ -9,7 +9,7 @@
   import { captureDraft } from "./draft"
 
   let { spaceId }: { spaceId: string } = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
   const form = new FormState()
   let open = $state(false)
   let title = $state(untrack(() => captureDraft.read(spaceId)))

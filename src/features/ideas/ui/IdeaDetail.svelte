@@ -34,7 +34,7 @@
   let { spaceId, ideaId, tab, tabHref, viewer, discussion, attachments, onDeleted }: Props =
     $props()
 
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
   const people = new Resource(() => ideas.members(spaceId))
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)

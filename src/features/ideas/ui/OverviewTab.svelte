@@ -22,7 +22,7 @@
   }
 
   let { idea, onSaved }: Props = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
 
   // The editor owns its copy from mount; IdeaDetail remounts it per idea.
   let base = $state(untrack(() => idea))

@@ -14,7 +14,7 @@
   }
 
   let { idea, viewer }: Props = $props()
-  const research = useResearch()
+  const research = useResearch().service
   const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
   // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
   const ideaId = $derived(idea.id)

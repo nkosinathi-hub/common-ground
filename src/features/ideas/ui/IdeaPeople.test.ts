@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it } from "vitest"
 import type { Result } from "@/shared/domain"
 import type { Collaborator } from "../domain"
 import { inMemoryIdeasService } from "../testing/ideas-fixture"
-import { ideasContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideIdeas } from "./context"
 import IdeaDetail from "./IdeaDetail.svelte"
 
 /** Ben started the idea and invited Ana; `me` is looking at it. */
@@ -17,7 +18,13 @@ async function setup(me: string, invite = ["ana"]) {
   people.me = me
   const viewer = { me, isOwner: false }
   const props = { spaceId: "s", ideaId: created.value.id, tab: "overview" as const, viewer }
-  render(IdeaDetail, { props: { ...props, tabHref: () => "#" }, context: ideasContext(service) })
+  render(Provided, {
+    props: {
+      provide: () => provideIdeas({ service }),
+      component: IdeaDetail,
+      props: { ...props, tabHref: () => "#" },
+    },
+  })
   await screen.findByText("Started by Ben")
   return { service, id: created.value.id }
 }
