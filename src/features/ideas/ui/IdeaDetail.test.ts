@@ -38,6 +38,12 @@ describe("IdeaDetail", () => {
     await waitFor(() => expect(window.location.hash).toBe(list))
   })
 
+  it("labels the open section with its visible name, not a tab panel without tabs", async () => {
+    await setup("space-a")
+    expect(await screen.findByRole("region", { name: "Overview" })).toBeInTheDocument()
+    expect(screen.queryByRole("tabpanel")).toBeNull()
+  })
+
   it("refuses to show an idea under another space", async () => {
     await setup("space-b")
     expect(await screen.findByText("That idea is not in this space")).toBeInTheDocument()

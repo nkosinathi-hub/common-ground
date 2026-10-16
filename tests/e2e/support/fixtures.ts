@@ -14,10 +14,17 @@ export async function captureIdea(page: Page, spaceId: string, title: string): P
   return new RegExp(`/ideas/(${UUID})/`).exec(page.url())![1]!
 }
 
-/** Opens one tab of an idea and waits for its tab panel. */
+/**
+ * The region an idea section renders in, named like its link ("tasks" is "Tasks"). It comes
+ * first: the Milestones section holds a Milestones panel of the same name.
+ */
+export const ideaSection = (page: Page, tab: string) =>
+  page.getByRole("region", { name: tab[0]!.toUpperCase() + tab.slice(1), exact: true }).first()
+
+/** Opens one section of an idea and waits for its region. */
 export async function openIdeaTab(page: Page, spaceId: string, ideaId: string, tab: string) {
   await page.goto(`./#/s/${spaceId}/ideas/${ideaId}/${tab}`)
-  await expect(page.getByRole("tabpanel", { name: tab })).toBeVisible()
+  await expect(ideaSection(page, tab)).toBeVisible()
 }
 
 /** Adds a watchlist title by hand, opens it and returns its id. */

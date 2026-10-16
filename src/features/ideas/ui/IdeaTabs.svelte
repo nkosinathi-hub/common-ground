@@ -1,17 +1,10 @@
 <script lang="ts">
   import { IDEA_TABS, type IdeaTab } from "@/shared/domain"
+  import { TAB_LABELS } from "./labels"
 
   interface Props {
     current: IdeaTab
     href: (tab: IdeaTab) => string
-  }
-
-  const LABELS: Record<IdeaTab, string> = {
-    overview: "Overview",
-    research: "Research",
-    tasks: "Tasks",
-    milestones: "Milestones",
-    discussion: "Discussion",
   }
 
   let { current, href }: Props = $props()
@@ -26,7 +19,8 @@
           aria-current={tab === current ? "page" : undefined}
           class="block border-b-2 px-3 py-2 text-sm whitespace-nowrap {tab === current
             ? 'border-primary font-medium'
-            : 'border-transparent text-muted-foreground hover:text-foreground'}">{LABELS[tab]}</a
+            : 'border-transparent text-muted-foreground hover:text-foreground'}"
+          >{TAB_LABELS[tab]}</a
         >
       </li>
     {/each}

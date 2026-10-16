@@ -1,3 +1,4 @@
+import type { IdeaTab } from "@/shared/domain"
 import type { BriefField, HypothesisStatus, IdeaStage } from "../domain"
 
 export const STAGE_LABELS: Record<IdeaStage, string> = {
@@ -25,4 +26,12 @@ export const HYPOTHESIS_LABELS: Record<HypothesisStatus, string> = {
   untested: "Untested",
   validated: "Validated",
   invalidated: "Invalidated",
+}
+
+export const TAB_LABELS: Record<IdeaTab, string> = {
+  overview: "Overview",
+  research: "Research",
+  tasks: "Tasks",
+  milestones: "Milestones",
+  discussion: "Discussion",
 }

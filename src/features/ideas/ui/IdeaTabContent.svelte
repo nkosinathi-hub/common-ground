@@ -5,6 +5,7 @@
   import type { IdeaTab } from "@/shared/domain"
   import { canDelete, type Idea, type Viewer } from "../domain"
   import OverviewTab from "./OverviewTab.svelte"
+  import { TAB_LABELS } from "./labels"
   import ResearchTab from "./ResearchTab.svelte"
 
   interface Props {
@@ -21,7 +22,8 @@
   const setCurrency = (currency: string) => onChange({ ...idea, currency })
 </script>
 
-<div role="tabpanel" tabindex="0" aria-label={tab}>
+<!-- The section links above are a nav, not tabs, so this is a region named like its link. -->
+<section aria-label={TAB_LABELS[tab]}>
   {#if tab === "overview"}
     {#key idea.id}<OverviewTab {idea} onSaved={onChange} />{/key}
   {:else if tab === "research"}
@@ -42,4 +44,4 @@
   {:else if tab === "discussion"}
     {@render discussion?.(idea)}
   {/if}
-</div>
+</section>

@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { signedInClient } from "../support/clients"
-import { captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
+import { captureIdea, ideaSection, inviteMember, openIdeaTab } from "../support/fixtures"
 import { askDelete, ITEM_KINDS, type ItemKind } from "../support/idea-items"
 import { createSpace, projectPage, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
@@ -46,7 +46,7 @@ test.afterAll(async () => {
 async function visit(page: Page, kind: ItemKind) {
   await openIdeaTab(page, spaceId, ideaId, kind.tab)
   await page.reload()
-  await expect(page.getByRole("tabpanel", { name: kind.tab })).toBeVisible()
+  await expect(ideaSection(page, kind.tab)).toBeVisible()
   await kind.reveal?.(page)
 }
 
