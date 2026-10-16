@@ -15,8 +15,8 @@
   }
   let { comment, thread, viewer }: Props = $props()
 
-  const author = $derived(memberName(viewer.members, comment.authorId))
-  const mentioned = $derived(comment.mentionIds.map((id) => memberName(viewer.members, id)))
+  const author = $derived(memberName(viewer.authors, comment.authorId))
+  const mentioned = $derived(comment.mentionIds.map((id) => memberName(viewer.authors, id)))
   const when = $derived(formatDateTime(comment.createdAt))
   let editing = $state(false)
 

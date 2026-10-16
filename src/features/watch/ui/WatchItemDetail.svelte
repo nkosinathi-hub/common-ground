@@ -49,14 +49,14 @@
       <div class="grid gap-6 lg:grid-cols-2">
         <ProgressPanel
           item={current.item}
-          authors={names.value ?? []}
+          authors={names.value ?? people.value ?? []}
           version={progressVersion}
           onSaved={() => view.load()}
         />
         <SessionsPanel
           item={current.item}
           members={people.value ?? []}
-          authors={names.value ?? []}
+          authors={names.value ?? people.value ?? []}
           onLogged={() => {
             progressVersion++
             void view.load()

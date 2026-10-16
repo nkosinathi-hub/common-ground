@@ -16,9 +16,13 @@
   }
 
   let { space, me, ideaId, tab }: Props = $props()
-  const { members } = useMembers()
+  const { members, authors } = useMembers()
   const people = new Resource(() => members.members(space.id))
-  $effect(() => void people.load())
+  const names = new Resource(() => authors.authors(space.id))
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
   const isOwner = $derived(space.role === "owner")
   const ideaHref = (ideaId: string) =>
     buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "overview" })
@@ -40,6 +44,7 @@
           {me}
           {isOwner}
           members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
         />
       {/snippet}
       {#snippet attachments(idea)}

@@ -14,13 +14,16 @@
     parent: ParentRef
     me: string
     isOwner: boolean
+    /** Current members, offered as mentions. */
     members: readonly MemberRef[]
+    /** Names for authors and mentions; defaults to the current members. */
+    authors?: readonly MemberRef[]
   }
-  let { spaceId, parent, me, isOwner, members }: Props = $props()
+  let { spaceId, parent, me, isOwner, members, authors }: Props = $props()
 
   const { service } = useComments()
   const thread = $derived(new ThreadState(service, spaceId, parent))
-  const viewer: Viewer = $derived({ me, isOwner, members })
+  const viewer: Viewer = $derived({ me, isOwner, authors: authors ?? members })
   const list = $derived(thread.list)
   $effect(() => {
     void thread

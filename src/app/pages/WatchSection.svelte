@@ -15,9 +15,13 @@
   }
 
   let { space, me, itemId }: Props = $props()
-  const { members } = useMembers()
+  const { members, authors } = useMembers()
   const people = new Resource(() => members.members(space.id))
-  $effect(() => void people.load())
+  const names = new Resource(() => authors.authors(space.id))
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
 </script>
 
@@ -38,6 +42,7 @@
           {me}
           isOwner={space.role === "owner"}
           members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
         />
       {/snippet}
     </WatchItemDetail>

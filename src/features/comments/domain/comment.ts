@@ -6,7 +6,8 @@ export type ParentKind = "watch" | "idea"
 export interface Viewer {
   readonly me: string
   readonly isOwner: boolean
-  readonly members: readonly MemberRef[]
+  /** Names authors and mentions: current members, then removed people still visible. */
+  readonly authors: readonly MemberRef[]
 }
 
 /** What a thread hangs off: a saved title or an idea. */
