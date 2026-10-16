@@ -1,5 +1,5 @@
 import { expect, type Browser, type Page } from "@playwright/test"
-import { secondMember } from "./session"
+import { secondMember, zoneOf } from "./session"
 import type { TestUser } from "./stack"
 
 const UUID = "[0-9a-f-]{36}"
@@ -50,15 +50,19 @@ export async function inviteToken(page: Page, spaceId: string): Promise<string> 
   return (await code.textContent())!.trim().split("#/invite/")[1]!
 }
 
-/** Signs a user in on a fresh context and joins the space through a new invite. */
+/**
+ * Signs a user in on a fresh context in the owner's time zone and locale, and joins the space
+ * through a new invite. `before` runs on the new page before it signs in.
+ */
 export async function inviteMember(
   owner: Page,
   browser: Browser,
   spaceId: string,
   user: TestUser,
+  before?: (page: Page) => void,
 ): Promise<Page> {
   const token = await inviteToken(owner, spaceId)
-  const page = await secondMember(browser, user)
+  const page = await secondMember(browser, user, await zoneOf(owner), before)
   await page.goto(`./#/invite/${token}`)
   await page.getByRole("button", { name: "Accept and join" }).click()
   await page.waitForURL(new RegExp(`#/s/${spaceId}/home`))

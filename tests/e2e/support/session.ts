@@ -20,10 +20,26 @@ export async function createSpace(page: Page, name: string): Promise<string> {
   return /#\/s\/([0-9a-f-]{36})/.exec(page.url())![1]!
 }
 
-/** A second, isolated browser for another member. */
-export async function secondMember(browser: Browser, user: TestUser): Promise<Page> {
-  const context = await browser.newContext()
-  const page = await context.newPage()
+/** The time zone and locale a page runs in, so another member's browser can match them. */
+export async function zoneOf(page: Page): Promise<BrowserContextOptions> {
+  return page.evaluate(() => ({
+    timezoneId: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    locale: navigator.language,
+  }))
+}
+
+/**
+ * A second, isolated browser for another member on the project's device. `options` adds a time
+ * zone and locale (see zoneOf); `before` runs on the new page before it signs in.
+ */
+export async function secondMember(
+  browser: Browser,
+  user: TestUser,
+  options: BrowserContextOptions = {},
+  before?: (page: Page) => void,
+): Promise<Page> {
+  const page = await projectPage(browser, options)
+  before?.(page)
   await signIn(page, user)
   return page
 }
