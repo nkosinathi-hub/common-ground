@@ -4,10 +4,12 @@ import { expect, type Page, type Response } from "@playwright/test"
 export const taskCard = (page: Page, title: string) =>
   page.getByTestId("task-card").filter({ hasText: title })
 
-/** Resolves when the next write to a REST table succeeds. */
+const WRITES = new Set(["POST", "PATCH", "DELETE"])
+
+/** Resolves when the next write to a REST table succeeds; preflights and reads do not count. */
 export function written(page: Page, table: string): Promise<Response> {
   return page.waitForResponse(
-    (r) => r.url().includes(`/rest/v1/${table}`) && r.request().method() !== "GET" && r.ok(),
+    (r) => r.url().includes(`/rest/v1/${table}`) && WRITES.has(r.request().method()) && r.ok(),
   )
 }
 

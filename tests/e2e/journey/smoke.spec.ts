@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { settled } from "../support/a11y"
 import { createSpace, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -14,8 +15,7 @@ test("every primary screen renders without runtime errors", async ({ page }) => 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("smoke")
   for (const path of ["watch", "ideas", "settings", "home"]) {
     await page.goto(`./#/s/${spaceId}/${path}`)
-    await page.waitForLoadState("networkidle")
-    await expect(page.locator("main")).toBeVisible()
+    await settled(page)
   }
   await page.goto("./#/account")
   await page.goto("./#/privacy")

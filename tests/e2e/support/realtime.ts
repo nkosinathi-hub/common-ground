@@ -28,12 +28,17 @@ function frame(payload: string | Buffer): Frame | null {
   }
 }
 
+const JOIN_TIMEOUT_MS = 30_000
+
 /**
  * Resolves once the page's Realtime socket confirms a join to a channel whose topic starts with
- * `realtime:<prefix>`. Call it before the page opens the socket (before signing in).
+ * `realtime:<prefix>`, and fails after 30 s naming the channel. Call it before the page opens
+ * the socket (before signing in).
  */
 export function realtimeJoined(page: Page, prefix: string): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    const late = new Error(`no Realtime join for realtime:${prefix} within 30 s`)
+    const timer = setTimeout(() => reject(late), JOIN_TIMEOUT_MS)
     page.on("websocket", (socket) => {
       const joins = new Set<string>()
       socket.on("framesent", ({ payload }) => {
@@ -43,7 +48,10 @@ export function realtimeJoined(page: Page, prefix: string): Promise<void> {
       })
       socket.on("framereceived", ({ payload }) => {
         const got = frame(payload)
-        if (got?.event === "phx_reply" && joins.has(got.ref ?? "") && got.status === "ok") resolve()
+        if (got?.event === "phx_reply" && joins.has(got.ref ?? "") && got.status === "ok") {
+          clearTimeout(timer)
+          resolve()
+        }
       })
     })
   })
