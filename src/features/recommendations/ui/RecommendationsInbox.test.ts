@@ -3,15 +3,17 @@ import { afterEach, describe, expect, it } from "vitest"
 import { FORMER_MEMBER } from "@/shared/domain"
 import { RecommendationsService } from "../application/recommendations-service"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
-import { recommendationsContext } from "./context"
+import { provideRecommendations } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import RecommendationsInbox from "./RecommendationsInbox.svelte"
 
 function setup(configure: (gateway: FakeRecommendationsGateway) => void) {
   const gateway = new FakeRecommendationsGateway(2)
   configure(gateway)
-  const context = recommendationsContext({ service: new RecommendationsService(gateway) })
+  const provide = () => provideRecommendations({ service: new RecommendationsService(gateway) })
   const itemHref = (id: string) => `#/s/watch/${id}`
-  render(RecommendationsInbox, { props: { spaceId: "s", itemHref }, context })
+  const props = { spaceId: "s", itemHref }
+  render(Provided, { props: { provide, component: RecommendationsInbox, props } })
   return gateway
 }
 

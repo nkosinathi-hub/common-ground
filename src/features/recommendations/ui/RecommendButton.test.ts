@@ -2,7 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it } from "vitest"
 import { RecommendationsService } from "../application/recommendations-service"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
-import { recommendationsContext } from "./context"
+import { provideRecommendations } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 import RecommendButton from "./RecommendButton.svelte"
 
 const MEMBERS = [
@@ -13,8 +14,9 @@ const MEMBERS = [
 
 function setup(members = MEMBERS) {
   const gateway = new FakeRecommendationsGateway()
-  const context = recommendationsContext({ service: new RecommendationsService(gateway) })
-  render(RecommendButton, { props: { spaceId: "s", itemId: "w1", members, me: "me" }, context })
+  const provide = () => provideRecommendations({ service: new RecommendationsService(gateway) })
+  const props = { spaceId: "s", itemId: "w1", members, me: "me" }
+  render(Provided, { props: { provide, component: RecommendButton, props } })
   return gateway
 }
 const openDialog = async () => {

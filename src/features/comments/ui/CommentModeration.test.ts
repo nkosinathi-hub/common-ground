@@ -3,14 +3,15 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CommentsService } from "../application/comments-service"
 import { MEMBERS, PARENT, SPACE, threadGateway } from "../testing/render-thread"
 import CommentThread from "./CommentThread.svelte"
-import { commentsContext } from "./context"
+import { provideComments } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 
 function setup(isOwner: boolean) {
   const gateway = threadGateway()
   gateway.seed(SPACE, PARENT, 1, "me")
-  const context = commentsContext({ service: new CommentsService(gateway) })
+  const provide = () => provideComments({ service: new CommentsService(gateway) })
   const props = { spaceId: SPACE, parent: PARENT, me: "me", isOwner, members: MEMBERS }
-  render(CommentThread, { props, context })
+  render(Provided, { props: { provide, component: CommentThread, props } })
   return gateway
 }
 const article = (name: string) => screen.findByRole("article", { name })
