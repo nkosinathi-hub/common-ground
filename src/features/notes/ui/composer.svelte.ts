@@ -76,9 +76,10 @@ export class ComposerState {
   }
 
   /** Closing keeps the draft: save what is left. */
-  close = () => {
+  close = async () => {
     if (this.mode === "hard_talk") this.edited()
-    void this.autosave.flush().then(() => this.autosave.stop())
+    await this.autosave.flush()
+    this.autosave.stop()
   }
 
   /** A sent quick note took the draft's words with it, so the draft goes. */

@@ -55,7 +55,7 @@ describe("Your drafts", () => {
     expect(draftsRepo.rows).toEqual([])
   })
 
-  it("shows a save that failed, and keeps trying", async () => {
+  it("shows a save that failed, and closing saves and lists the draft", async () => {
     const harness = notesHarness("ana")
     harness.draftsRepo.failSaves = true
     render(NotesCard, { props: { spaceId: "s" }, context: notesContext(harness.services) })
@@ -66,5 +66,8 @@ describe("Your drafts", () => {
     await waitFor(() =>
       expect(dialog.getByRole("status")).toHaveTextContent("Couldn't save. Trying again"),
     )
+    harness.draftsRepo.failSaves = false
+    await fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" })
+    expect(await screen.findByRole("region", { name: "Your drafts (1)" })).toBeInTheDocument()
   })
 })

@@ -38,7 +38,8 @@
   const hard = $derived(composer.mode === "hard_talk")
   const name = $derived(recipients.value?.find((m) => m.id === composer.to)?.displayName ?? "")
 
-  autosaveWhileOpen(composer)
+  // Closing saves what is left; the drafts list then shows it.
+  autosaveWhileOpen(composer, () => changes.emit())
 
   async function send(event: SubmitEvent) {
     event.preventDefault()
