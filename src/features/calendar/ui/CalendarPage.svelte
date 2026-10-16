@@ -14,7 +14,6 @@
   import DayPanel from "./DayPanel.svelte"
   import EventDialog from "./EventDialog.svelte"
   import MonthGrid from "./MonthGrid.svelte"
-  import { TAB } from "./tabs"
   import { browserMemory, type CalendarView } from "./view-memory"
 
   interface Props {
@@ -60,8 +59,8 @@
     onValueChange={(view) => calendar.setView(view as CalendarView)}
   >
     <Tabs.List aria-label="Calendar view">
-      <Tabs.Trigger value="month" class={TAB}>Month</Tabs.Trigger>
-      <Tabs.Trigger value="agenda" class={TAB}>Agenda</Tabs.Trigger>
+      <Tabs.Trigger value="month">Month</Tabs.Trigger>
+      <Tabs.Trigger value="agenda">Agenda</Tabs.Trigger>
     </Tabs.List>
     <Tabs.Content value="month" class="flex min-w-0 flex-col gap-4">
       <AsyncView resource={calendar.window}>

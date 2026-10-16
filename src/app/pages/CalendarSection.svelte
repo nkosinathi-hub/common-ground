@@ -7,7 +7,7 @@
   const { session } = useAuth()
   const me = $derived(session.user?.id ?? "")
   // spaces.week_starts_on reaches Space with the customisation work (#24); Monday until then.
-  const weekStart = $derived((space as { weekStartsOn?: number }).weekStartsOn === 0 ? 0 : 1)
+  const weekStart = $derived(space.weekStartsOn)
 </script>
 
 {#if eventId}
