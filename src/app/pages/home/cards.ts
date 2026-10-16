@@ -8,4 +8,5 @@ export const RENDERABLE_CARDS: ReadonlySet<HomeCardId> = new Set([
   "calendar",
   "recommended",
   "activity",
+  "ideas",
 ])

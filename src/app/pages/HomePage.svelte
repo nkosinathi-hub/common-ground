@@ -24,7 +24,8 @@
   <SharedWithYou spaceId={space.id} />
   <div class="grid gap-6 md:grid-cols-2">
     {#each cards as id (id)}
-      <HomeCard {id} {space} />
+      <!-- Notes are the conversation of the space, so they get the full width on wider screens. -->
+      <HomeCard {id} {space} class={id === "notes" ? "md:col-span-2" : undefined} />
     {/each}
   </div>
 </div>

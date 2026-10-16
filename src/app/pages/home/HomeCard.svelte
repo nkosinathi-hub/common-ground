@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card"
   import { UpcomingEvents } from "@/features/calendar"
+  import { IdeasInProgress } from "@/features/ideas"
   import { NotesCard } from "@/features/notes"
   import { ActivityFeed } from "@/features/notifications"
   import { RecommendationsInbox } from "@/features/recommendations"
@@ -12,16 +13,19 @@
   interface Props {
     id: HomeCardId
     space: Space
+    /** Grid placement from HomePage, for example a full-width notes card. */
+    class?: string
   }
 
-  let { id, space }: Props = $props()
+  let { id, space, class: className }: Props = $props()
   const spaceId = $derived(space.id)
   const title = $derived(id === "activity" ? `Recently in ${space.name}` : HOME_CARD_LABELS[id])
   const itemHref = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
   const taskHref = (ideaId: string) => buildHash({ name: "idea", spaceId, ideaId, tab: "tasks" })
+  const ideaHref = (ideaId: string) => buildHash({ name: "idea", spaceId, ideaId, tab: "overview" })
 </script>
 
-<Card.Root>
+<Card.Root class={className}>
   <Card.Header><Card.Title>{title}</Card.Title></Card.Header>
   <Card.Content>
     {#if id === "notes"}
@@ -34,6 +38,8 @@
       <UpcomingEvents {spaceId} />
     {:else if id === "recommended"}
       <RecommendationsInbox {spaceId} {itemHref} />
+    {:else if id === "ideas"}
+      <IdeasInProgress {spaceId} {ideaHref} />
     {:else if id === "activity"}
       <ActivityFeed {spaceId} limit />
     {/if}
