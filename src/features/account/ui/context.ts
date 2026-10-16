@@ -8,9 +8,6 @@ export interface AccountContext {
 
 const KEY = Symbol("account")
 
-/** The context entries provideAccount sets; component tests pass them to render(). */
-export const accountContext = (value: AccountContext) => new Map([[KEY, value]])
-
 export function provideAccount(value: AccountContext): void {
   setContext(KEY, value)
 }

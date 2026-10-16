@@ -2,11 +2,18 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { setup } from "../testing/fixtures"
 import CalendarPage from "./CalendarPage.svelte"
-import { calendarContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideCalendar } from "./context"
 
 async function open(button: string) {
   const { service, repo } = setup()
-  render(CalendarPage, { props: { spaceId: "s1" }, context: calendarContext({ service }) })
+  render(Provided, {
+    props: {
+      provide: () => provideCalendar({ service }),
+      component: CalendarPage,
+      props: { spaceId: "s1" },
+    },
+  })
   await fireEvent.click(await screen.findByRole("button", { name: button }))
   return { repo, dialog: within(await screen.findByRole("dialog")) }
 }

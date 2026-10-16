@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it } from "vitest"
 import { BudgetService } from "../application/budget-service"
 import { InMemoryBudget } from "../testing/in-memory-budget"
 import BudgetPanel from "./BudgetPanel.svelte"
-import { budgetContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideBudget } from "./context"
 
 const place = { spaceId: "s", ideaId: "i", currency: "ZAR" }
 const form = { category: "Rent", label: "Deposit", estimated: "1500", actual: "" }
@@ -15,7 +16,9 @@ async function setup(canDelete = (_createdBy: string | null) => true) {
   const added = await service.add(place, form)
   if (!added.ok) throw new Error("add failed")
   const props = { ...place, canDelete, onCurrencyChanged: () => {} }
-  render(BudgetPanel, { props, context: budgetContext({ service }) })
+  render(Provided, {
+    props: { provide: () => provideBudget({ service }), component: BudgetPanel, props: props },
+  })
   return { service, base: added.value }
 }
 

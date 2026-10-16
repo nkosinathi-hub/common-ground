@@ -17,6 +17,3 @@ export function useCalendar(): CalendarContext {
   if (!value) throw new Error("Calendar is not provided: call provideCalendar")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const calendarContext = (value: CalendarContext) => new Map([[KEY, value]])

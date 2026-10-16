@@ -2,12 +2,19 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/sve
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { draft, setup } from "../testing/fixtures"
 import CalendarPage from "./CalendarPage.svelte"
-import { calendarContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideCalendar } from "./context"
 
 async function renderPage() {
   const { service } = setup()
   await service.create("s1", draft({ title: "Dinner", allDay: true }), [])
-  render(CalendarPage, { props: { spaceId: "s1" }, context: calendarContext({ service }) })
+  render(Provided, {
+    props: {
+      provide: () => provideCalendar({ service }),
+      component: CalendarPage,
+      props: { spaceId: "s1" },
+    },
+  })
   return within(await screen.findByRole("grid"))
 }
 

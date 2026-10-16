@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { draft, setup } from "../testing/fixtures"
-import { calendarContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideCalendar } from "./context"
 import EventDetail from "./EventDetail.svelte"
 
 async function show(me: string, isOwner = false) {
@@ -12,9 +13,12 @@ async function show(me: string, isOwner = false) {
   const eventId = made.ok ? made.value : ""
   await service.create("s1", draft({ title: "Quiz", startTime: "20:00", endTime: "22:00" }), [])
   repo.me = me
-  render(EventDetail, {
-    props: { spaceId: "s1", eventId, me, isOwner },
-    context: calendarContext({ service }),
+  render(Provided, {
+    props: {
+      provide: () => provideCalendar({ service }),
+      component: EventDetail,
+      props: { spaceId: "s1", eventId, me, isOwner },
+    },
   })
   await screen.findByRole("heading", { level: 1, name: "Dinner; late" })
   return { repo, eventId }
@@ -70,9 +74,12 @@ describe("EventDetail", () => {
     const { service } = setup()
     const made = await service.create("other", draft(), [])
     const eventId = made.ok ? made.value : ""
-    render(EventDetail, {
-      props: { spaceId: "s1", eventId, me: "ana", isOwner: false },
-      context: calendarContext({ service }),
+    render(Provided, {
+      props: {
+        provide: () => provideCalendar({ service }),
+        component: EventDetail,
+        props: { spaceId: "s1", eventId, me: "ana", isOwner: false },
+      },
     })
     expect(await screen.findByText("That event is not in this space")).toBeVisible()
   })
