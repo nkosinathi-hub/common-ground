@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { captureIdea, openIdeaTab } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -8,12 +9,8 @@ test("research survives a reload and refuses non-web links", async ({ page }) =>
   const ana = await createUser("researcher")
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Research test")
-  await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByLabel("Idea title").fill("Zine")
-  await page.getByRole("button", { name: "Capture", exact: true }).click()
-  await page.getByRole("link", { name: /Zine/ }).first().click()
-  await page.waitForURL(/\/ideas\/[0-9a-f-]{36}\/overview/)
-  await page.goto(page.url().replace(/\/overview$/, "/research"))
+  const ideaId = await captureIdea(page, spaceId, "Zine")
+  await openIdeaTab(page, spaceId, ideaId, "research")
 
   await page.getByLabel("New note").fill("Ask the print shop about risograph")
   await page.getByRole("button", { name: "Add note" }).click()
