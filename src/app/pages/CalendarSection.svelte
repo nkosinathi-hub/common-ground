@@ -1,16 +1,15 @@
 <script lang="ts">
-  import { useAuth } from "@/features/auth"
   import { CalendarPage, EventDetail } from "@/features/calendar"
   import type { Space } from "@/features/spaces"
 
   interface Props {
     space: Space
+    /** The signed-in member's id. */
+    me: string
     eventId: string | null
   }
 
-  let { space, eventId }: Props = $props()
-  const { session } = useAuth()
-  const me = $derived(session.user?.id ?? "")
+  let { space, me, eventId }: Props = $props()
   // spaces.week_starts_on reaches Space with the customisation work (#24); Monday until then.
   const weekStart = $derived(space.weekStartsOn)
 </script>

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { AttachmentsPanel } from "@/features/attachments"
-  import { useAuth } from "@/features/auth"
   import { CommentThread } from "@/features/comments"
   import { IdeaDetail, IdeasPage } from "@/features/ideas"
   import type { Space } from "@/features/spaces"
@@ -10,16 +9,16 @@
 
   interface Props {
     space: Space
+    /** The signed-in member's id. */
+    me: string
     ideaId: string | null
     tab: IdeaTab
   }
 
-  let { space, ideaId, tab }: Props = $props()
-  const { session } = useAuth()
+  let { space, me, ideaId, tab }: Props = $props()
   const { members } = useWatch()
   const people = new Resource(() => members.members(space.id))
   $effect(() => void people.load())
-  const me = $derived(session.user?.id ?? "")
   const isOwner = $derived(space.role === "owner")
   const ideaHref = (ideaId: string) =>
     buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "overview" })

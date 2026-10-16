@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { useAuth } from "@/features/auth"
   import { CommentThread } from "@/features/comments"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
@@ -9,15 +8,15 @@
 
   interface Props {
     space: Space
+    /** The signed-in member's id. */
+    me: string
     itemId: string | null
   }
 
-  let { space, itemId }: Props = $props()
-  const { session } = useAuth()
+  let { space, me, itemId }: Props = $props()
   const { members } = useWatch()
   const people = new Resource(() => members.members(space.id))
   $effect(() => void people.load())
-  const me = $derived(session.user?.id ?? "")
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
 </script>
 

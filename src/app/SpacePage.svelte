@@ -3,6 +3,7 @@
   import { NotificationsBell } from "@/features/notifications"
   import { SettingsPage, useSpaces } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
+  import { Loading } from "@/shared/ui"
   import HomePage from "./pages/HomePage.svelte"
   import CalendarSection from "./pages/CalendarSection.svelte"
   import IdeasSection from "./pages/IdeasSection.svelte"
@@ -22,27 +23,43 @@
   const { session } = useAuth()
 
   $effect(() => void store.activate(route.spaceId))
-  const space = $derived(store.spaces.find((s) => s.id === route.spaceId)!)
+  // The gate admits only member spaces, but after leaving or deleting one the store refreshes
+  // before the route moves on: show Loading for that moment instead of asserting it exists.
+  const space = $derived(store.spaces.find((s) => s.id === route.spaceId))
+  const user = $derived(session.user)
   const section = $derived(sectionOf(route.name))
 </script>
 
-{#key space.id}
-  <AppShell {space} current={section} onSignOut={signOut}>
-    {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
-    {#if route.name === "home"}
-      <HomePage {space} />
-    {:else if route.name === "watch" || route.name === "watch-item"}
-      <WatchSection {space} itemId={route.name === "watch-item" ? route.itemId : null} />
-    {:else if route.name === "ideas" || route.name === "idea"}
-      <IdeasSection
-        {space}
-        ideaId={route.name === "idea" ? route.ideaId : null}
-        tab={route.name === "idea" ? route.tab : "overview"}
-      />
-    {:else if route.name === "calendar" || route.name === "event"}
-      <CalendarSection {space} eventId={route.name === "event" ? route.eventId : null} />
-    {:else if route.name === "settings"}
-      <SettingsPage {space} me={session.user?.id ?? ""} />
-    {/if}
-  </AppShell>
-{/key}
+{#if space && user}
+  {#key space.id}
+    <AppShell {space} current={section} onSignOut={signOut}>
+      {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
+      {#if route.name === "home"}
+        <HomePage {space} displayName={user.displayName} />
+      {:else if route.name === "watch" || route.name === "watch-item"}
+        <WatchSection
+          {space}
+          me={user.id}
+          itemId={route.name === "watch-item" ? route.itemId : null}
+        />
+      {:else if route.name === "ideas" || route.name === "idea"}
+        <IdeasSection
+          {space}
+          me={user.id}
+          ideaId={route.name === "idea" ? route.ideaId : null}
+          tab={route.name === "idea" ? route.tab : "overview"}
+        />
+      {:else if route.name === "calendar" || route.name === "event"}
+        <CalendarSection
+          {space}
+          me={user.id}
+          eventId={route.name === "event" ? route.eventId : null}
+        />
+      {:else if route.name === "settings"}
+        <SettingsPage {space} me={user.id} />
+      {/if}
+    </AppShell>
+  {/key}
+{:else}
+  <Loading />
+{/if}
