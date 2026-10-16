@@ -1,4 +1,5 @@
 import { buildHash, FORMER_MEMBER } from "@/shared/domain"
+import { ACTIVITY, MESSAGES } from "./messages"
 
 export interface Notification {
   readonly id: string
@@ -22,31 +23,10 @@ export interface ActivityEvent {
 
 const who = (name: string | null) => name ?? FORMER_MEMBER
 
-const MESSAGES: Record<string, (actor: string) => string> = {
-  invite_accepted: (actor) => `${actor} joined your space`,
-  recommendation: (actor) => `${actor} recommended something for you`,
-  mention: (actor) => `${actor} mentioned you`,
-  task_assigned: (actor) => `${actor} assigned you a task`,
-  ownership_received: (actor) => `${actor} made you the owner`,
-  member_removed: (actor) => `${actor} removed a member`,
-  member_left: (actor) => `${actor} left your space`,
-}
-
 const SOMETHING = (actor: string) => `${actor} did something`
 
 export function describeNotification(note: Pick<Notification, "type" | "actorName">): string {
   return (MESSAGES[note.type] ?? SOMETHING)(who(note.actorName))
-}
-
-const ACTIVITY: Record<string, string> = {
-  space_created: "created the space",
-  member_joined: "joined",
-  member_left: "left",
-  watch_item_added: "added a title",
-  watched_together: "logged a watch together",
-  idea_created: "captured an idea",
-  idea_stage_changed: "moved an idea",
-  task_completed: "finished a task",
 }
 
 export function describeActivity(event: Pick<ActivityEvent, "eventType" | "actorName">): string {
@@ -55,7 +35,13 @@ export function describeActivity(event: Pick<ActivityEvent, "eventType" | "actor
 }
 
 /** Where a notification leads. Unknown subjects fall back to the space home. */
-export function subjectHref(spaceId: string, subjectType: string, subjectId: string): string {
+export function subjectHref(
+  spaceId: string,
+  subjectType: string,
+  subjectId: string,
+  type?: string,
+): string {
+  if (type === "member_removed") return buildHash({ name: "entry" })
   switch (subjectType) {
     case "watch_item":
       return buildHash({ name: "watch-item", spaceId, itemId: subjectId })
@@ -63,6 +49,8 @@ export function subjectHref(spaceId: string, subjectType: string, subjectId: str
       return buildHash({ name: "idea", spaceId, ideaId: subjectId, tab: "overview" })
     case "task":
       return buildHash({ name: "ideas", spaceId })
+    case "calendar_event":
+      return buildHash({ name: "event", spaceId, eventId: subjectId })
     case "profile":
     case "space":
       return buildHash({ name: "settings", spaceId })
