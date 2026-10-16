@@ -3,7 +3,11 @@
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { useAuth } from "@/features/auth"
 
-  let { onSignOut }: { onSignOut: () => void } = $props()
+  interface Props {
+    onSignOut: () => void
+  }
+
+  let { onSignOut }: Props = $props()
   const { session } = useAuth()
   const name = $derived(session.user?.displayName ?? "")
 </script>

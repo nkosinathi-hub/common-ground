@@ -7,7 +7,12 @@
   import { buildHash } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
 
-  let { space, itemId }: { space: Space; itemId: string | null } = $props()
+  interface Props {
+    space: Space
+    itemId: string | null
+  }
+
+  let { space, itemId }: Props = $props()
   const { session } = useAuth()
   const { members } = useWatch()
   const people = new Resource(() => members.members(space.id))

@@ -8,17 +8,14 @@
   import PrivacyPage from "./pages/PrivacyPage.svelte"
   import SpacePage from "./SpacePage.svelte"
 
-  let {
-    route,
-    linkExpired,
-    signOut,
-    onPasswordSaved,
-  }: {
+  interface Props {
     route: Route
     linkExpired: boolean
     signOut: () => void
     onPasswordSaved: () => void
-  } = $props()
+  }
+
+  let { route, linkExpired, signOut, onPasswordSaved }: Props = $props()
   const { session } = useAuth()
 </script>
 

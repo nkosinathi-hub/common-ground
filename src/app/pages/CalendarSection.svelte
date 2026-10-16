@@ -3,7 +3,12 @@
   import { CalendarPage, EventDetail } from "@/features/calendar"
   import type { Space } from "@/features/spaces"
 
-  let { space, eventId }: { space: Space; eventId: string | null } = $props()
+  interface Props {
+    space: Space
+    eventId: string | null
+  }
+
+  let { space, eventId }: Props = $props()
   const { session } = useAuth()
   const me = $derived(session.user?.id ?? "")
   // spaces.week_starts_on reaches Space with the customisation work (#24); Monday until then.

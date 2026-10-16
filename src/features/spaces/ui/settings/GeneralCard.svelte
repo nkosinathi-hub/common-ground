@@ -13,7 +13,11 @@
   import IconPicker from "./IconPicker.svelte"
   import { saveAndRefresh } from "./save"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   // Seeded once; the fields are the owner's draft from then on.

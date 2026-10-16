@@ -14,7 +14,12 @@
     { value: "task", label: "Task" },
   ]
 
-  let { spaceId, value = $bindable(null) }: { spaceId: string; value: LinkOption | null } = $props()
+  interface Props {
+    spaceId: string
+    value: LinkOption | null
+  }
+
+  let { spaceId, value = $bindable(null) }: Props = $props()
   const { service } = useCalendar()
   let kind = $state<LinkKind>("watch_item")
   let query = $state("")

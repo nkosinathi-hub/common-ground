@@ -4,7 +4,12 @@
   import { useSpaces } from "./context"
   import { iconFor } from "./icons"
 
-  let { space, class: className = "" }: { space: Space | null; class?: string } = $props()
+  interface Props {
+    space: Space | null
+    class?: string
+  }
+
+  let { space, class: className = "" }: Props = $props()
   const { store } = useSpaces()
   const url = $derived(store.mediaUrl(space?.avatarPath ?? null))
   const Icon = $derived(iconFor(space?.icon ?? null))

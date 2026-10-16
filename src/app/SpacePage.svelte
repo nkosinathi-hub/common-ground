@@ -12,7 +12,12 @@
   import { sectionOf } from "./shell/nav"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
-  let { route, signOut }: { route: SpaceRoute; signOut: () => void } = $props()
+  interface Props {
+    route: SpaceRoute
+    signOut: () => void
+  }
+
+  let { route, signOut }: Props = $props()
   const { store } = useSpaces()
   const { session } = useAuth()
 

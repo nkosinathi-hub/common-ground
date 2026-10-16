@@ -8,7 +8,11 @@
   import { useCalendar } from "./context"
   import EntryChip from "./EntryChip.svelte"
 
-  let { spaceId }: { spaceId: string } = $props()
+  interface Props {
+    spaceId: string
+  }
+
+  let { spaceId }: Props = $props()
   const { service } = useCalendar()
   const zone = viewerZone()
   const today = todayDateOnly()

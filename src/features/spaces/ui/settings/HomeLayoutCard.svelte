@@ -16,7 +16,11 @@
   import { useSpaces } from "../context"
   import { saveAndRefresh } from "./save"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   let cards = $state<HomeCardId[]>(untrack(() => [...space.homeCards]))

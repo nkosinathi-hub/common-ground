@@ -5,7 +5,11 @@
   import { useCalendar } from "./context"
   import { reminderLabel, REMINDER_OPTIONS } from "./labels"
 
-  let { event }: { event: CalendarEvent } = $props()
+  interface Props {
+    event: CalendarEvent
+  }
+
+  let { event }: Props = $props()
   const { service } = useCalendar()
   const current = $derived(event.myReminders.length ? String(event.myReminders[0]) : "none")
   // Keeps a reminder set elsewhere (for example 2 days before) choosable.

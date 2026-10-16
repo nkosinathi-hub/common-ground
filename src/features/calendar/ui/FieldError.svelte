@@ -1,5 +1,9 @@
 <script lang="ts">
-  let { message }: { message: string | undefined } = $props()
+  interface Props {
+    message: string | undefined
+  }
+
+  let { message }: Props = $props()
 </script>
 
 {#if message}<p class="text-sm text-destructive">{message}</p>{/if}

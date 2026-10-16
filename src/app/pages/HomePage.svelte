@@ -7,7 +7,11 @@
   import { RENDERABLE_CARDS } from "./home/cards"
   import { SpaceBanner, type Space } from "@/features/spaces"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { session } = useAuth()
   const greeting = greetingFor(new Date().getHours())
   // The owner's layout, limited to the cards this build can render.

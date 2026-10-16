@@ -4,7 +4,11 @@
     readonly label: string
   }
 
-  let { sections }: { sections: readonly SettingsSection[] } = $props()
+  interface Props {
+    sections: readonly SettingsSection[]
+  }
+
+  let { sections }: Props = $props()
 
   /** The router reads every hash as a route, so section links scroll and focus by hand. */
   function go(id: string) {

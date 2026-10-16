@@ -3,7 +3,11 @@
   import { Button } from "$lib/components/ui/button"
   import type { CalendarState } from "./calendar.svelte"
 
-  let { calendar }: { calendar: CalendarState } = $props()
+  interface Props {
+    calendar: CalendarState
+  }
+
+  let { calendar }: Props = $props()
 </script>
 
 <div class="flex items-center gap-2">

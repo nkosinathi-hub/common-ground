@@ -8,7 +8,11 @@
   import ChoiceGroup from "./ChoiceGroup.svelte"
   import { saveAndRefresh } from "./save"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   let intent = $state<string>(untrack(() => space.defaultWatchIntent))

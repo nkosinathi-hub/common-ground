@@ -8,19 +8,15 @@
   import type { Section } from "./nav"
   import SpaceSwitcher from "./SpaceSwitcher.svelte"
 
-  let {
-    space,
-    current,
-    onSignOut,
-    actions,
-    children,
-  }: {
+  interface Props {
     space: Space
     current: Section | null
     onSignOut: () => void
     actions?: Snippet
     children: Snippet
-  } = $props()
+  }
+
+  let { space, current, onSignOut, actions, children }: Props = $props()
 
   // The look applies only inside a space; leaving the shell restores the neutral palette.
   const spaceId = $derived(space.id)

@@ -3,7 +3,11 @@
   import { SPACE_ICONS } from "../../domain/profile"
   import { SPACE_ICON_COMPONENTS } from "../icons"
 
-  let { value = $bindable(null) }: { value: string | null } = $props()
+  interface Props {
+    value: string | null
+  }
+
+  let { value = $bindable(null) }: Props = $props()
   const options = [null, ...SPACE_ICONS]
   const label = (icon: string | null) =>
     icon ? icon.replace(/-\d+$/, "").replace("-", " ") : "Initial letter"

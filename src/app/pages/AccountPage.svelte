@@ -11,7 +11,11 @@
   import { useSpaces } from "@/features/spaces"
   import { toast } from "@/shared/ui"
 
-  let { signOut }: { signOut: () => void } = $props()
+  interface Props {
+    signOut: () => void
+  }
+
+  let { signOut }: Props = $props()
   const { session } = useAuth()
   const { store } = useSpaces()
   const spaces = $derived(store.spaces.map((s) => ({ id: s.id, name: s.name })))

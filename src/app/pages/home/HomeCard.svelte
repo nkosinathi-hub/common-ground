@@ -9,7 +9,12 @@
   import { ContinueWatching } from "@/features/watch"
   import { buildHash, HOME_CARD_LABELS, type HomeCardId } from "@/shared/domain"
 
-  let { id, space }: { id: HomeCardId; space: Space } = $props()
+  interface Props {
+    id: HomeCardId
+    space: Space
+  }
+
+  let { id, space }: Props = $props()
   const spaceId = $derived(space.id)
   const title = $derived(id === "activity" ? `Recently in ${space.name}` : HOME_CARD_LABELS[id])
   const itemHref = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })

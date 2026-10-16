@@ -8,7 +8,11 @@
   import { resizeImage } from "../resize-image"
   import ImageUpload from "./ImageUpload.svelte"
 
-  let { space }: { space: Space } = $props()
+  interface Props {
+    space: Space
+  }
+
+  let { space }: Props = $props()
   const { service, store } = useSpaces()
   let busy = $state<MediaSlot | null>(null)
 

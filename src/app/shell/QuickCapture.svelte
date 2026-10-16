@@ -8,7 +8,11 @@
   import { FormField, FormState, toast } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
-  let { spaceId }: { spaceId: string } = $props()
+  interface Props {
+    spaceId: string
+  }
+
+  let { spaceId }: Props = $props()
   const ideas = useIdeas().service
   const form = new FormState()
   let open = $state(false)

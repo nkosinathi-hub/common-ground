@@ -3,17 +3,14 @@
   import { cn } from "$lib/utils"
   import { SECTIONS, sectionHref, type Section } from "./nav"
 
-  let {
-    spaceId,
-    current,
-    top,
-    bottom,
-  }: {
+  interface Props {
     spaceId: string
     current: Section | null
     top: Snippet
     bottom: Snippet
-  } = $props()
+  }
+
+  let { spaceId, current, top, bottom }: Props = $props()
 </script>
 
 <aside

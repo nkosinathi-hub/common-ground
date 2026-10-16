@@ -5,7 +5,12 @@
   import { useSpaces } from "./context"
 
   /** The Home welcome: the cover picture behind a readable scrim, the title and the tagline. */
-  let { space, title }: { space: Space; title: string } = $props()
+  interface Props {
+    space: Space
+    title: string
+  }
+
+  let { space, title }: Props = $props()
   const { store } = useSpaces()
   const cover = $derived(store.mediaUrl(space.coverPath))
   const template = $derived(templateFor(space.template))

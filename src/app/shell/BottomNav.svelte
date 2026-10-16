@@ -2,7 +2,12 @@
   import { cn } from "$lib/utils"
   import { SECTIONS, sectionHref, type Section } from "./nav"
 
-  let { spaceId, current }: { spaceId: string; current: Section | null } = $props()
+  interface Props {
+    spaceId: string
+    current: Section | null
+  }
+
+  let { spaceId, current }: Props = $props()
 </script>
 
 <nav
