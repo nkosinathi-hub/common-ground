@@ -10,7 +10,14 @@ async function setup(spaceId: string) {
   const service = new IdeasService(new InMemoryIdeas())
   const created = await service.capture({ spaceId: "space-a", title: "Tea bar" })
   if (!created.ok) throw new Error("capture failed")
-  const props = { spaceId, ideaId: created.value.id, tab: "overview", tabHref: () => "#" } as const
+  const viewer = { me: "u1", isOwner: true }
+  const props = {
+    spaceId,
+    ideaId: created.value.id,
+    tab: "overview" as const,
+    tabHref: () => "#",
+    viewer,
+  }
   render(IdeaDetail, { props, context: ideasContext(service) })
 }
 

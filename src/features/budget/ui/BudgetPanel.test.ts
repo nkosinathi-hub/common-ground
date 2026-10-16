@@ -8,11 +8,13 @@ import { budgetContext } from "./context"
 const place = { spaceId: "s", ideaId: "i", currency: "ZAR" }
 const form = { category: "Rent", label: "Deposit", estimated: "1500", actual: "" }
 
-async function setup() {
-  const service = new BudgetService(new InMemoryBudget())
+async function setup(canDelete = (_createdBy: string | null) => true) {
+  const repo = new InMemoryBudget()
+  repo.author = "ana"
+  const service = new BudgetService(repo)
   const added = await service.add(place, form)
   if (!added.ok) throw new Error("add failed")
-  const props = { ...place, onCurrencyChanged: () => {} }
+  const props = { ...place, canDelete, onCurrencyChanged: () => {} }
   render(BudgetPanel, { props, context: budgetContext({ service }) })
   return { service, base: added.value }
 }
@@ -38,5 +40,14 @@ describe("BudgetPanel", () => {
       "Someone else changed this. Reload to see their version",
     )
     expect(await screen.findByText("Theirs")).toBeInTheDocument()
+  })
+
+  it("offers delete only for lines the viewer may delete", async () => {
+    await setup((createdBy) => createdBy === "ben")
+    await screen.findByText("Deposit")
+    expect(screen.queryByRole("button", { name: "Delete Deposit" })).toBeNull()
+    cleanup()
+    await setup((createdBy) => createdBy === "ana")
+    expect(await screen.findByRole("button", { name: "Delete Deposit" })).toBeInTheDocument()
   })
 })

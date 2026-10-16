@@ -13,9 +13,11 @@
   interface Props {
     spaceId: string
     ideaId: string
+    /** Whether the viewer may delete a row by this author (the author or the space owner). */
+    canDelete: (createdBy: string | null) => boolean
   }
 
-  let { spaceId, ideaId }: Props = $props()
+  let { spaceId, ideaId, canDelete }: Props = $props()
   const { milestones } = useTasks()
   const list = new Resource<Milestone[]>(() => milestones.list(untrack(() => ideaId)))
   let error = $state<AppError | null>(null)
@@ -62,6 +64,7 @@
         {#each items as milestone (milestone.id)}
           <MilestoneItem
             {milestone}
+            deletable={canDelete(milestone.createdBy)}
             onToggle={(done) => run(milestones.complete(milestone, done), replace)}
             onEdit={(input) => run(milestones.retarget(milestone, input), replace)}
             onRemove={() => remove(milestone.id)}

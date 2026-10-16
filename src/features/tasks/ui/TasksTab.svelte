@@ -12,9 +12,11 @@
   interface Props {
     spaceId: string
     ideaId: string
+    /** Whether the viewer may delete a row by this author (the author or the space owner). */
+    canDelete: (createdBy: string | null) => boolean
   }
 
-  let { spaceId, ideaId }: Props = $props()
+  let { spaceId, ideaId, canDelete }: Props = $props()
   const board = new TasksState(useTasks(), () => ({ spaceId, ideaId }))
   const list = board.list
   // Reloads when the idea changes: the place callback reads spaceId and ideaId.
@@ -81,13 +83,13 @@
           <h3 class="text-sm font-semibold">
             {STATUS_LABELS[column.status]} ({column.tasks.length})
           </h3>
-          {#each column.tasks as task (task.id)}<TaskCard {task} {board} />{/each}
+          {#each column.tasks as task (task.id)}<TaskCard {task} {board} {canDelete} />{/each}
         </section>
       {/each}
     </div>
   {:else}
     <div class="grid gap-2 md:grid-cols-2">
-      {#each list.items as task (task.id)}<TaskCard {task} {board} />
+      {#each list.items as task (task.id)}<TaskCard {task} {board} {canDelete} />
       {:else}<p class="text-sm text-muted-foreground">No tasks yet.</p>{/each}
     </div>
   {/if}

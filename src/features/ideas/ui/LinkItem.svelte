@@ -5,10 +5,11 @@
 
   interface Props {
     link: ResearchLink
+    deletable: boolean
     onRemove: () => unknown
   }
 
-  let { link, onRemove }: Props = $props()
+  let { link, deletable, onRemove }: Props = $props()
 </script>
 
 <li
@@ -26,5 +27,7 @@
     <p class="truncate text-xs text-muted-foreground">{link.url}</p>
     {#if link.description}<p class="text-sm">{link.description}</p>{/if}
   </div>
-  <DeleteButton label="Delete link {link.title}" what="this link" onConfirm={onRemove} />
+  {#if deletable}
+    <DeleteButton label="Delete link {link.title}" what="this link" onConfirm={onRemove} />
+  {/if}
 </li>

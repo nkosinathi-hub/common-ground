@@ -3,10 +3,12 @@
   import { Input } from "$lib/components/ui/input"
   import type { AppError, Cursor } from "@/shared/domain"
   import {
+    canDelete,
     LINK_DESCRIPTION_MAX,
     LINK_TITLE_MAX,
     URL_MAX,
     type Idea,
+    type Viewer,
     type LinkInput,
     type ResearchLink,
   } from "../domain"
@@ -17,11 +19,12 @@
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
   const EMPTY: LinkInput = { url: "", title: "", description: "" }
 
-  let { idea }: Props = $props()
+  let { idea, viewer }: Props = $props()
   const research = useResearch()
   const list = new PagedList<ResearchLink, Cursor>((after) => research.links(idea.id, after))
   // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
@@ -75,7 +78,11 @@
   </form>
   <ul class="flex flex-col gap-2">
     {#each list.items as link (link.id)}
-      <LinkItem {link} onRemove={() => remove(link.id)} />
+      <LinkItem
+        {link}
+        deletable={canDelete(link.createdBy, viewer)}
+        onRemove={() => remove(link.id)}
+      />
     {/each}
   </ul>
   <ListFooter {list} empty="No links yet." />

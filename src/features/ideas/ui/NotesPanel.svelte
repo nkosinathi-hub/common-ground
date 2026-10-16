@@ -3,15 +3,16 @@
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
   import { DeleteButton, PagedList } from "@/shared/ui"
-  import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
+  import { canDelete, NOTE_MAX, type Idea, type IdeaNote, type Viewer } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
-  let { idea }: Props = $props()
+  let { idea, viewer }: Props = $props()
   const research = useResearch()
   const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
   // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
@@ -51,7 +52,9 @@
     {#each list.items as note (note.id)}
       <li class="flex items-start justify-between gap-2 rounded-lg border p-3" data-testid="note">
         <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-        <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
+        {#if canDelete(note.createdBy, viewer)}
+          <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
+        {/if}
       </li>
     {/each}
   </ul>

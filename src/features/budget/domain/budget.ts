@@ -17,6 +17,8 @@ export interface BudgetEntry {
   readonly label: string
   readonly estimatedMinor: number
   readonly actualMinor: number
+  /** Its author; only they or the space owner may delete it. */
+  readonly createdBy: string | null
   readonly createdAt: string
   /** Exact server timestamp string; edits send it back as their precondition. */
   readonly updatedAt: string

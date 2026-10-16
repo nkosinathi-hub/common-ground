@@ -4,22 +4,22 @@ import type { TaskPatch } from "../application/ports"
 import type { ChecklistItem, Milestone, Task, UpcomingTask } from "../domain"
 
 type TaskTable = Tables<"tasks">
-export type TaskRow = Omit<TaskTable, "created_by">
+export type TaskRow = TaskTable
 export type UpcomingRow = Pick<TaskTable, "id" | "idea_id" | "title" | "status" | "due_date"> & {
   readonly ideas: { readonly title: string } | null
 }
 export type ItemRow = Pick<
   Tables<"task_checklist_items">,
-  "id" | "task_id" | "label" | "done" | "position"
+  "id" | "task_id" | "label" | "done" | "position" | "created_by"
 >
-export type MilestoneRow = Omit<Tables<"milestones">, "created_by" | "created_at">
+export type MilestoneRow = Omit<Tables<"milestones">, "created_at">
 
 export const TASK_COLUMNS =
-  "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_at, updated_at"
+  "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_by, created_at, updated_at"
 export const UPCOMING_COLUMNS = "id, idea_id, title, status, due_date, ideas(title)"
-export const ITEM_COLUMNS = "id, task_id, label, done, position"
+export const ITEM_COLUMNS = "id, task_id, label, done, position, created_by"
 export const MILESTONE_COLUMNS =
-  "id, space_id, idea_id, title, target_date, completed_at, updated_at"
+  "id, space_id, idea_id, title, target_date, completed_at, created_by, updated_at"
 
 // due_date and target_date are Postgres date columns: always YYYY-MM-DD, so DateOnly holds.
 const dateOnly = (value: string | null) => value as DateOnly | null
@@ -35,6 +35,7 @@ export const toTask = (row: TaskRow): Task => ({
   dueDate: dateOnly(row.due_date),
   assigneeId: row.assignee_id,
   milestoneId: row.milestone_id,
+  createdBy: row.created_by,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 })
@@ -45,6 +46,7 @@ export const toItem = (row: ItemRow): ChecklistItem => ({
   label: row.label,
   done: row.done,
   position: row.position,
+  createdBy: row.created_by,
 })
 
 export const toMilestone = (row: MilestoneRow): Milestone => ({
@@ -54,6 +56,7 @@ export const toMilestone = (row: MilestoneRow): Milestone => ({
   title: row.title,
   targetDate: dateOnly(row.target_date),
   completedAt: row.completed_at,
+  createdBy: row.created_by,
   updatedAt: row.updated_at,
 })
 

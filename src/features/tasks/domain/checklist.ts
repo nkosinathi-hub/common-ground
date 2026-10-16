@@ -9,6 +9,8 @@ export interface ChecklistItem {
   readonly label: string
   readonly done: boolean
   readonly position: number
+  /** Its author; only they or the space owner may delete it. */
+  readonly createdBy: string | null
 }
 
 export function validateLabel(input: string): Result<string> {

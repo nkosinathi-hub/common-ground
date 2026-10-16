@@ -6,16 +6,19 @@ class InMemoryHypotheses extends InMemoryChildren<Hypothesis, string> {
   setStatus = (id: string, status: HypothesisStatus) => this.patch(id, { status })
 }
 
-export function inMemoryResearch(): ResearchRepository {
+/** Rows are written by `author` (null: someone who has since left). */
+export function inMemoryResearch(author: string | null = null): ResearchRepository {
+  const by = { createdBy: author }
   return {
-    notes: new InMemoryChildren<IdeaNote, string>((base, body) => ({
+    notes: new InMemoryChildren<IdeaNote, string>((base, body) => ({ ...base, ...by, body })),
+    links: new InMemoryChildren<ResearchLink, LinkInput>((base, input) => ({
       ...base,
-      body,
-      createdBy: null,
+      ...by,
+      ...input,
     })),
-    links: new InMemoryChildren<ResearchLink, LinkInput>((base, input) => ({ ...base, ...input })),
     hypotheses: new InMemoryHypotheses((base, statement) => ({
       ...base,
+      ...by,
       statement,
       status: "untested",
     })),

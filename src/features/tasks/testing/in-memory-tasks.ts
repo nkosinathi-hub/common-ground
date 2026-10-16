@@ -30,6 +30,8 @@ export class FakeMembers implements MemberDirectory {
 export class InMemoryTasks implements TasksRepository {
   readonly store = new Store<Task>()
   readonly ideaTitles = new Map<string, string>()
+  /** Who the next rows are written by. */
+  author: string | null = null
   constructor(private readonly members = new FakeMembers()) {}
 
   async list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
@@ -50,6 +52,7 @@ export class InMemoryTasks implements TasksRepository {
       priority: "medium",
       assigneeId: null,
       milestoneId: null,
+      createdBy: this.author,
       createdAt: at,
       updatedAt: at,
     })

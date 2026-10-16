@@ -10,9 +10,10 @@
 
   interface Props {
     task: Task
+    canDelete: (createdBy: string | null) => boolean
   }
 
-  let { task }: Props = $props()
+  let { task, canDelete }: Props = $props()
   const { checklist } = useTasks()
   const items = new Resource<ChecklistItem[]>(() => checklist.list(untrack(() => task.id)))
   let label = $state("")
@@ -65,11 +66,13 @@
               for="item-{item.id}"
               class={item.done ? "text-muted-foreground line-through" : ""}>{item.label}</label
             >
-            <DeleteButton
-              label="Remove {item.label}"
-              what="this checklist item"
-              onConfirm={() => remove(item.id)}
-            />
+            {#if canDelete(item.createdBy)}
+              <DeleteButton
+                label="Remove {item.label}"
+                what="this checklist item"
+                onConfirm={() => remove(item.id)}
+              />
+            {/if}
           </li>
         {/each}
       </ul>

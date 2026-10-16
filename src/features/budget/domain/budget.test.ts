@@ -9,6 +9,7 @@ const entry = (category: string, estimated: number, actual: number): BudgetEntry
   label: "x",
   estimatedMinor: estimated,
   actualMinor: actual,
+  createdBy: null,
   createdAt: "",
 })
 

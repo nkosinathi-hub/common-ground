@@ -11,7 +11,7 @@
     type IdeaTab,
     type Result,
   } from "@/shared/domain"
-  import type { Idea } from "../domain"
+  import { canDelete, type Idea, type Viewer } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
   import IdeaTabs from "./IdeaTabs.svelte"
@@ -23,6 +23,8 @@
     ideaId: string
     tab: IdeaTab
     tabHref: (tab: IdeaTab) => string
+    /** The signed-in member; delete buttons show only for their own work, or to the owner. */
+    viewer: Viewer
     /** Comments thread for this idea (collaboration feature). */
     discussion?: Snippet<[Idea]>
     /** Attachment list for the research tab (attachments feature). */
@@ -31,7 +33,8 @@
     onDeleted?: () => void
   }
 
-  let { spaceId, ideaId, tab, tabHref, discussion, attachments, onDeleted }: Props = $props()
+  let { spaceId, ideaId, tab, tabHref, viewer, discussion, attachments, onDeleted }: Props =
+    $props()
 
   const ideas = useIdeas()
   let idea = $state<Idea | null>(null)
@@ -55,6 +58,7 @@
 
   const backToList = () => (location.hash = buildHash({ name: "ideas", spaceId }))
   const deleted = () => (onDeleted ?? backToList)()
+  const deletable = (createdBy: string | null) => canDelete(createdBy, viewer)
   function setCurrency(currency: string) {
     if (idea) idea = { ...idea, currency }
   }
@@ -66,22 +70,23 @@
   <Loading label="Loading idea" />
 {:else}
   <div class="flex flex-col gap-4">
-    <IdeaHeader {idea} onChange={(next) => (idea = next)} onDeleted={deleted} />
+    <IdeaHeader {idea} {viewer} onChange={(next) => (idea = next)} onDeleted={deleted} />
     <IdeaTabs current={tab} href={tabHref} />
     <div role="tabpanel" tabindex="0" aria-label={tab}>
       {#if tab === "overview"}
         {#key idea.id}<OverviewTab {idea} onSaved={(next) => (idea = next)} />{/key}
       {:else if tab === "research"}
-        <ResearchTab {idea} {attachments} />
+        <ResearchTab {idea} {viewer} {attachments} />
       {:else if tab === "tasks"}
-        <TasksTab spaceId={idea.spaceId} ideaId={idea.id} />
+        <TasksTab spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
       {:else if tab === "milestones"}
         <div class="grid gap-6 lg:grid-cols-2">
-          <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} />
+          <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
           <BudgetPanel
             spaceId={idea.spaceId}
             ideaId={idea.id}
             currency={idea.currency}
+            canDelete={deletable}
             onCurrencyChanged={setCurrency}
           />
         </div>

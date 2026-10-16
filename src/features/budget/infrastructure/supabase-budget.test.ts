@@ -10,6 +10,7 @@ const row = {
   label: "Deposit",
   estimated_minor: 150000,
   actual_minor: 0,
+  created_by: "u1",
   created_at: "2026-10-15T10:00:00Z",
   updated_at: "2026-10-15T10:00:00.123456+00:00",
 }
@@ -26,7 +27,7 @@ describe("SupabaseBudget", () => {
     const { calls, budget } = setup({ data: [row], error: null })
     expect(await budget.list("i1")).toMatchObject({
       ok: true,
-      value: [{ id: "b1", estimatedMinor: 150000, updatedAt: row.updated_at }],
+      value: [{ id: "b1", estimatedMinor: 150000, createdBy: "u1", updatedAt: row.updated_at }],
     })
     expect(calls).toEqual([
       ["from", "budget_entries"],

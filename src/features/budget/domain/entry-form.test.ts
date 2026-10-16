@@ -16,6 +16,7 @@ describe("entry form", () => {
       label: "Deposit",
       estimatedMinor: 100000,
       actualMinor: 0,
+      createdBy: null,
       createdAt: "",
       updatedAt: "",
     }

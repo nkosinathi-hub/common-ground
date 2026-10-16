@@ -4,11 +4,13 @@
   import { Input } from "$lib/components/ui/input"
   import { DeleteButton, PagedList } from "@/shared/ui"
   import {
+    canDelete,
     HYPOTHESIS_MAX,
     HYPOTHESIS_STATUSES,
     type Hypothesis,
     type HypothesisStatus,
     type Idea,
+    type Viewer,
   } from "../domain"
   import { useResearch } from "./context"
   import { HYPOTHESIS_LABELS } from "./labels"
@@ -16,9 +18,10 @@
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
-  let { idea }: Props = $props()
+  let { idea, viewer }: Props = $props()
   const research = useResearch()
   const list = new PagedList<Hypothesis, Cursor>((after) => research.hypotheses(idea.id, after))
   // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
@@ -74,11 +77,13 @@
                 >{HYPOTHESIS_LABELS[status]}</option
               >{/each}
           </select>
-          <DeleteButton
-            label="Delete hypothesis"
-            what="this hypothesis"
-            onConfirm={() => remove(hypothesis.id)}
-          />
+          {#if canDelete(hypothesis.createdBy, viewer)}
+            <DeleteButton
+              label="Delete hypothesis"
+              what="this hypothesis"
+              onConfirm={() => remove(hypothesis.id)}
+            />
+          {/if}
         </div>
       </li>
     {/each}

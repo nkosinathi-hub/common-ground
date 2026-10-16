@@ -6,11 +6,12 @@
   interface Props {
     entries: readonly BudgetEntry[]
     currency: string
+    canDelete: (createdBy: string | null) => boolean
     onEdit: (base: BudgetEntry, form: EntryForm) => Promise<AppError | null>
     onRemove: (id: string) => void
   }
 
-  let { entries, currency, onEdit, onRemove }: Props = $props()
+  let { entries, currency, canDelete, onEdit, onRemove }: Props = $props()
   const categories = $derived(totalsByCategory(entries, currency))
   const numeric = "p-1 text-right tabular-nums"
 </script>
@@ -31,6 +32,7 @@
         <BudgetRow
           {entry}
           {currency}
+          deletable={canDelete(entry.createdBy)}
           onEdit={(form) => onEdit(entry, form)}
           onRemove={() => onRemove(entry.id)}
         />

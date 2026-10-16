@@ -17,6 +17,7 @@ export interface LinkInput {
 export interface ResearchLink extends LinkInput {
   readonly id: string
   readonly ideaId: string
+  readonly createdBy: string | null
   readonly createdAt: string
 }
 
@@ -28,6 +29,7 @@ export interface Hypothesis {
   readonly ideaId: string
   readonly statement: string
   readonly status: HypothesisStatus
+  readonly createdBy: string | null
   readonly createdAt: string
 }
 

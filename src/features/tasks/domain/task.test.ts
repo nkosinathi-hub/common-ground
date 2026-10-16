@@ -20,6 +20,7 @@ const task = (id: string, status: Task["status"], dueDate: string | null = null)
   dueDate: dueDate as DateOnly | null,
   assigneeId: null,
   milestoneId: null,
+  createdBy: null,
   createdAt: "",
   updatedAt: "",
 })

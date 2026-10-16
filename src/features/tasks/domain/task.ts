@@ -27,6 +27,8 @@ export interface Task {
   readonly dueDate: DateOnly | null
   readonly assigneeId: string | null
   readonly milestoneId: string | null
+  /** Its author; only they or the space owner may delete it. */
+  readonly createdBy: string | null
   readonly createdAt: string
   readonly updatedAt: string
 }

@@ -7,12 +7,13 @@
 
   interface Props {
     milestone: Milestone
+    deletable: boolean
     onToggle: (done: boolean) => void
     onEdit: (input: MilestoneInput) => Promise<boolean>
     onRemove: () => void
   }
 
-  let { milestone, onToggle, onEdit, onRemove }: Props = $props()
+  let { milestone, deletable, onToggle, onEdit, onRemove }: Props = $props()
   let editing = $state(false)
 </script>
 
@@ -40,12 +41,14 @@
         aria-label="Edit milestone {milestone.title}"
         onclick={() => (editing = true)}><Pencil /></Button
       >
-      <DeleteButton
-        label="Delete milestone {milestone.title}"
-        what="this milestone"
-        description="Tasks linked to it stay, without a milestone."
-        onConfirm={onRemove}
-      />
+      {#if deletable}
+        <DeleteButton
+          label="Delete milestone {milestone.title}"
+          what="this milestone"
+          description="Tasks linked to it stay, without a milestone."
+          onConfirm={onRemove}
+        />
+      {/if}
     </span>
   {/if}
 </li>

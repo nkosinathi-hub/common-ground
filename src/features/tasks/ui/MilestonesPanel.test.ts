@@ -20,7 +20,7 @@ async function setup() {
     checklist: new ChecklistService(new InMemoryChecklist()),
     milestones,
   })
-  render(MilestonesPanel, { props: place, context })
+  render(MilestonesPanel, { props: { ...place, canDelete: () => true }, context })
   return { milestones, base: added.value }
 }
 

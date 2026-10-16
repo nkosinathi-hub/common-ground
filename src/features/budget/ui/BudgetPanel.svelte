@@ -14,10 +14,12 @@
     spaceId: string
     ideaId: string
     currency: string
+    /** Whether the viewer may delete a line by this author (the author or the space owner). */
+    canDelete: (createdBy: string | null) => boolean
     onCurrencyChanged: (currency: string) => void
   }
 
-  let { spaceId, ideaId, currency, onCurrencyChanged }: Props = $props()
+  let { spaceId, ideaId, currency, canDelete, onCurrencyChanged }: Props = $props()
   const { service } = useBudget()
   const lines = new Resource<BudgetEntry[]>(() => service.list(untrack(() => ideaId)))
   /** A refused delete or a lost edit race; form errors stay on their form. */
@@ -65,7 +67,7 @@
     {#snippet children(list)}
       <BudgetSummary {totals} />
       <EntryForm {currency} onSubmit={add} />
-      <BudgetTable entries={list} {currency} onEdit={edit} onRemove={remove} />
+      <BudgetTable entries={list} {currency} {canDelete} onEdit={edit} onRemove={remove} />
     {/snippet}
   </AsyncView>
   {#if notice}<p class="text-sm text-destructive" role="alert">{notice}</p>{/if}

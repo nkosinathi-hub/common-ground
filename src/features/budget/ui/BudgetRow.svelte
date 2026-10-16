@@ -9,11 +9,12 @@
   interface Props {
     entry: BudgetEntry
     currency: string
+    deletable: boolean
     onEdit: (form: EntryForm) => Promise<AppError | null>
     onRemove: () => void
   }
 
-  let { entry, currency, onEdit, onRemove }: Props = $props()
+  let { entry, currency, deletable, onEdit, onRemove }: Props = $props()
   let editing = $state(false)
   const amount = (minor: number) => formatMoney(money(minor, currency))
   const numeric = "p-1 text-right tabular-nums"
@@ -34,7 +35,9 @@
         aria-label="Edit {entry.label}"
         onclick={() => (editing = true)}><Pencil /></Button
       >
-      <DeleteButton label="Delete {entry.label}" what="this budget line" onConfirm={onRemove} />
+      {#if deletable}
+        <DeleteButton label="Delete {entry.label}" what="this budget line" onConfirm={onRemove} />
+      {/if}
     </td>
   </tr>
 {/if}

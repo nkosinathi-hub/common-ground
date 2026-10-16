@@ -25,6 +25,7 @@
       spaceId={space.id}
       {ideaId}
       {tab}
+      viewer={{ me, isOwner }}
       tabHref={(next) => buildHash({ name: "idea", spaceId: space.id, ideaId, tab: next })}
     >
       {#snippet discussion(idea)}

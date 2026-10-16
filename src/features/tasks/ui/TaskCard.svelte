@@ -11,9 +11,10 @@
   interface Props {
     task: Task
     board: TasksState
+    canDelete: (createdBy: string | null) => boolean
   }
 
-  let { task, board }: Props = $props()
+  let { task, board, canDelete }: Props = $props()
   let open = $state(false)
   let error = $state<string | null>(null)
   const overdue = $derived(isOverdue(task, todayDateOnly()))
@@ -25,12 +26,14 @@
 <article class="flex flex-col gap-2 rounded-lg border bg-card p-3" data-testid="task-card">
   <div class="flex items-start justify-between gap-2">
     <p class="font-medium">{task.title}</p>
-    <DeleteButton
-      label="Delete task {task.title}"
-      what="this task"
-      description="Its checklist is deleted too."
-      onConfirm={remove}
-    />
+    {#if canDelete(task.createdBy)}
+      <DeleteButton
+        label="Delete task {task.title}"
+        what="this task"
+        description="Its checklist is deleted too."
+        onConfirm={remove}
+      />
+    {/if}
   </div>
   <TaskFields {task} {board} onError={(message) => (error = message)} />
   {#if task.dueDate}
@@ -48,5 +51,5 @@
   >
     <ChevronDown class={open ? "rotate-180" : ""} />Checklist
   </Button>
-  {#if open}<Checklist {task} />{/if}
+  {#if open}<Checklist {task} {canDelete} />{/if}
 </article>

@@ -6,6 +6,7 @@ const item = (position: number, done: boolean): ChecklistItem => ({
   taskId: "t",
   label: "x",
   done,
+  createdBy: null,
   position,
 })
 

@@ -11,6 +11,7 @@ const row = {
   title: "Open",
   target_date: "2026-12-01",
   completed_at: null,
+  created_by: null,
   updated_at: "2026-10-15T10:00:00.123456+00:00",
 }
 
@@ -23,7 +24,10 @@ describe("SupabaseMilestones", () => {
   it("lists an idea's milestones by target date, undated last", async () => {
     const { calls, milestones } = setup({ data: [row], error: null })
     const listed = await milestones.list("i1")
-    expect(listed).toMatchObject({ ok: true, value: [{ id: "m1", updatedAt: row.updated_at }] })
+    expect(listed).toMatchObject({
+      ok: true,
+      value: [{ id: "m1", createdBy: null, updatedAt: row.updated_at }],
+    })
     expect(calls).toEqual([
       ["from", "milestones"],
       ["select", MILESTONE_COLUMNS],
