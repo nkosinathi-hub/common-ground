@@ -7,9 +7,9 @@ import { recommendationsContext } from "./context"
 import RecommendationsInbox from "./RecommendationsInbox.svelte"
 
 function setup(configure: (gateway: FakeRecommendationsGateway) => void) {
-  const gateway = new FakeRecommendationsGateway()
+  const gateway = new FakeRecommendationsGateway(2)
   configure(gateway)
-  const context = recommendationsContext({ service: new RecommendationsService(gateway, 2) })
+  const context = recommendationsContext({ service: new RecommendationsService(gateway) })
   const itemHref = (id: string) => `#/s/watch/${id}`
   render(RecommendationsInbox, { props: { spaceId: "s", itemHref }, context })
   return gateway

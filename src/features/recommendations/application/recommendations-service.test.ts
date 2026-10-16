@@ -4,8 +4,8 @@ import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gate
 import { RecommendationsService } from "./recommendations-service"
 
 const setup = () => {
-  const gateway = new FakeRecommendationsGateway()
-  return { gateway, service: new RecommendationsService(gateway, 2) }
+  const gateway = new FakeRecommendationsGateway(2)
+  return { gateway, service: new RecommendationsService(gateway) }
 }
 const send = (recipientIds: string[], note: string) => ({
   itemId: "w1",

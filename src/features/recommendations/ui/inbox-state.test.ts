@@ -4,9 +4,9 @@ import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gate
 import { InboxState } from "./inbox.svelte"
 
 const setup = (count: number) => {
-  const gateway = new FakeRecommendationsGateway()
+  const gateway = new FakeRecommendationsGateway(2)
   gateway.receive("s", count)
-  return { gateway, inbox: new InboxState(new RecommendationsService(gateway, 2), "s") }
+  return { gateway, inbox: new InboxState(new RecommendationsService(gateway), "s") }
 }
 const ids = (inbox: InboxState) => inbox.items.map((r) => r.id)
 

@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
+import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { SupabaseRecommendationsGateway } from "./supabase-recommendations-gateway"
 
 const ROW = {
@@ -12,71 +13,52 @@ const ROW = {
   sender: null,
 }
 const CURSOR = { createdAt: "2026-10-15T09:00:00+00:00", id: "r1" }
-const SIGNED_IN = { data: { user: { id: "me" } } }
 
-function stub(reply: { data: unknown; error: unknown }, auth: unknown = SIGNED_IN) {
-  const calls: unknown[][] = []
-  const query = {
-    then: (resolve: (value: unknown) => unknown) => Promise.resolve(reply).then(resolve),
-  } as Record<string, unknown>
-  for (const name of ["select", "eq", "or", "order", "limit"])
-    query[name] = (...args: unknown[]) => {
-      calls.push([name, ...args])
-      return query
-    }
-  const db = {
-    auth: { getUser: async () => auth },
-    from: vi.fn(() => query),
-    rpc: vi.fn(async () => reply),
-  }
-  return { calls, db, gateway: new SupabaseRecommendationsGateway(db as unknown as Db) }
+function setup(reply: Reply, userId: string | null = "me") {
+  const { calls, client } = recordingClient(reply, userId)
+  return { calls, gateway: new SupabaseRecommendationsGateway(client as Db) }
 }
 
 describe("SupabaseRecommendationsGateway", () => {
   it("reads my pending inbox after the cursor and names missing senders null", async () => {
-    const { calls, gateway } = stub({ data: [ROW], error: null })
-    const inbox = await gateway.inbox({ spaceId: "s", after: CURSOR, size: 2 })
-    expect(inbox).toEqual({
-      ok: true,
-      value: [
-        {
-          id: "r2",
-          createdAt: ROW.created_at,
-          spaceId: "s",
-          itemId: "w",
-          itemTitle: "Dune",
-          senderName: null,
-          note: null,
-          status: "pending",
-        },
-      ],
-    })
-    expect(calls.slice(1, 5)).toEqual([
+    const { calls, gateway } = setup({ data: [ROW], error: null })
+    const inbox = await gateway.inbox({ spaceId: "s", after: CURSOR })
+    const item = {
+      id: "r2",
+      createdAt: ROW.created_at,
+      spaceId: "s",
+      itemId: "w",
+      itemTitle: "Dune",
+      senderName: null,
+      note: null,
+      status: "pending",
+    }
+    expect(inbox).toEqual({ ok: true, value: { items: [item], next: null } })
+    expect(calls.slice(2, 6)).toEqual([
       ["eq", "space_id", "s"],
       ["eq", "recipient_id", "me"],
       ["eq", "status", "pending"],
       ["or", expect.stringContaining("id.lt.r1")],
     ])
-    expect(calls.at(-1)).toEqual(["limit", 2])
+    expect(calls.at(-1)).toEqual(["limit", 50])
   })
 
   it("asks a signed-out caller to sign in without querying", async () => {
-    const { db, gateway } = stub({ data: [], error: null }, { data: { user: null } })
-    const inbox = await gateway.inbox({ spaceId: "s", after: null, size: 2 })
+    const { calls, gateway } = setup({ data: [], error: null }, null)
+    const inbox = await gateway.inbox({ spaceId: "s", after: null })
     expect(inbox).toMatchObject({ ok: false, error: { kind: "unauthenticated" } })
-    expect(db.from).not.toHaveBeenCalled()
+    expect(calls).toEqual([])
   })
 
   it("recommends and responds through the RPCs, sending no note as empty", async () => {
-    const { db, gateway } = stub({ data: ["r9"], error: null })
+    const { calls, gateway } = setup({ data: ["r9"], error: null })
     const sent = await gateway.recommend({ itemId: "w", recipientIds: ["z"], note: null })
     expect(sent).toEqual({ ok: true, value: ["r9"] })
-    expect(db.rpc).toHaveBeenCalledWith("recommend", { item: "w", recipient_ids: ["z"], note: "" })
-    expect(await gateway.respond("r9", "dismissed")).toEqual({ ok: true, value: undefined })
-    expect(db.rpc).toHaveBeenLastCalledWith("respond_recommendation", {
-      target: "r9",
-      response: "dismissed",
-    })
+    expect((await gateway.respond("r9", "dismissed")).ok).toBe(true)
+    expect(calls).toEqual([
+      ["rpc", "recommend", { item: "w", recipient_ids: ["z"], note: "" }],
+      ["rpc", "respond_recommendation", { target: "r9", response: "dismissed" }],
+    ])
   })
 
   it("passes the RPC's validation message through", async () => {
@@ -84,7 +66,7 @@ describe("SupabaseRecommendationsGateway", () => {
       code: "P0001",
       message: "That member already has this recommendation waiting",
     }
-    const { gateway } = stub({ data: null, error: duplicate })
+    const { gateway } = setup({ data: null, error: duplicate })
     const sent = await gateway.recommend({ itemId: "w", recipientIds: ["z"], note: "Go" })
     expect(sent).toEqual({ ok: false, error: { kind: "validation", message: duplicate.message } })
   })
