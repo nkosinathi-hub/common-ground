@@ -17,12 +17,19 @@
     open: boolean
     spaceId: string
     onAdded: (id: string) => void
+    /** The space's default list for new titles. */
+    defaultIntent?: SharedIntent
   }
 
-  let { open = $bindable(false), spaceId, onAdded }: Props = $props()
+  let {
+    open = $bindable(false),
+    spaceId,
+    onAdded,
+    defaultIntent = "want_to_watch",
+  }: Props = $props()
   const { service } = useWatch()
   let mode = $state<"search" | "manual">("search")
-  let intent = $state<SharedIntent>("want_to_watch")
+  let intent = $state<SharedIntent>(untrack(() => defaultIntent))
   let busy = $state(false)
   let addedTitles = $state<AddedTitle[]>([])
   // Bumped after each add to remount the search, which clears it.
@@ -31,7 +38,7 @@
   const href = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
 
   $effect(() => {
-    if (!open) untrack(() => ((addedTitles = []), (mode = "search")))
+    if (!open) untrack(() => ((addedTitles = []), (mode = "search"), (intent = defaultIntent)))
   })
 
   async function added(title: string, result: Result<string>) {

@@ -15,9 +15,10 @@
   interface Props {
     spaceId: string
     itemHref: (id: string) => string
+    defaultIntent?: "want_to_watch" | "watch_together"
   }
 
-  let { spaceId, itemHref }: Props = $props()
+  let { spaceId, itemHref, defaultIntent }: Props = $props()
   const { service } = useWatch()
   const list = new WatchListState(service, () => spaceId)
   const picker = new PickState(service, () => spaceId)
@@ -41,8 +42,7 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <Button variant="secondary" onclick={() => picker.start()}>
-        <Shuffle aria-hidden="true" />
-        Pick for us
+        <Shuffle aria-hidden="true" />Pick for us
       </Button>
       <Button onclick={() => (adding = true)}>
         <Plus aria-hidden="true" />
@@ -96,5 +96,5 @@
   <Attribution />
 </section>
 
-<AddTitleDialog bind:open={adding} {spaceId} onAdded={() => list.load()} />
+<AddTitleDialog bind:open={adding} {spaceId} {defaultIntent} onAdded={() => list.load()} />
 <PickDialog {picker} {itemHref} />

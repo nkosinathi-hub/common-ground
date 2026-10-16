@@ -38,5 +38,5 @@
     </WatchItemDetail>
   {/key}
 {:else}
-  <WatchPage spaceId={space.id} {itemHref} />
+  <WatchPage spaceId={space.id} {itemHref} defaultIntent={space.defaultWatchIntent} />
 {/if}

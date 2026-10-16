@@ -31,14 +31,14 @@ const catalog = {
     }),
 }
 
-function setup() {
+function setup(extra: Record<string, unknown> = {}) {
   const fakes = watchFakes()
   const onAdded = vi.fn()
   const provide = () => {
     provideWatch({ service: fakes.service, members: fakes.members })
     provideCatalog(new CatalogService(catalog))
   }
-  const props = { open: true, spaceId: SPACE_ID, onAdded }
+  const props = { open: true, spaceId: SPACE_ID, onAdded, ...extra }
   render(Provided, { props: { provide, component: AddTitleDialog, props } })
   return { ...fakes, onAdded }
 }
@@ -79,6 +79,11 @@ describe("AddTitleDialog", () => {
         `#/s/${SPACE_ID}/watch/${idOf(title)}`,
       )
     expect(onAdded).toHaveBeenCalledTimes(2)
+  })
+
+  it("starts in the space's default list", async () => {
+    setup({ defaultIntent: "watch_together" })
+    expect(await screen.findByLabelText("Add to")).toHaveValue("watch_together")
   })
 
   it("closes on Done", async () => {
