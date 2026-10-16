@@ -19,7 +19,12 @@ export class InMemoryCalendar implements CalendarRepository {
 
   constructor(public me = "ana") {}
 
-  async range(spaceId: string, from: DateOnly, to: DateOnly, zone: string) {
+  async range(
+    spaceId: string,
+    from: DateOnly,
+    to: DateOnly,
+    zone: string,
+  ): Promise<Result<CalendarWindow>> {
     this.windows.push([from, to])
     const inWindow = (entry: CalendarEntry) => {
       const [first, last] = coveredDays(entry.timing, zone)
