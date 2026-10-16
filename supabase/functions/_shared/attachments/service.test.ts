@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { DOWNLOAD_SECONDS, RATE_LIMITS } from "./ports.ts"
 import { IDEA, SPACE } from "./samples.ts"
 import { ana, bob, eve, pdf, setup } from "./service-fixture.ts"
-import { MAX_BYTES } from "./types.ts"
+import { BYTES_MAX } from "./types.ts"
 
 describe("start", () => {
   it("creates a pending row and a signed upload URL for its derived path", async () => {
@@ -16,7 +16,7 @@ describe("start", () => {
     const { service } = setup()
     expect(await service.start(eve, pdf)).toMatchObject({ ok: false, status: 403 })
     expect(await service.start(ana, { ...pdf, ideaId: SPACE })).toMatchObject({ status: 404 })
-    const tooBig = { ...pdf, bytes: MAX_BYTES + 1 }
+    const tooBig = { ...pdf, bytes: BYTES_MAX + 1 }
     expect(await service.start(ana, tooBig)).toMatchObject({ status: 400 })
     expect(await service.start(ana, { ...pdf, filename: "x.exe" })).toMatchObject({ status: 400 })
   })

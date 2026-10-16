@@ -1,4 +1,4 @@
-import { ALLOWED_TYPES, MAX_BYTES, type AttachmentMime } from "./types.ts"
+import { ALLOWED_TYPES, BYTES_MAX, FILENAME_MAX, type AttachmentMime } from "./types.ts"
 
 export type Checked<T> = { ok: true; value: T } | { ok: false; message: string }
 
@@ -29,8 +29,8 @@ export function extensionOf(filename: string): string {
 
 export function checkFilename(raw: string): Checked<string> {
   const filename = raw.trim()
-  if (filename.length < 1 || filename.length > 200)
-    return { ok: false, message: "File names must be 1 to 200 characters" }
+  if (filename.length < 1 || filename.length > FILENAME_MAX)
+    return { ok: false, message: `File names must be 1 to ${FILENAME_MAX} characters` }
   if (hasForbidden(filename))
     return { ok: false, message: "File names cannot contain slashes or control characters" }
   return { ok: true, value: filename }
@@ -38,7 +38,8 @@ export function checkFilename(raw: string): Checked<string> {
 
 export function checkSize(bytes: number): Checked<number> {
   if (!Number.isSafeInteger(bytes) || bytes < 1) return { ok: false, message: "The file is empty" }
-  if (bytes > MAX_BYTES) return { ok: false, message: "Files can be at most 10 MB" }
+  if (bytes > BYTES_MAX)
+    return { ok: false, message: `Files can be at most ${BYTES_MAX / 1024 / 1024} MB` }
   return { ok: true, value: bytes }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MAX_NOTE } from "../domain/recommendation"
+import { NOTE_MAX } from "../domain/recommendation"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
 import { RecommendationsService } from "./recommendations-service"
 
@@ -18,7 +18,7 @@ describe("RecommendationsService", () => {
   it("validates recipients and the note before sending", async () => {
     const { gateway, service } = setup()
     expect((await service.send(send(["me"], ""))).ok).toBe(false)
-    expect((await service.send(send(["z"], "n".repeat(MAX_NOTE + 1)))).ok).toBe(false)
+    expect((await service.send(send(["z"], "n".repeat(NOTE_MAX + 1)))).ok).toBe(false)
     expect(gateway.calls).toEqual([])
     expect((await service.send(send(["z", "a", "z"], "  "))).ok).toBe(true)
     expect(gateway.sent).toEqual([

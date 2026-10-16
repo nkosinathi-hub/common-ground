@@ -6,7 +6,7 @@
   import { Textarea } from "$lib/components/ui/textarea"
   import type { MemberRef } from "@/shared/domain"
   import { FormError, FormState, toast } from "@/shared/ui"
-  import { MAX_NOTE, recipientOptions } from "../domain/recommendation"
+  import { NOTE_MAX, recipientOptions } from "../domain/recommendation"
   import { useRecommendations } from "./context"
 
   interface Props {
@@ -71,7 +71,7 @@
       </fieldset>
       <div class="grid gap-1.5">
         <Label for={noteId}>Note (optional)</Label>
-        <Textarea id={noteId} bind:value={note} maxlength={MAX_NOTE} />
+        <Textarea id={noteId} bind:value={note} maxlength={NOTE_MAX} />
         <FormError message={form.fieldError("note")} alert={false} />
       </div>
       <FormError message={form.formError} />

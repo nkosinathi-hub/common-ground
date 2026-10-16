@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { checkFilename, checkSize, checkUpload, extensionOf, isAllowedMime } from "./rules.ts"
-import { MAX_BYTES } from "./types.ts"
+import { BYTES_MAX } from "./types.ts"
 
 const intent = (filename: string, mime: string, bytes = 1000) =>
   checkUpload({ filename, mime, bytes })
@@ -37,8 +37,8 @@ describe("upload rules", () => {
   })
 
   it("enforces 1 byte to 10 MB", () => {
-    expect(intent("a.pdf", "application/pdf", MAX_BYTES).ok).toBe(true)
-    expect(intent("a.pdf", "application/pdf", MAX_BYTES + 1)).toEqual({
+    expect(intent("a.pdf", "application/pdf", BYTES_MAX).ok).toBe(true)
+    expect(intent("a.pdf", "application/pdf", BYTES_MAX + 1)).toEqual({
       ok: false,
       message: "Files can be at most 10 MB",
     })

@@ -6,7 +6,7 @@
   import { Textarea } from "$lib/components/ui/textarea"
   import { memberName, type MemberRef, type Result } from "@/shared/domain"
   import { FormError, FormState } from "@/shared/ui"
-  import { MAX_BODY } from "../domain/comment"
+  import { BODY_MAX } from "../domain/comment"
   import { ComposerState } from "./composer.svelte"
   import MentionPicker from "./MentionPicker.svelte"
   import type { Draft } from "./thread.svelte"
@@ -42,7 +42,7 @@
     bind:ref={textarea}
     bind:value={composer.body}
     onkeydown={keydown}
-    maxlength={MAX_BODY}
+    maxlength={BODY_MAX}
     placeholder="Plain text. Type @ to mention someone."
     aria-invalid={problem ? true : undefined}
   />

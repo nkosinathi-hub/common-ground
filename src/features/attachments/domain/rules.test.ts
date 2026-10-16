@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import {
   ACCEPT,
-  MAX_BYTES,
+  BYTES_MAX,
   canDelete,
-  MAX_FILENAME,
+  FILENAME_MAX,
   formatBytes,
   isAttachmentMime,
   isWebUrl,
@@ -33,11 +33,11 @@ describe("precheckFile (convenience only, the server decides)", () => {
     expect(precheckFile(file("a.gif", "image/gif")).ok).toBe(false)
     expect(precheckFile(file("a.exe", "application/pdf")).ok).toBe(false)
     expect(precheckFile(file("a.png", "image/png", 0)).ok).toBe(false)
-    expect(precheckFile(file("a.png", "image/png", MAX_BYTES + 1))).toEqual({
+    expect(precheckFile(file("a.png", "image/png", BYTES_MAX + 1))).toEqual({
       ok: false,
       error: { kind: "validation", message: "Files can be at most 10 MB" },
     })
-    expect(precheckFile(file(`${"a".repeat(MAX_FILENAME)}.png`, "image/png")).ok).toBe(false)
+    expect(precheckFile(file(`${"a".repeat(FILENAME_MAX)}.png`, "image/png")).ok).toBe(false)
   })
 })
 
@@ -55,7 +55,7 @@ describe("attachment helpers", () => {
     expect(formatBytes(900)).toBe("900 B")
     expect(formatBytes(2048)).toBe("2 KB")
     expect(formatBytes(3.5 * 1024 * 1024)).toBe("3.5 MB")
-    expect(formatBytes(MAX_BYTES)).toBe("10 MB")
+    expect(formatBytes(BYTES_MAX)).toBe("10 MB")
   })
 
   it("recognises only the allowed types", () => {

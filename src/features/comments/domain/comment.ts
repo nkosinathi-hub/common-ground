@@ -26,13 +26,13 @@ export interface Comment extends Cursor {
   readonly mentionIds: readonly string[]
 }
 
-export const MAX_BODY = 4000
+export const BODY_MAX = 4000
 
 export function validateBody(body: string): Result<string> {
   const trimmed = body.trim()
-  return trimmed.length >= 1 && trimmed.length <= MAX_BODY
+  return trimmed.length >= 1 && trimmed.length <= BODY_MAX
     ? ok(trimmed)
-    : err(appError("validation", `Write something (up to ${MAX_BODY} characters)`, "body"))
+    : err(appError("validation", `Write something (up to ${BODY_MAX} characters)`, "body"))
 }
 
 export const canEdit = (comment: Comment, me: string): boolean =>

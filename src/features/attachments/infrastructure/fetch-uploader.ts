@@ -1,7 +1,7 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import { cancelled } from "../application/attachments-service"
 import type { ObjectUploader, PutRequest } from "../application/ports"
-import { formatBytes, MAX_BYTES } from "../domain/rules"
+import { formatBytes, BYTES_MAX } from "../domain/rules"
 
 type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -33,7 +33,7 @@ export class FetchUploader implements ObjectUploader {
 
 function uploadError(status: number) {
   if (status === 413)
-    return appError("validation", `Files can be at most ${formatBytes(MAX_BYTES)}`)
+    return appError("validation", `Files can be at most ${formatBytes(BYTES_MAX)}`)
   if (status === 415 || status === 400)
     return appError("validation", "Only JPEG, PNG, WebP and PDF files can be attached")
   if (status === 401 || status === 403)

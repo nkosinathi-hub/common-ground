@@ -6,15 +6,15 @@ export interface SignUpInput {
   readonly displayName: string
 }
 
-export const MAX_PASSWORD = 128
+export const PASSWORD_MAX = 128
 /** RFC 5321 limit on a forward path. */
-export const MAX_EMAIL = 254
+export const EMAIL_MAX = 254
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 export function validateEmail(email: string): Result<string> {
   const trimmed = email.trim().toLowerCase()
-  return EMAIL.test(trimmed) && trimmed.length <= MAX_EMAIL
+  return EMAIL.test(trimmed) && trimmed.length <= EMAIL_MAX
     ? ok(trimmed)
     : err(appError("validation", "Enter a valid email address", "email"))
 }
@@ -22,8 +22,8 @@ export function validateEmail(email: string): Result<string> {
 export function validatePassword(password: string): Result<string> {
   if (password.length < MIN_PASSWORD)
     return err(appError("validation", `Use at least ${MIN_PASSWORD} characters`, "password"))
-  if (password.length > MAX_PASSWORD)
-    return err(appError("validation", `Use at most ${MAX_PASSWORD} characters`, "password"))
+  if (password.length > PASSWORD_MAX)
+    return err(appError("validation", `Use at most ${PASSWORD_MAX} characters`, "password"))
   return ok(password)
 }
 

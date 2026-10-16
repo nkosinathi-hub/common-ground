@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Paperclip, Upload } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { ACCEPT, formatBytes, MAX_BYTES } from "../domain/rules"
+  import { ACCEPT, formatBytes, BYTES_MAX } from "../domain/rules"
 
   interface Props {
     disabled: boolean
@@ -37,5 +37,5 @@
 </div>
 <!-- Convenience hint only: the Edge Function re-checks type, size and the file's real bytes. -->
 <p class="text-xs text-muted-foreground">
-  JPEG, PNG, WebP or PDF, up to {formatBytes(MAX_BYTES)}. Files are checked again after upload.
+  JPEG, PNG, WebP or PDF, up to {formatBytes(BYTES_MAX)}. Files are checked again after upload.
 </p>

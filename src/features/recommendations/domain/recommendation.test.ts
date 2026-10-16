@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { MAX_NOTE, recipientOptions, validateNote, validateRecipients } from "./recommendation"
+import { NOTE_MAX, recipientOptions, validateNote, validateRecipients } from "./recommendation"
 
 const members = [
   { id: "me", displayName: "Nkosi" },
@@ -11,8 +11,8 @@ describe("recommendation rules", () => {
   it("treats a blank note as none and bounds its length", () => {
     expect(validateNote("  ")).toEqual({ ok: true, value: null })
     expect(validateNote(" Watch ep 3 ")).toEqual({ ok: true, value: "Watch ep 3" })
-    expect(validateNote("n".repeat(MAX_NOTE)).ok).toBe(true)
-    expect(validateNote("n".repeat(MAX_NOTE + 1))).toMatchObject({
+    expect(validateNote("n".repeat(NOTE_MAX)).ok).toBe(true)
+    expect(validateNote("n".repeat(NOTE_MAX + 1))).toMatchObject({
       ok: false,
       error: { field: "note" },
     })
