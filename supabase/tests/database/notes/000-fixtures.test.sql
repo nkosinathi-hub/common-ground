@@ -28,6 +28,33 @@ end $$;
 
 grant execute on function tests.post_note(text, text, text) to authenticated;
 
+-- Saves a draft as the author (sections as given) and returns its id.
+create or replace function tests.draft(author text, recipient text, sections jsonb) returns uuid
+language plpgsql set search_path = '' as $$
+declare created uuid;
+begin
+  perform tests.act_as(author);
+  insert into public.space_note_drafts (space_id, recipient_id, sections)
+  values ('e7000000-0000-4000-8000-000000000001', tests.user_id(recipient), sections)
+  returning id into created;
+  perform tests.reset_role();
+  return created;
+end $$;
+
+-- Drafts and sends a "Something on my mind" note, returning the note id.
+create or replace function tests.hard_talk(author text, recipient text) returns uuid
+language plpgsql set search_path = '' as $$
+declare draft uuid := tests.draft(author, recipient, '{"feel": "a bit sad"}'); created uuid;
+begin
+  perform tests.act_as(author);
+  select (public.send_note_draft(draft)).id into created;
+  perform tests.reset_role();
+  return created;
+end $$;
+
+grant execute on function tests.draft(text, text, jsonb), tests.hard_talk(text, text)
+  to authenticated;
+
 select plan(1);
 select pass('notes fixtures installed');
 select * from finish();
