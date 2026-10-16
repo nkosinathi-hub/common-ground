@@ -4,6 +4,7 @@ import type { HomeCardId } from "@/shared/domain"
 export const RENDERABLE_CARDS: ReadonlySet<HomeCardId> = new Set([
   "continue_watching",
   "coming_up",
+  "calendar",
   "recommended",
   "activity",
 ])

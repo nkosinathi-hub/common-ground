@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as Card from "$lib/components/ui/card"
+  import { UpcomingEvents } from "@/features/calendar"
   import { ActivityFeed } from "@/features/notifications"
   import { RecommendationsInbox } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
@@ -21,6 +22,8 @@
       <ContinueWatching {spaceId} listHref={buildHash({ name: "watch", spaceId })} {itemHref} />
     {:else if id === "coming_up"}
       <UpcomingTasks {spaceId} {taskHref} />
+    {:else if id === "calendar"}
+      <UpcomingEvents {spaceId} />
     {:else if id === "recommended"}
       <RecommendationsInbox {spaceId} {itemHref} />
     {:else if id === "activity"}

@@ -1,4 +1,5 @@
 import { createSupabase, type Db } from "@/shared/infrastructure/supabase"
+import { composeCalendar, provideCalendarFeature } from "./calendar"
 import { composeCollaboration, provideCollaboration } from "./collaboration"
 import { composeCore, provideCore } from "./core"
 import { composeIdeas, provideIdeasFeatures } from "./ideas"
@@ -9,12 +10,15 @@ import { composeWatch, provideWatchFeature } from "./watch"
 export function compose(db: Db = createSupabase()) {
   const core = composeCore(db)
   const members = memberDirectory(core.spaces)
+  const watch = composeWatch(db)
+  const ideas = composeIdeas(db, members)
   return {
     ...core,
     members,
-    watch: composeWatch(db),
-    ideas: composeIdeas(db, members),
+    watch,
+    ideas,
     collaboration: composeCollaboration(db),
+    calendar: composeCalendar(db, watch, ideas.ideas, members),
   }
 }
 
@@ -25,4 +29,5 @@ export function provideServices(services: Services): void {
   provideCollaboration(services.collaboration)
   provideWatchFeature(services.watch, services.members)
   provideIdeasFeatures(services.ideas)
+  provideCalendarFeature(services.calendar)
 }
