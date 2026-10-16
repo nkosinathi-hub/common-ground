@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
+  import FormError from "./FormError.svelte"
 
   let {
     id,
@@ -33,7 +34,7 @@
     required
   />
   {#if error}
-    <p id={`${id}-error`} class="text-sm text-destructive">{error}</p>
+    <FormError id={`${id}-error`} message={error} alert={false} />
   {:else if hint}
     <p id={`${id}-hint`} class="text-xs text-muted-foreground">{hint}</p>
   {/if}

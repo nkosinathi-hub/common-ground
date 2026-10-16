@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ArrowLeft } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { FormState } from "@/shared/ui"
+  import { FormError, FormState } from "@/shared/ui"
   import type { Result } from "@/shared/domain"
   import type { TitleDetailsInput } from "../domain/types"
   import { TitleFormState } from "./title-form.svelte"
@@ -27,9 +27,7 @@
 
 <form class="grid gap-4" onsubmit={submit} novalidate aria-label="Add a title manually">
   <TitleFields form={fields} prefix="manual" errorFor={(f) => submission.fieldError(f)} />
-  {#if submission.formError}<p role="alert" class="text-sm text-destructive">
-      {submission.formError}
-    </p>{/if}
+  <FormError message={submission.formError} />
   <div class="flex flex-wrap justify-between gap-2">
     <Button type="button" variant="ghost" onclick={onBack}>
       <ArrowLeft aria-hidden="true" />

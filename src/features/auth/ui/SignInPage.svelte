@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
@@ -41,7 +41,7 @@
       autocomplete="current-password"
       bind:value={password}
     />
-    {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+    <FormError message={form.formError} />
     {#if unverified && !resent}
       <Button type="button" variant="outline" onclick={resend}>Resend verification email</Button>
     {:else if resent}

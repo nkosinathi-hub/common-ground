@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
@@ -41,7 +41,7 @@
         bind:value={email}
         error={form.fieldError("email")}
       />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" disabled={form.pending}>Send reset link</Button>
     </form>
   {/if}

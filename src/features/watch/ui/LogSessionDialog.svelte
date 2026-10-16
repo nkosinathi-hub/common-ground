@@ -5,7 +5,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { todayDateOnly, type MemberRef } from "@/shared/domain"
-  import { FormState, toast } from "@/shared/ui"
+  import { FormError, FormState, toast } from "@/shared/ui"
   import { NOTE_MAX } from "../domain/validation"
   import { useWatch } from "./context"
   import { SessionFormState } from "./session-form.svelte"
@@ -48,9 +48,7 @@
       <div class="grid gap-1.5">
         <Label for="session-day">Watched on</Label>
         <Input id="session-day" type="date" max={todayDateOnly()} bind:value={fields.watchedOn} />
-        {#if submission.fieldError("watchedOn")}
-          <p class="text-sm text-destructive">{submission.fieldError("watchedOn")}</p>
-        {/if}
+        <FormError message={submission.fieldError("watchedOn")} alert={false} />
       </div>
       <fieldset class="grid gap-2">
         <legend class="mb-1 text-sm font-medium">Who was there</legend>
@@ -65,17 +63,13 @@
             {member.displayName}
           </label>
         {/each}
-        {#if submission.fieldError("memberIds")}
-          <p class="text-sm text-destructive">{submission.fieldError("memberIds")}</p>
-        {/if}
+        <FormError message={submission.fieldError("memberIds")} alert={false} />
       </fieldset>
       <div class="grid gap-1.5">
         <Label for="session-note">Note (optional)</Label>
         <Textarea id="session-note" rows={2} maxlength={NOTE_MAX} bind:value={fields.note} />
       </div>
-      {#if submission.formError}
-        <p role="alert" class="text-sm text-destructive">{submission.formError}</p>
-      {/if}
+      <FormError message={submission.formError} />
       <Dialog.Footer>
         <Button type="button" variant="ghost" onclick={() => (open = false)}>Cancel</Button>
         <Button type="submit" disabled={submission.pending}>Log it</Button>

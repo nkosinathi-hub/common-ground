@@ -5,7 +5,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { memberName, type MemberRef, type Result } from "@/shared/domain"
-  import { FormState } from "@/shared/ui"
+  import { FormError, FormState } from "@/shared/ui"
   import { MAX_BODY } from "../domain/comment"
   import { ComposerState } from "./composer.svelte"
   import MentionPicker from "./MentionPicker.svelte"
@@ -65,7 +65,7 @@
   {#if composer.pickerOpen}
     <MentionPicker {composer} {members} {me} onDone={() => textarea?.focus()} />
   {/if}
-  {#if problem}<p role="alert" class="text-sm text-destructive">{problem}</p>{/if}
+  <FormError message={problem} />
   <div class="flex flex-wrap items-center gap-3">
     <Button
       type="button"
