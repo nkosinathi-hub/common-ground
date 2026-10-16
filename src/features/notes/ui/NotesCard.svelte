@@ -8,7 +8,7 @@
   import DraftsList from "./DraftsList.svelte"
   import NoteComposer from "./NoteComposer.svelte"
   import NoteItem from "./NoteItem.svelte"
-  import { NotesState } from "./notes.svelte"
+  import { NotesState } from "./notes-state.svelte"
 
   interface Props {
     spaceId: string

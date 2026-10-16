@@ -1,6 +1,6 @@
 import type { Result } from "@/shared/domain"
 import { toast, type FormState } from "@/shared/ui"
-import type { SpacesStore } from "../spaces.svelte"
+import type { SpacesStore } from "../spaces-store.svelte"
 
 /** Runs a settings save through its form, confirms it, and reloads the spaces so the shell updates. */
 export async function saveAndRefresh(

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import { draft, setup } from "../testing/fixtures"
-import { CalendarState } from "./calendar.svelte"
+import { CalendarState } from "./calendar-state.svelte"
 import type { ViewMemory } from "./view-memory"
 
 const d = (value: string) => value as DateOnly

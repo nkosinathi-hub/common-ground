@@ -7,7 +7,7 @@ import { sampleSpace } from "../../testing/sample-space"
 import { spacesSetup } from "../../testing/spaces-setup"
 import { provideSpaces } from "../context"
 import SettingsPage from "../SettingsPage.svelte"
-import { SpacesStore } from "../spaces.svelte"
+import { SpacesStore } from "../spaces-store.svelte"
 
 afterEach(cleanup)
 

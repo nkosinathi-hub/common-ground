@@ -2,7 +2,7 @@
   import { CalendarDays } from "@lucide/svelte"
   import { EmptyState, ErrorState, LoadMore, Loading } from "@/shared/ui"
   import { dayHeading } from "../domain"
-  import type { AgendaState } from "./agenda.svelte"
+  import type { AgendaState } from "./agenda-state.svelte"
   import EntryChip from "./EntryChip.svelte"
 
   interface Props {

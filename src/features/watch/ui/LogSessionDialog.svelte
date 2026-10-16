@@ -8,7 +8,7 @@
   import { FormError, FormState, toast } from "@/shared/ui"
   import { NOTE_MAX } from "../domain/validation"
   import { useWatch } from "./context"
-  import { SessionFormState } from "./session-form.svelte"
+  import { SessionFormState } from "./session-form-state.svelte"
 
   interface Props {
     open: boolean

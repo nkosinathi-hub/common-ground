@@ -9,7 +9,7 @@
   import PickDialog from "./PickDialog.svelte"
   import { PickState } from "./pick-state.svelte"
   import WatchGrid from "./WatchGrid.svelte"
-  import { WatchListState } from "./watch-list.svelte"
+  import { WatchListState } from "./watch-list-state.svelte"
   import WatchToolbar from "./WatchToolbar.svelte"
 
   interface Props {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { AuthService } from "../application/auth-service"
 import { FakeAuthGateway } from "../testing/fake-auth-gateway"
-import { SessionStore } from "./session.svelte"
+import { SessionStore } from "./session-store.svelte"
 
 const setup = () => {
   const gateway = new FakeAuthGateway()

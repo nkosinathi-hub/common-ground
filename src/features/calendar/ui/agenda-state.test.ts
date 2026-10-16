@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { appError, err, type DateOnly } from "@/shared/domain"
 import { draft, setup } from "../testing/fixtures"
-import { AgendaState } from "./agenda.svelte"
+import { AgendaState } from "./agenda-state.svelte"
 
 const d = (value: string) => value as DateOnly
 

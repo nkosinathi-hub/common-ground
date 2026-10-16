@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { sampleSpace } from "../testing/sample-space"
 import { spacesSetup } from "../testing/spaces-setup"
-import { SpacesStore } from "./spaces.svelte"
+import { SpacesStore } from "./spaces-store.svelte"
 
 const setup = () => {
   const spaces = spacesSetup()

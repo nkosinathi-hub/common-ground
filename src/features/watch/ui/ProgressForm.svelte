@@ -9,7 +9,7 @@
   import type { Progress } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
-  import { ProgressFormState } from "./progress-form.svelte"
+  import { ProgressFormState } from "./progress-form-state.svelte"
 
   const RATINGS = Array.from({ length: RATING_MAX }, (_, index) => String(index + 1)).map(
     (value) => ({ value, label: `${value} of ${RATING_MAX}` }),

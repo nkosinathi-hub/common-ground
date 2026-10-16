@@ -11,7 +11,7 @@
   import HardTalkFields from "./HardTalkFields.svelte"
   import HardTalkFooter from "./HardTalkFooter.svelte"
   import ModeSwitch from "./ModeSwitch.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
   import QuickNoteFields from "./QuickNoteFields.svelte"
   import RecipientField from "./RecipientField.svelte"
   import { SHEET } from "./sheet"

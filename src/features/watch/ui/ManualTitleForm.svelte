@@ -4,7 +4,7 @@
   import { FormError, FormState } from "@/shared/ui"
   import type { Result } from "@/shared/domain"
   import type { TitleDetailsInput } from "../domain/types"
-  import { TitleFormState } from "./title-form.svelte"
+  import { TitleFormState } from "./title-form-state.svelte"
   import TitleFields from "./TitleFields.svelte"
 
   interface Props {

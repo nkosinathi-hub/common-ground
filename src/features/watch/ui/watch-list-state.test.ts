@@ -3,7 +3,7 @@ import { appError } from "@/shared/domain"
 import { WatchService } from "../application/watch-service"
 import { FakeWatchGateway } from "../testing/fake-watch-gateway"
 import { SPACE_ID, item } from "../testing/fixtures"
-import { WatchListState } from "./watch-list.svelte"
+import { WatchListState } from "./watch-list-state.svelte"
 
 const setup = (count = 0, pageSize = 50) => {
   const gateway = new FakeWatchGateway()

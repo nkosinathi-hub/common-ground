@@ -2,7 +2,7 @@
   import { tick } from "svelte"
   import { todayDateOnly, type DateOnly } from "@/shared/domain"
   import { gridMove, monthOf, weekdayName, type WeekStart } from "../domain"
-  import type { CalendarState } from "./calendar.svelte"
+  import type { CalendarState } from "./calendar-state.svelte"
   import DayCell from "./DayCell.svelte"
 
   interface Props {

@@ -8,7 +8,7 @@
   import type { WeekStart } from "../domain"
   import AgendaList from "./AgendaList.svelte"
   import { isWide, viewerZone } from "./browser"
-  import { CalendarState } from "./calendar.svelte"
+  import { CalendarState } from "./calendar-state.svelte"
   import CalendarToolbar from "./CalendarToolbar.svelte"
   import { useCalendar } from "./context"
   import DayPanel from "./DayPanel.svelte"

@@ -3,7 +3,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Switch } from "$lib/components/ui/switch"
   import { timeZones } from "../domain"
-  import type { EventFormState } from "./event-form.svelte"
+  import type { EventFormState } from "./event-form-state.svelte"
   import FieldError from "./FieldError.svelte"
 
   interface Props {

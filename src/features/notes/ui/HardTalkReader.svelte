@@ -14,7 +14,7 @@
   import { useNotes } from "./context"
   import GentleResponses from "./GentleResponses.svelte"
   import HardTalkThread from "./HardTalkThread.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
   import { SHEET } from "./sheet"
 
   interface Props {

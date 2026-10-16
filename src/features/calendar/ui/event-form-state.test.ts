@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import type { CalendarEvent } from "../domain"
-import { EventFormState } from "./event-form.svelte"
+import { EventFormState } from "./event-form-state.svelte"
 
 const d = (value: string) => value as DateOnly
 const event: CalendarEvent = {

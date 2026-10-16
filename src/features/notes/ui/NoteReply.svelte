@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
   import { NOTE_MAX, type Note, type NoteReply } from "../domain"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
 
   interface Props {
     note: Note

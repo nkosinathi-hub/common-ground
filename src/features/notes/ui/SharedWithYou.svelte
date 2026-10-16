@@ -5,7 +5,7 @@
   import type { Note } from "../domain"
   import { useNotes } from "./context"
   import HardTalkReader from "./HardTalkReader.svelte"
-  import { NotesState } from "./notes.svelte"
+  import { NotesState } from "./notes-state.svelte"
 
   let { spaceId }: { spaceId: string } = $props()
   const { service, hardTalk, arrivals, changes, me } = useNotes()

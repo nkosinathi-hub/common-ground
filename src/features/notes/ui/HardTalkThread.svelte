@@ -4,7 +4,7 @@
   import { MessageSquare } from "@lucide/svelte"
   import type { Note } from "../domain"
   import NoteThread from "./NoteThread.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
 
   let { note, notes, mine }: { note: Note; notes: NotesState; mine: boolean } = $props()
   let open = $state(false)

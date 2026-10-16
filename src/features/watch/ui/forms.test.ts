@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import { ME, item } from "../testing/fixtures"
-import { ProgressFormState } from "./progress-form.svelte"
-import { SessionFormState } from "./session-form.svelte"
-import { TitleFormState } from "./title-form.svelte"
+import { ProgressFormState } from "./progress-form-state.svelte"
+import { SessionFormState } from "./session-form-state.svelte"
+import { TitleFormState } from "./title-form-state.svelte"
 
 const today = () => "2026-10-15" as DateOnly
 

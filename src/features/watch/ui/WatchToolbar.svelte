@@ -6,7 +6,7 @@
   import { INTENTS, MEDIA_TYPES, STATUSES } from "../domain/labels"
   import type { WatchSort } from "../domain/types"
   import Choice from "./Choice.svelte"
-  import type { WatchListState } from "./watch-list.svelte"
+  import type { WatchListState } from "./watch-list-state.svelte"
 
   const CHIPS = [{ value: null, label: "All titles" }, ...MEDIA_TYPES]
   const SORTS: readonly { value: WatchSort; label: string }[] = [

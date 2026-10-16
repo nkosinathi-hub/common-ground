@@ -6,7 +6,7 @@
   import { isUnread, whoToWhom, type Note } from "../domain"
   import HardTalkItem from "./HardTalkItem.svelte"
   import NoteThread from "./NoteThread.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
 
   interface Props {
     note: Note

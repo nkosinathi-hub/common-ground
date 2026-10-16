@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { inMemoryNotesService } from "../testing/notes-fixture"
-import { NotesState } from "./notes.svelte"
+import { NotesState } from "./notes-state.svelte"
 
 const draft = { recipientId: null, body: "Pizza?", pinned: false, expiry: "never" } as const
 

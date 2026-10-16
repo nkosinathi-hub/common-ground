@@ -3,7 +3,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import type { MemberRef } from "@/shared/domain"
-  import type { EventFormState } from "./event-form.svelte"
+  import type { EventFormState } from "./event-form-state.svelte"
   import EventTiming from "./EventTiming.svelte"
   import FieldError from "./FieldError.svelte"
   import { REMINDER_OPTIONS } from "./labels"

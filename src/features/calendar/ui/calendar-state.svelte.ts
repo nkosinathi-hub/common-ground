@@ -13,7 +13,7 @@ import {
   type WeekStart,
   type YearMonth,
 } from "../domain"
-import { AgendaState } from "./agenda.svelte"
+import { AgendaState } from "./agenda-state.svelte"
 import type { CalendarView, ViewMemory } from "./view-memory"
 
 export interface CalendarOptions {

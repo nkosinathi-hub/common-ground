@@ -1,7 +1,7 @@
 import type { DraftsService } from "../application/drafts-service"
 import { validateHardTalk } from "../domain"
 import type { ComposerState } from "./composer.svelte"
-import type { NotesState } from "./notes.svelte"
+import type { NotesState } from "./notes-state.svelte"
 
 /** Sends a quick note; true once it is sent. */
 export async function sendQuick(composer: ComposerState, notes: NotesState): Promise<boolean> {

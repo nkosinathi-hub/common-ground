@@ -6,7 +6,7 @@ import { spacesSetup } from "../testing/spaces-setup"
 import { provideSpaces } from "./context"
 import SpaceAvatar from "./SpaceAvatar.svelte"
 import SpaceBanner from "./SpaceBanner.svelte"
-import { SpacesStore } from "./spaces.svelte"
+import { SpacesStore } from "./spaces-store.svelte"
 
 afterEach(cleanup)
 

@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte"
 import type { AuthService } from "../application/auth-service"
-import type { SessionStore } from "./session.svelte"
+import type { SessionStore } from "./session-store.svelte"
 
 export interface AuthContext {
   readonly service: AuthService

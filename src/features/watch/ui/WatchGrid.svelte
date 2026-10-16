@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import WatchCard from "./WatchCard.svelte"
-  import type { WatchListState } from "./watch-list.svelte"
+  import type { WatchListState } from "./watch-list-state.svelte"
 
   interface Props {
     list: WatchListState

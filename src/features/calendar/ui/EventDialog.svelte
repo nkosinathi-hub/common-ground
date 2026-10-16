@@ -7,7 +7,7 @@
   import type { CalendarEvent } from "../domain"
   import { viewerZone } from "./browser"
   import { useCalendar } from "./context"
-  import { EventFormState } from "./event-form.svelte"
+  import { EventFormState } from "./event-form-state.svelte"
   import EventFields from "./EventFields.svelte"
   import WatchNightPicker from "./WatchNightPicker.svelte"
 

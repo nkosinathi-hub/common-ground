@@ -4,7 +4,7 @@
   import { FormError, FormState, toast } from "@/shared/ui"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
-  import { TitleFormState } from "./title-form.svelte"
+  import { TitleFormState } from "./title-form-state.svelte"
   import TitleFields from "./TitleFields.svelte"
 
   interface Props {

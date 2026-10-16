@@ -3,7 +3,7 @@
   import { AsyncView, Resource } from "@/shared/ui"
   import type { Note, NoteReply as Reply } from "../domain"
   import NoteReply from "./NoteReply.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
 
   interface Props {
     note: Note

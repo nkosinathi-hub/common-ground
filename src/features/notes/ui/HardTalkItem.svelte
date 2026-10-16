@@ -13,7 +13,7 @@
   } from "../domain"
   import { useNotes } from "./context"
   import HardTalkReader from "./HardTalkReader.svelte"
-  import type { NotesState } from "./notes.svelte"
+  import type { NotesState } from "./notes-state.svelte"
 
   let { note, notes, me }: { note: Note; notes: NotesState; me: string } = $props()
   const { changes } = useNotes()

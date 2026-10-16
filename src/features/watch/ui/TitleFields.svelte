@@ -7,7 +7,7 @@
   import { MEDIA_TYPES } from "../domain/labels"
   import { NOTE_MAX, SYNOPSIS_MAX, YEAR_DIGITS } from "../domain/validation"
   import Choice from "./Choice.svelte"
-  import type { TitleFormState } from "./title-form.svelte"
+  import type { TitleFormState } from "./title-form-state.svelte"
 
   interface Props {
     form: TitleFormState
