@@ -3,7 +3,7 @@ import { composeCalendar, provideCalendarFeature } from "./calendar"
 import { composeCollaboration, provideCollaboration } from "./collaboration"
 import { composeCore, provideCore } from "./core"
 import { composeIdeas, provideIdeasFeatures } from "./ideas"
-import { memberDirectory } from "./members"
+import { memberDirectory, provideMembers } from "./members"
 import { composeNotes, provideNotesFeature } from "./notes"
 import { composeWatch, provideWatchFeature } from "./watch"
 
@@ -28,6 +28,7 @@ export type Services = ReturnType<typeof compose>
 
 export function provideServices(services: Services): void {
   provideCore(services)
+  provideMembers({ members: services.members })
   provideCollaboration(services.collaboration)
   provideWatchFeature(services.watch, services.members)
   provideIdeasFeatures(services.ideas)

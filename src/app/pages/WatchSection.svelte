@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { useMembers } from "../composition/members"
   import { CommentThread } from "@/features/comments"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
-  import { useWatch, WatchItemDetail, WatchPage } from "@/features/watch"
+  import { WatchItemDetail, WatchPage } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
 
@@ -14,7 +15,7 @@
   }
 
   let { space, me, itemId }: Props = $props()
-  const { members } = useWatch()
+  const { members } = useMembers()
   const people = new Resource(() => members.members(space.id))
   $effect(() => void people.load())
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })

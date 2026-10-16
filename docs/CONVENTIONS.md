@@ -9,7 +9,7 @@ src/app/                    router (routing/), shell (shell/), pages (pages/)
 src/app/composition/        the only place adapters are built and provided as context:
   index.ts                  compose() and provideServices(), wires the modules below
   core.ts                   auth, account, spaces, catalog, notifications
-  members.ts                space membership as the shared MemberDirectory
+  members.ts                space membership as the shared MemberDirectory, provided to pages
   watch.ts                  watch
   ideas.ts                  ideas, research, tasks, budget
   collaboration.ts          comments, recommendations, attachments

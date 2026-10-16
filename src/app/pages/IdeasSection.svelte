@@ -1,9 +1,9 @@
 <script lang="ts">
+  import { useMembers } from "../composition/members"
   import { AttachmentsPanel } from "@/features/attachments"
   import { CommentThread } from "@/features/comments"
   import { IdeaDetail, IdeasPage } from "@/features/ideas"
   import type { Space } from "@/features/spaces"
-  import { useWatch } from "@/features/watch"
   import { buildHash, type IdeaTab } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
 
@@ -16,7 +16,7 @@
   }
 
   let { space, me, ideaId, tab }: Props = $props()
-  const { members } = useWatch()
+  const { members } = useMembers()
   const people = new Resource(() => members.members(space.id))
   $effect(() => void people.load())
   const isOwner = $derived(space.role === "owner")

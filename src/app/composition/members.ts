@@ -1,3 +1,4 @@
+import { getContext, setContext } from "svelte"
 import type { SpacesService } from "@/features/spaces"
 import { ok, type MemberDirectory } from "@/shared/domain"
 
@@ -11,4 +12,21 @@ export function memberDirectory(spaces: SpacesService): MemberDirectory {
         : list
     },
   }
+}
+
+const KEY = Symbol("members")
+
+export interface MembersContext {
+  readonly members: MemberDirectory
+}
+
+/** The space's members for src/app pages that hand a member list to several features. */
+export function provideMembers(value: MembersContext): void {
+  setContext(KEY, value)
+}
+
+export function useMembers(): MembersContext {
+  const value = getContext<MembersContext | undefined>(KEY)
+  if (!value) throw new Error("Members are not provided: call provideMembers")
+  return value
 }
