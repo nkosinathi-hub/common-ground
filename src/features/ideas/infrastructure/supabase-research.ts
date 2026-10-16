@@ -1,5 +1,5 @@
 import type { Cursor, Page, Result } from "@/shared/domain"
-import { newestFirst } from "@/shared/infrastructure/paging"
+import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { ChildCollection, ResearchRepository } from "../application/ports"
@@ -15,7 +15,7 @@ class SupabaseNotes implements ChildCollection<IdeaNote, string> {
 
   list(ideaId: string, after: Cursor | null): Promise<Result<Page<IdeaNote>>> {
     const query = this.table.select(rows.NOTE_COLUMNS).eq("idea_id", ideaId)
-    return settle(newestFirst(query, after), rows.pageOf(rows.toNote))
+    return settle(newestFirst(query, after), pageOf(rows.toNote))
   }
 
   add(spaceId: string, ideaId: string, body: string): Promise<Result<IdeaNote>> {
@@ -35,7 +35,7 @@ class SupabaseLinks implements ChildCollection<ResearchLink, LinkInput> {
 
   list(ideaId: string, after: Cursor | null): Promise<Result<Page<ResearchLink>>> {
     const query = this.table.select(rows.LINK_COLUMNS).eq("idea_id", ideaId)
-    return settle(newestFirst(query, after), rows.pageOf(rows.toLink))
+    return settle(newestFirst(query, after), pageOf(rows.toLink))
   }
 
   add(spaceId: string, ideaId: string, input: LinkInput): Promise<Result<ResearchLink>> {
@@ -55,7 +55,7 @@ class SupabaseHypotheses implements ChildCollection<Hypothesis, string> {
 
   list(ideaId: string, after: Cursor | null): Promise<Result<Page<Hypothesis>>> {
     const query = this.table.select(rows.HYPOTHESIS_COLUMNS).eq("idea_id", ideaId)
-    return settle(newestFirst(query, after), rows.pageOf(rows.toHypothesis))
+    return settle(newestFirst(query, after), pageOf(rows.toHypothesis))
   }
 
   add(spaceId: string, ideaId: string, statement: string): Promise<Result<Hypothesis>> {

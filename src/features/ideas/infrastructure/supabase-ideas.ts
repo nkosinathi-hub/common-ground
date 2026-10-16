@@ -1,15 +1,10 @@
-import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
-import { newestFirst } from "@/shared/infrastructure/paging"
+import type { Cursor, Page, Result } from "@/shared/domain"
+import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { IdeaPatch, IdeaScope, IdeasRepository, NewIdea } from "../application/ports"
 import type { Brief, Idea } from "../domain"
-import { IDEA_COLUMNS, toIdea, type IdeaRow } from "./idea-row"
-
-const toPage = (rows: IdeaRow[]): Page<Idea> => {
-  const items = rows.map(toIdea)
-  return { items, next: nextCursor(items) }
-}
+import { IDEA_COLUMNS, toIdea } from "./idea-row"
 
 export class SupabaseIdeas implements IdeasRepository {
   constructor(private readonly db: Db) {}
@@ -23,7 +18,7 @@ export class SupabaseIdeas implements IdeasRepository {
     if (scope?.whose === "mine") query = query.eq("created_by", scope.me)
     // `ours` is a computed field: the caller started the idea or accepted an invite to it.
     if (scope?.whose === "ours") query = query.is("ours", true)
-    return settle(newestFirst(query, after), toPage)
+    return settle(newestFirst(query, after), pageOf(toIdea))
   }
 
   get(id: string): Promise<Result<Idea>> {

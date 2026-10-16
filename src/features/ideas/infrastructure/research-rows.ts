@@ -1,4 +1,3 @@
-import { nextCursor, type Page } from "@/shared/domain"
 import type { Tables } from "@/shared/infrastructure/database.types"
 import type { Hypothesis, IdeaNote, ResearchLink } from "../domain"
 
@@ -42,11 +41,3 @@ export const toHypothesis = (row: HypothesisRow): Hypothesis => ({
   createdBy: row.created_by,
   createdAt: row.created_at,
 })
-
-/** Maps a page of rows; a full page carries the cursor for the next one. */
-export const pageOf =
-  <R, T extends { id: string; createdAt: string }>(map: (row: R) => T) =>
-  (rows: R[]): Page<T> => {
-    const items = rows.map(map)
-    return { items, next: nextCursor(items) }
-  }

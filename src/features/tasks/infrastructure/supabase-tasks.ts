@@ -1,15 +1,10 @@
-import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
-import { newestFirst } from "@/shared/infrastructure/paging"
+import type { Cursor, Page, Result } from "@/shared/domain"
+import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
 import type { Task, UpcomingTask } from "../domain"
 import * as rows from "./rows"
-
-const toPage = (data: rows.TaskRow[]): Page<Task> => {
-  const items = data.map(rows.toTask)
-  return { items, next: nextCursor(items) }
-}
 
 export class SupabaseTasks implements TasksRepository {
   constructor(private readonly db: Db) {}
@@ -20,7 +15,7 @@ export class SupabaseTasks implements TasksRepository {
 
   list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
     const query = this.tasks.select(rows.TASK_COLUMNS).eq("idea_id", ideaId)
-    return settle(newestFirst(query, after), toPage)
+    return settle(newestFirst(query, after), pageOf(rows.toTask))
   }
 
   create(input: NewTask): Promise<Result<Task>> {
