@@ -7,14 +7,14 @@ export type Database = {
           Tables: {
             "activity_events": {
                   Row: {
-                    "actor_id": string | null,"created_at": string,"event_type": string,"id": string,"space_id": string,"subject_id": string,"subject_type": string
+                    "actor_id": string | null,"created_at": string,"event_type": string,"id": string,"space_id": string,"subject_id": string,"subject_type": string,"target_id": string | null,"visible_to": (string)[] | null,"by_me": boolean | null
                   }
-                  ComputedFields: never
+                  ComputedFields: "by_me"
                   Insert: {
-                    "actor_id"?: string | null,"created_at"?: string,"event_type": string,"id"?: string,"space_id": string,"subject_id": string,"subject_type": string
+                    "actor_id"?: string | null,"created_at"?: string,"event_type": string,"id"?: string,"space_id": string,"subject_id": string,"subject_type": string,"target_id"?: string | null,"visible_to"?: (string)[] | null
                   }
                   Update: {
-                    "actor_id"?: string | null,"created_at"?: string,"event_type"?: string,"id"?: string,"space_id"?: string,"subject_id"?: string,"subject_type"?: string
+                    "actor_id"?: string | null,"created_at"?: string,"event_type"?: string,"id"?: string,"space_id"?: string,"subject_id"?: string,"subject_type"?: string,"target_id"?: string | null,"visible_to"?: (string)[] | null
                   }
                   Relationships: [
                     {
@@ -28,6 +28,12 @@ isOneToOne: false
       columns: ["space_id"]
 isOneToOne: false
       referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "activity_events_target_id_fkey"
+      columns: ["target_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -587,6 +593,64 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"space_note_drafts": {
+                  Row: {
+                    "author_id": string,"created_at": string,"id": string,"recipient_id": string | null,"response_wish": Database["public"]['Enums']["note_response_wish"],"sections": NonNullable<Json>,"space_id": string,"support_wish": Database["public"]['Enums']["note_support_wish"] | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"],"sections"?: NonNullable<Json>,"space_id": string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"],"sections"?: NonNullable<Json>,"space_id"?: string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_drafts_space_id_author_id_fkey"
+      columns: ["space_id","author_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    },{
+      foreignKeyName: "space_note_drafts_space_id_fkey"
+      columns: ["space_id"]
+isOneToOne: false
+      referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_drafts_space_id_recipient_id_fkey"
+      columns: ["space_id","recipient_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
+                },"space_note_nudges": {
+                  Row: {
+                    "created_at": string,"id": string,"note_id": string,"remind_at": string,"sent_at": string | null,"space_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"note_id": string,"remind_at": string,"sent_at"?: string | null,"space_id": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"note_id"?: string,"remind_at"?: string,"sent_at"?: string | null,"space_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_nudges_space_id_note_id_fkey"
+      columns: ["space_id","note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "space_note_nudges_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"space_note_reads": {
                   Row: {
                     "note_id": string,"read_at": string,"user_id": string
@@ -639,16 +703,42 @@ isOneToOne: false
       referencedColumns: ["space_id","id"]
     }
                   ]
-                },"space_notes": {
+                },"space_note_responses": {
                   Row: {
-                    "author_id": string | null,"body": string,"created_at": string,"expires_at": string | null,"id": string,"pinned": boolean,"recipient_id": string | null,"space_id": string,"updated_at": string
+                    "author_id": string | null,"created_at": string,"id": string,"kind": Database["public"]['Enums']["note_response_kind"],"note_id": string,"space_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "author_id"?: string | null,"body": string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"pinned"?: boolean,"recipient_id"?: string | null,"space_id": string,"updated_at"?: string
+                    "author_id"?: string | null,"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["note_response_kind"],"note_id": string,"space_id": string
                   }
                   Update: {
-                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"pinned"?: boolean,"recipient_id"?: string | null,"space_id"?: string,"updated_at"?: string
+                    "author_id"?: string | null,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["note_response_kind"],"note_id"?: string,"space_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_responses_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_responses_space_id_note_id_fkey"
+      columns: ["space_id","note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"space_notes": {
+                  Row: {
+                    "author_id": string | null,"body": string,"created_at": string,"expires_at": string | null,"id": string,"kind": Database["public"]['Enums']["note_kind"],"pinned": boolean,"recipient_id": string | null,"response_wish": Database["public"]['Enums']["note_response_wish"] | null,"sections": Json | null,"space_id": string,"support_wish": Database["public"]['Enums']["note_support_wish"] | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["note_kind"],"pinned"?: boolean,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"] | null,"sections"?: Json | null,"space_id": string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["note_kind"],"pinned"?: boolean,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"] | null,"sections"?: Json | null,"space_id"?: string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -874,6 +964,9 @@ isOneToOne: false
 "after_member_left":
 { Args: { "member": string,"target_space": string }; Returns: undefined
                            },
+"by_me":
+{ Args: { "": Database["public"]['Tables']["activity_events"]['Row'] }; Returns: { error: true } & "the function public.by_me with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
+                           },
 "can_read_attachment_object":
 { Args: { "path": string }; Returns: boolean
                            },
@@ -907,6 +1000,9 @@ isOneToOne: false
 { Args: { "confirm_name": string,"target_space": string }; Returns: undefined
                            },
 "deliver_event_reminders":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"deliver_note_nudges":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "edit_comment":
@@ -978,6 +1074,9 @@ isOneToOne: false
 "is_valid_idea_brief":
 { Args: { "brief": Json }; Returns: boolean
                            },
+"is_valid_note_sections":
+{ Args: { "allow_empty": boolean,"sections": Json }; Returns: boolean
+                           },
 "leave_space":
 { Args: { "target_space": string }; Returns: undefined
                            },
@@ -1032,9 +1131,13 @@ isOneToOne: false
 "created_at": string,
 "expires_at": string | null,
 "id": string,
+"kind": Database["public"]['Enums']["note_kind"],
 "pinned": boolean,
 "recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
 "space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
 "updated_at": string
             }
                           SetofOptions: {
@@ -1048,6 +1151,9 @@ isOneToOne: false
                            },
 "record_activity":
 { Args: { "kind": string,"subject": string,"subject_kind": string,"target_space": string }; Returns: undefined
+                           },
+"record_private_activity":
+{ Args: { "kind": string,"subject": string,"subject_kind": string,"target": string,"target_space": string }; Returns: undefined
                            },
 "redeem_invite":
 { Args: { "token": string }; Returns: string
@@ -1082,6 +1188,21 @@ isOneToOne: false
 "respond_recommendation":
 { Args: { "response": string,"target": string }; Returns: undefined
                            },
+"respond_to_note":
+{ Args: { "kind": Database["public"]['Enums']["note_response_kind"],"note": string,"remind_in_days": number }; Returns: {
+              "author_id": string | null,
+"created_at": string,
+"id": string,
+"kind": Database["public"]['Enums']["note_response_kind"],
+"note_id": string,
+"space_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_note_responses"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "revoke_invite":
 { Args: { "invite": string }; Returns: undefined
                            },
@@ -1091,6 +1212,28 @@ isOneToOne: false
 "save_watch_progress":
 { Args: { "item": string,"new_completed_on": string,"new_episode": number,"new_rating": number,"new_season": number,"new_status": Database["public"]['Enums']["watch_status"] }; Returns: undefined
                            },
+"send_note_draft":
+{ Args: { "draft": string }; Returns: {
+              "author_id": string | null,
+"body": string,
+"created_at": string,
+"expires_at": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["note_kind"],
+"pinned": boolean,
+"recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
+"space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_notes"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "set_event_attendees":
 { Args: { "event": string,"members": (string)[] }; Returns: undefined
                            },
@@ -1127,9 +1270,13 @@ isOneToOne: false
 "created_at": string,
 "expires_at": string | null,
 "id": string,
+"kind": Database["public"]['Enums']["note_kind"],
 "pinned": boolean,
 "recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
 "space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
 "updated_at": string
             }
                           SetofOptions: {
@@ -1140,7 +1287,7 @@ isOneToOne: false
       } }
           }
           Enums: {
-            "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_status": "not_started"|"watching"|"completed"|"dropped"
+            "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","note_kind": "note"|"hard_talk","note_response_kind": "here"|"time"|"talk"|"thanks","note_response_wish": "talk"|"write"|"read"|"any","note_support_wish": "listen"|"solve","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_status": "not_started"|"watching"|"completed"|"dropped"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1256,7 +1403,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "attachment_status": ["pending", "ready", "rejected"],"event_rsvp": ["pending", "going", "maybe", "declined"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"space_theme": ["blank", "couple", "friends", "family", "ocean", "meadow", "dusk", "berry"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_status": ["not_started", "watching", "completed", "dropped"]
+            "attachment_status": ["pending", "ready", "rejected"],"event_rsvp": ["pending", "going", "maybe", "declined"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"note_kind": ["note", "hard_talk"],"note_response_kind": ["here", "time", "talk", "thanks"],"note_response_wish": ["talk", "write", "read", "any"],"note_support_wish": ["listen", "solve"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"space_theme": ["blank", "couple", "friends", "family", "ocean", "meadow", "dusk", "berry"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_status": ["not_started", "watching", "completed", "dropped"]
           }
         }
 } as const
