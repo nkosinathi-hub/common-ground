@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import { Input } from "$lib/components/ui/input"
   import type { Result } from "@/shared/domain"
-  import { AsyncView, DeleteButton, Resource } from "@/shared/ui"
+  import { AsyncView, DeleteButton, FormError, Resource } from "@/shared/ui"
   import { checklistProgress, LABEL_MAX, type ChecklistItem, type Task } from "../domain"
   import { useTasks } from "./context"
 
@@ -86,5 +86,5 @@
       bind:value={label}
     />
   </form>
-  {#if error}<p class="text-xs text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} class="text-xs" />
 </div>

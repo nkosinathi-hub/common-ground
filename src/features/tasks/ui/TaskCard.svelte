@@ -2,7 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import { ChevronDown } from "@lucide/svelte"
   import { formatDateOnly, todayDateOnly } from "@/shared/domain"
-  import { DeleteButton } from "@/shared/ui"
+  import { DeleteButton, FormError } from "@/shared/ui"
   import { isOverdue, type Task } from "../domain"
   import Checklist from "./Checklist.svelte"
   import TaskFields from "./TaskFields.svelte"
@@ -41,7 +41,7 @@
       {overdue ? "Overdue: " : "Due "}{formatDateOnly(task.dueDate)}
     </p>
   {/if}
-  {#if error}<p class="text-xs text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} class="text-xs" />
   <Button
     variant="ghost"
     size="xs"

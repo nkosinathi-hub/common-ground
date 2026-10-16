@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
   import type { MemberRef, Result } from "@/shared/domain"
-  import { DeleteButton } from "@/shared/ui"
+  import { DeleteButton, FormError } from "@/shared/ui"
   import {
     canDelete,
     IDEA_STAGES,
@@ -87,5 +87,5 @@
       />
     </label>
   </div>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
 </header>

@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import type { DateOnly } from "@/shared/domain"
-  import { FormState, Resource, toast } from "@/shared/ui"
+  import { FormError, FormState, Resource, toast } from "@/shared/ui"
   import type { CalendarEvent } from "../domain"
   import { viewerZone } from "./browser"
   import { useCalendar } from "./context"
@@ -86,9 +86,7 @@
         members={people.value ?? []}
         errorFor={(f) => submission.fieldError(f)}
       />
-      {#if submission.formError}
-        <p role="alert" class="text-sm text-destructive">{submission.formError}</p>
-      {/if}
+      <FormError message={submission.formError} />
       <Dialog.Footer>
         <Button type="button" variant="ghost" onclick={() => (open = false)}>Cancel</Button>
         <Button type="submit" disabled={submission.pending}>{event ? "Save" : "Add event"}</Button>

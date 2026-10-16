@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
   import { NOTE_MAX, type Note, type NoteReply } from "../domain"
@@ -31,7 +32,7 @@
 <form class="flex flex-col gap-1" onsubmit={send}>
   <label class="sr-only" for={id}>Your reply</label>
   <Textarea {id} rows={2} maxlength={NOTE_MAX} placeholder="Write a reply" bind:value={body} />
-  {#if error}<p class="text-xs text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} class="text-xs" />
   <Button type="submit" size="sm" class="self-start" disabled={sending || !body.trim()}
     >Send reply</Button
   >

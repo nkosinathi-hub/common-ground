@@ -3,7 +3,7 @@
   import type { Cursor } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { DeleteButton, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
   import {
     canDelete,
     HYPOTHESIS_MAX,
@@ -60,7 +60,7 @@
     />
     <Button type="submit" size="sm" disabled={!statement.trim()}>Add</Button>
   </form>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
   <ul class="flex flex-col gap-2">
     {#each list.items as hypothesis (hypothesis.id)}
       <li

@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { useIdeas } from "@/features/ideas"
-  import { FormField, FormState, navigate, toast } from "@/shared/ui"
+  import { FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
   interface Props {
@@ -50,7 +50,7 @@
     </Dialog.Header>
     <form class="grid gap-4" onsubmit={submit} novalidate>
       <FormField id="quick-idea" label="Idea" bind:value={title} error={form.fieldError("title")} />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" disabled={form.pending || !title.trim()}>Save idea</Button>
     </form>
   </Dialog.Content>

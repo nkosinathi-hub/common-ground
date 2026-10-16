@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
@@ -57,5 +58,5 @@
     aria-invalid={invalid("actual")}
   />
   <Button type="submit" size="sm"><Plus />Add line</Button>
-  {#if error}<p class="text-sm text-destructive sm:col-span-5" role="alert">{error.message}</p>{/if}
+  <FormError message={error?.message} class="sm:col-span-5" />
 </form>

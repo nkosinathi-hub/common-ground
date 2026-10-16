@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { FormField, FormState, toast } from "@/shared/ui"
+  import { FormError, FormField, FormState, toast } from "@/shared/ui"
   import { MIN_PASSWORD } from "@/shared/domain"
   import { useAccount } from "./context"
 
@@ -40,7 +40,7 @@
         error={form.fieldError("password")}
         hint={`At least ${MIN_PASSWORD} characters.`}
       />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Change password</Button>
     </form>
   </Card.Content>

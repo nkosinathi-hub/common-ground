@@ -3,7 +3,7 @@
   import type { Cursor } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { DeleteButton, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
   import { canDelete, NOTE_MAX, type Idea, type IdeaNote, type Viewer } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
@@ -48,7 +48,7 @@
       placeholder="Jot something down"
       rows={2}
     />
-    {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+    <FormError message={error} />
     <Button type="submit" size="sm" class="self-start" disabled={!body.trim()}>Add note</Button>
   </form>
   <ul class="flex flex-col gap-2">

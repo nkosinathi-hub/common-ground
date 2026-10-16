@@ -13,7 +13,7 @@
     type LinkInput,
     type ResearchLink,
   } from "../domain"
-  import { PagedList } from "@/shared/ui"
+  import { FormError, PagedList } from "@/shared/ui"
   import { useResearch } from "./context"
   import LinkItem from "./LinkItem.svelte"
   import ListFooter from "./ListFooter.svelte"
@@ -74,9 +74,7 @@
       maxlength={LINK_DESCRIPTION_MAX}
       bind:value={draft.description}
     />
-    {#if error}<p class="text-sm text-destructive sm:col-span-2" role="alert">
-        {error.message}
-      </p>{/if}
+    <FormError message={error?.message} class="sm:col-span-2" />
     <Button type="submit" size="sm" class="self-start">Add link</Button>
   </form>
   <ul class="flex flex-col gap-2">

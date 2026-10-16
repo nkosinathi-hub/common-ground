@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import type { AppError, Result } from "@/shared/domain"
-  import { AsyncView, Resource } from "@/shared/ui"
+  import { AsyncView, FormError, Resource } from "@/shared/ui"
   import { milestoneProgress, type Milestone, type MilestoneInput } from "../domain"
   import { STALE_COPY } from "./conflict"
   import { useTasks } from "./context"
@@ -56,7 +56,7 @@
       >{/if}
   </h2>
   <MilestoneForm {error} onAdd={add} />
-  {#if error}<p class="text-sm text-destructive" role="alert">{error.message}</p>{/if}
+  <FormError message={error?.message} />
   <AsyncView resource={list}>
     {#snippet children(items)}
       <ul class="flex flex-col gap-2">

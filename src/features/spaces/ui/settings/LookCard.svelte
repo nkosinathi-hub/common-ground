@@ -3,7 +3,7 @@
   import { mode } from "mode-watcher"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { FormState } from "@/shared/ui"
+  import { FormError, FormState } from "@/shared/ui"
   import { lookOf, type SpacePreset } from "../../domain/look"
   import type { Space } from "../../domain/space"
   import { useSpaces } from "../context"
@@ -52,7 +52,7 @@
         <span class="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground">Preview</span>
         <span class="text-sm font-medium text-primary">How links and buttons look</span>
       </div>
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Save look</Button>
     </form>
   </Card.Content>

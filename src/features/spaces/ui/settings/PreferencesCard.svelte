@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { FormState } from "@/shared/ui"
+  import { FormError, FormState } from "@/shared/ui"
   import type { Space } from "../../domain/space"
   import { useSpaces } from "../context"
   import ChoiceGroup from "./ChoiceGroup.svelte"
@@ -52,7 +52,7 @@
         options={WEEK_STARTS}
         bind:value={weekStart}
       />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Save preferences</Button>
     </form>
   </Card.Content>

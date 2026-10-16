@@ -5,7 +5,7 @@
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import type { Space } from "../../domain/space"
   import type { SpaceTemplateId } from "../../domain/templates"
   import { useSpaces } from "../context"
@@ -69,7 +69,7 @@
       </div>
       <IconPicker bind:value={icon} />
       <TemplatePicker bind:value={template} />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Save</Button>
     </form>
   </Card.Content>

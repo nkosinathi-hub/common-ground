@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
@@ -48,4 +49,4 @@
   </select>
   <Button type="submit" disabled={busy || !title.trim()}><Plus />Capture</Button>
 </form>
-{#if error}<p id="idea-capture-error" class="text-sm text-destructive" role="alert">{error}</p>{/if}
+<FormError id="idea-capture-error" message={error} />

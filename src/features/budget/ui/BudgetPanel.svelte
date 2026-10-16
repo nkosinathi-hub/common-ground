@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import type { AppError } from "@/shared/domain"
-  import { AsyncView, Resource } from "@/shared/ui"
+  import { AsyncView, FormError, Resource } from "@/shared/ui"
   import { budgetTotals, type BudgetEntry, type EntryForm as Form } from "../domain"
   import BudgetSummary from "./BudgetSummary.svelte"
   import BudgetTable from "./BudgetTable.svelte"
@@ -71,5 +71,5 @@
       <BudgetTable entries={list} {currency} {canDelete} onEdit={edit} onRemove={remove} />
     {/snippet}
   </AsyncView>
-  {#if notice}<p class="text-sm text-destructive" role="alert">{notice}</p>{/if}
+  <FormError message={notice} />
 </section>

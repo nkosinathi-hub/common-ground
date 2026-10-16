@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { FormField, FormState, toast } from "@/shared/ui"
+  import { FormError, FormField, FormState, toast } from "@/shared/ui"
   import { useAccount } from "./context"
 
   interface Props {
@@ -36,7 +36,7 @@
         bind:value={name}
         error={form.fieldError("displayName")}
       />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Save name</Button>
     </form>
   </Card.Content>

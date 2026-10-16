@@ -11,7 +11,7 @@
     toggleCard,
     type HomeCardId,
   } from "@/shared/domain"
-  import { FormState } from "@/shared/ui"
+  import { FormError, FormState } from "@/shared/ui"
   import type { Space } from "../../domain/space"
   import { useSpaces } from "../context"
   import { saveAndRefresh } from "./save"
@@ -76,7 +76,7 @@
           </li>
         {/each}
       </ul>
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" class="w-fit" disabled={form.pending}>Save layout</Button>
     </form>
   </Card.Content>

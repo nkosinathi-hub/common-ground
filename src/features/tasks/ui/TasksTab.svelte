@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
-  import { ErrorState, LoadMore, Loading } from "@/shared/ui"
+  import { ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
   import { groupByStatus, TITLE_MAX } from "../domain"
   import { useTasks } from "./context"
   import { STATUS_LABELS } from "./labels"
@@ -69,7 +69,7 @@
       >
     </div>
   </div>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
 
   {#if list.error && list.items.length === 0}
     <ErrorState error={list.error} onRetry={() => board.load()} />

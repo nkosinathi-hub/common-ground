@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { ConfirmDialog, FormField, FormState, toast, navigate } from "@/shared/ui"
+  import { ConfirmDialog, FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
   import type { Space } from "../domain/space"
   import { useSpaces } from "./context"
 
@@ -60,9 +60,7 @@
           autocomplete="current-password"
           bind:value={password}
         />
-        {#if form.error}<p role="alert" class="text-sm text-destructive">
-            {form.error.message}
-          </p>{/if}
+        <FormError message={form.error?.message} />
         <Button
           type="submit"
           variant="destructive"
