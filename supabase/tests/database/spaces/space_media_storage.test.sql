@@ -46,30 +46,36 @@ select tests.act_as('med_ben');
 select throws_ok($$ insert into storage.objects (bucket_id, name) values
   ('space-media', pg_temp.obj('d5000000-0000-4000-8000-000000000001', 'cover', 20)) $$,
   '42501', null, 'members cannot upload');
-select is((select count(*)::int from storage.objects where bucket_id = 'space-media'), 6,
+select is((select count(*)::int from storage.objects where bucket_id = 'space-media'
+  and name like 'd5000000-%'), 6,
   'members read the space media');
 update storage.objects set metadata = '{"hacked": true}' where bucket_id = 'space-media';
 delete from storage.objects where bucket_id = 'space-media';
 
 select tests.act_as('med_eve');
-select is((select count(*)::int from storage.objects where bucket_id = 'space-media'), 0,
+select is((select count(*)::int from storage.objects where bucket_id = 'space-media'
+  and name like 'd5000000-%'), 0,
   'a nonmember reads nothing');
 select tests.act_as_anon();
-select is((select count(*)::int from storage.objects where bucket_id = 'space-media'), 0,
+select is((select count(*)::int from storage.objects where bucket_id = 'space-media'
+  and name like 'd5000000-%'), 0,
   'anon reads nothing');
 
 select tests.act_as('med_ana');
 update storage.objects set metadata = '{"hacked": true}' where bucket_id = 'space-media';
 select tests.reset_role();
-select is((select count(*)::int from storage.objects where metadata ? 'hacked'), 0,
+select is((select count(*)::int from storage.objects where metadata ? 'hacked'
+  and name like 'd5000000-%'), 0,
   'nobody updates objects');
-select is((select count(*)::int from storage.objects where bucket_id = 'space-media'), 6,
+select is((select count(*)::int from storage.objects where bucket_id = 'space-media'
+  and name like 'd5000000-%'), 6,
   'members cannot delete');
 select tests.act_as('med_ana');
 delete from storage.objects
   where name = pg_temp.obj('d5000000-0000-4000-8000-000000000001', 'avatar', 1);
 select tests.reset_role();
-select is((select count(*)::int from storage.objects where bucket_id = 'space-media'), 5,
+select is((select count(*)::int from storage.objects where bucket_id = 'space-media'
+  and name like 'd5000000-%'), 5,
   'the owner deletes');
 select is(public.space_media_space('d5000000-0000-4000-8000-000000000001/avatar/x.webp'), null,
   'a malformed path belongs to no space');

@@ -12,7 +12,9 @@ select public.rsvp_event((select id from ev), 'declined');
 create function pg_temp.told(kind text) returns text[] language sql as $$
   select coalesce(array_agg(replace(u.email, '@test.local', '') order by u.email), '{}')
   from public.notifications n join auth.users u on u.id = n.recipient_id
-  where n.type = kind and n.subject_type = 'calendar_event' $$;
+  where n.type = kind and n.subject_type = 'calendar_event'
+    and n.recipient_id in (select tests.user_id(h) from unnest(array['cal_ana', 'cal_ben',
+      'cal_cat', 'cal_eve']) h) $$;
 
 select tests.act_as('cal_ana');
 update public.calendar_events set description = 'Bring snacks' where id = (select id from ev);
@@ -35,7 +37,8 @@ select set_config('request.jwt.claims', '', true);
 delete from public.notifications;
 delete from public.spaces where id = 'ca000000-0000-4000-8000-000000000001';
 select is(pg_temp.told('event_cancelled'), '{}', 'deleting the space cancels nothing loudly');
-select is((select count(*)::int from public.calendar_events), 0, 'and removes its events');
+select is((select count(*)::int from public.calendar_events
+  where space_id = 'ca000000-0000-4000-8000-000000000001'), 0, 'and removes its events');
 
 select * from finish();
 rollback;

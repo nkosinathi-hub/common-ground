@@ -16,7 +16,8 @@ insert into public.idea_collaborators (space_id, idea_id, user_id, accepted_at)
     tests.user_id(h), case when h = 'if_cat' then now() end from unnest(array['if_cat', 'if_dan']) h;
 create function pg_temp.got(kind text) returns text[] language sql as $$
   select coalesce(array_agg(replace(u.email, '@test.local', '') order by u.email), '{}')
-  from public.notifications n join auth.users u on u.id = n.recipient_id where n.type = kind $$;
+  from public.notifications n join auth.users u on u.id = n.recipient_id
+  where n.type = kind and n.space_id = 'e9000000-0000-4000-8000-000000000001' $$;
 
 -- The trigger is deferred until the mentions exist; tests fire it with set constraints.
 select tests.act_as('if_ana');
@@ -47,8 +48,8 @@ select public.post_comment('e9000000-0000-4000-8000-000000000001', 'watch',
 set constraints all immediate;
 set constraints all deferred;
 select tests.reset_role();
-select is((select count(*)::int from public.notifications where type = 'idea_comment'), 2,
-  'comments on titles notify nobody');
+select is((select count(*)::int from public.notifications where type = 'idea_comment'
+  and space_id = 'e9000000-0000-4000-8000-000000000001'), 2, 'comments on titles notify nobody');
 
 select tests.act_as('if_ana');
 update public.ideas set stage = 'planning' where id = 'e9000000-0000-4000-8000-000000000011';

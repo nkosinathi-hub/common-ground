@@ -48,8 +48,8 @@ select lives_ok($$ select public.invite_idea_collaborator('e8000000-0000-4000-80
 select tests.reset_role();
 select is((select count(*)::int from public.notifications where recipient_id = tests.user_id('ic_ben')
   and type = 'idea_invite_accepted'), 1, 'the inviter hears about the acceptance');
-select is((select count(*)::int from public.activity_events where event_type = 'idea_collaborator_joined'),
-  1, 'joining is recorded');
+select is((select count(*)::int from public.activity_events where event_type = 'idea_collaborator_joined'
+  and space_id = 'e8000000-0000-4000-8000-000000000001'), 1, 'joining is recorded');
 select is((select array_agg(u order by u) from public.idea_participants(
   'e8000000-0000-4000-8000-000000000011') u),
   (select array_agg(u order by u) from unnest(array[tests.user_id('ic_ben'), tests.user_id('ic_cat')]) u),
