@@ -4,7 +4,7 @@ import { ChecklistService } from "../application/checklist-service"
 import { MilestonesService } from "../application/milestones-service"
 import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
-import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
+import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
 import { tasksContext } from "./context"
 import MilestonesPanel from "./MilestonesPanel.svelte"
 import TasksTab from "./TasksTab.svelte"
@@ -13,7 +13,7 @@ const place = { spaceId: "s", ideaId: "i" }
 const mineOnly = (createdBy: string | null) => createdBy === "ana"
 
 async function setup(author: string) {
-  const members = new FakeMembers()
+  const members = anaAndBen()
   const repos = {
     tasks: new InMemoryTasks(members),
     checklist: new InMemoryChecklist(),

@@ -4,14 +4,14 @@ import { ChecklistService } from "../application/checklist-service"
 import { MilestonesService } from "../application/milestones-service"
 import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
-import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
+import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
 import { tasksContext } from "./context"
 import MilestonesPanel from "./MilestonesPanel.svelte"
 
 const place = { spaceId: "s", ideaId: "i" }
 
 async function setup() {
-  const members = new FakeMembers()
+  const members = anaAndBen()
   const milestones = new MilestonesService(new InMemoryMilestones())
   const added = await milestones.add(place, { title: "Open", targetDate: null })
   if (!added.ok) throw new Error("add failed")
