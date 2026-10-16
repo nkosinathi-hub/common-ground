@@ -4,6 +4,7 @@
   import { SettingsPage, useSpaces } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
   import HomePage from "./pages/HomePage.svelte"
+  import CalendarSection from "./pages/CalendarSection.svelte"
   import IdeasSection from "./pages/IdeasSection.svelte"
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
@@ -21,7 +22,7 @@
 </script>
 
 {#key space.id}
-  <AppShell spaceId={space.id} current={section} theme={space.template} onSignOut={signOut}>
+  <AppShell {space} current={section} onSignOut={signOut}>
     {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
     {#if route.name === "home"}
       <HomePage {space} />
@@ -33,6 +34,8 @@
         ideaId={route.name === "idea" ? route.ideaId : null}
         tab={route.name === "idea" ? route.tab : "overview"}
       />
+    {:else if route.name === "calendar" || route.name === "event"}
+      <CalendarSection {space} eventId={route.name === "event" ? route.eventId : null} />
     {:else if route.name === "settings"}
       <SettingsPage {space} me={session.user?.id ?? ""} />
     {/if}

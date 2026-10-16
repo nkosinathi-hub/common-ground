@@ -5,9 +5,10 @@ export type Route =
   | { name: "entry" | "not-found" | "sign-in" | "sign-up" | "reset" | "new-password" }
   | { name: "new-space" | "account" | "privacy" }
   | { name: "invite"; token: string }
-  | { name: "home" | "watch" | "ideas" | "settings"; spaceId: string }
+  | { name: "home" | "watch" | "ideas" | "calendar" | "settings"; spaceId: string }
   | { name: "watch-item"; spaceId: string; itemId: string }
   | { name: "idea"; spaceId: string; ideaId: string; tab: IdeaTab }
+  | { name: "event"; spaceId: string; eventId: string }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const TOKEN = /^[A-Za-z0-9_-]{8,128}$/
@@ -21,7 +22,7 @@ const STATIC: Record<string, Route> = {
   account: { name: "account" },
   privacy: { name: "privacy" },
 }
-const SPACE_PAGES = new Set(["home", "watch", "ideas", "settings"])
+const SPACE_PAGES = new Set(["home", "watch", "ideas", "calendar", "settings"])
 const notFound: Route = { name: "not-found" }
 
 const isTab = (value: string): value is IdeaTab => (IDEA_TABS as readonly string[]).includes(value)
@@ -32,6 +33,7 @@ function parseSpace(spaceId: string, rest: string[]): Route {
   if (subject === undefined) return { name: page as "home", spaceId }
   if (!UUID.test(subject)) return notFound
   if (page === "watch" && tab === undefined) return { name: "watch-item", spaceId, itemId: subject }
+  if (page === "calendar" && tab === undefined) return { name: "event", spaceId, eventId: subject }
   if (page !== "ideas" || rest.length > 3) return notFound
   const chosen = tab ?? "overview"
   return isTab(chosen) ? { name: "idea", spaceId, ideaId: subject, tab: chosen } : notFound
@@ -60,12 +62,15 @@ export function buildHash(route: Route): string {
     case "home":
     case "watch":
     case "ideas":
+    case "calendar":
     case "settings":
       return `#/s/${route.spaceId}/${route.name}`
     case "watch-item":
       return `#/s/${route.spaceId}/watch/${route.itemId}`
     case "idea":
       return `#/s/${route.spaceId}/ideas/${route.ideaId}/${route.tab}`
+    case "event":
+      return `#/s/${route.spaceId}/calendar/${route.eventId}`
     default: {
       const entry = Object.entries(STATIC).find(([, r]) => r.name === route.name)
       return `#/${entry?.[0] ?? ""}`

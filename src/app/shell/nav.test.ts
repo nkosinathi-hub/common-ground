@@ -8,6 +8,8 @@ describe("sectionOf", () => {
     expect(sectionOf("watch-item")).toBe("watch")
     expect(sectionOf("ideas")).toBe("ideas")
     expect(sectionOf("idea")).toBe("ideas")
+    expect(sectionOf("calendar")).toBe("calendar")
+    expect(sectionOf("event")).toBe("calendar")
     expect(sectionOf("settings")).toBeNull()
   })
 })

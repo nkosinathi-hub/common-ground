@@ -19,6 +19,8 @@ const cases: [string, Route][] = [
   [`#/s/${id}/ideas`, { name: "ideas", spaceId: id }],
   [`#/s/${id}/ideas/${other}/tasks`, { name: "idea", spaceId: id, ideaId: other, tab: "tasks" }],
   [`#/s/${id}/settings`, { name: "settings", spaceId: id }],
+  [`#/s/${id}/calendar`, { name: "calendar", spaceId: id }],
+  [`#/s/${id}/calendar/${other}`, { name: "event", spaceId: id, eventId: other }],
 ]
 
 describe("hash routes", () => {
