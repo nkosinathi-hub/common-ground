@@ -58,6 +58,16 @@ describe("SupabaseAuthGateway", () => {
     })
   })
 
+  it("reauthenticates, telling a wrong password from an outage", async () => {
+    const session = { getSession: { data: { session: { user } } } }
+    const wrong = stub({ ...session, signInWithPassword: failure({ status: 400 }) })
+    expect(await wrong.gateway.reauthenticate("p")).toMatchObject({ error: { kind: "denied" } })
+    const outage = stub({ ...session, signInWithPassword: failure({ status: 429 }) })
+    expect(await outage.gateway.reauthenticate("p")).toMatchObject({
+      error: { kind: "rate_limited" },
+    })
+  })
+
   it("reads a used or expired code as an expired link", async () => {
     const { gateway } = stub({ exchangeCodeForSession: failure({ status: 400 }) })
     expect(await gateway.exchangeCode("c")).toMatchObject({ error: { kind: "validation" } })
