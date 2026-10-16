@@ -68,6 +68,17 @@ describe("ActivityFeed", () => {
     expect(sizes).toEqual([6])
   })
 
+  it("words a private entry from the viewer's side", async () => {
+    const { activity, provide } = setup()
+    const at = "2026-10-15T09:00:00Z"
+    const base = { subjectType: "space_note", subjectId: "n", createdAt: at, targetName: "Ben" }
+    activity.events = [
+      { ...base, id: "e1", eventType: "hard_talk_shared", actorName: "Ana", byMe: true },
+    ]
+    render(Provided, { props: { provide, component: ActivityFeed, props: { spaceId: "s" } } })
+    expect(await screen.findByText("You shared something with Ben")).toBeInTheDocument()
+  })
+
   it("reports a failed load with a retry", async () => {
     const { activity, provide } = setup()
     activity.list = async () => err(appError("unknown", "Activity is unavailable"))

@@ -1,5 +1,5 @@
 import { buildHash, FORMER_MEMBER, type IdeaTab } from "@/shared/domain"
-import { ACTIVITY, MESSAGES } from "./messages"
+import { ACTIVITY, MESSAGES, PRIVATE_ACTIVITY } from "./messages"
 
 export interface Notification {
   readonly id: string
@@ -19,6 +19,10 @@ export interface ActivityEvent {
   readonly subjectId: string
   readonly actorName: string | null
   readonly createdAt: string
+  /** The viewer did it (private entries are worded from their side). */
+  readonly byMe: boolean
+  /** The other person in a private entry. */
+  readonly targetName: string | null
 }
 
 const who = (name: string | null) => name ?? FORMER_MEMBER
@@ -29,7 +33,13 @@ export function describeNotification(note: Pick<Notification, "type" | "actorNam
   return (MESSAGES[note.type] ?? SOMETHING)(who(note.actorName))
 }
 
-export function describeActivity(event: Pick<ActivityEvent, "eventType" | "actorName">): string {
+type Described = Pick<ActivityEvent, "eventType" | "actorName"> &
+  Partial<Pick<ActivityEvent, "byMe" | "targetName">>
+
+export function describeActivity(event: Described): string {
+  const own = PRIVATE_ACTIVITY[event.eventType]
+  if (own)
+    return event.byMe ? own.mine(who(event.targetName ?? null)) : own.theirs(who(event.actorName))
   const action = ACTIVITY[event.eventType] ?? event.eventType.replaceAll("_", " ")
   return `${who(event.actorName)} ${action}`
 }

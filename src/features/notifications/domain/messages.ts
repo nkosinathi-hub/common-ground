@@ -19,6 +19,10 @@ export const MESSAGES: Record<string, (actor: string) => string> = {
   event_updated: (actor) => `${actor} changed a plan`,
   event_cancelled: (actor) => `${actor} cancelled a plan`,
   event_reminder: () => "A plan is coming up",
+  // "Something on my mind" notes: never a word of what was shared.
+  hard_talk: (actor) => `${actor} shared something with you`,
+  note_response: (actor) => `${actor} responded to what you shared`,
+  note_nudge: () => "A gentle reminder you asked for: a note is waiting when you're ready",
 }
 
 /** Activity feed verbs by event type; the actor's name is prefixed. */
@@ -37,4 +41,19 @@ export const ACTIVITY: Record<string, string> = {
   space_customised: "refreshed the space",
   idea_collaborator_joined: "joined an idea",
   event_created: "planned something",
+}
+
+/** Entries only the two people involved see, worded from the viewer's side; never the content. */
+export const PRIVATE_ACTIVITY: Record<
+  string,
+  { readonly mine: (other: string) => string; readonly theirs: (actor: string) => string }
+> = {
+  hard_talk_shared: {
+    mine: (other) => `You shared something with ${other}`,
+    theirs: (actor) => `${actor} shared something with you`,
+  },
+  hard_talk_response: {
+    mine: (other) => `You responded to what ${other} shared`,
+    theirs: (actor) => `${actor} responded to what you shared`,
+  },
 }

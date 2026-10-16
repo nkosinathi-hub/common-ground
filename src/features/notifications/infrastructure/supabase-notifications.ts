@@ -8,8 +8,9 @@ import type { ActivityEvent, Notification } from "../domain/notification"
 
 const NOTE =
   "id, space_id, type, subject_type, subject_id, read_at, created_at, actor:profiles!notifications_actor_id_fkey(display_name)"
+/** RLS shows private entries only to their two people; by_me words them from the viewer's side. */
 const EVENT =
-  "id, event_type, subject_type, subject_id, created_at, actor:profiles!activity_events_actor_id_fkey(display_name)"
+  "id, event_type, subject_type, subject_id, created_at, by_me, actor:profiles!activity_events_actor_id_fkey(display_name), target:profiles!activity_events_target_id_fkey(display_name)"
 
 export class SupabaseNotifications implements NotificationsGateway {
   constructor(private readonly db: Db) {}
@@ -79,6 +80,8 @@ export class SupabaseActivity implements ActivityGateway {
         subjectId: row.subject_id,
         createdAt: row.created_at,
         actorName: row.actor?.display_name ?? null,
+        byMe: row.by_me === true,
+        targetName: row.target?.display_name ?? null,
       })),
     )
   }
