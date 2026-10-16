@@ -41,7 +41,7 @@
   >
     {#each RSVP_ANSWERS as option (option)}
       <ToggleGroup.Item value={option}>
-        {RSVP_LABELS[option]} <span class="text-muted-foreground">({summary[option].length})</span>
+        {RSVP_LABELS[option]} <span>({summary[option].length})</span>
       </ToggleGroup.Item>
     {/each}
   </ToggleGroup.Root>

@@ -7,6 +7,7 @@
   import type { LinkOption } from "../application/ports"
   import type { LinkKind } from "../domain"
   import { useCalendar } from "./context"
+  import { TAB } from "./tabs"
 
   const KINDS: { value: LinkKind; label: string }[] = [
     { value: "watch_item", label: "Watch" },
@@ -50,7 +51,7 @@
     <Tabs.Root bind:value={kind}>
       <Tabs.List aria-label="Link type">
         {#each KINDS as option (option.value)}
-          <Tabs.Trigger value={option.value}>{option.label}</Tabs.Trigger>
+          <Tabs.Trigger value={option.value} class={TAB}>{option.label}</Tabs.Trigger>
         {/each}
       </Tabs.List>
     </Tabs.Root>
