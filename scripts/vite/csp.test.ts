@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { contentSecurityPolicy, cspPlugin } from "./csp"
+import { bareOrigin, contentSecurityPolicy, cspPlugin } from "./csp"
 
 describe("contentSecurityPolicy", () => {
   const policy = contentSecurityPolicy("https://abc.supabase.co")
@@ -26,5 +26,31 @@ describe("contentSecurityPolicy", () => {
   it("injects a meta tag into the page head", () => {
     const html = cspPlugin("https://abc.supabase.co").transformIndexHtml("<head></head>")
     expect(html).toMatch(/<head><meta http-equiv="Content-Security-Policy" content="default-src/)
+  })
+})
+
+describe("bareOrigin", () => {
+  const message =
+    /VITE_SUPABASE_URL must be the project origin.*without a path such as \/rest\/v1\//
+
+  it.each([
+    "https://abc.supabase.co/rest/v1/",
+    "https://abc.supabase.co/rest/v1",
+    "https://abc.supabase.co/?x=1",
+    "https://abc.supabase.co/#top",
+    "ftp://abc.supabase.co",
+  ])("rejects %s", (url) => {
+    expect(() => bareOrigin(url)).toThrow(message)
+  })
+
+  it.each(["https://abc.supabase.co", "https://abc.supabase.co/", "http://127.0.0.1:54321"])(
+    "accepts %s",
+    (url) => {
+      expect(bareOrigin(url).origin).toBe(url.replace(/\/$/, ""))
+    },
+  )
+
+  it("makes the plugin fail at creation, not at page transform", () => {
+    expect(() => cspPlugin("https://abc.supabase.co/rest/v1/")).toThrow(message)
   })
 })
