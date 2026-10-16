@@ -1,4 +1,4 @@
-import { memberName, ok, type MemberDirectory, type MemberRef, type Result } from "@/shared/domain"
+import { ok, type MemberDirectory, type MemberRef, type Result } from "@/shared/domain"
 import {
   expiresAt,
   recipientsFor,
@@ -7,7 +7,8 @@ import {
   type Note,
   type NoteReply,
 } from "../domain"
-import type { NoteCursor, NoteRecord, NotesPage, NotesRepository, ReplyRecord } from "./ports"
+import { toNote, toReply } from "./note-mapping"
+import type { NoteCursor, NotesPage, NotesRepository } from "./ports"
 
 export interface NoteDraft {
   readonly recipientId: string | null
@@ -15,20 +16,6 @@ export interface NoteDraft {
   readonly pinned: boolean
   readonly expiry: Expiry
 }
-
-const toNote = (members: readonly MemberRef[], n: NoteRecord): Note => ({
-  ...n,
-  authorName: memberName(members, n.authorId),
-  recipient:
-    n.recipientId === null
-      ? { kind: "everyone" }
-      : { kind: "member", id: n.recipientId, name: memberName(members, n.recipientId) },
-})
-
-const toReply = (members: readonly MemberRef[], r: ReplyRecord): NoteReply => ({
-  ...r,
-  authorName: memberName(members, r.authorId),
-})
 
 /** Notes to a member or to everyone on Home, with replies and read state. */
 export class NotesService {
@@ -87,4 +74,6 @@ export class NotesService {
   }
 
   markRead = (noteId: string) => this.repo.markRead(noteId)
+
+  takeBack = (noteId: string) => this.repo.remove(noteId)
 }

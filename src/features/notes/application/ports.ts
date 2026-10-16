@@ -1,4 +1,5 @@
 import type { Result } from "@/shared/domain"
+import type { Note } from "../domain"
 
 /** Keyset position in the Home order: pinned first, then newest. */
 export interface NoteCursor {
@@ -8,18 +9,8 @@ export interface NoteCursor {
 }
 
 /** A note as stored, before names are resolved. recipientId null means everyone. */
-export interface NoteRecord {
-  readonly id: string
-  readonly spaceId: string
-  readonly authorId: string | null
+export type NoteRecord = Omit<Note, "authorName" | "recipient"> & {
   readonly recipientId: string | null
-  readonly body: string
-  readonly pinned: boolean
-  readonly expiresAt: string | null
-  readonly replyCount: number
-  readonly lastReplyAt: string | null
-  readonly readAt: string | null
-  readonly createdAt: string
 }
 
 export interface ReplyRecord {
@@ -55,6 +46,8 @@ export interface NotesRepository {
   reply(noteId: string, body: string): Promise<Result<ReplyRecord>>
   thread(noteId: string): Promise<Result<ReplyRecord[]>>
   markRead(noteId: string): Promise<Result<void>>
+  /** The author takes a note back; it is gone for everyone. */
+  remove(noteId: string): Promise<Result<void>>
 }
 
 /** Tells Home that a note or a reply to one has arrived for the signed-in member. */

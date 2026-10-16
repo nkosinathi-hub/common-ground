@@ -8,37 +8,12 @@ import type {
   ReplyRecord,
 } from "../application/ports"
 import { NOTES_PAGE_SIZE } from "../domain"
+import { NotesStore, type Stored } from "./notes-store"
 
-type Stored = Omit<NoteRecord, "readAt" | "replyCount" | "lastReplyAt">
+const PLAIN = { kind: "note", sections: {}, responseWish: null, supportWish: null } as const
 
 /** Mirrors the notes RLS and RPCs: visibility per viewer, read rows, Home order and paging. */
-export class InMemoryNotes implements NotesRepository {
-  me = "ana"
-  readonly rows: Stored[] = []
-  readonly replies: ReplyRecord[] = []
-  readonly reads = new Map<string, string>()
-  private tick = 0
-
-  private stamp() {
-    this.tick += 1
-    return new Date(Date.UTC(2026, 9, 16, 9, 0, this.tick)).toISOString()
-  }
-  private visible = (n: Stored) =>
-    n.recipientId === null || n.recipientId === this.me || n.authorId === this.me
-  private read(noteId: string) {
-    this.reads.set(`${noteId}:${this.me}`, this.stamp())
-  }
-  private record(n: Stored): NoteRecord {
-    const thread = this.replies.filter((r) => r.noteId === n.id)
-    const readAt = this.reads.get(`${n.id}:${this.me}`) ?? null
-    return {
-      ...n,
-      readAt,
-      replyCount: thread.length,
-      lastReplyAt: thread.at(-1)?.createdAt ?? null,
-    }
-  }
-
+export class InMemoryNotes extends NotesStore implements NotesRepository {
   async home(
     spaceId: string,
     after: NoteCursor | null,
@@ -60,6 +35,7 @@ export class InMemoryNotes implements NotesRepository {
   async post(note: NewNote): Promise<Result<NoteRecord>> {
     const stored = {
       ...note,
+      ...PLAIN,
       id: `note-${this.rows.length + 1}`,
       authorId: this.me,
       createdAt: this.stamp(),
@@ -90,6 +66,12 @@ export class InMemoryNotes implements NotesRepository {
 
   async markRead(noteId: string): Promise<Result<void>> {
     this.read(noteId)
+    return ok(undefined)
+  }
+
+  async remove(noteId: string): Promise<Result<void>> {
+    const at = this.rows.findIndex((n) => n.id === noteId && n.authorId === this.me)
+    if (at >= 0) this.rows.splice(at, 1)
     return ok(undefined)
   }
 }
