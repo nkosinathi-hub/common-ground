@@ -46,15 +46,25 @@ create trigger calendar_events_updated_at before update on public.calendar_event
   for each row execute function public.set_updated_at();
 
 -- IANA names only: abbreviations such as EST and POSIX strings are not zones people live in.
+create or replace function public.is_iana_time_zone(zone text)
+returns boolean
+language sql
+stable
+set search_path = ''
+as $$
+  select zone ~ '^[A-Za-z]+(/[A-Za-z0-9_+-]+)*$' and zone !~ '^(Etc|posix|right)/'
+    and zone not in ('EST', 'MST', 'HST')
+    and exists (select 1 from pg_catalog.pg_timezone_names z where z.name = zone);
+$$;
+grant execute on function public.is_iana_time_zone(text) to authenticated;
+
 create or replace function public.calendar_events_validate()
 returns trigger
 language plpgsql
 set search_path = ''
 as $$
 begin
-  if not exists (select 1 from pg_catalog.pg_timezone_names z
-    where z.name = new.time_zone and z.name ~ '^[A-Za-z]+(/[A-Za-z0-9_+-]+)*$'
-      and z.name !~ '^(Etc/|posix/|right/)' and z.name not in ('EST', 'MST', 'HST')) then
+  if not public.is_iana_time_zone(new.time_zone) then
     raise exception 'unknown time zone %', new.time_zone using errcode = '22023';
   end if;
   return new;
