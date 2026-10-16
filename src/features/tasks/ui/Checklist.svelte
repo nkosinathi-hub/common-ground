@@ -27,10 +27,9 @@
   const progress = $derived(checklistProgress(items.value ?? []))
 
   async function run<T>(write: Promise<Result<T>>, change: Change<T>): Promise<boolean> {
-    const result = await write
-    if (result.ok) items.set(change(result.value, current()))
-    error = result.ok ? null : result.error.message
-    return result.ok
+    const failure = await items.apply(write, (value, list) => change(value, list ?? []))
+    error = failure?.message ?? null
+    return !failure
   }
 
   async function add(event: SubmitEvent) {

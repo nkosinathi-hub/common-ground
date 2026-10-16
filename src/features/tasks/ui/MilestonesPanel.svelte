@@ -32,11 +32,10 @@
    * done so the edit form closes onto their version. False keeps the form open to fix an error.
    */
   async function run<T>(write: Promise<Result<T>>, change: Change<T>): Promise<boolean> {
-    const result = await write
-    if (result.ok) list.set(change(result.value, list.value ?? []))
-    error = result.ok ? null : result.error
-    if (result.ok || result.error.kind !== "conflict") return result.ok
-    error = { ...result.error, message: STALE_COPY }
+    const failure = await list.apply(write, (value, items) => change(value, items ?? []))
+    error = failure
+    if (!failure || failure.kind !== "conflict") return !failure
+    error = { ...failure, message: STALE_COPY }
     await list.load()
     return true
   }

@@ -33,25 +33,26 @@
   const totals = $derived(budgetTotals(lines.value ?? [], currency))
 
   async function add(form: Form): Promise<AppError | null> {
-    const result = await service.add({ spaceId, ideaId, currency }, form)
-    if (result.ok) lines.set([...entries(), result.value])
-    return result.ok ? null : result.error
+    const added = service.add({ spaceId, ideaId, currency }, form)
+    return lines.apply(added, (line, list = []) => [...list, line])
   }
 
   /** A stale edit shows the conflict copy and reloads the lines; other errors stay on the row. */
   async function edit(base: BudgetEntry, form: Form): Promise<AppError | null> {
-    const result = await service.update(base, form, currency)
-    if (result.ok) lines.set(entries().map((line) => (line.id === base.id ? result.value : line)))
-    if (result.ok || result.error.kind !== "conflict") return result.ok ? null : result.error
+    const failure = await lines.apply(service.update(base, form, currency), (saved, list = []) =>
+      list.map((line) => (line.id === base.id ? saved : line)),
+    )
+    if (!failure || failure.kind !== "conflict") return failure
     notice = STALE_COPY
     await lines.load()
     return null
   }
 
   async function remove(id: string) {
-    const result = await service.remove(id)
-    if (result.ok) lines.set(entries().filter((line) => line.id !== id))
-    notice = result.ok ? null : result.error.message
+    const failure = await lines.apply(service.remove(id), (_done, list = []) =>
+      list.filter((line) => line.id !== id),
+    )
+    notice = failure?.message ?? null
   }
 
   function currencyChanged(next: string) {
