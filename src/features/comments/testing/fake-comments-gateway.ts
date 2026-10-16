@@ -1,4 +1,12 @@
-import { appError, err, ok, type AppError, type Cursor } from "@/shared/domain"
+import {
+  appError,
+  err,
+  nextCursor,
+  ok,
+  PAGE_SIZE,
+  type AppError,
+  type Cursor,
+} from "@/shared/domain"
 import type { CommentsGateway, NewComment, ThreadPageRequest } from "../application/ports"
 import type { Comment, ParentRef } from "../domain/comment"
 
@@ -16,6 +24,8 @@ export class FakeCommentsGateway implements CommentsGateway {
   failWith: AppError | null = null
   me = "me"
   private seq = 0
+
+  constructor(private readonly pageSize = PAGE_SIZE) {}
 
   private nextId() {
     this.seq += 1
@@ -39,13 +49,14 @@ export class FakeCommentsGateway implements CommentsGateway {
     }
   }
 
-  async list({ spaceId, parent, after, size }: ThreadPageRequest) {
+  async list({ spaceId, parent, after }: ThreadPageRequest) {
     if (this.failWith) return err(this.failWith)
     const rows = this.rows
       .filter((c) => c.spaceId === spaceId && sameParent(c.parent, parent))
       .filter((c) => !after || olderThan(c, after))
       .sort(newestFirst)
-    return ok(rows.slice(0, size))
+    const items = rows.slice(0, this.pageSize)
+    return ok({ items, next: nextCursor(items, this.pageSize) })
   }
 
   async post(input: NewComment) {

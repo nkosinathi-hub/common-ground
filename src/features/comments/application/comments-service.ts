@@ -1,22 +1,12 @@
-import { nextCursor, ok, PAGE_SIZE, type Cursor, type Page, type Result } from "@/shared/domain"
+import type { Cursor, Page, Result } from "@/shared/domain"
 import { validateBody, type Comment, type ParentRef } from "../domain/comment"
 import type { CommentsGateway, NewComment } from "./ports"
 
 export class CommentsService {
-  constructor(
-    private readonly gateway: CommentsGateway,
-    private readonly pageSize = PAGE_SIZE,
-  ) {}
+  constructor(private readonly gateway: CommentsGateway) {}
 
-  async page(
-    spaceId: string,
-    parent: ParentRef,
-    after: Cursor | null,
-  ): Promise<Result<Page<Comment>>> {
-    const size = this.pageSize
-    const rows = await this.gateway.list({ spaceId, parent, after, size })
-    if (!rows.ok) return rows
-    return ok({ items: rows.value, next: nextCursor(rows.value, size) })
+  page(spaceId: string, parent: ParentRef, after: Cursor | null): Promise<Result<Page<Comment>>> {
+    return this.gateway.list({ spaceId, parent, after })
   }
 
   async post(input: NewComment): Promise<Result<Comment>> {

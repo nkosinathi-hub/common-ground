@@ -1,4 +1,4 @@
-import type { Cursor, Result } from "@/shared/domain"
+import type { Cursor, Page, Result } from "@/shared/domain"
 import type { Comment, ParentRef } from "../domain/comment"
 
 export interface NewComment {
@@ -14,11 +14,10 @@ export interface ThreadPageRequest {
   readonly spaceId: string
   readonly parent: ParentRef
   readonly after: Cursor | null
-  readonly size: number
 }
 
 export interface CommentsGateway {
-  list(request: ThreadPageRequest): Promise<Result<Comment[]>>
+  list(request: ThreadPageRequest): Promise<Result<Page<Comment>>>
   post(input: NewComment): Promise<Result<Comment>>
   edit(id: string, body: string, spoiler: boolean): Promise<Result<Comment>>
   remove(id: string): Promise<Result<void>>

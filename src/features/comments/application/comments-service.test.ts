@@ -4,8 +4,8 @@ import { CommentsService } from "./comments-service"
 
 const parent = { kind: "watch", id: "w1" } as const
 const setup = (size = 2) => {
-  const gateway = new FakeCommentsGateway()
-  return { gateway, service: new CommentsService(gateway, size) }
+  const gateway = new FakeCommentsGateway(size)
+  return { gateway, service: new CommentsService(gateway) }
 }
 
 describe("CommentsService", () => {

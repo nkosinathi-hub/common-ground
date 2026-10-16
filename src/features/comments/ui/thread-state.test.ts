@@ -5,9 +5,9 @@ import { ThreadState } from "./thread.svelte"
 
 const parent = { kind: "idea", id: "i1" } as const
 const setup = (count: number) => {
-  const gateway = new FakeCommentsGateway()
+  const gateway = new FakeCommentsGateway(2)
   gateway.seed("s", parent, count)
-  const thread = new ThreadState(new CommentsService(gateway, 2), "s", parent)
+  const thread = new ThreadState(new CommentsService(gateway), "s", parent)
   return { gateway, thread }
 }
 const bodies = (thread: ThreadState) => thread.items.map((c) => c.body)

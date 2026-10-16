@@ -6,7 +6,7 @@ import CommentThread from "./CommentThread.svelte"
 import { commentsContext } from "./context"
 
 function setup(isOwner = false, gateway = threadGateway()) {
-  const context = commentsContext({ service: new CommentsService(gateway, 2) })
+  const context = commentsContext({ service: new CommentsService(gateway) })
   const props = { spaceId: SPACE, parent: PARENT, me: "me", isOwner, members: MEMBERS }
   return { gateway, view: render(CommentThread, { props, context }) }
 }
