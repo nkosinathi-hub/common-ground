@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import { cn } from "$lib/utils"
+  import { formatDateTime } from "@/shared/domain"
   import { describeNotification, subjectHref, type Notification } from "../domain/notification"
   import { useNotifications } from "./context"
 
@@ -11,8 +12,6 @@
 
   let { onFollow, class: className }: Props = $props()
   const { store } = useNotifications()
-  const when = (iso: string) =>
-    new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
 </script>
 
 {#if store.error}
@@ -35,7 +34,7 @@
         ></span>
         <span class="flex-1">
           <span class={item.readAt ? "" : "font-medium"}>{describeNotification(item)}</span>
-          <span class="block text-xs text-muted-foreground">{when(item.createdAt)}</span>
+          <span class="block text-xs text-muted-foreground">{formatDateTime(item.createdAt)}</span>
         </span>
         {#if !item.readAt}<span class="sr-only">Unread</span>{/if}
       </a>

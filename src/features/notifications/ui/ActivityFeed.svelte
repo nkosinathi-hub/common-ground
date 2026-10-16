@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { History } from "@lucide/svelte"
-  import type { Cursor } from "@/shared/domain"
+  import { formatDay, type Cursor } from "@/shared/domain"
   import { EmptyState, ErrorState, Loading, LoadMore, PagedList } from "@/shared/ui"
   import { describeActivity, type ActivityEvent } from "../domain/notification"
   import { useNotifications } from "./context"
@@ -31,7 +31,7 @@
       <li class="flex justify-between gap-3 text-sm">
         <span>{describeActivity(event)}</span>
         <time class="shrink-0 text-xs text-muted-foreground" datetime={event.createdAt}>
-          {new Date(event.createdAt).toLocaleDateString()}
+          {formatDay(event.createdAt)}
         </time>
       </li>
     {/each}

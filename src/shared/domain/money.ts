@@ -1,3 +1,4 @@
+import { LOCALE } from "./format"
 import { appError, err, ok, type Result } from "./result"
 
 export interface Money {
@@ -33,7 +34,7 @@ export function subtractMoney(a: Money, b: Money): Money {
   return money(a.minor - b.minor, a.currency)
 }
 
-export function formatMoney(value: Money, locale = "en-ZA"): string {
+export function formatMoney(value: Money, locale = LOCALE): string {
   return new Intl.NumberFormat(locale, { style: "currency", currency: value.currency }).format(
     value.minor / 100,
   )

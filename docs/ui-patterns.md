@@ -19,3 +19,9 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
 
   An effect with no dependencies loads once on mount. A change of space, idea or item remounts the
   page (`{#key}` in src/app), so components do not reload for those.
+
+## Dates and numbers
+
+- One locale, `LOCALE` (en-ZA) in shared/domain. Show an instant with `formatDateTime` or `formatDay`
+  (viewer's time zone), a `DateOnly` with `formatDateOnly` (never shifts), money with `formatMoney`.
+  Never call `toLocaleString` or `Intl` in a component.
