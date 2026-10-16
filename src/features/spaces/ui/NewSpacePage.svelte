@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
-  import { buildHash } from "@/shared/domain"
-  import { ErrorState, FormField, FormState } from "@/shared/ui"
+  import { ErrorState, FormField, FormState, navigate } from "@/shared/ui"
   import { templateFor, type SpaceTemplateId } from "../domain/templates"
   import { useSpaces } from "./context"
   import TemplatePicker from "./TemplatePicker.svelte"
@@ -21,7 +20,7 @@
     const created = await form.run(() => service.create(name, template))
     if (!created.ok) return
     await store.refresh()
-    location.hash = buildHash({ name: "home", spaceId: created.value })
+    navigate({ name: "home", spaceId: created.value })
   }
 </script>
 

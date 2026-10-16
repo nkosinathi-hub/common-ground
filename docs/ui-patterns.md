@@ -35,3 +35,10 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
 - Rune stores live in `*.svelte.ts` files named after their class: an app-wide store is
   `XStore` in `x-store.svelte.ts` (one per app, provided by composition); a component-scoped
   state is `XState` in `x-state.svelte.ts` (created by the component that owns it).
+
+## Navigation
+
+- Links use `href={buildHash(route)}`; never write a `"#/..."` string by hand.
+- Code that moves on after an action calls `navigate(route)` from shared/ui (or passes a hash a
+  parent built). Never set `location.hash` or call `location.assign` in a component; the hash
+  router follows `hashchange`, so history and back keep working.

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigate } from "@/shared/ui"
   import { LogOut, Shield, UserRound } from "@lucide/svelte"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { useAuth } from "@/features/auth"
@@ -25,10 +26,10 @@
   <DropdownMenu.Content align="end" class="w-52">
     <DropdownMenu.Label class="truncate">{session.user?.email}</DropdownMenu.Label>
     <DropdownMenu.Separator />
-    <DropdownMenu.Item onSelect={() => (location.hash = "#/account")}>
+    <DropdownMenu.Item onSelect={() => navigate({ name: "account" })}>
       <UserRound class="size-4" aria-hidden="true" />Account and data
     </DropdownMenu.Item>
-    <DropdownMenu.Item onSelect={() => (location.hash = "#/privacy")}>
+    <DropdownMenu.Item onSelect={() => navigate({ name: "privacy" })}>
       <Shield class="size-4" aria-hidden="true" />Privacy
     </DropdownMenu.Item>
     <DropdownMenu.Separator />

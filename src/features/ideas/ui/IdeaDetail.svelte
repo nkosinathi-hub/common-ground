@@ -1,14 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import { ErrorState, Loading, Resource } from "@/shared/ui"
-  import {
-    appError,
-    buildHash,
-    err,
-    type AppError,
-    type IdeaTab,
-    type Result,
-  } from "@/shared/domain"
+  import { ErrorState, Loading, Resource, navigate } from "@/shared/ui"
+  import { appError, err, type AppError, type IdeaTab, type Result } from "@/shared/domain"
   import type { Idea, Viewer } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
@@ -56,7 +49,7 @@
   })
   $effect(() => void people.load())
 
-  const backToList = () => (location.hash = buildHash({ name: "ideas", spaceId }))
+  const backToList = () => navigate({ name: "ideas", spaceId })
   const deleted = () => (onDeleted ?? backToList)()
   const changed = (next: Idea) => (idea = next)
 </script>

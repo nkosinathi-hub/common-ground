@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { buildHash } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { FormError, FormField, FormState } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
@@ -45,5 +46,7 @@
       <Button type="submit" disabled={form.pending}>Send reset link</Button>
     </form>
   {/if}
-  {#snippet footer()}<a class="hover:underline" href="#/auth/sign-in">Back to sign in</a>{/snippet}
+  {#snippet footer()}<a class="hover:underline" href={buildHash({ name: "sign-in" })}
+      >Back to sign in</a
+    >{/snippet}
 </AuthCard>

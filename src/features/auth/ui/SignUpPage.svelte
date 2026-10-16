@@ -2,7 +2,7 @@
   import { MailCheck } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { FormError, FormField, FormState } from "@/shared/ui"
-  import { MIN_PASSWORD } from "@/shared/domain"
+  import { MIN_PASSWORD, buildHash } from "@/shared/domain"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
@@ -26,7 +26,8 @@
       <MailCheck class="size-5 shrink-0 text-primary" aria-hidden="true" />
       <p>Open the link on this device to finish creating your account. It expires in an hour.</p>
     </div>
-    {#snippet footer()}<a class="hover:underline" href="#/auth/sign-in">Back to sign in</a
+    {#snippet footer()}<a class="hover:underline" href={buildHash({ name: "sign-in" })}
+        >Back to sign in</a
       >{/snippet}
   </AuthCard>
 {:else}
@@ -69,10 +70,10 @@
       <span
         >Already have an account? <a
           class="text-primary underline underline-offset-4"
-          href="#/auth/sign-in">Sign in</a
+          href={buildHash({ name: "sign-in" })}>Sign in</a
         ></span
       >
-      <a class="hover:underline" href="#/privacy">How we handle your data</a>
+      <a class="hover:underline" href={buildHash({ name: "privacy" })}>How we handle your data</a>
     {/snippet}
   </AuthCard>
 {/if}

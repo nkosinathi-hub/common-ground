@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { buildHash } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
 </script>
@@ -12,8 +13,8 @@
       </Card.Description>
     </Card.Header>
     <Card.Content class="flex flex-wrap gap-2">
-      <Button href="#/auth/sign-in">Sign in</Button>
-      <Button variant="outline" href="#/auth/sign-up">Create account</Button>
+      <Button href={buildHash({ name: "sign-in" })}>Sign in</Button>
+      <Button variant="outline" href={buildHash({ name: "sign-up" })}>Create account</Button>
     </Card.Content>
   </Card.Root>
 </main>

@@ -2,7 +2,7 @@
   import type { Snippet } from "svelte"
   import { Pencil, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { ConfirmDialog, toast } from "@/shared/ui"
+  import { ConfirmDialog, toast, navigate } from "@/shared/ui"
   import type { WatchItemView } from "../domain/types"
   import { useWatch } from "./context"
   import EditTitleDialog from "./EditTitleDialog.svelte"
@@ -24,7 +24,7 @@
     const result = await service.remove(item.id)
     if (!result.ok) return toast.error(result.error.message)
     toast.success(`${item.title} was removed`)
-    window.location.assign(backHref)
+    navigate(backHref)
   }
 </script>
 

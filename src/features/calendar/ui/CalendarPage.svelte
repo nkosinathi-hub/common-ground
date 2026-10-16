@@ -3,8 +3,8 @@
   import { Plus, Popcorn } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Tabs from "$lib/components/ui/tabs"
-  import { buildHash, todayDateOnly, type DateOnly } from "@/shared/domain"
-  import { AsyncView } from "@/shared/ui"
+  import { todayDateOnly, type DateOnly } from "@/shared/domain"
+  import { AsyncView, navigate } from "@/shared/ui"
   import type { WeekStart } from "../domain"
   import AgendaList from "./AgendaList.svelte"
   import { isWide, viewerZone } from "./browser"
@@ -38,8 +38,7 @@
 
   let dialog = $state({ open: false, day: todayDateOnly(), watchNight: false })
   const plan = (day: DateOnly, watchNight = false) => (dialog = { open: true, day, watchNight })
-  const created = (eventId: string) =>
-    (location.hash = buildHash({ name: "event", spaceId, eventId }))
+  const created = (eventId: string) => navigate({ name: "event", spaceId, eventId })
 </script>
 
 <div class="flex flex-col gap-4">

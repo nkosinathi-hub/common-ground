@@ -4,8 +4,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { useIdeas } from "@/features/ideas"
-  import { buildHash } from "@/shared/domain"
-  import { FormField, FormState, toast } from "@/shared/ui"
+  import { FormField, FormState, navigate, toast } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
   interface Props {
@@ -28,13 +27,7 @@
     toast.success("Idea saved", {
       action: {
         label: "Open",
-        onClick: () =>
-          (location.hash = buildHash({
-            name: "idea",
-            spaceId,
-            ideaId: made.value.id,
-            tab: "overview",
-          })),
+        onClick: () => navigate({ name: "idea", spaceId, ideaId: made.value.id, tab: "overview" }),
       },
     })
   }

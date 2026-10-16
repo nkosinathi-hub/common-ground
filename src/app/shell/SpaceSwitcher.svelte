@@ -1,8 +1,8 @@
 <script lang="ts">
+  import { navigate } from "@/shared/ui"
   import { Check, ChevronsUpDown, Plus, Settings } from "@lucide/svelte"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { SpaceAvatar, templateFor, useSpaces } from "@/features/spaces"
-  import { buildHash } from "@/shared/domain"
 
   const { store } = useSpaces()
   const active = $derived(store.active)
@@ -25,9 +25,7 @@
   <DropdownMenu.Content class="w-60" align="start">
     <DropdownMenu.Label>Your spaces</DropdownMenu.Label>
     {#each store.spaces as space (space.id)}
-      <DropdownMenu.Item
-        onSelect={() => (location.hash = buildHash({ name: "home", spaceId: space.id }))}
-      >
+      <DropdownMenu.Item onSelect={() => navigate({ name: "home", spaceId: space.id })}>
         <SpaceAvatar {space} class="size-6 text-xs" />
         <span class="flex-1 truncate">{space.name}</span>
         {#if space.id === active?.id}<Check class="size-4" aria-label="Current" />{/if}
@@ -35,13 +33,11 @@
     {/each}
     <DropdownMenu.Separator />
     {#if active}
-      <DropdownMenu.Item
-        onSelect={() => (location.hash = buildHash({ name: "settings", spaceId: active.id }))}
-      >
+      <DropdownMenu.Item onSelect={() => navigate({ name: "settings", spaceId: active.id })}>
         <Settings class="size-4" aria-hidden="true" />Space settings
       </DropdownMenu.Item>
     {/if}
-    <DropdownMenu.Item onSelect={() => (location.hash = buildHash({ name: "new-space" }))}>
+    <DropdownMenu.Item onSelect={() => navigate({ name: "new-space" })}>
       <Plus class="size-4" aria-hidden="true" />New space
     </DropdownMenu.Item>
   </DropdownMenu.Content>

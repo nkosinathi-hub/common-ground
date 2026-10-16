@@ -2,8 +2,7 @@
   import { DoorOpen } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { buildHash } from "@/shared/domain"
-  import { AsyncView, FormState, Resource } from "@/shared/ui"
+  import { AsyncView, FormState, Resource, navigate } from "@/shared/ui"
   import type { InvitePreviewStatus } from "../domain/space"
   import { useSpaces } from "./context"
 
@@ -29,7 +28,7 @@
     const joined = await form.run(() => service.redeemInvite(token))
     if (!joined.ok) return
     await store.refresh()
-    location.hash = buildHash({ name: "home", spaceId: joined.value })
+    navigate({ name: "home", spaceId: joined.value })
   }
 </script>
 

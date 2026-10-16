@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { buildHash } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { FormError, FormField, FormState } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
@@ -50,10 +51,13 @@
     <Button type="submit" disabled={form.pending}>{form.pending ? "Signing in" : "Sign in"}</Button>
   </form>
   {#snippet footer()}
-    <a class="underline-offset-4 hover:underline" href="#/auth/reset">Forgot your password?</a>
+    <a class="underline-offset-4 hover:underline" href={buildHash({ name: "reset" })}
+      >Forgot your password?</a
+    >
     <span
-      >New here? <a class="text-primary underline underline-offset-4" href="#/auth/sign-up"
-        >Create an account</a
+      >New here? <a
+        class="text-primary underline underline-offset-4"
+        href={buildHash({ name: "sign-up" })}>Create an account</a
       ></span
     >
   {/snippet}

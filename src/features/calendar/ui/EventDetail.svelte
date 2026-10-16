@@ -3,7 +3,7 @@
   import { ArrowLeft, Download, Pencil } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { appError, buildHash, err, FORMER_MEMBER, todayDateOnly } from "@/shared/domain"
-  import { AsyncView, DeleteButton, Resource, toast } from "@/shared/ui"
+  import { AsyncView, DeleteButton, Resource, toast, navigate } from "@/shared/ui"
   import { eventIcs, icsFileName, type CalendarEvent } from "../domain"
   import { saveFile, viewerZone } from "./browser"
   import ConflictWarning from "./ConflictWarning.svelte"
@@ -43,7 +43,7 @@
     const result = await service.remove(eventId)
     if (!result.ok) return toast.error(result.error.message)
     toast.success("Event deleted")
-    location.hash = calendarHref
+    navigate(calendarHref)
   }
 </script>
 
