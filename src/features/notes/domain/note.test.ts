@@ -14,6 +14,11 @@ const note = (id: string, extra: Partial<Note> = {}): Note => ({
   lastReplyAt: null,
   readAt: "2026-10-16T09:00:00Z",
   createdAt: `2026-10-16T0${id}:00:00Z`,
+  kind: "note",
+  sections: {},
+  responseWish: null,
+  supportWish: null,
+  latestResponse: null,
   ...extra,
 })
 

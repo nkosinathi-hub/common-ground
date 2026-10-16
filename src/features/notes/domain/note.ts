@@ -1,4 +1,5 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
+import type { NoteKind, ResponseKind, ResponseWish, Sections, SupportWish } from "./hard-talk"
 
 export const NOTE_MAX = 1000
 /** Notes per page on the Home card. */
@@ -24,6 +25,13 @@ export interface Note {
   /** When the viewer last opened it; null if never. */
   readonly readAt: string | null
   readonly createdAt: string
+  /** "hard_talk" is a "Something on my mind" note: sections, no body, never edited. */
+  readonly kind: NoteKind
+  readonly sections: Sections
+  readonly responseWish: ResponseWish | null
+  readonly supportWish: SupportWish | null
+  /** The recipient's newest gentle response, if any. */
+  readonly latestResponse: { readonly kind: ResponseKind; readonly at: string } | null
 }
 
 export interface NoteReply {
