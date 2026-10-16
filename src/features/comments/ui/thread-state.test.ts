@@ -16,27 +16,26 @@ describe("ThreadState", () => {
   it("shows the newest page oldest first and loads older comments above", async () => {
     const { thread } = setup(3)
     await thread.load()
-    expect(thread.status).toBe("ready")
+    expect(thread.list.loading).toBe(false)
     expect(bodies(thread)).toEqual(["Comment 2", "Comment 3"])
-    expect(thread.hasOlder).toBe(true)
-    expect((await thread.loadOlder()).ok).toBe(true)
+    expect(thread.list.hasMore).toBe(true)
+    await Promise.all([thread.list.loadMore(), thread.list.loadMore()])
     expect(bodies(thread)).toEqual(["Comment 1", "Comment 2", "Comment 3"])
-    expect(thread.hasOlder).toBe(false)
-    expect((await thread.loadOlder()).ok).toBe(true)
+    expect(thread.list.hasMore).toBe(false)
   })
 
   it("reports load failures and keeps the list when loading older fails", async () => {
     const { gateway, thread } = setup(3)
     gateway.failWith = { kind: "network", message: "Offline" }
     await thread.load()
-    expect(thread.status).toBe("error")
-    expect(thread.error?.message).toBe("Offline")
+    expect(thread.list.error?.message).toBe("Offline")
     gateway.failWith = null
     await thread.load()
     gateway.failWith = { kind: "network", message: "Offline" }
-    expect((await thread.loadOlder()).ok).toBe(false)
+    await thread.list.loadMore()
+    expect(thread.list.error?.message).toBe("Offline")
     expect(thread.items).toHaveLength(2)
-    expect(thread.loadingOlder).toBe(false)
+    expect(thread.list.loadingMore).toBe(false)
   })
 
   it("appends posts, edits in place keeping mentions, and removes", async () => {

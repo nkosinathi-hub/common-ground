@@ -1,5 +1,6 @@
 import { SvelteSet } from "svelte/reactivity"
-import { ok, type AppError, type Cursor, type Result } from "@/shared/domain"
+import type { Cursor } from "@/shared/domain"
+import { PagedList } from "@/shared/ui"
 import type { CommentsService } from "../application/comments-service"
 import type { NewComment } from "../application/ports"
 import { isConcealed, type Comment, type ParentRef } from "../domain/comment"
@@ -7,72 +8,42 @@ import { isConcealed, type Comment, type ParentRef } from "../domain/comment"
 /** What the composer hands over; the thread adds where it belongs. */
 export type Draft = Pick<NewComment, "body" | "spoiler" | "mentionIds">
 
-/** One thread: newest page first, shown oldest at the top, with older pages loaded above. */
+/** One thread: pages newest first, shown oldest at the top, with older pages loaded above. */
 export class ThreadState {
-  items = $state<Comment[]>([])
-  status = $state<"loading" | "ready" | "error">("loading")
-  error = $state<AppError | null>(null)
-  next = $state<Cursor | null>(null)
-  loadingOlder = $state(false)
+  readonly list: PagedList<Comment, Cursor>
+  readonly items = $derived.by(() => [...this.list.items].reverse())
   private readonly revealed = new SvelteSet<string>()
 
   constructor(
     private readonly service: CommentsService,
     private readonly spaceId: string,
     private readonly parent: ParentRef,
-  ) {}
-
-  get hasOlder(): boolean {
-    return this.next !== null
+  ) {
+    this.list = new PagedList((after) => service.page(spaceId, parent, after))
   }
 
-  async load(): Promise<void> {
-    this.status = "loading"
-    const page = await this.service.page(this.spaceId, this.parent, null)
-    if (!page.ok) {
-      this.error = page.error
-      this.status = "error"
-      return
-    }
-    this.items = [...page.value.items].reverse()
-    this.next = page.value.next
-    this.error = null
-    this.status = "ready"
-  }
-
-  retry = () => this.load()
-
-  async loadOlder(): Promise<Result<void>> {
-    if (!this.next) return ok(undefined)
-    this.loadingOlder = true
-    const page = await this.service.page(this.spaceId, this.parent, this.next)
-    this.loadingOlder = false
-    if (!page.ok) return page
-    this.items = [...[...page.value.items].reverse(), ...this.items]
-    this.next = page.value.next
-    return ok(undefined)
-  }
+  load = () => this.list.load()
 
   async post(draft: Draft) {
-    const posted = await this.service.post({ ...draft, spaceId: this.spaceId, parent: this.parent })
-    if (posted.ok) this.items = [...this.items, posted.value]
+    const posted = this.service.post({ ...draft, spaceId: this.spaceId, parent: this.parent })
+    await this.list.add(posted)
     return posted
   }
 
+  /** The edit RPC returns no mentions, so the comment keeps the ones it has. */
   async edit(id: string, body: string, spoiler: boolean) {
-    const edited = await this.service.edit(id, body, spoiler)
-    if (edited.ok) {
-      const { body: text, spoiler: hidden } = edited.value
-      this.items = this.items.map((c) =>
-        c.id === id ? { ...c, body: text, spoiler: hidden, edited: true } : c,
-      )
-    }
+    const edited = this.service.edit(id, body, spoiler)
+    await this.list.apply(edited, (next, items) =>
+      items.map((c) =>
+        c.id === id ? { ...c, body: next.body, spoiler: next.spoiler, edited: true } : c,
+      ),
+    )
     return edited
   }
 
   async remove(id: string) {
-    const removed = await this.service.remove(id)
-    if (removed.ok) this.items = this.items.filter((c) => c.id !== id)
+    const removed = this.service.remove(id)
+    await this.list.remove(id, removed)
     return removed
   }
 

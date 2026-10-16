@@ -1,9 +1,8 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { MessageSquare } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
   import type { MemberRef } from "@/shared/domain"
-  import { EmptyState, ErrorState, Loading, toast } from "@/shared/ui"
+  import { EmptyState, ErrorState, Loading, LoadMore } from "@/shared/ui"
   import type { ParentRef, Viewer } from "../domain/comment"
   import CommentComposer from "./CommentComposer.svelte"
   import CommentItem from "./CommentItem.svelte"
@@ -22,28 +21,20 @@
   const { service } = useComments()
   const thread = $derived(new ThreadState(service, spaceId, parent))
   const viewer: Viewer = $derived({ me, isOwner, members })
+  const list = $derived(thread.list)
   $effect(() => {
-    const current = thread
-    untrack(() => void current.load())
+    void thread
+    untrack(() => thread.load())
   })
-
-  async function older() {
-    const loaded = await thread.loadOlder()
-    if (!loaded.ok) toast.error(loaded.error.message)
-  }
 </script>
 
 <section class="grid gap-4" aria-label="Comments">
-  {#if thread.status === "loading"}
+  {#if thread.items.length === 0 && list.error}
+    <ErrorState error={list.error} onRetry={thread.load} />
+  {:else if thread.items.length === 0 && list.loading}
     <Loading />
-  {:else if thread.status === "error" && thread.error}
-    <ErrorState error={thread.error} onRetry={thread.retry} />
   {:else}
-    {#if thread.hasOlder}
-      <Button variant="ghost" size="sm" disabled={thread.loadingOlder} onclick={older}>
-        Load older comments
-      </Button>
-    {/if}
+    <LoadMore {list} label="Load older comments" />
     {#if thread.items.length === 0}
       <EmptyState icon={MessageSquare} title="No comments yet" description="Say what you think." />
     {:else}
