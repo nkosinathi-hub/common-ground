@@ -22,6 +22,7 @@ describe("home layout", () => {
     for (const id of HOME_CARDS) expect(HOME_CARD_LABELS[id]).toBeTruthy()
     expect(DEFAULT_HOME_CARDS).toEqual([
       "notes",
+      "calendar",
       "continue_watching",
       "coming_up",
       "recommended",

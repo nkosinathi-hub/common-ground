@@ -13,6 +13,7 @@ export type HomeCardId = (typeof HOME_CARDS)[number]
 /** The database default for spaces.home_cards: what a new space shows, in order. */
 export const DEFAULT_HOME_CARDS: readonly HomeCardId[] = [
   "notes",
+  "calendar",
   "continue_watching",
   "coming_up",
   "recommended",

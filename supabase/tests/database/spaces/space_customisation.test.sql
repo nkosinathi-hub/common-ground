@@ -10,7 +10,7 @@ insert into public.space_members (space_id, user_id, role) values
   ('c5000000-0000-4000-8000-000000000001', tests.user_id('cus_ben'), 'member');
 
 select is((select home_cards from public.spaces where id = 'c5000000-0000-4000-8000-000000000001'),
-  array['notes', 'continue_watching', 'coming_up', 'recommended', 'activity'],
+  array['notes', 'calendar', 'continue_watching', 'coming_up', 'recommended', 'activity'],
   'new spaces show the default Home cards');
 select is((select (theme, week_starts_on, default_watch_intent, tagline)::text from public.spaces
   where id = 'c5000000-0000-4000-8000-000000000001'), '(,1,want_to_watch,"")',
