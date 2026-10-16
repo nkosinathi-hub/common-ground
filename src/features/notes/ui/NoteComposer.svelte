@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
-  import { Resource, toast } from "@/shared/ui"
+  import { FormError, Resource, toast } from "@/shared/ui"
   import { untrack } from "svelte"
   import { COMPOSER_INTRO, type Draft } from "../domain"
   import { sendHardTalk, sendQuick } from "./composer-actions"
@@ -83,7 +83,7 @@
       {:else}
         <QuickNoteFields {composer} select={SELECT} />
       {/if}
-      {#if composer.error}<p class="text-sm text-destructive" role="alert">{composer.error}</p>{/if}
+      <FormError message={composer.error} />
       {#if hard}
         <HardTalkFooter {composer} {name} onDelete={deleteDraft} />
       {:else}

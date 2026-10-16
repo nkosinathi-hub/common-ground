@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Mail } from "@lucide/svelte"
   import { Resource } from "@/shared/ui"
@@ -17,7 +18,7 @@
 
   $effect(() => {
     void spaceId
-    void waiting.load()
+    untrack(() => void waiting.load())
   })
   $effect(() => arrivals.subscribe(() => void waiting.load()))
   $effect(() => changes.subscribe(() => void waiting.load()))

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import type { AppError } from "@/shared/domain"
   import { REMINDERS, RESPONSES, responseLabel, type RemindIn, type ResponseKind } from "../domain"
@@ -63,5 +64,5 @@
   <p role="status" class="text-sm text-muted-foreground">
     {sent ? `Sent: ${responseLabel(sent)}` : ""}
   </p>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
 </div>

@@ -28,7 +28,7 @@
   })
   $effect(() => {
     void spaceId
-    void myDrafts.load()
+    untrack(() => void myDrafts.load())
   })
   $effect(() => arrivals.subscribe(() => void notes.load()))
   $effect(() => changes.subscribe(() => void (notes.load(), myDrafts.load())))
