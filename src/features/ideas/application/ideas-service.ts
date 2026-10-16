@@ -1,8 +1,8 @@
 import { appError, type Cursor, err, type MemberDirectory, ok, type Result } from "@/shared/domain"
 import {
   cleanBrief,
-  normalizeTags,
   templateBrief,
+  validateTags,
   validateTitle,
   type Brief,
   type Idea,
@@ -69,8 +69,10 @@ export class IdeasService {
 
   moveStage = (id: string, stage: IdeaStage) => this.repo.update(id, { stage })
 
-  setTags = (id: string, tags: readonly string[]) =>
-    this.repo.update(id, { tags: normalizeTags(tags) })
+  async setTags(id: string, input: readonly string[]): Promise<Result<Idea>> {
+    const tags = validateTags(input)
+    return tags.ok ? this.repo.update(id, { tags: tags.value }) : tags
+  }
 
   /** Never overwrites silently: a stale base returns the latest copy for the merge prompt. */
   async saveBrief(base: Idea, draft: Brief): Promise<Result<SaveBriefOutcome>> {

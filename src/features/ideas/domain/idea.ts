@@ -35,6 +35,8 @@ export interface Idea {
 
 export const TITLE_MAX = 200
 export const TAGS_MAX = 20
+/** Longest tag, in characters. */
+export const TAG_MAX = 40
 
 export function validateTitle(input: string): Result<string> {
   const title = input.trim()
@@ -48,4 +50,11 @@ export function validateTitle(input: string): Result<string> {
 export function normalizeTags(input: readonly string[]): string[] {
   const tags = input.map((tag) => tag.trim().toLowerCase()).filter((tag) => tag.length > 0)
   return [...new Set(tags)].slice(0, TAGS_MAX)
+}
+
+export function validateTags(input: readonly string[]): Result<string[]> {
+  const tags = normalizeTags(input)
+  return tags.every((tag) => tag.length <= TAG_MAX)
+    ? ok(tags)
+    : err(appError("validation", `Keep each tag to ${TAG_MAX} characters`, "tags"))
 }
