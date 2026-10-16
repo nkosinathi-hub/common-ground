@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { current, done, removed, settle, signedOut } from "./query"
+import { appError } from "@/shared/domain"
+import { current, done, removed, same, settle, signedOut, touched } from "./query"
 
 describe("query helpers", () => {
   it("settles data or maps the error", async () => {
@@ -32,5 +33,22 @@ describe("query helpers", () => {
     })
     const denied = await current(reply(null, { code: "42501" }), double)
     expect(denied.ok ? null : denied.error.kind).toBe("denied")
+  })
+
+  it("reports an update that touched no row with the caller's error", async () => {
+    const gone = appError("not_found", "Gone")
+    const reply = (data: { id: string }[] | null, error: { code: string } | null = null) =>
+      Promise.resolve({ data, error })
+    expect(await touched(reply([{ id: "a" }]), gone)).toEqual({ ok: true, value: undefined })
+    expect(await touched(reply([]), gone)).toEqual({ ok: false, error: gone })
+    const denied = await touched(reply(null, { code: "42501" }), gone)
+    expect(denied.ok ? null : denied.error.kind).toBe("denied")
+  })
+
+  it("passes data through unchanged with same", async () => {
+    expect(await settle(Promise.resolve({ data: "id-1", error: null }), same)).toEqual({
+      ok: true,
+      value: "id-1",
+    })
   })
 })

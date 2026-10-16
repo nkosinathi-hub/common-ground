@@ -1,4 +1,4 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { appError, err, ok, type AppError, type Result } from "@/shared/domain"
 import { toAppError } from "./errors"
 
 export interface QueryError {
@@ -21,6 +21,9 @@ export async function settle<D, T>(
   return error ? err(toAppError(error)) : ok(map(data as D))
 }
 
+/** The identity map, for settle calls whose data is already the value. */
+export const same = <T>(data: T): T => data
+
 /** Awaits a write whose result is not needed. */
 export async function done(
   query: PromiseLike<{ readonly error: QueryError | null }>,
@@ -40,6 +43,19 @@ export async function removed(query: PromiseLike<QueryReply<unknown>>): Promise<
     return err(appError("denied", "Only its author or the space owner can delete this"))
   }
   return ok(undefined)
+}
+
+/**
+ * Awaits an update that selected the ids it touched. RLS hides rows it refuses to update, so no
+ * row back means the caller could not find it, reported as `gone`.
+ */
+export async function touched(
+  query: PromiseLike<QueryReply<readonly unknown[]>>,
+  gone: AppError,
+): Promise<Result<void>> {
+  const { data, error } = await query
+  if (error) return err(toAppError(error))
+  return data && data.length > 0 ? ok(undefined) : err(gone)
 }
 
 const STALE = "Someone else changed this. Reload to see their version"
