@@ -3,6 +3,9 @@ import { captureIdea, inviteMember, openIdeaTab, removeMember } from "../support
 import { createSpace, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
 import { addTask, setTaskField, taskCard } from "../support/tasks"
+import { daysFromNow } from "../support/dates"
+
+const due = daysFromNow(35)
 
 requireStack()
 
@@ -22,9 +25,9 @@ test("assigning a task notifies the member and removal unassigns them", async ({
 
   const ideaId = await captureIdea(page, spaceId, "Market day")
   await openIdeaTab(page, spaceId, ideaId, "tasks")
-  await addTask(page, "Book the stall", "2026-11-20")
+  await addTask(page, "Book the stall", due.iso)
   await setTaskField(page, "Book the stall", "Assignee", "ben")
-  await expect(taskCard(page, "Book the stall")).toContainText("Due 20 Nov 2026")
+  await expect(taskCard(page, "Book the stall")).toContainText(`Due ${due.shown}`)
 
   await benPage.reload()
   await benPage.getByRole("button", { name: "Notifications, 1 unread" }).click()
@@ -33,8 +36,8 @@ test("assigning a task notifies the member and removal unassigns them", async ({
 
   await openIdeaTab(benPage, spaceId, ideaId, "tasks")
   const benCard = taskCard(benPage, "Book the stall")
-  await expect(benCard).toContainText("Due 20 Nov 2026")
-  await expect(benCard.getByLabel("Due")).toHaveValue("2026-11-20")
+  await expect(benCard).toContainText(`Due ${due.shown}`)
+  await expect(benCard.getByLabel("Due")).toHaveValue(due.iso)
   await expect(benCard.getByLabel("Assignee").locator("option:checked")).toHaveText("ben")
 
   await removeMember(page, spaceId, "ben")
