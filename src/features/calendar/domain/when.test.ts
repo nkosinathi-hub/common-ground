@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
-import { cellLabel, dayHeading, entryTime, formatWhen, monthTitle } from "./when"
+import { cellLabel, dayHeading, entryTime, formatWhen, monthTitle, weekdayName } from "./when"
 
 const d = (value: string) => value as DateOnly
 const evening = {
@@ -16,6 +16,10 @@ describe("when", () => {
     expect(cellLabel(d("2026-10-16"), 2)).toBe("Fri 16 October, 2 events")
     expect(cellLabel(d("2026-10-16"), 1)).toBe("Fri 16 October, 1 event")
     expect(cellLabel(d("2026-10-16"), 0)).toBe("Fri 16 October")
+    expect([weekdayName(d("2026-10-18"), "short"), weekdayName(d("2026-10-19"), "long")]).toEqual([
+      "Sun",
+      "Monday",
+    ])
   })
 
   it("formats all-day events as dates", () => {

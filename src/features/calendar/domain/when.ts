@@ -24,6 +24,9 @@ function spelled(format: Intl.DateTimeFormat, day: DateOnly, withYear: boolean):
   return (withYear ? [...words, part("year")] : words).join(" ")
 }
 
+export const weekdayName = (day: DateOnly, width: "short" | "long") =>
+  dayFormat({ weekday: width }).format(atNoonUtc(day))
+
 export const dayHeading = (day: DateOnly) => spelled(LONG, day, false)
 export const fullDay = (day: DateOnly) => spelled(SHORT, day, true)
 
