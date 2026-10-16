@@ -15,9 +15,14 @@ const note = {
   expires_at: null,
   created_at: AT,
   updated_at: AT,
+  kind: "note",
+  sections: null,
+  response_wish: null,
+  support_wish: null,
 }
 const home = {
   ...note,
+  responses: [],
   space_note_replies: [{ count: 2 }],
   space_note_reads: [{ read_at: AT }],
   latest: [{ created_at: "2026-10-16T10:00:00Z" }],
@@ -54,6 +59,8 @@ describe("SupabaseNotes home", () => {
       ["or", `expires_at.is.null,expires_at.gt."${AT}"`],
       ["order", "created_at", { referencedTable: "latest", ascending: false }],
       ["limit", 1, { referencedTable: "latest" }],
+      ["order", "created_at", { referencedTable: "responses", ascending: false }],
+      ["limit", 1, { referencedTable: "responses" }],
       ["order", "pinned", { ascending: false }],
       ["order", "created_at", { ascending: false }],
       ["order", "id", { ascending: false }],

@@ -4,7 +4,7 @@ import { recordingClient } from "@/shared/infrastructure/testing/recording-clien
 import { SupabaseNoteArrivals } from "./supabase-note-arrivals"
 
 describe("SupabaseNoteArrivals", () => {
-  it("listens for the caller's note and note_reply notifications, and stops", () => {
+  it("listens for the caller's note, reply, shared and response notifications, and stops", () => {
     const { calls, client } = recordingClient({ data: null, error: null })
     const onArrival = vi.fn()
     const stop = new SupabaseNoteArrivals(client as Db).subscribe(onArrival)
@@ -16,7 +16,7 @@ describe("SupabaseNoteArrivals", () => {
         event: "INSERT",
         schema: "public",
         table: "notifications",
-        filter: "type=in.(note,note_reply)",
+        filter: "type=in.(note,note_reply,hard_talk,note_response)",
       },
       onArrival,
     ])

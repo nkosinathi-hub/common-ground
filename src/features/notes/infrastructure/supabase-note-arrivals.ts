@@ -1,7 +1,7 @@
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NoteArrivals } from "../application/ports"
 
-/** Realtime inserts into the caller's own notifications (RLS) of the two note kinds. */
+/** Realtime inserts into the caller's own notifications (RLS) of the note kinds. */
 export class SupabaseNoteArrivals implements NoteArrivals {
   constructor(private readonly db: Db) {}
 
@@ -10,7 +10,7 @@ export class SupabaseNoteArrivals implements NoteArrivals {
       event: "INSERT",
       schema: "public",
       table: "notifications",
-      filter: "type=in.(note,note_reply)",
+      filter: "type=in.(note,note_reply,hard_talk,note_response)",
     } as const
     const channel = this.db
       .channel(`note-arrivals-${crypto.randomUUID()}`)

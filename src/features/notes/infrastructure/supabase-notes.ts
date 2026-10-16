@@ -10,15 +10,8 @@ import type {
   ReplyRecord,
 } from "../application/ports"
 import { NOTES_PAGE_SIZE } from "../domain"
-import {
-  HOME_COLUMNS,
-  homeFilter,
-  REPLY_COLUMNS,
-  toPosted,
-  toRecord,
-  toReply,
-  type HomeRow,
-} from "./note-rows"
+import { homeFilter } from "./home-filter"
+import { HOME_COLUMNS, REPLY_COLUMNS, toPosted, toRecord, toReply, type HomeRow } from "./note-rows"
 
 /** The reply cap reply_to_note enforces, so one request reads a whole thread. */
 const THREAD_MAX = 200
@@ -51,6 +44,8 @@ export class SupabaseNotes implements NotesRepository {
       .or(homeFilter(now, after))
       .order("created_at", { referencedTable: "latest", ascending: false })
       .limit(1, { referencedTable: "latest" })
+      .order("created_at", { referencedTable: "responses", ascending: false })
+      .limit(1, { referencedTable: "responses" })
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })
@@ -82,5 +77,9 @@ export class SupabaseNotes implements NotesRepository {
 
   markRead(noteId: string): Promise<Result<void>> {
     return done(this.db.rpc("mark_note_read", { note: noteId }))
+  }
+
+  remove(noteId: string): Promise<Result<void>> {
+    return done(this.db.from("space_notes").delete().eq("id", noteId))
   }
 }

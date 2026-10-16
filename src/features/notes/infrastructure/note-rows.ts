@@ -1,23 +1,40 @@
-import type { Tables } from "@/shared/infrastructure/database.types"
-import type { NoteCursor, NoteRecord, ReplyRecord } from "../application/ports"
+import type { Json, Tables } from "@/shared/infrastructure/database.types"
+import type { NoteRecord, ReplyRecord } from "../application/ports"
+import { SECTION_KEYS, type Sections } from "../domain"
 
 type NoteTable = Tables<"space_notes">
+type NoteRow = Omit<NoteTable, "updated_at">
 export type ReplyRow = Pick<
   Tables<"space_note_replies">,
   "id" | "note_id" | "author_id" | "body" | "created_at"
 >
-export type HomeRow = Omit<NoteTable, "updated_at"> & {
+type ResponseRow = Pick<Tables<"space_note_responses">, "kind" | "created_at">
+export type HomeRow = NoteRow & {
   readonly space_note_replies: readonly { readonly count: number }[]
   readonly space_note_reads: readonly { readonly read_at: string }[]
   readonly latest: readonly { readonly created_at: string }[]
+  readonly responses: readonly ResponseRow[]
 }
 
-/** Reads are the caller's own (RLS); `latest` is the newest reply, limited to one in the query. */
+/**
+ * Reads are the caller's own (RLS); `latest` is the newest reply and `responses` the newest
+ * gentle response, each limited to one in the query.
+ */
 export const HOME_COLUMNS =
-  "id, space_id, author_id, recipient_id, body, pinned, expires_at, created_at, space_note_replies(count), space_note_reads(read_at), latest:space_note_replies(created_at)"
+  "id, space_id, author_id, recipient_id, body, pinned, expires_at, created_at, kind, sections, response_wish, support_wish, space_note_replies(count), space_note_reads(read_at), latest:space_note_replies(created_at), responses:space_note_responses(kind, created_at)"
 export const REPLY_COLUMNS = "id, note_id, author_id, body, created_at"
 
-const base = (row: Omit<NoteTable, "updated_at">) => ({
+/** Only the four known parts, as text. */
+export function toSections(value: Json): Sections {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {}
+  const parts = SECTION_KEYS.flatMap((key) => {
+    const text = value[key]
+    return typeof text === "string" ? [[key, text] as const] : []
+  })
+  return Object.fromEntries(parts)
+}
+
+const toBase = (row: NoteRow) => ({
   id: row.id,
   spaceId: row.space_id,
   authorId: row.author_id,
@@ -26,21 +43,30 @@ const base = (row: Omit<NoteTable, "updated_at">) => ({
   pinned: row.pinned,
   expiresAt: row.expires_at,
   createdAt: row.created_at,
+  kind: row.kind,
+  sections: toSections(row.sections),
+  responseWish: row.response_wish,
+  supportWish: row.support_wish,
 })
 
-export const toRecord = (row: HomeRow): NoteRecord => ({
-  ...base(row),
-  replyCount: row.space_note_replies[0]?.count ?? 0,
-  lastReplyAt: row.latest[0]?.created_at ?? null,
-  readAt: row.space_note_reads[0]?.read_at ?? null,
-})
+export const toRecord = (row: HomeRow): NoteRecord => {
+  const response = row.responses[0]
+  return {
+    ...toBase(row),
+    replyCount: row.space_note_replies[0]?.count ?? 0,
+    lastReplyAt: row.latest[0]?.created_at ?? null,
+    readAt: row.space_note_reads[0]?.read_at ?? null,
+    latestResponse: response ? { kind: response.kind, at: response.created_at } : null,
+  }
+}
 
-/** A note just posted: post_note records the author's read, and there are no replies yet. */
+/** A note just sent: the RPC records the author's read, and there are no replies yet. */
 export const toPosted = (row: NoteTable): NoteRecord => ({
-  ...base(row),
+  ...toBase(row),
   replyCount: 0,
   lastReplyAt: null,
   readAt: row.created_at,
+  latestResponse: null,
 })
 
 export const toReply = (row: ReplyRow): ReplyRecord => ({
@@ -50,17 +76,3 @@ export const toReply = (row: ReplyRow): ReplyRecord => ({
   body: row.body,
   createdAt: row.created_at,
 })
-
-const q = (value: string) => `"${value}"`
-
-/** Not expired at `now`, and (when paging) after the cursor in pinned, created_at, id order. */
-export function homeFilter(now: string, after: NoteCursor | null): string {
-  const live = `or(expires_at.is.null,expires_at.gt.${q(now)})`
-  if (!after) return live.slice(3, -1)
-  const at = q(after.createdAt)
-  const older = `created_at.lt.${at},and(created_at.eq.${at},id.lt.${after.id})`
-  const later = after.pinned
-    ? `or(pinned.eq.false,and(pinned.eq.true,or(${older})))`
-    : `and(pinned.eq.false,or(${older}))`
-  return `and(${live},${later})`
-}

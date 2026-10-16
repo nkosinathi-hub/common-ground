@@ -15,6 +15,10 @@ const note = {
   expires_at: null,
   created_at: AT,
   updated_at: AT,
+  kind: "note",
+  sections: null,
+  response_wish: null,
+  support_wish: null,
 }
 const reply = { id: "r1", note_id: "n1", author_id: "ben", body: "Yes", created_at: AT }
 
@@ -57,5 +61,11 @@ describe("SupabaseNotes writes", () => {
       ["order", "id"],
       ["limit", 200],
     ])
+  })
+
+  it("takes a note back by deleting it", async () => {
+    const { calls, notes } = setup({ data: null, error: null })
+    expect(await notes.remove("n1")).toEqual({ ok: true, value: undefined })
+    expect(calls).toEqual([["from", "space_notes"], ["delete"], ["eq", "id", "n1"]])
   })
 })
