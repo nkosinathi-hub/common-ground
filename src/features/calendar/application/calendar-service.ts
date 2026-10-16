@@ -9,7 +9,7 @@ import {
 import {
   addDays,
   daysBetween,
-  MAX_REMINDERS,
+  REMINDERS_MAX,
   REMINDER_MINUTES,
   validateEvent,
   type CalendarEntry,
@@ -20,7 +20,7 @@ import {
 import type { CalendarRepository, CalendarWindow, LinkSearch } from "./ports"
 
 /** The widest window list_calendar answers: to_date - from_date. */
-export const MAX_WINDOW_DAYS = 92
+export const WINDOW_DAYS_MAX = 92
 
 /** Events, attendance and reminders; drafts are validated before they reach storage. */
 export class CalendarService {
@@ -48,7 +48,7 @@ export class CalendarService {
     const entries: CalendarEntry[] = []
     let truncated = false
     for (let start = from; daysBetween(start, to) >= 0;) {
-      const end = daysBetween(start, to) > MAX_WINDOW_DAYS ? addDays(start, MAX_WINDOW_DAYS) : to
+      const end = daysBetween(start, to) > WINDOW_DAYS_MAX ? addDays(start, WINDOW_DAYS_MAX) : to
       const window = await this.repo.range(spaceId, start, end, zone)
       if (!window.ok) return window
       entries.push(...window.value.entries)
@@ -86,7 +86,7 @@ export class CalendarService {
   async setMyReminders(id: string, minutes: readonly number[]): Promise<Result<void>> {
     const unique = [...new Set(minutes)]
     const offered = (m: number) => (REMINDER_MINUTES as readonly number[]).includes(m)
-    if (unique.length > MAX_REMINDERS || !unique.every(offered))
+    if (unique.length > REMINDERS_MAX || !unique.every(offered))
       return err(appError("validation", "Choose up to three of the offered reminders", "reminders"))
     return this.repo.setMyReminders(id, unique)
   }

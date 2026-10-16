@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { TITLE_MAX } from "@/shared/domain"
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { FormError } from "@/shared/ui"
   import { MEDIA_TYPES } from "../domain/labels"
-  import { NOTE_MAX, SYNOPSIS_MAX, TITLE_MAX, YEAR_DIGITS } from "../domain/validation"
+  import { NOTE_MAX, SYNOPSIS_MAX, YEAR_DIGITS } from "../domain/validation"
   import Choice from "./Choice.svelte"
   import type { TitleFormState } from "./title-form.svelte"
 

@@ -18,7 +18,7 @@ export const MEDIA_SIZE: Readonly<Record<MediaSlot, Size>> = {
 }
 
 /** The bucket's limit per file. */
-export const MAX_MEDIA_BYTES = 5 * 1024 * 1024
+export const MEDIA_BYTES_MAX = 5 * 1024 * 1024
 
 /** Scales down so neither side exceeds `max`, keeping the shape; never enlarges. */
 export function fitWithin(width: number, height: number, max: number): Size {

@@ -48,7 +48,7 @@ export function validateNote(input: string): Result<string> {
   const body = input.trim()
   return body.length >= 1 && body.length <= NOTE_MAX
     ? ok(body)
-    : err(appError("validation", "Notes are 1 to 1000 characters", "body"))
+    : err(appError("validation", `Notes are 1 to ${NOTE_MAX} characters`, "body"))
 }
 
 /** Unread until the viewer opens it, and again once someone replies after that. */

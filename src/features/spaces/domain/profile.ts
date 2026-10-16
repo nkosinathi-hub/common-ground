@@ -1,8 +1,8 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import { normaliseHex } from "./color"
 
-export const MAX_TAGLINE = 120
-export const MAX_DESCRIPTION = 1000
+export const TAGLINE_MAX = 120
+export const PROFILE_DESCRIPTION_MAX = 1000
 
 /** Lucide icon keys a space may use; ui/icons.ts maps each to its component. */
 export const SPACE_ICONS = [
@@ -35,16 +35,22 @@ const CONTROL = /\p{Cc}/u
 
 export function validateTagline(raw: string): Result<string> {
   const value = raw.trim()
-  return value.length <= MAX_TAGLINE && !CONTROL.test(value)
+  return value.length <= TAGLINE_MAX && !CONTROL.test(value)
     ? ok(value)
-    : err(appError("validation", `Keep the tagline to one line of ${MAX_TAGLINE}`, "tagline"))
+    : err(appError("validation", `Keep the tagline to one line of ${TAGLINE_MAX}`, "tagline"))
 }
 
 export function validateDescription(raw: string): Result<string> {
   const value = raw.trim()
-  return value.length <= MAX_DESCRIPTION
+  return value.length <= PROFILE_DESCRIPTION_MAX
     ? ok(value)
-    : err(appError("validation", `Keep it under ${MAX_DESCRIPTION} characters`, "description"))
+    : err(
+        appError(
+          "validation",
+          `Keep it under ${PROFILE_DESCRIPTION_MAX} characters`,
+          "description",
+        ),
+      )
 }
 
 export const isSpaceIcon = (raw: string | null | undefined): raw is SpaceIcon =>

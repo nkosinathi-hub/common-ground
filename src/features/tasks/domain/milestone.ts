@@ -1,5 +1,12 @@
-import { appError, err, ok, toDateOnly, type DateOnly, type Result } from "@/shared/domain"
-import { TITLE_MAX } from "./task"
+import {
+  appError,
+  type DateOnly,
+  err,
+  ok,
+  type Result,
+  TITLE_MAX,
+  toDateOnly,
+} from "@/shared/domain"
 
 export interface Milestone {
   readonly id: string
@@ -25,7 +32,11 @@ export function validateMilestone(
   const title = input.title.trim()
   if (title.length < 1 || title.length > TITLE_MAX) {
     return err(
-      appError("validation", "Give the milestone a title of up to 200 characters", "title"),
+      appError(
+        "validation",
+        `Give the milestone a title of up to ${TITLE_MAX} characters`,
+        "title",
+      ),
     )
   }
   if (!input.targetDate) return ok({ title, targetDate: null })

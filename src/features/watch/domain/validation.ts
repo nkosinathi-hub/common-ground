@@ -1,16 +1,16 @@
 import {
   appError,
   compareDateOnly,
+  type DateOnly,
   err,
   isDateOnly,
   ok,
-  type DateOnly,
   type Result,
+  TITLE_MAX,
 } from "@/shared/domain"
 import type { ProgressInput, SessionInput, TitleDetailsInput } from "./types"
 
 /** Same bounds as the watch_items, watch_progress and watch_sessions check constraints. */
-export const TITLE_MAX = 200
 export const SYNOPSIS_MAX = 2000
 export const NOTE_MAX = 500
 export const YEAR_DIGITS = 4

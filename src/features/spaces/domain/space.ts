@@ -46,13 +46,13 @@ export interface InvitePreview {
   readonly status: InvitePreviewStatus
 }
 
-export const MAX_SPACE_NAME = 80
+export const SPACE_NAME_MAX = 80
 
 export function validateSpaceName(name: string): Result<string> {
   const trimmed = name.trim()
-  return trimmed.length >= 1 && trimmed.length <= MAX_SPACE_NAME
+  return trimmed.length >= 1 && trimmed.length <= SPACE_NAME_MAX
     ? ok(trimmed)
-    : err(appError("validation", `Name your space (up to ${MAX_SPACE_NAME} characters)`, "name"))
+    : err(appError("validation", `Name your space (up to ${SPACE_NAME_MAX} characters)`, "name"))
 }
 
 export function inviteStatus(record: InviteRecord, now: Date): InviteStatus {

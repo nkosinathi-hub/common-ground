@@ -3,8 +3,8 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
-  import type { AppError } from "@/shared/domain"
-  import { IDEA_TEMPLATE_OPTIONS, TITLE_MAX, type IdeaTemplate } from "../domain"
+  import { type AppError, TITLE_MAX } from "@/shared/domain"
+  import { IDEA_TEMPLATE_OPTIONS, type IdeaTemplate } from "../domain"
 
   interface Props {
     onCapture: (title: string, template: IdeaTemplate) => Promise<AppError | null>

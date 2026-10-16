@@ -1,20 +1,18 @@
 import {
   appError,
   compareDateOnly,
+  type DateOnly,
   err,
   ok,
-  toDateOnly,
-  type DateOnly,
   type Result,
+  TITLE_MAX,
+  toDateOnly,
 } from "@/shared/domain"
 
 export const TASK_STATUSES = ["backlog", "todo", "in_progress", "done"] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 export const TASK_PRIORITIES = ["low", "medium", "high", "urgent"] as const
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]
-
-/** Longest task or milestone title, in characters. */
-export const TITLE_MAX = 200
 
 export interface Task {
   readonly id: string
@@ -43,7 +41,9 @@ export function validateTaskInput(
 ): Result<{ title: string; dueDate: DateOnly | null }> {
   const title = input.title.trim()
   if (title.length < 1 || title.length > TITLE_MAX) {
-    return err(appError("validation", "Give the task a title of up to 200 characters", "title"))
+    return err(
+      appError("validation", `Give the task a title of up to ${TITLE_MAX} characters`, "title"),
+    )
   }
   if (!input.dueDate) return ok({ title, dueDate: null })
   const due = toDateOnly(input.dueDate)

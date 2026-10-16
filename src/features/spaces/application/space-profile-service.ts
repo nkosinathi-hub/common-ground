@@ -1,6 +1,6 @@
 import { appError, err, ok, type HomeCardId, type Result } from "@/shared/domain"
 import type { DefaultWatchIntent, SpacePreset, WeekStart } from "../domain/look"
-import { MAX_MEDIA_BYTES, mediaPath, type MediaSlot } from "../domain/media"
+import { MEDIA_BYTES_MAX, mediaPath, type MediaSlot } from "../domain/media"
 import {
   validateAccent,
   validateDescription,
@@ -71,7 +71,7 @@ export class SpaceProfileService {
 
   /** Uploads under a new name, points the slot at it, then removes the picture it replaced. */
   async replaceMedia(spaceId: string, slot: MediaSlot, file: Blob): Promise<Result<string>> {
-    if (file.size > MAX_MEDIA_BYTES) return err(appError("validation", TOO_BIG))
+    if (file.size > MEDIA_BYTES_MAX) return err(appError("validation", TOO_BIG))
     const path = mediaPath(spaceId, slot, this.newId(), file.type)
     if (!path) return err(appError("validation", WRONG_TYPE))
     const uploaded = await this.gateway.uploadMedia(path, file)

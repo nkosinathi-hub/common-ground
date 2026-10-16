@@ -17,7 +17,7 @@ export function validateLabel(input: string): Result<string> {
   const label = input.trim()
   return label.length >= 1 && label.length <= LABEL_MAX
     ? ok(label)
-    : err(appError("validation", "Checklist items need 1 to 200 characters", "label"))
+    : err(appError("validation", `Checklist items need 1 to ${LABEL_MAX} characters`, "label"))
 }
 
 export const checklistProgress = (items: readonly ChecklistItem[]) => ({

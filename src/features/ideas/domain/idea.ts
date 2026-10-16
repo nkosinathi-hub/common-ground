@@ -1,4 +1,4 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { appError, err, ok, type Result, TITLE_MAX } from "@/shared/domain"
 import type { Brief } from "./brief"
 import type { Collaborator } from "./collaborators"
 
@@ -32,7 +32,6 @@ export interface Idea {
   readonly updatedAt: string
 }
 
-export const TITLE_MAX = 200
 export const TAGS_MAX = 20
 /** Longest tag, in characters. */
 export const TAG_MAX = 40

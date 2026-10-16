@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { TITLE_MAX } from "@/shared/domain"
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
   import { ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
-  import { groupByStatus, TITLE_MAX } from "../domain"
+  import { groupByStatus } from "../domain"
   import { useTasks } from "./context"
   import { STATUS_LABELS } from "./labels"
   import TaskCard from "./TaskCard.svelte"
