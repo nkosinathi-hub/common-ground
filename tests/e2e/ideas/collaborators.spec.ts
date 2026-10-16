@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test"
 import { captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
-import { createSpace, signIn } from "../support/session"
+import { createSpace, projectPage, signIn } from "../support/session"
 import { comment, expectNotification } from "../support/social"
 import { createUser, requireStack } from "../support/stack"
 
@@ -19,7 +19,7 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
 }) => {
   test.setTimeout(240_000)
   const [owner, member] = await Promise.all([createUser("ana"), createUser("ben")])
-  ana = await (await browser.newContext()).newPage()
+  ana = await projectPage(browser)
   await signIn(ana, owner)
   const spaceId = await createSpace(ana, "Collaborators test")
   ben = await inviteMember(ana, browser, spaceId, member)

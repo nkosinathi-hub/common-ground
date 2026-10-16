@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { signedInClient } from "../support/clients"
 import { captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
 import { askDelete, ITEM_KINDS, type ItemKind } from "../support/idea-items"
-import { createSpace, signIn } from "../support/session"
+import { createSpace, projectPage, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
 
 requireStack()
@@ -29,7 +29,7 @@ let ideaId = ""
 test.beforeAll(async ({ browser }) => {
   test.setTimeout(240_000)
   const [owner, member] = await Promise.all([createUser("ana"), createUser("ben")])
-  ana = await (await browser.newContext()).newPage()
+  ana = await projectPage(browser)
   await signIn(ana, owner)
   spaceId = await createSpace(ana, "Delete test")
   ben = await inviteMember(ana, browser, spaceId, member)

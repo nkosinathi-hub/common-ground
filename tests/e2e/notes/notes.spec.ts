@@ -1,7 +1,7 @@
 import { expect, test, type Browser, type Locator, type Page } from "@playwright/test"
 import { inviteToken } from "../support/fixtures"
 import { realtimeJoined } from "../support/realtime"
-import { createSpace, signIn } from "../support/session"
+import { createSpace, projectPage, signIn } from "../support/session"
 import { expectNotification } from "../support/social"
 import { createUser, requireStack, type TestUser } from "../support/stack"
 
@@ -17,7 +17,7 @@ async function join(browser: Browser, owner: Page, user: TestUser): Promise<Page
   // Leave settings first: a hash goto to the page already open would keep the last link on screen.
   await owner.goto(`./#/s/${spaceId}/home`)
   const token = await inviteToken(owner, spaceId)
-  const page = await (await browser.newContext()).newPage()
+  const page = await projectPage(browser)
   const listening = realtimeJoined(page, "note-arrivals-")
   await signIn(page, user)
   await page.goto(`./#/invite/${token}`)
@@ -42,7 +42,7 @@ const note = (page: Page, body: string): Locator =>
 test.beforeAll(async ({ browser }) => {
   test.setTimeout(240_000)
   const [owner, second, third] = await Promise.all(["ana", "ben", "cy"].map((h) => createUser(h)))
-  ana = await (await browser.newContext()).newPage()
+  ana = await projectPage(browser)
   const listening = realtimeJoined(ana, "note-arrivals-")
   await signIn(ana, owner!)
   spaceId = await createSpace(ana, "Notes test")
