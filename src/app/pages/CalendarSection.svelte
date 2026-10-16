@@ -1,15 +1,19 @@
 <script lang="ts">
+  import { useAuth } from "@/features/auth"
+  import { CalendarPage, EventDetail } from "@/features/calendar"
   import type { Space } from "@/features/spaces"
-  import { EmptyState } from "@/shared/ui"
 
-  // Placeholder until the calendar feature lands (#29); keeps the route and nav section live.
   let { space, eventId }: { space: Space; eventId: string | null } = $props()
+  const { session } = useAuth()
+  const me = $derived(session.user?.id ?? "")
+  // spaces.week_starts_on reaches Space with the customisation work (#24); Monday until then.
+  const weekStart = $derived((space as { weekStartsOn?: number }).weekStartsOn === 0 ? 0 : 1)
 </script>
 
-<h1 class="mb-4 text-2xl font-semibold">Calendar</h1>
-<EmptyState
-  title="Plans for {space.name} will live here"
-  description={eventId
-    ? "This plan is not available yet."
-    : "Dates, events and reminders are on the way."}
-/>
+{#if eventId}
+  {#key eventId}
+    <EventDetail spaceId={space.id} {eventId} {me} isOwner={space.role === "owner"} />
+  {/key}
+{:else}
+  <CalendarPage spaceId={space.id} {weekStart} />
+{/if}
