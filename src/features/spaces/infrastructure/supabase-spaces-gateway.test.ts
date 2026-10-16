@@ -36,6 +36,17 @@ describe("SupabaseSpacesGateway", () => {
     })
   })
 
+  it("reads the profiles RLS lets the viewer see, for naming former members", async () => {
+    const { gateway, calls } = gatewayFor([
+      { data: [{ id: "u3", display_name: "Ben" }], error: null },
+    ])
+    expect(await gateway.knownPeople()).toEqual({
+      ok: true,
+      value: [{ id: "u3", displayName: "Ben" }],
+    })
+    expect(calls).toContainEqual(["from", "profiles"])
+  })
+
   it("returns invite records untouched by time", async () => {
     const row = {
       id: "i1",

@@ -35,7 +35,7 @@ function setup(extra: Record<string, unknown> = {}) {
   const fakes = watchFakes()
   const onAdded = vi.fn()
   const provide = () => {
-    provideWatch({ service: fakes.service, members: fakes.members })
+    provideWatch({ service: fakes.service, members: fakes.members, authors: fakes.members })
     provideCatalog({ service: new CatalogService(catalog) })
   }
   const props = { open: true, spaceId: SPACE_ID, onAdded, ...extra }

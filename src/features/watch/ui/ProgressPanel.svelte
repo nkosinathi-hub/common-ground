@@ -9,13 +9,14 @@
 
   interface Props {
     item: WatchItem
-    members: readonly MemberRef[]
+    /** Names for everyone with progress, including removed people still visible. */
+    authors: readonly MemberRef[]
     /** Bumped by the parent when progress changed elsewhere (a watched-together log). */
     version: number
     onSaved: () => void
   }
 
-  let { item, members, version, onSaved }: Props = $props()
+  let { item, authors, version, onSaved }: Props = $props()
   const { service } = useWatch()
   const progress = new Resource(() => service.progress(item.id))
 
@@ -25,7 +26,7 @@
     untrack(() => void progress.load())
   })
 
-  const nameOf = (id: string, me: string) => (id === me ? "You" : memberName(members, id))
+  const nameOf = (id: string, me: string) => (id === me ? "You" : memberName(authors, id))
 </script>
 
 <section class="space-y-4 rounded-xl border p-4" aria-labelledby="progress-heading">

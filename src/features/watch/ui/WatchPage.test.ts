@@ -13,7 +13,7 @@ const cards = () => within(screen.getByRole("list")).getAllByRole("link")
 function setup(count = 0) {
   const fakes = watchFakes()
   const provide = () => {
-    provideWatch({ service: fakes.service, members: fakes.members })
+    provideWatch({ service: fakes.service, members: fakes.members, authors: fakes.members })
     provideCatalog({ service: new CatalogService(emptyCatalogGateway) })
   }
   fakes.gateway.items = Array.from({ length: count }, (_, n) =>

@@ -45,6 +45,7 @@ export class SpacesService {
   }
 
   members = (spaceId: string) => this.deps.gateway.members(spaceId)
+  knownPeople = () => this.deps.gateway.knownPeople()
   revokeInvite = (inviteId: string) => this.deps.gateway.revokeInvite(inviteId)
   removeMember = (spaceId: string, userId: string) =>
     this.deps.gateway.removeMember(spaceId, userId)

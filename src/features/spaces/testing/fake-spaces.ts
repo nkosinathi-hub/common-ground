@@ -27,6 +27,8 @@ export class FakeSpacesGateway extends FakeSpaceProfile implements SpacesGateway
     return ok(id)
   }
   members = async () => ok([...this.memberList])
+  knownPeople = async () =>
+    ok(this.memberList.map((m) => ({ id: m.userId, displayName: m.displayName })))
   invites = async () => ok([...this.inviteList])
   async leave(spaceId: string) {
     this.spaces = this.spaces.filter((s) => s.id !== spaceId)

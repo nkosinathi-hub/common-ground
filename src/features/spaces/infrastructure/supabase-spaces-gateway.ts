@@ -54,6 +54,11 @@ export class SupabaseSpacesGateway implements SpacesGateway {
     )
   }
 
+  knownPeople = () =>
+    settle(this.db.from("profiles").select("id, display_name"), (rows) =>
+      rows.map((row) => ({ id: row.id, displayName: row.display_name })),
+    )
+
   leave = (spaceId: string) => done(this.db.rpc("leave_space", { target_space: spaceId }))
   removeMember = (spaceId: string, userId: string) =>
     done(this.db.rpc("remove_member", { target_space: spaceId, member: userId }))

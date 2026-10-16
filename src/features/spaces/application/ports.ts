@@ -1,4 +1,4 @@
-import type { HomeCardId, Reauthenticator, Result } from "@/shared/domain"
+import type { HomeCardId, MemberRef, Reauthenticator, Result } from "@/shared/domain"
 import type { DefaultWatchIntent, SpacePreset, WeekStart } from "../domain/look"
 import type { MediaSlot } from "../domain/media"
 import type { InvitePreview, InviteRecord, Member, Space } from "../domain/space"
@@ -33,6 +33,8 @@ export interface SpacesGateway extends SpaceProfileGateway {
   listMine(): Promise<Result<Space[]>>
   create(name: string, template: SpaceTemplateId): Promise<Result<string>>
   members(spaceId: string): Promise<Result<Member[]>>
+  /** Profiles RLS lets the viewer read: their own and anyone they still share a space with. */
+  knownPeople(): Promise<Result<MemberRef[]>>
   leave(spaceId: string): Promise<Result<void>>
   removeMember(spaceId: string, userId: string): Promise<Result<void>>
   transferOwnership(spaceId: string, userId: string): Promise<Result<void>>

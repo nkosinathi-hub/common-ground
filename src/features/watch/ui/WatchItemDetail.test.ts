@@ -12,10 +12,9 @@ afterEach(cleanup)
 
 const html = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }))
 
-function setup(extra: Parameters<typeof item>[2] = {}) {
-  const fakes = watchFakes()
+function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
   const provide = () => {
-    provideWatch({ service: fakes.service, members: fakes.members })
+    provideWatch({ service: fakes.service, members: fakes.members, authors: fakes.members })
     provideCatalog({ service: new CatalogService(emptyCatalogGateway) })
   }
   const show = item(1, "Home video", {
@@ -24,17 +23,8 @@ function setup(extra: Parameters<typeof item>[2] = {}) {
     ...extra,
   })
   fakes.gateway.items = [show]
-  fakes.gateway.progressRows = [
-    {
-      userId: PARTNER,
-      status: "watching",
-      season: 1,
-      episode: 4,
-      rating: 3,
-      completedOn: null,
-      updatedAt: "",
-    },
-  ]
+  const watching = { status: "watching", season: 1, episode: 4, rating: 3 } as const
+  fakes.gateway.progressRows = [{ userId: PARTNER, ...watching, completedOn: null, updatedAt: "" }]
   const props = {
     spaceId: SPACE_ID,
     itemId: show.id,
@@ -54,6 +44,15 @@ describe("WatchItemDetail", () => {
     expect(screen.getByText("Member-entered note. No verified provider data.")).toBeInTheDocument()
     expect(screen.getByText("Comments go here")).toBeInTheDocument()
     expect(screen.getByText("Recommend goes here")).toBeInTheDocument()
+    expect(await screen.findByText("Watching, season 1 episode 4, 3/5")).toBeInTheDocument()
+    expect(screen.getByText("Lindi")).toBeInTheDocument()
+  })
+
+  it("names a removed member's progress from their still-visible profile", async () => {
+    const fakes = watchFakes()
+    fakes.members.list = fakes.members.list.filter((m) => m.id !== PARTNER)
+    fakes.members.former = [{ id: PARTNER, displayName: "Lindi" }]
+    setup({}, fakes)
     expect(await screen.findByText("Watching, season 1 episode 4, 3/5")).toBeInTheDocument()
     expect(screen.getByText("Lindi")).toBeInTheDocument()
   })
