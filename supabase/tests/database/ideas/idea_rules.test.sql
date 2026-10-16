@@ -41,9 +41,11 @@ update public.tasks set assignee_id = tests.user_id('rules_dee');
 update public.tasks set assignee_id = tests.user_id('rules_ben');
 select tests.reset_role();
 select is((select count(*)::int from public.notifications
-  where recipient_id = tests.user_id('rules_ben') and subject_id = '00000000-0000-0000-0000-00000000007a'), 2, 'a returning assignee is notified again');
+  where recipient_id = tests.user_id('rules_ben')
+    and deduplication_key like 'task_assigned:00000000-0000-0000-0000-00000000007a:%'), 2, 'a returning assignee is notified again');
 select is((select count(*)::int from public.notifications
-  where recipient_id = tests.user_id('rules_dee') and subject_id = '00000000-0000-0000-0000-00000000007a'), 1, 'each assignment notifies once');
+  where recipient_id = tests.user_id('rules_dee')
+    and deduplication_key like 'task_assigned:00000000-0000-0000-0000-00000000007a:%'), 1, 'each assignment notifies once');
 
 select * from finish();
 rollback;
