@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Columns3, Lightbulb, List } from "@lucide/svelte"
   import { EmptyState, ErrorState, Loading, LoadMore } from "@/shared/ui"
@@ -24,9 +25,10 @@
     () => spaceId,
     () => me,
   )
-  // Loads on mount, and again if spaceId changes: load reads it before its first await.
+  // Loads on mount and again when spaceId changes.
   $effect(() => {
-    board.load()
+    void spaceId
+    untrack(() => board.load())
   })
 </script>
 

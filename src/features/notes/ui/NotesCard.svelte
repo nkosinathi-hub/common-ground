@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { PenLine } from "@lucide/svelte"
   import { ErrorState, Loading, LoadMore, Resource } from "@/shared/ui"
@@ -22,7 +23,8 @@
   let resuming = $state<Draft | null>(null)
   // Loads on mount and when the space changes; a new note or reply reloads the card.
   $effect(() => {
-    void notes.load()
+    void spaceId
+    untrack(() => void notes.load())
   })
   $effect(() => {
     void spaceId

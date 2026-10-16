@@ -19,7 +19,7 @@
   // Reloads when Home switches to another space.
   $effect(() => {
     void spaceId
-    void tasks.load()
+    untrack(() => void tasks.load())
   })
 
   const today = todayDateOnly()

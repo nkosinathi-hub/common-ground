@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
@@ -19,9 +20,10 @@
   let { spaceId, ideaId, canDelete }: Props = $props()
   const board = new TasksState(useTasks(), () => ({ spaceId, ideaId }))
   const list = board.list
-  // Reloads when the idea changes: the place callback reads spaceId and ideaId.
+  // Loads on mount and again when the idea changes.
   $effect(() => {
-    void board.load()
+    void [spaceId, ideaId]
+    untrack(() => void board.load())
   })
 
   let title = $state("")

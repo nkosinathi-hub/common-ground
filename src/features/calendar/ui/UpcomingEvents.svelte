@@ -26,7 +26,7 @@
   // Reloads when Home switches to another space.
   $effect(() => {
     void spaceId
-    void week.load()
+    untrack(() => void week.load())
   })
 </script>
 

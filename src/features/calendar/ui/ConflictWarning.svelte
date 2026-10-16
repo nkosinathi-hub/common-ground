@@ -24,7 +24,7 @@
   })
   $effect(() => {
     void event.timing
-    void window.load()
+    untrack(() => void window.load())
   })
   const clashes = $derived(conflicts(event, window.value?.entries ?? [], zone))
 </script>

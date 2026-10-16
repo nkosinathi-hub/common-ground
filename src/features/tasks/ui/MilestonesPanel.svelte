@@ -24,7 +24,7 @@
   // Reloads when the page shows another idea.
   $effect(() => {
     void ideaId
-    void list.load()
+    untrack(() => void list.load())
   })
 
   /**

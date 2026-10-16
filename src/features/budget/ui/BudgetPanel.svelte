@@ -27,7 +27,7 @@
   // Reloads when the page shows another idea.
   $effect(() => {
     void ideaId
-    void lines.load()
+    untrack(() => void lines.load())
   })
   const entries = () => lines.value ?? []
   const totals = $derived(budgetTotals(lines.value ?? [], currency))
