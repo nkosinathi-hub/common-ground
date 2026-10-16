@@ -1,6 +1,12 @@
 <script lang="ts">
   import { Shield } from "@lucide/svelte"
-  import { DataExportCard, DeleteAccountCard, PasswordCard, ProfileCard } from "@/features/account"
+  import {
+    AppearanceCard,
+    DataExportCard,
+    DeleteAccountCard,
+    PasswordCard,
+    ProfileCard,
+  } from "@/features/account"
   import { useAuth } from "@/features/auth"
   import { useSpaces } from "@/features/spaces"
   import { toast } from "@/shared/ui"
@@ -25,6 +31,7 @@
   </div>
   {#if session.user}
     <ProfileCard userId={session.user.id} displayName={session.user.displayName} />
+    <AppearanceCard />
     <PasswordCard />
     <DataExportCard {spaces} />
     <DeleteAccountCard onDeleted={deleted} />
