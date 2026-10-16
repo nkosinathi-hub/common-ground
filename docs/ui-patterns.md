@@ -25,3 +25,5 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
 - One locale, `LOCALE` (en-ZA) in shared/domain. Show an instant with `formatDateTime` or `formatDay`
   (viewer's time zone), a `DateOnly` with `formatDateOnly` (never shifts), money with `formatMoney`.
   Never call `toLocaleString` or `Intl` in a component.
+- A test about local days pins `process.env.TZ` to a zone far from UTC (America/Los_Angeles) in
+  `beforeEach`, uses a UTC instant near midnight, and restores TZ in `afterEach`.
