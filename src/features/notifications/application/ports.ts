@@ -11,5 +11,6 @@ export interface NotificationsGateway {
 }
 
 export interface ActivityGateway {
-  list(spaceId: string, after: Cursor | null): Promise<Result<Page<ActivityEvent>>>
+  /** Newest first; `size` asks for fewer than a full page. */
+  list(spaceId: string, after: Cursor | null, size?: number): Promise<Result<Page<ActivityEvent>>>
 }

@@ -35,7 +35,11 @@ export class FakeNotifications implements NotificationsGateway {
 
 export class FakeActivity implements ActivityGateway {
   events: ActivityEvent[] = []
-  async list(): Promise<Result<Page<ActivityEvent>>> {
-    return ok({ items: [...this.events], next: null })
+  async list(
+    _spaceId: string,
+    _after: unknown,
+    size?: number,
+  ): Promise<Result<Page<ActivityEvent>>> {
+    return ok({ items: this.events.slice(0, size), next: null })
   }
 }

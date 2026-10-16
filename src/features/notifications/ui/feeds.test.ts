@@ -53,6 +53,21 @@ describe("ActivityFeed", () => {
     expect(await screen.findByText("Nothing yet")).toBeInTheDocument()
   })
 
+  it("asks for the latest six only on the home card", async () => {
+    const { activity, provide } = setup()
+    const sizes: (number | undefined)[] = []
+    const list = activity.list.bind(activity)
+    activity.list = (spaceId, after, size) => {
+      sizes.push(size)
+      return list(spaceId, after, size)
+    }
+    render(Provided, {
+      props: { provide, component: ActivityFeed, props: { spaceId: "s", limit: true } },
+    })
+    expect(await screen.findByText("Nothing yet")).toBeInTheDocument()
+    expect(sizes).toEqual([6])
+  })
+
   it("reports a failed load with a retry", async () => {
     const { activity, provide } = setup()
     activity.list = async () => err(appError("unknown", "Activity is unavailable"))

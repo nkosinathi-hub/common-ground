@@ -67,5 +67,12 @@ describe("SupabaseActivity", () => {
     const page = await new SupabaseActivity(db as Db).list("s", null)
     expect(page).toMatchObject({ ok: true, value: { items: [{ id: "e1", actorName: "Ben" }] } })
     expect(calls).toContainEqual(["eq", "space_id", "s"])
+    expect(calls.at(-1)).toEqual(["limit", PAGE_SIZE])
+  })
+
+  it("lists only the latest few when given a size", async () => {
+    const { client: db, calls } = recordingClient([{ data: [], error: null }])
+    await new SupabaseActivity(db as Db).list("s", null, 6)
+    expect(calls.at(-1)).toEqual(["limit", 6])
   })
 })

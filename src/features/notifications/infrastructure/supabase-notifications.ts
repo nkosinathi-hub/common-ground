@@ -59,10 +59,10 @@ export class SupabaseNotifications implements NotificationsGateway {
 export class SupabaseActivity implements ActivityGateway {
   constructor(private readonly db: Db) {}
 
-  list(spaceId: string, after: Cursor | null): Promise<Result<Page<ActivityEvent>>> {
+  list(spaceId: string, after: Cursor | null, size?: number): Promise<Result<Page<ActivityEvent>>> {
     const query = this.db.from("activity_events").select(EVENT).eq("space_id", spaceId)
     return settle(
-      newestFirst(query, after),
+      newestFirst(query, after, size),
       pageOf((row) => ({
         id: row.id,
         eventType: row.event_type,

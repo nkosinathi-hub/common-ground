@@ -31,7 +31,11 @@ export class NotificationsService {
     return this.inbox.subscribe(onChange)
   }
 
-  activityIn(spaceId: string, after: Cursor | null = null): Promise<Result<Page<ActivityEvent>>> {
-    return this.activity.list(spaceId, after)
+  activityIn(
+    spaceId: string,
+    after: Cursor | null = null,
+    size?: number,
+  ): Promise<Result<Page<ActivityEvent>>> {
+    return this.activity.list(spaceId, after, size)
   }
 }

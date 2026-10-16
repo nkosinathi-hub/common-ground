@@ -14,12 +14,16 @@ interface Pageable<Q> {
 }
 
 /** One page newest first on (created_at, id), continuing after the cursor when given. */
-export function newestFirst<Q extends Pageable<Q>>(query: Q, after: Cursor | null): Q {
+export function newestFirst<Q extends Pageable<Q>>(
+  query: Q,
+  after: Cursor | null,
+  size = PAGE_SIZE,
+): Q {
   const from = after ? query.or(olderThan(after)) : query
   return from
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
-    .limit(PAGE_SIZE)
+    .limit(size)
 }
 
 /** Maps one page of rows from newestFirst; a full page carries the cursor for the next one. */

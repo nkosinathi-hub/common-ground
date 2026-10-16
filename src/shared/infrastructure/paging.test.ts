@@ -31,6 +31,12 @@ describe("newestFirst", () => {
     expect(calls).toEqual(ORDERED)
   })
 
+  it("takes a shorter page when asked", () => {
+    const { calls, client } = recordingClient({ data: [], error: null })
+    newestFirst(client as Query, null, 6)
+    expect(calls.at(-1)).toEqual(["limit", 6])
+  })
+
   it("continues strictly after the cursor", () => {
     const { calls, client } = recordingClient({ data: [], error: null })
     newestFirst(client as Query, CURSOR)
