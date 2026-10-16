@@ -4,6 +4,7 @@ import { composeCollaboration, provideCollaboration } from "./collaboration"
 import { composeCore, provideCore } from "./core"
 import { composeIdeas, provideIdeasFeatures } from "./ideas"
 import { memberDirectory } from "./members"
+import { composeNotes, provideNotesFeature } from "./notes"
 import { composeWatch, provideWatchFeature } from "./watch"
 
 /** The only place adapters are constructed. Features receive services through context. */
@@ -19,6 +20,7 @@ export function compose(db: Db = createSupabase()) {
     ideas,
     collaboration: composeCollaboration(db),
     calendar: composeCalendar(db, watch, ideas.ideas, members),
+    notes: composeNotes(db, members),
   }
 }
 
@@ -30,4 +32,5 @@ export function provideServices(services: Services): void {
   provideWatchFeature(services.watch, services.members)
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
+  provideNotesFeature(services.notes, services.session)
 }
