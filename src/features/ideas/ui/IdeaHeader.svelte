@@ -1,8 +1,8 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
-  import { type MemberRef, type Result, TITLE_MAX } from "@/shared/domain"
+  import { canDelete, type MemberRef, type Result, TITLE_MAX, type Viewer } from "@/shared/domain"
   import { DeleteButton, FormError } from "@/shared/ui"
-  import { canDelete, IDEA_STAGES, type Idea, type IdeaStage, type Viewer } from "../domain"
+  import { IDEA_STAGES, type Idea, type IdeaStage } from "../domain"
   import { useIdeas } from "./context"
   import IdeaByline from "./IdeaByline.svelte"
   import { STAGE_LABELS } from "./labels"

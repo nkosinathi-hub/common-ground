@@ -1,10 +1,10 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import type { Cursor } from "@/shared/domain"
+  import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
   import { DeleteButton, FormError, PagedList } from "@/shared/ui"
-  import { canDelete, NOTE_MAX, type Idea, type IdeaNote, type Viewer } from "../domain"
+  import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
 

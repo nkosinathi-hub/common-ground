@@ -2,14 +2,12 @@
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import type { AppError, Cursor } from "@/shared/domain"
+  import { type AppError, canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import {
-    canDelete,
     LINK_DESCRIPTION_MAX,
     LINK_TITLE_MAX,
     URL_MAX,
     type Idea,
-    type Viewer,
     type LinkInput,
     type ResearchLink,
   } from "../domain"

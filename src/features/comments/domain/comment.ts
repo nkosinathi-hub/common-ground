@@ -1,11 +1,17 @@
-import { appError, err, ok, type Cursor, type MemberRef, type Result } from "@/shared/domain"
+import {
+  appError,
+  err,
+  ok,
+  type Cursor,
+  type MemberRef,
+  type Result,
+  type Viewer as SpaceViewer,
+} from "@/shared/domain"
 
 export type ParentKind = "watch" | "idea"
 
 /** Who is reading a thread: decides what they may change and how authors are named. */
-export interface Viewer {
-  readonly me: string
-  readonly isOwner: boolean
+export interface Viewer extends SpaceViewer {
   /** Names authors and mentions: current members, then removed people still visible. */
   readonly authors: readonly MemberRef[]
 }
@@ -38,10 +44,6 @@ export function validateBody(body: string): Result<string> {
 
 export const canEdit = (comment: Comment, me: string): boolean =>
   comment.authorId !== null && comment.authorId === me
-
-/** Authors remove their own comments; the space owner moderates everyone's. */
-export const canDelete = (comment: Comment, me: string, isOwner: boolean): boolean =>
-  isOwner || canEdit(comment, me)
 
 export const isConcealed = (comment: Comment, revealed: ReadonlySet<string>): boolean =>
   comment.spoiler && !revealed.has(comment.id)

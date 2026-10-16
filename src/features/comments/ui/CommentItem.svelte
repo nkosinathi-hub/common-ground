@@ -1,9 +1,9 @@
 <script lang="ts">
   import { Pencil } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { formatDateTime, memberName } from "@/shared/domain"
+  import { canDelete, formatDateTime, memberName } from "@/shared/domain"
   import { DeleteButton, toast } from "@/shared/ui"
-  import { canDelete, canEdit, type Comment, type Viewer } from "../domain/comment"
+  import { canEdit, type Comment, type Viewer } from "../domain/comment"
   import CommentEditForm from "./CommentEditForm.svelte"
   import SpoilerBody from "./SpoilerBody.svelte"
   import type { ThreadState } from "./thread-state.svelte"
@@ -54,7 +54,7 @@
           <Pencil aria-hidden="true" />Edit
         </Button>
       {/if}
-      {#if canDelete(comment, viewer.me, viewer.isOwner)}
+      {#if canDelete(comment.authorId, viewer)}
         <DeleteButton
           label="Delete comment"
           what="this comment"

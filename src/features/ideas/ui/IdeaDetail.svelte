@@ -1,8 +1,15 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
   import { ErrorState, Loading, Resource, navigate } from "@/shared/ui"
-  import { appError, err, type AppError, type IdeaTab, type Result } from "@/shared/domain"
-  import type { Idea, Viewer } from "../domain"
+  import {
+    appError,
+    err,
+    type AppError,
+    type IdeaTab,
+    type Result,
+    type Viewer,
+  } from "@/shared/domain"
+  import type { Idea } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
   import IdeaTabContent from "./IdeaTabContent.svelte"

@@ -65,10 +65,6 @@ export function precheckFile(file: {
 export const kindOf = (mime: AttachmentMime): AttachmentKind =>
   mime === "application/pdf" ? "pdf" : "image"
 
-/** Delete is offered to the uploader and to the space owner; the RPC enforces the same rule. */
-export const canDelete = (uploaderId: string | null, me: string, isOwner: boolean): boolean =>
-  isOwner || (uploaderId !== null && uploaderId === me)
-
 /** Signed URLs come from the server; anything but http(s) is never rendered or opened. */
 export function isWebUrl(value: string): boolean {
   try {

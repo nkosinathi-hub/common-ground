@@ -1,17 +1,15 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import type { Cursor } from "@/shared/domain"
+  import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { DeleteButton, FormError, PagedList } from "@/shared/ui"
   import {
-    canDelete,
     HYPOTHESIS_MAX,
     HYPOTHESIS_STATUSES,
     type Hypothesis,
     type HypothesisStatus,
     type Idea,
-    type Viewer,
   } from "../domain"
   import { useResearch } from "./context"
   import { HYPOTHESIS_LABELS } from "./labels"

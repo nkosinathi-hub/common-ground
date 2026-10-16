@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import type { Idea, Viewer } from "../domain"
+  import type { Viewer } from "@/shared/domain"
+  import type { Idea } from "../domain"
   import HypothesesPanel from "./HypothesesPanel.svelte"
   import LinksPanel from "./LinksPanel.svelte"
   import NotesPanel from "./NotesPanel.svelte"

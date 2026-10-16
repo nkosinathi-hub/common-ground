@@ -2,7 +2,14 @@
   import { untrack } from "svelte"
   import { ArrowLeft, Download, Pencil } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { appError, buildHash, err, FORMER_MEMBER, todayDateOnly } from "@/shared/domain"
+  import {
+    appError,
+    buildHash,
+    canDelete,
+    err,
+    FORMER_MEMBER,
+    todayDateOnly,
+  } from "@/shared/domain"
   import { AsyncView, DeleteButton, Resource, toast, navigate } from "@/shared/ui"
   import { eventIcs, icsFileName, type CalendarEvent } from "../domain"
   import { saveFile, viewerZone } from "./browser"
@@ -53,7 +60,7 @@
   </a>
   <AsyncView resource={event}>
     {#snippet children(current)}
-      {@const mayChange = current.createdBy === me || isOwner}
+      {@const mayChange = canDelete(current.createdBy, { me, isOwner })}
       <EventSummary event={current} {zone} {spaceId} />
       <ConflictWarning event={current} {spaceId} {zone} />
       <RsvpChips event={current} {me} {nameOf} onAnswered={() => event.load()} />

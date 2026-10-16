@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest"
 import {
   ACCEPT,
   BYTES_MAX,
-  canDelete,
   FILENAME_MAX,
   formatBytes,
   isAttachmentMime,
@@ -69,12 +68,5 @@ describe("attachment helpers", () => {
     expect(isWebUrl("javascript:alert(1)")).toBe(false)
     expect(isWebUrl("data:text/html,x")).toBe(false)
     expect(isWebUrl("not a url")).toBe(false)
-  })
-
-  it("offers delete to the uploader and the owner only", () => {
-    expect(canDelete("me", "me", false)).toBe(true)
-    expect(canDelete("them", "me", true)).toBe(true)
-    expect(canDelete("them", "me", false)).toBe(false)
-    expect(canDelete(null, "me", false)).toBe(false)
   })
 })
