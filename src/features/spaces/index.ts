@@ -1,6 +1,7 @@
 export { SpacesService } from "./application/spaces-service"
 export type { Space } from "./domain/space"
 export { templateFor } from "./domain/templates"
+export { applySpaceLook } from "./ui/apply-look"
 export { provideSpaces, useSpaces } from "./ui/context"
 export { SpacesStore } from "./ui/spaces.svelte"
 export { default as InvitePage } from "./ui/InvitePage.svelte"

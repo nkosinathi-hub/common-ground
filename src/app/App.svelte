@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte"
+  import { ModeWatcher } from "mode-watcher"
   import { Toaster } from "$lib/components/ui/sonner"
   import { ErrorState, Loading } from "@/shared/ui"
   import { boot } from "./boot"
@@ -51,6 +52,8 @@
   }
 </script>
 
+<!-- The CSP forbids inline scripts; mode changes apply synchronously so AppShell reads them. -->
+<ModeWatcher disableHeadScriptInjection synchronousModeChanges />
 <Toaster richColors position="top-center" />
 {#if !booted || !gate.ready}
   <div class="mx-auto max-w-md p-8"><Loading label="Opening Common Ground" /></div>

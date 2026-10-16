@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import type { Space } from "@/features/spaces"
+  import { mode } from "mode-watcher"
+  import { applySpaceLook, type Space } from "@/features/spaces"
   import AccountMenu from "./AccountMenu.svelte"
   import BottomNav from "./BottomNav.svelte"
   import NavRail from "./NavRail.svelte"
@@ -21,12 +22,10 @@
     children: Snippet
   } = $props()
 
-  // Theme applies only inside a space; leaving the shell restores the neutral palette.
+  // The look applies only inside a space; leaving the shell restores the neutral palette.
   const spaceId = $derived(space.id)
-  $effect(() => {
-    document.documentElement.dataset.spaceTheme = space.template
-    return () => delete document.documentElement.dataset.spaceTheme
-  })
+  const colourMode = $derived(mode.current === "dark" ? "dark" : "light")
+  $effect(() => applySpaceLook(document.documentElement, space, colourMode))
   /** The router reads every hash as a route, so the skip link moves focus itself. */
   function skipToMain(event: MouseEvent) {
     event.preventDefault()
