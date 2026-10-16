@@ -4,6 +4,7 @@
   import * as Collapsible from "$lib/components/ui/collapsible"
   import { MessageSquare, Pin } from "@lucide/svelte"
   import { isUnread, whoToWhom, type Note } from "../domain"
+  import HardTalkItem from "./HardTalkItem.svelte"
   import NoteThread from "./NoteThread.svelte"
   import type { NotesState } from "./notes.svelte"
 
@@ -23,29 +24,35 @@
   }
 </script>
 
-<li
-  class="flex flex-col gap-2 rounded-lg border p-3 {unread ? 'border-primary/40 bg-highlight' : ''}"
-  data-testid="home-note"
->
-  <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-    <span class="font-medium text-foreground">{whoToWhom(note, me)}</span>
-    {#if note.pinned}<span class="inline-flex items-center gap-1"
-        ><Pin class="size-3" aria-hidden="true" />Pinned</span
-      >{/if}
-    {#if unread}<Badge>New</Badge><span class="sr-only">Unread</span>{/if}
-  </div>
-  <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-  <Collapsible.Root bind:open onOpenChange={changed}>
-    <Collapsible.Trigger>
-      {#snippet child({ props })}
-        <Button {...props} variant="ghost" size="xs" class="self-start"
-          ><MessageSquare aria-hidden="true" />{toggle}</Button
-        >
-      {/snippet}
-    </Collapsible.Trigger>
-    <Collapsible.Content>
-      <!-- Content stays mounted while closed: load the thread on opening, and again on a reply. -->
-      {#if open}{#key note.replyCount}<NoteThread {note} {notes} />{/key}{/if}
-    </Collapsible.Content>
-  </Collapsible.Root>
-</li>
+{#if note.kind === "hard_talk"}
+  <HardTalkItem {note} {notes} {me} />
+{:else}
+  <li
+    class="flex flex-col gap-2 rounded-lg border p-3 {unread
+      ? 'border-primary/40 bg-highlight'
+      : ''}"
+    data-testid="home-note"
+  >
+    <div class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+      <span class="font-medium text-foreground">{whoToWhom(note, me)}</span>
+      {#if note.pinned}<span class="inline-flex items-center gap-1"
+          ><Pin class="size-3" aria-hidden="true" />Pinned</span
+        >{/if}
+      {#if unread}<Badge>New</Badge><span class="sr-only">Unread</span>{/if}
+    </div>
+    <p class="text-sm whitespace-pre-wrap">{note.body}</p>
+    <Collapsible.Root bind:open onOpenChange={changed}>
+      <Collapsible.Trigger>
+        {#snippet child({ props })}
+          <Button {...props} variant="ghost" size="xs" class="self-start"
+            ><MessageSquare aria-hidden="true" />{toggle}</Button
+          >
+        {/snippet}
+      </Collapsible.Trigger>
+      <Collapsible.Content>
+        <!-- Content stays mounted while closed: load the thread on opening, and again on a reply. -->
+        {#if open}{#key note.replyCount}<NoteThread {note} {notes} />{/key}{/if}
+      </Collapsible.Content>
+    </Collapsible.Root>
+  </li>
+{/if}

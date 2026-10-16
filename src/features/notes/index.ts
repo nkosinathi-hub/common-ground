@@ -1,3 +1,6 @@
+export { DraftsService } from "./application/drafts-service"
+export { HardTalkService } from "./application/hard-talk-service"
 export { NotesService } from "./application/notes-service"
 export { provideNotes } from "./ui/context"
 export { default as NotesCard } from "./ui/NotesCard.svelte"
+export { default as SharedWithYou } from "./ui/SharedWithYou.svelte"
