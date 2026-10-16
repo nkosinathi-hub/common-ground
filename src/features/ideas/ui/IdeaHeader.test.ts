@@ -1,16 +1,14 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
-import { IdeasService } from "../application/ideas-service"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { ideasContext } from "./context"
 import IdeaHeader from "./IdeaHeader.svelte"
 
 const AUTHOR = { me: "u1", isOwner: false }
 
 async function setup(viewer = AUTHOR) {
-  const repo = new InMemoryIdeas()
-  const service = new IdeasService(repo)
+  const { repo, service } = inMemoryIdeasService()
   const created = await service.capture({ spaceId: "s", title: "Tea bar" })
   if (!created.ok) throw new Error("capture failed")
   const idea = { ...created.value, createdBy: "u1" }

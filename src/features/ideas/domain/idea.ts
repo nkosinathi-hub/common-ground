@@ -1,5 +1,6 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { Brief } from "./brief"
+import type { Collaborator } from "./collaborators"
 
 export const IDEA_STAGES = [
   "inbox",
@@ -25,6 +26,8 @@ export interface Idea {
   readonly brief: Brief
   readonly currency: string
   readonly createdBy: string | null
+  /** Invited people, pending and accepted; the author is never among them. */
+  readonly collaborators: readonly Collaborator[]
   readonly createdAt: string
   /** Exact server timestamp string; the conflict check compares it verbatim. */
   readonly updatedAt: string

@@ -1,13 +1,12 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { buildHash } from "@/shared/domain"
-import { IdeasService } from "../application/ideas-service"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { ideasContext } from "./context"
 import IdeaDetail from "./IdeaDetail.svelte"
 
 async function setup(spaceId: string) {
-  const service = new IdeasService(new InMemoryIdeas())
+  const { service } = inMemoryIdeasService()
   const created = await service.capture({ spaceId: "space-a", title: "Tea bar" })
   if (!created.ok) throw new Error("capture failed")
   const viewer = { me: "u1", isOwner: true }

@@ -16,6 +16,9 @@ const row: IdeaRow = {
   created_by: "u1",
   created_at: "2026-10-15T10:00:00Z",
   updated_at: "2026-10-15T10:00:01Z",
+  idea_collaborators: [
+    { user_id: "u2", invited_by: "u1", invited_at: "2026-10-16T09:00:00Z", accepted_at: null },
+  ],
 }
 
 const setup = (reply: Reply) => {
@@ -27,7 +30,11 @@ describe("SupabaseIdeas", () => {
   it("lists a space's ideas newest first, after the cursor", async () => {
     const { calls, ideas } = setup({ data: [row], error: null })
     const page = await ideas.list("s1", { createdAt: "2026-10-16T00:00:00Z", id: "i9" })
-    expect(page).toMatchObject({ ok: true, value: { items: [{ id: "i1", spaceId: "s1" }] } })
+    const collaborators = [
+      { userId: "u2", invitedBy: "u1", invitedAt: "2026-10-16T09:00:00Z", acceptedAt: null },
+    ]
+    const items = [{ id: "i1", spaceId: "s1", collaborators }]
+    expect(page).toMatchObject({ ok: true, value: { items } })
     expect(calls).toEqual([
       ["from", "ideas"],
       ["select", IDEA_COLUMNS],

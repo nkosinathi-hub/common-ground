@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
-import { IdeasService } from "./ideas-service"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
+import type { IdeasService } from "./ideas-service"
 
 const setup = () => {
-  const repo = new InMemoryIdeas()
-  return { repo, ideas: new IdeasService(repo) }
+  const { repo, service } = inMemoryIdeasService()
+  return { repo, ideas: service }
 }
 
 const captured = async (ideas: IdeasService) => {

@@ -12,12 +12,18 @@
 
   interface Props {
     spaceId: string
+    /** The signed-in user, for the Mine and Ours filters. */
+    me: string
     ideaHref: (ideaId: string) => string
   }
 
-  let { spaceId, ideaHref }: Props = $props()
+  let { spaceId, me, ideaHref }: Props = $props()
 
-  const board = new IdeasState(useIdeas(), () => spaceId)
+  const board = new IdeasState(
+    useIdeas(),
+    () => spaceId,
+    () => me,
+  )
   // Loads on mount, and again if spaceId changes: load reads it before its first await.
   $effect(() => {
     board.load()

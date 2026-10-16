@@ -9,16 +9,24 @@ type View = "list" | "board"
 export class IdeasState {
   readonly list: PagedList<Idea, Cursor>
   filter = $state<IdeaFilter>({})
+  /** Only a change of "whose" reloads: it is applied on the server, the rest on loaded pages. */
+  private readonly whose = $derived(this.filter.whose)
   view = $state<View>("list")
   /** A refused stage move; load errors live on the list. */
   moveError = $state<AppError | null>(null)
-  visible = $derived.by(() => filterIdeas(this.list.items, this.filter))
+  visible = $derived.by(() => filterIdeas(this.list.items, this.filter, this.me()))
 
   constructor(
     private readonly ideas: IdeasService,
     private readonly spaceId: () => string,
+    private readonly me: () => string,
   ) {
-    this.list = new PagedList((after) => ideas.list(spaceId(), after))
+    this.list = new PagedList((after) => ideas.list(spaceId(), after, this.scope()))
+  }
+
+  private scope() {
+    const whose = this.whose
+    return whose ? { whose, me: this.me() } : undefined
   }
 
   load(): Promise<void> {

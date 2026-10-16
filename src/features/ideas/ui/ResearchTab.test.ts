@@ -1,9 +1,8 @@
 import { cleanup, render, screen } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
-import { IdeasService } from "../application/ideas-service"
 import { ResearchService } from "../application/research-service"
 import type { Idea } from "../domain"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { inMemoryResearch } from "../testing/in-memory-research"
 import { ideasContext } from "./context"
 import ResearchTab from "./ResearchTab.svelte"
@@ -16,7 +15,7 @@ async function setup(viewer: { me: string; isOwner: boolean }) {
   await research.addNote("s", "i", "Call the roaster")
   await research.addLink("s", "i", link)
   await research.addHypothesis("s", "i", "People pay")
-  const context = ideasContext(new IdeasService(new InMemoryIdeas()), research)
+  const context = ideasContext(inMemoryIdeasService().service, research)
   render(ResearchTab, { props: { idea, viewer }, context })
   await screen.findByText("Call the roaster")
   await screen.findByText("People pay")

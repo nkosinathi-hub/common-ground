@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
-import { IdeasService } from "./ideas-service"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
 
 const setup = async () => {
-  const repo = new InMemoryIdeas()
-  const ideas = new IdeasService(repo)
+  const { repo, service: ideas } = inMemoryIdeasService()
   const created = await ideas.capture({ spaceId: "s", title: "Zine" })
   if (!created.ok) throw new Error("capture failed")
   return { repo, ideas, idea: created.value }

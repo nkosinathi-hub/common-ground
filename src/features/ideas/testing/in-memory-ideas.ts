@@ -8,14 +8,16 @@ import {
   PAGE_SIZE,
   type Result,
 } from "@/shared/domain"
-import type { IdeaPatch, IdeasRepository, NewIdea } from "../application/ports"
-import { type Brief, type Idea } from "../domain"
+import type { IdeaPatch, IdeaScope, IdeasRepository, NewIdea } from "../application/ports"
+import { filterIdeas, type Brief, type Idea } from "../domain"
 
 const stamp = (n: number) => new Date(Date.UTC(2026, 9, 15, 0, 0, n)).toISOString()
 
 /** Behaves like the database: newest first, keyset pages, updated_at conflict check. */
 export class InMemoryIdeas implements IdeasRepository {
   readonly rows = new Map<string, Idea>()
+  /** Who the next ideas are started by. */
+  author: string | null = null
   private clock = 0
 
   private tick(): string {
@@ -23,10 +25,15 @@ export class InMemoryIdeas implements IdeasRepository {
     return stamp(this.clock)
   }
 
-  async list(spaceId: string, after: Cursor | null): Promise<Result<Page<Idea>>> {
-    const sorted = [...this.rows.values()]
-      .filter((idea) => idea.spaceId === spaceId)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
+  async list(
+    spaceId: string,
+    after: Cursor | null,
+    scope?: IdeaScope,
+  ): Promise<Result<Page<Idea>>> {
+    const inSpace = [...this.rows.values()].filter((idea) => idea.spaceId === spaceId)
+    const sorted = filterIdeas(inSpace, { whose: scope?.whose }, scope?.me).sort(
+      (a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id),
+    )
     const start = after ? sorted.findIndex((idea) => idea.id === after.id) + 1 : 0
     const items = sorted.slice(start, start + PAGE_SIZE)
     return ok({ items, next: nextCursor(items) })
@@ -45,7 +52,8 @@ export class InMemoryIdeas implements IdeasRepository {
       stage: "inbox",
       tags: [],
       currency: "ZAR",
-      createdBy: null,
+      createdBy: this.author,
+      collaborators: [],
       createdAt: now,
       updatedAt: now,
     }
