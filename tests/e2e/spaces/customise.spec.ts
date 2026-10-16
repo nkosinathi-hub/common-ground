@@ -27,7 +27,12 @@ test("the owner customises a space and a member sees the same look", async ({ pa
 
   await page.getByLabel("Tagline").fill("Sunday dinners and slow films")
   await saveSettings(page, "Save")
-  await page.getByRole("switch", { name: "Show Recent activity" }).click()
+  const activity = page.getByRole("switch", { name: "Show Recent activity" })
+  const shownColour = await activity.evaluate((el) => getComputedStyle(el).backgroundColor)
+  await activity.click()
+  await expect(activity).toHaveAttribute("aria-checked", "false")
+  // The switch must look different off than on, not only report it to assistive tech.
+  await expect(activity).not.toHaveCSS("background-color", shownColour)
   await saveSettings(page, "Save layout")
 
   await page.getByLabel("Choose a picture").setInputFiles(PICTURE)
