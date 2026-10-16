@@ -8,7 +8,7 @@ import type { Recommendation, RecommendationResponse } from "../domain/recommend
 
 const START = Date.parse("2026-10-15T10:00:00.000Z")
 
-export interface SentRecommendation {
+interface SentRecommendation {
   readonly itemId: string
   readonly recipientId: string
   readonly note: string | null

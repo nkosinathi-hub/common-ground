@@ -27,7 +27,7 @@ export async function join(user: TestUser, spaceId: string): Promise<void> {
   if (error) throw error
 }
 
-export interface SpaceExport {
+interface SpaceExport {
   space: { name: string }
   members: { display_name: string }[]
   tables: { ideas: { title: string; created_by: string | null }[] }

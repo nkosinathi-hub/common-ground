@@ -3,7 +3,7 @@ import { homedir } from "node:os"
 
 type Env = Record<string, string | undefined>
 
-export interface DirReader {
+interface DirReader {
   list(dir: string): string[]
   exists(path: string): boolean
 }

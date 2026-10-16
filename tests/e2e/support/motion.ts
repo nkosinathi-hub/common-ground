@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test"
 
 /** Longest motion still allowed under reduced motion, in seconds (the app.css override). */
-export const MOTION_LIMIT_S = 0.01
+const MOTION_LIMIT_S = 0.01
 
 /**
  * Motions longer than the limit: running Web Animations (Svelte transitions), and CSS animation
