@@ -22,6 +22,8 @@
   let cards = $state<HomeCardId[]>(untrack(() => [...space.homeCards]))
   const hidden = $derived(HOME_CARDS.filter((id) => !cards.includes(id)))
   const rows = $derived([...cards, ...hidden])
+  const SWITCH_STATE =
+    "data-[state=checked]:bg-primary data-[state=unchecked]:bg-input [&[data-state=checked]>span]:translate-x-[calc(100%-2px)]"
 
   async function save(event: SubmitEvent) {
     event.preventDefault()
@@ -41,7 +43,9 @@
           {@const label = HOME_CARD_LABELS[id]}
           {@const shown = cards.includes(id)}
           <li class="flex items-center gap-3 rounded-lg border px-3 py-2">
+            <!-- The generated Switch styles data-checked, but bits-ui sets data-state. -->
             <Switch
+              class={SWITCH_STATE}
               checked={shown}
               aria-label={`Show ${label}`}
               onCheckedChange={() => (cards = toggleCard(cards, id))}
