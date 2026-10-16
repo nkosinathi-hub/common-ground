@@ -56,15 +56,14 @@ select ok(
     from jsonb_array_elements(
       public.export_space((select id from space_ref)) #> '{tables,attachments}') a,
       jsonb_object_keys(a) k
-    where k not in ('id', 'filename', 'declared_mime', 'verified_mime', 'bytes', 'object_path')),
-  'attachments are projected to safe columns');
+    where k not in ('id', 'idea_id', 'uploader_id', 'filename', 'verified_mime', 'bytes',
+      'created_at')),
+  'attachments are exported with only the columns members may read');
 select is(
-  (public.export_space((select id from space_ref)) #> '{tables,attachments,0}') - 'id',
-  jsonb_build_object('filename', 'a.pdf', 'declared_mime', 'application/pdf',
-    'verified_mime', 'application/pdf', 'bytes', 3,
-    'object_path', (select space_id || '/' || idea_id || '/' || id from public.attachments
-      where filename = 'a.pdf')),
-  'a finished upload is exported with its storage path');
+  (public.export_space((select id from space_ref)) #> '{tables,attachments,0}')
+    - array['id', 'idea_id', 'uploader_id', 'created_at'],
+  jsonb_build_object('filename', 'a.pdf', 'verified_mime', 'application/pdf', 'bytes', 3),
+  'a finished upload is exported without its storage path or declared type');
 select ok(
   not exists (
     select 1 from jsonb_array_elements(
