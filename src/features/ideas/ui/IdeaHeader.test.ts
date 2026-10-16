@@ -13,7 +13,14 @@ async function setup(viewer = AUTHOR) {
   if (!created.ok) throw new Error("capture failed")
   const idea = { ...created.value, createdBy: "u1" }
   const onDeleted = vi.fn()
-  const props = { idea, viewer, onChange: vi.fn(), onDeleted }
+  const props = {
+    idea,
+    viewer,
+    members: [],
+    onChange: vi.fn(),
+    onPeopleChanged: vi.fn(),
+    onDeleted,
+  }
   render(IdeaHeader, { props, context: ideasContext(service) })
   return { repo, idea, onDeleted }
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
-  import type { Result } from "@/shared/domain"
+  import type { MemberRef, Result } from "@/shared/domain"
   import { DeleteButton } from "@/shared/ui"
   import {
     canDelete,
@@ -11,16 +11,20 @@
     type Viewer,
   } from "../domain"
   import { useIdeas } from "./context"
+  import IdeaByline from "./IdeaByline.svelte"
   import { STAGE_LABELS } from "./labels"
 
   interface Props {
     idea: Idea
     viewer: Viewer
+    members: readonly MemberRef[]
     onChange: (idea: Idea) => void
+    /** After invites or removals: the idea is reloaded with its people. */
+    onPeopleChanged: () => void
     onDeleted: () => void
   }
 
-  let { idea, viewer, onChange, onDeleted }: Props = $props()
+  let { idea, viewer, members, onChange, onPeopleChanged, onDeleted }: Props = $props()
   const ideas = useIdeas()
   let error = $state<string | null>(null)
 
@@ -59,6 +63,7 @@
       />
     {/if}
   </div>
+  <IdeaByline {idea} {members} {onPeopleChanged} />
   <div class="flex flex-wrap items-center gap-2 text-sm">
     <label class="flex items-center gap-2"
       >Stage

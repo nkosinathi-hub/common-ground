@@ -1,8 +1,6 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import { BudgetPanel } from "@/features/budget"
-  import { MilestonesPanel, TasksTab } from "@/features/tasks"
-  import { ErrorState, Loading } from "@/shared/ui"
+  import { ErrorState, Loading, Resource } from "@/shared/ui"
   import {
     appError,
     buildHash,
@@ -11,12 +9,12 @@
     type IdeaTab,
     type Result,
   } from "@/shared/domain"
-  import { canDelete, type Idea, type Viewer } from "../domain"
+  import type { Idea, Viewer } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
+  import IdeaTabContent from "./IdeaTabContent.svelte"
   import IdeaTabs from "./IdeaTabs.svelte"
-  import OverviewTab from "./OverviewTab.svelte"
-  import ResearchTab from "./ResearchTab.svelte"
+  import InviteBanner from "./InviteBanner.svelte"
 
   interface Props {
     spaceId: string
@@ -37,6 +35,7 @@
     $props()
 
   const ideas = useIdeas()
+  const people = new Resource(() => ideas.members(spaceId))
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)
 
@@ -55,13 +54,11 @@
   $effect(() => {
     load()
   })
+  $effect(() => void people.load())
 
   const backToList = () => (location.hash = buildHash({ name: "ideas", spaceId }))
   const deleted = () => (onDeleted ?? backToList)()
-  const deletable = (createdBy: string | null) => canDelete(createdBy, viewer)
-  function setCurrency(currency: string) {
-    if (idea) idea = { ...idea, currency }
-  }
+  const changed = (next: Idea) => (idea = next)
 </script>
 
 {#if error}
@@ -70,29 +67,16 @@
   <Loading label="Loading idea" />
 {:else}
   <div class="flex flex-col gap-4">
-    <IdeaHeader {idea} {viewer} onChange={(next) => (idea = next)} onDeleted={deleted} />
+    <InviteBanner {idea} me={viewer.me} members={people.value ?? []} onAnswered={load} />
+    <IdeaHeader
+      {idea}
+      {viewer}
+      members={people.value ?? []}
+      onChange={changed}
+      onPeopleChanged={load}
+      onDeleted={deleted}
+    />
     <IdeaTabs current={tab} href={tabHref} />
-    <div role="tabpanel" tabindex="0" aria-label={tab}>
-      {#if tab === "overview"}
-        {#key idea.id}<OverviewTab {idea} onSaved={(next) => (idea = next)} />{/key}
-      {:else if tab === "research"}
-        <ResearchTab {idea} {viewer} {attachments} />
-      {:else if tab === "tasks"}
-        <TasksTab spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
-      {:else if tab === "milestones"}
-        <div class="grid gap-6 lg:grid-cols-2">
-          <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
-          <BudgetPanel
-            spaceId={idea.spaceId}
-            ideaId={idea.id}
-            currency={idea.currency}
-            canDelete={deletable}
-            onCurrencyChanged={setCurrency}
-          />
-        </div>
-      {:else if tab === "discussion"}
-        {@render discussion?.(idea)}
-      {/if}
-    </div>
+    <IdeaTabContent {idea} {tab} {viewer} {discussion} {attachments} onChange={changed} />
   </div>
 {/if}
