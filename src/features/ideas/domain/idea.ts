@@ -13,8 +13,7 @@ export const IDEA_STAGES = [
 ] as const
 export type IdeaStage = (typeof IDEA_STAGES)[number]
 
-export const IDEA_TEMPLATES = ["blank", "business", "creative"] as const
-export type IdeaTemplate = (typeof IDEA_TEMPLATES)[number]
+export type IdeaTemplate = "blank" | "business" | "creative"
 
 export interface Idea {
   readonly id: string

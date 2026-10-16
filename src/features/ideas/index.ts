@@ -1,4 +1,3 @@
-export * from "./domain"
 export { IdeasService } from "./application/ideas-service"
 export { ResearchService } from "./application/research-service"
 export { provideIdeas, provideResearch, useIdeas } from "./ui/context"
