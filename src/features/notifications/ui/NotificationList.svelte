@@ -2,6 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import { cn } from "$lib/utils"
   import { formatDateTime } from "@/shared/domain"
+  import { LoadMore } from "@/shared/ui"
   import { describeNotification, subjectHref, type Notification } from "../domain/notification"
   import { useNotifications } from "./context"
 
@@ -43,3 +44,4 @@
     <li class="px-3 py-6 text-center text-sm text-muted-foreground">You are all caught up.</li>
   {/each}
 </ul>
+<LoadMore list={store.list} label="Show older" />

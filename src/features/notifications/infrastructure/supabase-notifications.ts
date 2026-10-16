@@ -1,4 +1,5 @@
-import type { Cursor, Page, Result } from "@/shared/domain"
+import { err, ok, type Cursor, type Page, type Result } from "@/shared/domain"
+import { toAppError } from "@/shared/infrastructure/errors"
 import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { done, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
@@ -28,6 +29,14 @@ export class SupabaseNotifications implements NotificationsGateway {
         actorName: row.actor?.display_name ?? null,
       })),
     )
+  }
+
+  async unreadCount(): Promise<Result<number>> {
+    const { count, error } = await this.db
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .is("read_at", null)
+    return error ? err(toAppError(error)) : ok(count ?? 0)
   }
 
   markRead(ids: readonly string[], readAt: string): Promise<Result<void>> {

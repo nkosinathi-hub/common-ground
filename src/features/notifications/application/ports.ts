@@ -3,6 +3,8 @@ import type { ActivityEvent, Notification } from "../domain/notification"
 
 export interface NotificationsGateway {
   list(after: Cursor | null): Promise<Result<Page<Notification>>>
+  /** Every unread notification of the signed-in user, not only the loaded page. */
+  unreadCount(): Promise<Result<number>>
   /** Stamps the given notifications read at `readAt` (an ISO timestamp). */
   markRead(ids: readonly string[], readAt: string): Promise<Result<void>>
   markAllRead(readAt: string): Promise<Result<void>>

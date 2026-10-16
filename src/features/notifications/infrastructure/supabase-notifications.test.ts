@@ -53,6 +53,19 @@ describe("SupabaseNotifications", () => {
   })
 })
 
+describe("SupabaseNotifications unread count", () => {
+  it("counts every unread notification on the server without fetching rows", async () => {
+    const reply = { data: null, error: null, count: 61 }
+    const { client: db, calls } = recordingClient([reply])
+    expect(await new SupabaseNotifications(db as Db).unreadCount()).toEqual({ ok: true, value: 61 })
+    expect(calls).toEqual([
+      ["from", "notifications"],
+      ["select", "id", { count: "exact", head: true }],
+      ["is", "read_at", null],
+    ])
+  })
+})
+
 describe("SupabaseActivity", () => {
   it("lists one space's events", async () => {
     const row = {

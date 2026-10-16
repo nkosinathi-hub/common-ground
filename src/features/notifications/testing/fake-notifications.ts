@@ -1,4 +1,13 @@
-import { appError, err, nextCursor, ok, type Page, type Result } from "@/shared/domain"
+import {
+  appError,
+  err,
+  nextCursor,
+  ok,
+  PAGE_SIZE,
+  type Cursor,
+  type Page,
+  type Result,
+} from "@/shared/domain"
 import type { ActivityGateway, NotificationsGateway } from "../application/ports"
 import type { ActivityEvent, Notification } from "../domain/notification"
 
@@ -7,8 +16,20 @@ export class FakeNotifications implements NotificationsGateway {
   failWrites = false
   listeners = new Set<() => void>()
 
-  async list(): Promise<Result<Page<Notification>>> {
-    return ok({ items: [...this.items], next: nextCursor(this.items) })
+  /** Newest first after the cursor, one page at a time, like the keyset query. */
+  async list(after: Cursor | null = null): Promise<Result<Page<Notification>>> {
+    const older = (n: Notification) =>
+      !after ||
+      n.createdAt < after.createdAt ||
+      (n.createdAt === after.createdAt && n.id < after.id)
+    const sorted = [...this.items].sort(
+      (a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id),
+    )
+    const items = sorted.filter(older).slice(0, PAGE_SIZE)
+    return ok({ items, next: nextCursor(items) })
+  }
+  async unreadCount(): Promise<Result<number>> {
+    return ok(this.items.filter((n) => !n.readAt).length)
   }
   async markRead(ids: readonly string[], readAt: string) {
     if (this.failWrites) return err(appError("network", "down"))

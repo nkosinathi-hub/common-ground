@@ -19,6 +19,10 @@ export class NotificationsService {
     return this.inbox.list(after)
   }
 
+  unreadCount(): Promise<Result<number>> {
+    return this.inbox.unreadCount()
+  }
+
   markRead(ids: readonly string[], readAt = this.readAt()): Promise<Result<void>> {
     return this.inbox.markRead(ids, readAt)
   }
