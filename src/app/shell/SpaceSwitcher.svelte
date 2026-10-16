@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Check, ChevronsUpDown, Plus, Settings } from "@lucide/svelte"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
-  import { templateFor, useSpaces } from "@/features/spaces"
+  import { SpaceAvatar, templateFor, useSpaces } from "@/features/spaces"
   import { buildHash } from "@/shared/domain"
 
   const { store } = useSpaces()
@@ -13,11 +13,7 @@
     class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-sidebar-accent"
     aria-label="Switch space"
   >
-    <span
-      class="grid size-8 place-items-center rounded-md bg-primary font-serif text-primary-foreground"
-    >
-      {active?.name.charAt(0).toUpperCase() ?? "?"}
-    </span>
+    <SpaceAvatar space={active} />
     <span class="min-w-0 flex-1">
       <span class="block truncate text-sm font-semibold">{active?.name ?? "No space"}</span>
       <span class="block truncate text-xs text-muted-foreground"
@@ -32,6 +28,7 @@
       <DropdownMenu.Item
         onSelect={() => (location.hash = buildHash({ name: "home", spaceId: space.id }))}
       >
+        <SpaceAvatar {space} class="size-6 text-xs" />
         <span class="flex-1 truncate">{space.name}</span>
         {#if space.id === active?.id}<Check class="size-4" aria-label="Current" />{/if}
       </DropdownMenu.Item>
