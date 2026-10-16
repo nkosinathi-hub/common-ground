@@ -7,7 +7,7 @@
   import CommentComposer from "./CommentComposer.svelte"
   import CommentItem from "./CommentItem.svelte"
   import { useComments } from "./context"
-  import { ThreadState } from "./thread.svelte"
+  import { ThreadState } from "./thread-state.svelte"
 
   interface Props {
     spaceId: string

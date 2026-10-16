@@ -7,9 +7,9 @@
   import { memberName, type MemberRef, type Result } from "@/shared/domain"
   import { FormError, FormState } from "@/shared/ui"
   import { BODY_MAX } from "../domain/comment"
-  import { ComposerState } from "./composer.svelte"
+  import { ComposerState } from "./composer-state.svelte"
   import MentionPicker from "./MentionPicker.svelte"
-  import type { Draft } from "./thread.svelte"
+  import type { Draft } from "./thread-state.svelte"
 
   interface Props {
     members: readonly MemberRef[]

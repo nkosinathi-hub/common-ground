@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte"
 import type { NotificationsService } from "../application/notifications-service"
-import type { NotificationsStore } from "./notifications.svelte"
+import type { NotificationsStore } from "./notifications-store.svelte"
 
 export interface NotificationsContext {
   readonly service: NotificationsService

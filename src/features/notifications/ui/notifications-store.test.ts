@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { NOW, note, notificationsSetup } from "../testing/notifications-setup"
-import { NotificationsStore } from "./notifications.svelte"
+import { NotificationsStore } from "./notifications-store.svelte"
 
 const events = () => ({ addEventListener: () => {}, removeEventListener: () => {} })
 

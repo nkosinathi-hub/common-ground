@@ -27,3 +27,11 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
   Never call `toLocaleString` or `Intl` in a component.
 - A test about local days pins `process.env.TZ` to a zone far from UTC (America/Los_Angeles) in
   `beforeEach`, uses a UTC instant near midnight, and restores TZ in `afterEach`.
+
+## Contexts and stores
+
+- A feature context is `provideX({ service, ... })` from the composition root and `useX()`, which
+  throws when nothing was provided. Component tests render through `Provided` (shared/ui/testing).
+- Rune stores live in `*.svelte.ts` files named after their class: an app-wide store is
+  `XStore` in `x-store.svelte.ts` (one per app, provided by composition); a component-scoped
+  state is `XState` in `x-state.svelte.ts` (created by the component that owns it).

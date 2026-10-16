@@ -2,7 +2,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import type { MemberRef } from "@/shared/domain"
-  import type { ComposerState } from "./composer.svelte"
+  import type { ComposerState } from "./composer-state.svelte"
 
   interface Props {
     composer: ComposerState

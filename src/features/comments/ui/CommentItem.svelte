@@ -6,7 +6,7 @@
   import { canDelete, canEdit, type Comment, type Viewer } from "../domain/comment"
   import CommentEditForm from "./CommentEditForm.svelte"
   import SpoilerBody from "./SpoilerBody.svelte"
-  import type { ThreadState } from "./thread.svelte"
+  import type { ThreadState } from "./thread-state.svelte"
 
   interface Props {
     comment: Comment

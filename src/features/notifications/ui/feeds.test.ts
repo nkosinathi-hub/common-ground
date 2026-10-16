@@ -6,7 +6,7 @@ import Provided from "@/shared/ui/testing/Provided.svelte"
 import ActivityFeed from "./ActivityFeed.svelte"
 import { provideNotifications } from "./context"
 import NotificationsBell from "./NotificationsBell.svelte"
-import { NotificationsStore } from "./notifications.svelte"
+import { NotificationsStore } from "./notifications-store.svelte"
 
 // A wide viewport, so the bell opens its popover.
 beforeEach(() =>

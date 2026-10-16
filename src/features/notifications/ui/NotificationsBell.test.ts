@@ -4,7 +4,7 @@ import { note, notificationsSetup } from "../testing/notifications-setup"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import { provideNotifications } from "./context"
 import NotificationsBell from "./NotificationsBell.svelte"
-import { NotificationsStore } from "./notifications.svelte"
+import { NotificationsStore } from "./notifications-store.svelte"
 
 /** Pretends the viewport is at least 640px wide, or not. */
 function viewport(wide: boolean) {

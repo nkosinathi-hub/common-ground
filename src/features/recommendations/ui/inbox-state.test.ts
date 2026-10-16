@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { RecommendationsService } from "../application/recommendations-service"
 import { FakeRecommendationsGateway } from "../testing/fake-recommendations-gateway"
-import { InboxState } from "./inbox.svelte"
+import { InboxState } from "./inbox-state.svelte"
 
 const setup = (count: number) => {
   const gateway = new FakeRecommendationsGateway(2)

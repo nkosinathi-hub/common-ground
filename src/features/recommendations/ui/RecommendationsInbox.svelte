@@ -6,7 +6,7 @@
   import { FORMER_MEMBER } from "@/shared/domain"
   import type { RecommendationResponse } from "../domain/recommendation"
   import { useRecommendations } from "./context"
-  import { InboxState } from "./inbox.svelte"
+  import { InboxState } from "./inbox-state.svelte"
 
   interface Props {
     spaceId: string

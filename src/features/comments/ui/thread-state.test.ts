@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { CommentsService } from "../application/comments-service"
 import { FakeCommentsGateway } from "../testing/fake-comments-gateway"
-import { ThreadState } from "./thread.svelte"
+import { ThreadState } from "./thread-state.svelte"
 
 const parent = { kind: "idea", id: "i1" } as const
 const setup = (count: number) => {
