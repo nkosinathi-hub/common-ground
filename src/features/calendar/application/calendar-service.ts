@@ -1,9 +1,11 @@
 import {
   appError,
-  err,
-  ok,
+  asAuthors,
+  type AuthorDirectory,
   type DateOnly,
+  err,
   type MemberDirectory,
+  ok,
   type Result,
 } from "@/shared/domain"
 import {
@@ -28,9 +30,13 @@ export class CalendarService {
     private readonly repo: CalendarRepository,
     private readonly links: LinkSearch,
     private readonly directory: MemberDirectory,
+    private readonly names: AuthorDirectory = asAuthors(directory),
   ) {}
 
+  /** Current members, for pickers. */
   members = (spaceId: string) => this.directory.members(spaceId)
+  /** Names for authors and people, including removed members still visible to the viewer. */
+  authors = (spaceId: string) => this.names.authors(spaceId)
   get = (id: string) => this.repo.get(id)
   remove = (id: string) => this.repo.remove(id)
   rsvp = (id: string, answer: RsvpAnswer) => this.repo.rsvp(id, answer)

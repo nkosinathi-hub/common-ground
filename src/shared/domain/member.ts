@@ -20,6 +20,11 @@ export interface AuthorDirectory {
   authors(spaceId: string): Promise<Result<MemberRef[]>>
 }
 
+/** Names authors from current members only, for callers without a wider directory. */
+export const asAuthors = (directory: MemberDirectory): AuthorDirectory => ({
+  authors: (spaceId) => directory.members(spaceId),
+})
+
 /** Confirms the signed-in user's password before a destructive action. */
 export interface Reauthenticator {
   reauthenticate(password: string): Promise<Result<void>>

@@ -13,7 +13,7 @@ export const MEMBER_ACTIONS: Readonly<Record<MemberAction, MemberActionCopy>> = 
   remove: {
     title: (name) => `Remove ${name}?`,
     description:
-      'They lose access to everything in this space right away. What they wrote stays, credited to "Former member".',
+      'They lose access to everything in this space right away. What they wrote stays: it shows their name to anyone who still shares another space with them, and "Former member" to everyone else.',
     confirmLabel: "Remove",
     destructive: true,
     done: (name) => `${name} was removed`,

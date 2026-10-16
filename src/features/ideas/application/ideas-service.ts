@@ -1,4 +1,13 @@
-import { appError, type Cursor, err, type MemberDirectory, ok, type Result } from "@/shared/domain"
+import {
+  appError,
+  asAuthors,
+  type AuthorDirectory,
+  type Cursor,
+  err,
+  type MemberDirectory,
+  ok,
+  type Result,
+} from "@/shared/domain"
 import {
   cleanBrief,
   templateBrief,
@@ -7,25 +16,23 @@ import {
   type Brief,
   type Idea,
   type IdeaStage,
-  type IdeaTemplate,
 } from "../domain"
-import type { CollaboratorsRepository, IdeaScope, IdeasRepository } from "./ports"
+import type {
+  CaptureInput,
+  CollaboratorsRepository,
+  IdeaScope,
+  IdeasRepository,
+  SaveBriefOutcome,
+} from "./ports"
 
-export type SaveBriefOutcome =
-  | { readonly status: "saved"; readonly idea: Idea }
-  | { readonly status: "conflict"; readonly latest: Idea }
-
-export interface CaptureInput {
-  readonly spaceId: string
-  readonly title: string
-  readonly template?: IdeaTemplate
-}
+export type { CaptureInput, SaveBriefOutcome } from "./ports"
 
 export class IdeasService {
   constructor(
     private readonly repo: IdeasRepository,
     private readonly people: CollaboratorsRepository,
     private readonly directory: MemberDirectory,
+    private readonly names: AuthorDirectory = asAuthors(directory),
   ) {}
 
   list = (spaceId: string, after: Cursor | null, scope?: IdeaScope) =>
@@ -51,8 +58,10 @@ export class IdeasService {
     return title.ok ? this.repo.update(id, { title: title.value }) : title
   }
 
-  /** The space's members, for attribution and the people picker. */
+  /** Current members, for pickers. */
   members = (spaceId: string) => this.directory.members(spaceId)
+  /** Names for authors and people, including removed members still visible to the viewer. */
+  authors = (spaceId: string) => this.names.authors(spaceId)
   collaborators = (ideaId: string) => this.people.list(ideaId)
   respond = (ideaId: string, accept: boolean) => this.people.respond(ideaId, accept)
   removeCollaborator = (ideaId: string, userId: string) => this.people.remove(ideaId, userId)

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
+  import { untrack, type Snippet } from "svelte"
   import { ErrorState, Loading, Resource, navigate } from "@/shared/ui"
   import { appError, err, type AppError, type IdeaTab, type Result } from "@/shared/domain"
   import type { Idea, Viewer } from "../domain"
@@ -29,6 +29,7 @@
 
   const ideas = useIdeas().service
   const people = new Resource(() => ideas.members(spaceId))
+  const names = new Resource(() => ideas.authors(spaceId))
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)
 
@@ -43,11 +44,16 @@
     idea = result.ok ? result.value : null
     error = result.ok ? null : result.error
   }
-  // Loads on mount, and again if ideaId changes: load reads it before its first await.
+  // Loads on mount and again when the idea changes.
   $effect(() => {
-    load()
+    void ideaId
+    untrack(() => void load())
   })
-  $effect(() => void people.load())
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
+  const authors = $derived(names.value ?? people.value ?? [])
 
   const backToList = () => navigate({ name: "ideas", spaceId })
   const deleted = () => (onDeleted ?? backToList)()
@@ -60,11 +66,12 @@
   <Loading label="Loading idea" />
 {:else}
   <div class="flex flex-col gap-4">
-    <InviteBanner {idea} me={viewer.me} members={people.value ?? []} onAnswered={load} />
+    <InviteBanner {idea} me={viewer.me} {authors} onAnswered={load} />
     <IdeaHeader
       {idea}
       {viewer}
       members={people.value ?? []}
+      {authors}
       onChange={changed}
       onPeopleChanged={load}
       onDeleted={deleted}

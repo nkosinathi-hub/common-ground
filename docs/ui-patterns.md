@@ -42,3 +42,13 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
 - Code that moves on after an action calls `navigate(route)` from shared/ui (or passes a hash a
   parent built). Never set `location.hash` or call `location.assign` in a component; the hash
   router follows `hashchange`, so history and back keep working.
+
+## Naming people
+
+- Pickers (mentions, assignees, recipients, invites, who was there) offer current members only:
+  `MemberDirectory`.
+- Attribution names people through `AuthorDirectory` (composition's `authorDirectory`): a
+  current member by name, someone who left or was removed by their profile name while the viewer
+  can still see it (they share another space), otherwise `FORMER_MEMBER`. A deleted account is
+  always "Former member". Server-joined names (recommendations, notifications, activity) follow
+  the same rule because profiles RLS decides what the join returns.

@@ -64,3 +64,13 @@ export interface ResearchRepository {
     setStatus(id: string, status: HypothesisStatus): Promise<Result<Hypothesis>>
   }
 }
+
+export type SaveBriefOutcome =
+  | { readonly status: "saved"; readonly idea: Idea }
+  | { readonly status: "conflict"; readonly latest: Idea }
+
+export interface CaptureInput {
+  readonly spaceId: string
+  readonly title: string
+  readonly template?: IdeaTemplate
+}

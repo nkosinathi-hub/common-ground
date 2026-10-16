@@ -8,11 +8,12 @@
   interface Props {
     idea: Idea
     me: string
-    members: readonly MemberRef[]
+    /** Names the inviter, even after they were removed while still visible. */
+    authors: readonly MemberRef[]
     onAnswered: () => void
   }
 
-  let { idea, me, members, onAnswered }: Props = $props()
+  let { idea, me, authors, onAnswered }: Props = $props()
   const ideas = useIdeas().service
   const invite = $derived(invitationFor(idea, me))
   let pending = $state(false)
@@ -32,7 +33,7 @@
     class="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-highlight p-3"
   >
     <p class="text-sm">
-      {memberName(members, invite.invitedBy)} invited you to work on this idea. Joining makes it our idea;
+      {memberName(authors, invite.invitedBy)} invited you to work on this idea. Joining makes it our idea;
       you hear about new comments and stage changes.
     </p>
     <div class="flex gap-2">

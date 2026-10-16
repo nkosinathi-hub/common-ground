@@ -18,6 +18,7 @@ async function setup(viewer = AUTHOR) {
     idea,
     viewer,
     members: [],
+    authors: [],
     onChange: vi.fn(),
     onPeopleChanged: vi.fn(),
     onDeleted,

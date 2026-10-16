@@ -29,7 +29,7 @@
     if (!found.ok || found.value.spaceId === untrack(() => spaceId)) return found
     return err(appError("not_found", "That event is not in this space"))
   })
-  const people = new Resource(() => service.members(untrack(() => spaceId)))
+  const people = new Resource(() => service.authors(untrack(() => spaceId)))
   $effect(() => {
     void event.load()
     void people.load()

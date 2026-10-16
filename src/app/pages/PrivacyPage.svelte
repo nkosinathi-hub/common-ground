@@ -31,7 +31,8 @@
   <p>
     From Account and data you can download everything about you, download a space's content, and
     delete your account. Deleting your account removes your personal information; content you wrote
-    in shared spaces stays, credited to "Former member".
+    in shared spaces stays, credited to "Former member". If you leave or are removed from a space,
+    what you wrote there shows your name only to people who still share another space with you.
   </p>
   <h2 class="text-lg font-semibold">Exporting your data</h2>
   <ul class="list-disc pl-5">

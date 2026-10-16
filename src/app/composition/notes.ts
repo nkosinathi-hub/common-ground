@@ -4,12 +4,12 @@ import { SupabaseHardTalk } from "@/features/notes/infrastructure/supabase-hard-
 import { SupabaseNoteArrivals } from "@/features/notes/infrastructure/supabase-note-arrivals"
 import { SupabaseNoteDrafts } from "@/features/notes/infrastructure/supabase-note-drafts"
 import { SupabaseNotes } from "@/features/notes/infrastructure/supabase-notes"
-import type { MemberDirectory } from "@/shared/domain"
+import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
 import type { Db } from "@/shared/infrastructure/supabase"
 
-export function composeNotes(db: Db, members: MemberDirectory) {
+export function composeNotes(db: Db, members: MemberDirectory, authors?: AuthorDirectory) {
   return {
-    service: new NotesService(new SupabaseNotes(db), members, () => new Date()),
+    service: new NotesService(new SupabaseNotes(db), members, () => new Date(), authors),
     // "Something on my mind": the author's private drafts, and the reader's gentle responses.
     drafts: new DraftsService(new SupabaseNoteDrafts(db), members),
     hardTalk: new HardTalkService(new SupabaseHardTalk(db), members),

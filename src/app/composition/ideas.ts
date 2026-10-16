@@ -8,12 +8,12 @@ import { ChecklistService, MilestonesService, provideTasks, TasksService } from 
 import { SupabaseChecklist } from "@/features/tasks/infrastructure/supabase-checklist"
 import { SupabaseMilestones } from "@/features/tasks/infrastructure/supabase-milestones"
 import { SupabaseTasks } from "@/features/tasks/infrastructure/supabase-tasks"
-import type { MemberDirectory } from "@/shared/domain"
+import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
 import type { Db } from "@/shared/infrastructure/supabase"
 
-export function composeIdeas(db: Db, members: MemberDirectory) {
+export function composeIdeas(db: Db, members: MemberDirectory, authors?: AuthorDirectory) {
   return {
-    ideas: new IdeasService(new SupabaseIdeas(db), new SupabaseCollaborators(db), members),
+    ideas: new IdeasService(new SupabaseIdeas(db), new SupabaseCollaborators(db), members, authors),
     research: new ResearchService(new SupabaseResearch(db)),
     tasks: {
       tasks: new TasksService(new SupabaseTasks(db), members),

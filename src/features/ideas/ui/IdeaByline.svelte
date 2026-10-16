@@ -10,16 +10,17 @@
   interface Props {
     idea: Idea
     members: readonly MemberRef[]
+    authors: readonly MemberRef[]
     onPeopleChanged: () => void
   }
 
-  let { idea, members, onPeopleChanged }: Props = $props()
+  let { idea, members, authors, onPeopleChanged }: Props = $props()
   let open = $state(false)
-  const names = $derived(peopleOf(idea).map((id) => memberName(members, id)))
+  const names = $derived(peopleOf(idea).map((id) => memberName(authors, id)))
 </script>
 
 <div class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-  <span>Started by {memberName(members, idea.createdBy)}</span>
+  <span>Started by {memberName(authors, idea.createdBy)}</span>
   <PeopleStack {names} />
   {#if isShared(idea)}<OursBadge />{/if}
   <Button size="sm" variant="outline" onclick={() => (open = true)}

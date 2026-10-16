@@ -1,4 +1,11 @@
-import { ok, type MemberDirectory, type MemberRef, type Result } from "@/shared/domain"
+import {
+  asAuthors,
+  ok,
+  type AuthorDirectory,
+  type MemberDirectory,
+  type MemberRef,
+  type Result,
+} from "@/shared/domain"
 import {
   expiresAt,
   recipientsFor,
@@ -23,12 +30,14 @@ export class NotesService {
     private readonly repo: NotesRepository,
     private readonly directory: MemberDirectory,
     private readonly clock: () => Date,
+    /** Names authors, including removed people still visible; current members by default. */
+    private readonly names: AuthorDirectory = asAuthors(directory),
   ) {}
 
   /** Resolves names; a lookup failure falls back to "Former member" rather than hiding notes. */
   private async named<T, U>(spaceId: string, value: T, map: (m: MemberRef[], v: T) => U) {
-    const members = await this.directory.members(spaceId)
-    return map(members.ok ? members.value : [], value)
+    const people = await this.names.authors(spaceId)
+    return map(people.ok ? people.value : [], value)
   }
 
   async recipients(spaceId: string, me: string): Promise<Result<MemberRef[]>> {

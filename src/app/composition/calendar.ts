@@ -7,7 +7,7 @@ import {
 import { SupabaseCalendar } from "@/features/calendar/infrastructure/supabase-calendar"
 import type { IdeasService } from "@/features/ideas"
 import type { WatchService } from "@/features/watch"
-import { map, type MemberDirectory } from "@/shared/domain"
+import { map, type AuthorDirectory, type MemberDirectory } from "@/shared/domain"
 import { settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 
@@ -60,8 +60,10 @@ export function composeCalendar(
   watch: WatchService,
   ideas: IdeasService,
   members: MemberDirectory,
+  authors?: AuthorDirectory,
 ) {
-  return new CalendarService(new SupabaseCalendar(db), linkSearch(db, watch, ideas), members)
+  const links = linkSearch(db, watch, ideas)
+  return new CalendarService(new SupabaseCalendar(db), links, members, authors)
 }
 
 export const provideCalendarFeature = (service: CalendarService) => provideCalendar({ service })

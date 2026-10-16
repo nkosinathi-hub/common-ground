@@ -10,14 +10,17 @@
   interface Props {
     idea: Idea
     viewer: Viewer
+    /** Current members, offered as collaborators. */
     members: readonly MemberRef[]
+    /** Names for the byline, including removed people still visible. */
+    authors: readonly MemberRef[]
     onChange: (idea: Idea) => void
     /** After invites or removals: the idea is reloaded with its people. */
     onPeopleChanged: () => void
     onDeleted: () => void
   }
 
-  let { idea, viewer, members, onChange, onPeopleChanged, onDeleted }: Props = $props()
+  let { idea, viewer, members, authors, onChange, onPeopleChanged, onDeleted }: Props = $props()
   const ideas = useIdeas().service
   let error = $state<string | null>(null)
 
@@ -56,7 +59,7 @@
       />
     {/if}
   </div>
-  <IdeaByline {idea} {members} {onPeopleChanged} />
+  <IdeaByline {idea} {members} {authors} {onPeopleChanged} />
   <div class="flex flex-wrap items-center gap-2 text-sm">
     <label class="flex items-center gap-2"
       >Stage

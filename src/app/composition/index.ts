@@ -11,17 +11,18 @@ import { composeWatch, provideWatchFeature } from "./watch"
 export function compose(db: Db = createSupabase()) {
   const core = composeCore(db)
   const members = memberDirectory(core.spaces)
+  const authors = authorDirectory(core.spaces)
   const watch = composeWatch(db)
-  const ideas = composeIdeas(db, members)
+  const ideas = composeIdeas(db, members, authors)
   return {
     ...core,
     members,
-    authors: authorDirectory(core.spaces),
+    authors,
     watch,
     ideas,
     collaboration: composeCollaboration(db),
-    calendar: composeCalendar(db, watch, ideas.ideas, members),
-    notes: composeNotes(db, members),
+    calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
+    notes: composeNotes(db, members, authors),
   }
 }
 
