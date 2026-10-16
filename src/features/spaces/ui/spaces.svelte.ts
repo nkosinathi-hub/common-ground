@@ -12,6 +12,8 @@ export class SpacesStore {
   status = $state<SpacesStatus>("idle")
   /** Why the last load failed; NewSpacePage shows it with a retry. */
   error = $state<AppError | null>(null)
+  /** Signed avatar and cover URLs by object path; they last an hour and are re-signed on reload. */
+  mediaUrls = $state<Record<string, string>>({})
 
   constructor(private readonly service: SpacesService) {}
 
@@ -30,7 +32,11 @@ export class SpacesStore {
     this.active = loaded.value.active
     this.error = null
     this.status = "ready"
+    const paths = loaded.value.spaces.flatMap((s) => [s.avatarPath, s.coverPath])
+    this.mediaUrls = await this.service.media.resolve(paths)
   }
+
+  mediaUrl = (path: string | null): string | null => (path ? (this.mediaUrls[path] ?? null) : null)
 
   /** Route says which space; only accept it if the user is a member. */
   activate(spaceId: string): boolean {
@@ -47,6 +53,7 @@ export class SpacesStore {
     this.spaces = []
     this.active = null
     this.error = null
+    this.mediaUrls = {}
     this.status = "idle"
     this.service.forget()
   }
