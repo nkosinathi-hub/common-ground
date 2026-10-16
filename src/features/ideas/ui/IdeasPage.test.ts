@@ -40,5 +40,19 @@ describe("IdeasPage whose filter", () => {
     expect(await screen.findByText("Our garden")).toBeInTheDocument()
     expect(titles()).toEqual(["Our garden", "Ana's tea"])
     expect(screen.getAllByText("Our idea")).toHaveLength(1)
+    cleanup()
+  })
+
+  it("says nothing matches when the server finds none of the viewer's ideas", async () => {
+    const { service } = inMemoryIdeasService()
+    render(IdeasPage, {
+      props: { spaceId: "s", me: "cy", ideaHref: () => "#" },
+      context: ideasContext(service),
+    })
+    await screen.findByText("No ideas yet")
+    await fireEvent.change(screen.getByRole("combobox", { name: "Whose" }), {
+      target: { value: "mine" },
+    })
+    expect(await screen.findByText("No ideas match these filters.")).toBeInTheDocument()
   })
 })

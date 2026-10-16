@@ -59,7 +59,7 @@
     <ErrorState error={board.list.error} onRetry={() => board.load()} />
   {:else if board.list.loading && board.list.items.length === 0}
     <Loading label="Loading ideas" />
-  {:else if board.list.items.length === 0}
+  {:else if board.list.items.length === 0 && !board.filter.whose}
     <EmptyState
       icon={Lightbulb}
       title="No ideas yet"
