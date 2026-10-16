@@ -1,5 +1,5 @@
 begin;
-select plan(13);
+select plan(14);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -33,6 +33,10 @@ select tests.act_as('ben');
 select is(
   public.export_space((select id from space_ref)) -> 'space' ->> 'name', 'Us',
   'a member exports the space details');
+select ok(
+  (public.export_space((select id from space_ref)) -> 'space') ?& array['tagline', 'description',
+    'theme', 'accent_color', 'icon', 'avatar_path', 'cover_path', 'home_cards',
+    'default_watch_intent', 'week_starts_on'], 'the space carries its profile and look');
 select is(
   public.export_space((select id from space_ref)) #>> '{tables,ideas,0,title}', 'Cafe',
   'the export carries the space ideas');
