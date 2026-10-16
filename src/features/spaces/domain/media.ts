@@ -38,6 +38,14 @@ export function centreCrop(width: number, height: number, aspect: number): Crop 
   }
 }
 
-/** A new object name for every upload: the bucket allows no overwrites. */
-export const mediaPath = (spaceId: string, slot: MediaSlot, id: string) =>
-  `${spaceId}/${slot}/${id}.webp`
+const EXTENSION: Readonly<Record<string, string>> = {
+  "image/webp": "webp",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+}
+
+/** A new object name for every upload (the bucket allows no overwrites); null for other types. */
+export function mediaPath(spaceId: string, slot: MediaSlot, id: string, type: string) {
+  const extension = EXTENSION[type]
+  return extension ? `${spaceId}/${slot}/${id}.${extension}` : null
+}

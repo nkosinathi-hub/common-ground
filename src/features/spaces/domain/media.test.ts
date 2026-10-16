@@ -19,7 +19,9 @@ describe("space media", () => {
     expect(MEDIA_SIZE.cover).toEqual({ width: 1800, height: 600 })
   })
 
-  it("names every upload freshly under its space and slot", () => {
-    expect(mediaPath("s1", "cover", "u1")).toBe("s1/cover/u1.webp")
+  it("names every upload freshly under its space and slot, by its image type", () => {
+    expect(mediaPath("s1", "cover", "u1", "image/webp")).toBe("s1/cover/u1.webp")
+    expect(mediaPath("s1", "avatar", "u2", "image/jpeg")).toBe("s1/avatar/u2.jpg")
+    expect(mediaPath("s1", "avatar", "u3", "image/gif")).toBeNull()
   })
 })

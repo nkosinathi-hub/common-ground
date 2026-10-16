@@ -30,6 +30,7 @@ export interface PreferenceFields {
 }
 
 const TOO_BIG = "Pictures can be up to 5 MB"
+const WRONG_TYPE = "Use a JPEG, PNG or WebP picture"
 
 /** The owner's customisation of a space: words, look, Home layout, defaults and pictures. */
 export class SpaceProfileService {
@@ -71,7 +72,8 @@ export class SpaceProfileService {
   /** Uploads under a new name, points the slot at it, then removes the picture it replaced. */
   async replaceMedia(spaceId: string, slot: MediaSlot, file: Blob): Promise<Result<string>> {
     if (file.size > MAX_MEDIA_BYTES) return err(appError("validation", TOO_BIG))
-    const path = mediaPath(spaceId, slot, this.newId())
+    const path = mediaPath(spaceId, slot, this.newId(), file.type)
+    if (!path) return err(appError("validation", WRONG_TYPE))
     const uploaded = await this.gateway.uploadMedia(path, file)
     if (!uploaded.ok) return uploaded
     const previous = await this.gateway.setMedia(spaceId, slot, path)

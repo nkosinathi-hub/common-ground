@@ -17,7 +17,7 @@ function storageDb(reply: { data?: unknown; error?: unknown }) {
 }
 
 describe("SupabaseSpaceMedia", () => {
-  it("uploads WebP without overwriting into the private space-media bucket", async () => {
+  it("uploads with the picture's type, without overwriting, into the private space-media bucket", async () => {
     const { media, calls } = storageDb({})
     const file = new Blob(["x"], { type: "image/webp" })
     expect((await media.upload("s1/cover/u.webp", file)).ok).toBe(true)

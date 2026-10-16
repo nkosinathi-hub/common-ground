@@ -22,10 +22,12 @@ describe("SpaceProfileService pictures", () => {
     expect([...gateway.objects.keys()]).toEqual(["space-1/avatar/id-2.webp"])
   })
 
-  it("refuses files over the bucket limit before uploading", async () => {
+  it("refuses files over the bucket limit or of another type before uploading", async () => {
     const { gateway, profile } = await setup()
     const result = await profile.replaceMedia("space-1", "cover", picture(5 * 1024 * 1024 + 1))
     expect(result).toMatchObject({ ok: false, error: { kind: "validation" } })
+    const gif = new Blob([new Uint8Array(4)], { type: "image/gif" })
+    expect((await profile.replaceMedia("space-1", "cover", gif)).ok).toBe(false)
     expect(gateway.objects.size).toBe(0)
   })
 

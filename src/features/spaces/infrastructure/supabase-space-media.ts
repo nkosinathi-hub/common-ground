@@ -24,7 +24,7 @@ export class SupabaseSpaceMedia {
 
   async upload(path: string, file: Blob): Promise<Result<void>> {
     const { error } = await this.bucket().upload(path, file, {
-      contentType: "image/webp",
+      contentType: file.type,
       upsert: false,
     })
     return error ? failure(error) : ok(undefined)
