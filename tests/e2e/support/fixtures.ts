@@ -31,6 +31,11 @@ export async function addTitle(page: Page, spaceId: string, title: string): Prom
   await page.getByRole("button", { name: "Add a title manually" }).click()
   await page.getByLabel("Title", { exact: true }).fill(title)
   await page.getByRole("button", { name: "Add to your list" }).click()
+  // The dialog stays open for the next title; it lists what was added until Done.
+  const dialog = page.getByRole("dialog", { name: "Add a title" })
+  await expect(dialog.getByRole("status")).toContainText(`Added: ${title}`)
+  await dialog.getByRole("button", { name: "Done" }).click()
+  await expect(dialog).toBeHidden()
   await page.getByRole("link", { name: title }).first().click()
   await page.waitForURL(new RegExp(`/watch/${UUID}`))
   return new RegExp(`/watch/(${UUID})`).exec(page.url())![1]!

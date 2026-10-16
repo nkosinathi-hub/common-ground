@@ -66,8 +66,12 @@ for (const [name, path] of Object.entries(ROUTES)) {
 }
 
 test("a success toast has enough contrast @a11y", async () => {
-  await addTitle(page, fixture.space, "Toast title")
-  await expect(page.getByText("Toast title is on your list")).toBeVisible()
+  // Adding a title no longer toasts (the add dialog lists it), so capture an idea instead.
+  await page.goto(`./#/s/${fixture.space}/home`)
+  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await page.getByLabel("Idea", { exact: true }).fill("Toast idea")
+  await page.getByRole("button", { name: "Save idea" }).click()
+  await expect(page.getByText("Idea saved")).toBeVisible()
   await page.waitForFunction(() => document.getAnimations().length === 0)
   expect(await axeViolations(page, TOASTER)).toEqual([])
 })

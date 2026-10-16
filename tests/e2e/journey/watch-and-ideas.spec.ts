@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { addTitle } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -8,16 +9,7 @@ test("add a title manually, track progress and comment", async ({ page }) => {
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Movie nights")
 
-  await page.goto(`./#/s/${spaceId}/watch`)
-  await page.getByRole("button", { name: "Add your first title" }).click()
-  await page.getByRole("button", { name: "Add a title manually" }).click()
-  await page.getByLabel("Title", { exact: true }).fill("Frieren")
-  await page.getByRole("button", { name: "Add to your list" }).click()
-  await page
-    .getByRole("link", { name: /Frieren/ })
-    .first()
-    .click()
-  await page.waitForURL(/#\/s\/.+\/watch\/[0-9a-f-]{36}/)
+  await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
   await expect(page.getByText(/no verified provider data/i)).toBeVisible()
 
