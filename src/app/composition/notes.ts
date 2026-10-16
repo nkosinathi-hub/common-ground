@@ -1,6 +1,8 @@
 import type { SessionStore } from "@/features/auth"
-import { NotesService, provideNotes } from "@/features/notes"
+import { DraftsService, HardTalkService, NotesService, provideNotes } from "@/features/notes"
+import { SupabaseHardTalk } from "@/features/notes/infrastructure/supabase-hard-talk"
 import { SupabaseNoteArrivals } from "@/features/notes/infrastructure/supabase-note-arrivals"
+import { SupabaseNoteDrafts } from "@/features/notes/infrastructure/supabase-note-drafts"
 import { SupabaseNotes } from "@/features/notes/infrastructure/supabase-notes"
 import type { MemberDirectory } from "@/shared/domain"
 import type { Db } from "@/shared/infrastructure/supabase"
@@ -8,7 +10,10 @@ import type { Db } from "@/shared/infrastructure/supabase"
 export function composeNotes(db: Db, members: MemberDirectory) {
   return {
     service: new NotesService(new SupabaseNotes(db), members, () => new Date()),
-    // A note or note_reply notification for the signed-in member reloads the Home card.
+    // "Something on my mind": the author's private drafts, and the reader's gentle responses.
+    drafts: new DraftsService(new SupabaseNoteDrafts(db), members),
+    hardTalk: new HardTalkService(new SupabaseHardTalk(db), members),
+    // A note, reply, shared or response notification for the signed-in member reloads Home.
     arrivals: new SupabaseNoteArrivals(db),
   }
 }

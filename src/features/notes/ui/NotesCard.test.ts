@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import type { NoteDraft } from "../application/notes-service"
-import { inMemoryNotesService } from "../testing/notes-fixture"
+import { notesHarness } from "../testing/notes-harness"
 import { notesContext } from "./context"
 import NotesCard from "./NotesCard.svelte"
 
@@ -9,16 +9,12 @@ const draft = { recipientId: "ben", body: "Dinner at 7?", pinned: false, expiry:
 
 /** Ana has written to Ben; `me` opens Home. */
 async function setup(me = "ben", notes: NoteDraft[] = [draft]) {
-  const { repo, service } = inMemoryNotesService()
+  const { repo, service, services, arrive } = notesHarness(me)
+  repo.me = "ana"
   for (const note of notes) await service.send("s", note)
   repo.me = me
-  let arrive = () => {}
-  const arrivals = { subscribe: (cb: () => void) => ((arrive = cb), () => {}) }
-  render(NotesCard, {
-    props: { spaceId: "s" },
-    context: notesContext({ service, arrivals, me: () => me }),
-  })
-  return { repo, service, arrive: () => arrive() }
+  render(NotesCard, { props: { spaceId: "s" }, context: notesContext(services) })
+  return { repo, service, arrive }
 }
 
 const item = async (text: string) => (await screen.findByText(text)).closest("li") as HTMLElement

@@ -1,8 +1,9 @@
 import type { AppError, Result } from "@/shared/domain"
 import { PagedList } from "@/shared/ui"
+import type { HardTalkService } from "../application/hard-talk-service"
 import type { NoteDraft, NotesService } from "../application/notes-service"
 import type { NoteCursor } from "../application/ports"
-import { sortForHome, type Note, type NoteReply } from "../domain"
+import { sortForHome, type Note, type NoteReply, type RemindIn, type ResponseKind } from "../domain"
 
 /** Read at least as late as the newest reply, so a slow client clock never leaves it unread. */
 const readNow = (note: Note, at = new Date().toISOString()) =>
@@ -16,6 +17,7 @@ export class NotesState {
   constructor(
     private readonly service: NotesService,
     private readonly spaceId: () => string,
+    private readonly hardTalk?: HardTalkService,
   ) {
     this.list = new PagedList((after) => service.forHome(spaceId(), after))
   }
@@ -24,6 +26,23 @@ export class NotesState {
 
   send(draft: NoteDraft): Promise<AppError | null> {
     return this.list.add(this.service.send(this.spaceId(), draft))
+  }
+
+  /** Shows a note sent some other way (a draft sent from the composer). */
+  added = (write: Promise<Result<Note>>) => this.list.add(write)
+
+  takeBack = (note: Note) => this.list.remove(note.id, this.service.takeBack(note.id))
+
+  /** Optimistic: shows the response and reads the note at once, and reloads if it fails. */
+  async respond(note: Note, kind: ResponseKind, remindIn: RemindIn | null = null) {
+    this.update(note.id, (n) => {
+      const at = readNow(n)
+      return { ...n, readAt: at, latestResponse: { kind, at } }
+    })
+    const sent = await this.hardTalk!.respond(note.id, kind, remindIn)
+    if (sent.ok) return null
+    await this.load()
+    return sent.error
   }
 
   private update(id: string, change: (note: Note) => Note) {
