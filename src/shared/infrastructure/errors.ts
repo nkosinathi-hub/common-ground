@@ -16,26 +16,41 @@ const BY_CODE: Record<string, AppError["kind"]> = {
   "23503": "validation",
   "22P02": "validation",
   "22023": "validation",
+  "22001": "validation",
   P0001: "validation",
   P0002: "not_found",
   PGRST116: "not_found",
+  PGRST301: "unauthenticated",
+  PGRST303: "unauthenticated",
 }
+
+/** Codes our own SQL raises with a message written for people; everything else is internal. */
+const AUTHORED = new Set(["P0001", "22023"])
+
+/** supabase-js reports a failed request (offline, CORS, CSP) with no code and a fetch error. */
+const TRANSPORT = /^(FetchError|TypeError)\b|failed to fetch|networkerror|load failed/i
 
 /** Maps a Supabase/PostgREST error to a user-safe AppError without leaking internals. */
 export function toAppError(error: PostgrestLike | null | undefined): AppError {
   if (!error) return appError("unknown", "Something went wrong")
-  const kind = (error.code && BY_CODE[error.code]) || byStatus(error.status)
-  const message = kind === "validation" && error.message ? error.message : COPY[kind]
+  const kind = (error.code && BY_CODE[error.code]) || fallback(error)
+  const authored = kind === "validation" && AUTHORED.has(error.code ?? "") && error.message
+  const message = authored ? error.message! : COPY[kind]
   return appError(kind, message)
 }
 
-function byStatus(status?: number): AppError["kind"] {
+function fallback(error: PostgrestLike): AppError["kind"] {
+  if (error.status !== undefined) return byStatus(error.status)
+  return !error.code && TRANSPORT.test(error.message ?? "") ? "network" : "unknown"
+}
+
+function byStatus(status: number): AppError["kind"] {
   if (status === 401) return "unauthenticated"
   if (status === 403) return "denied"
   if (status === 404) return "not_found"
   if (status === 409) return "conflict"
   if (status === 429) return "rate_limited"
-  if (status === 0 || status === undefined || status >= 500) return "network"
+  if (status === 0 || status >= 500) return "network"
   return "unknown"
 }
 
