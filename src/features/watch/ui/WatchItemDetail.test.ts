@@ -16,7 +16,7 @@ function setup(extra: Parameters<typeof item>[2] = {}) {
   const fakes = watchFakes()
   const provide = () => {
     provideWatch({ service: fakes.service, members: fakes.members })
-    provideCatalog(new CatalogService(emptyCatalogGateway))
+    provideCatalog({ service: new CatalogService(emptyCatalogGateway) })
   }
   const show = item(1, "Home video", {
     mediaType: "series",

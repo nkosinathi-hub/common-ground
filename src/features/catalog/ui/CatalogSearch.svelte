@@ -19,7 +19,7 @@
 
   let { spaceId, onPick, onManual }: Props = $props()
 
-  const search = new SearchState(useCatalog(), () => spaceId)
+  const search = new SearchState(useCatalog().service, () => spaceId)
   onDestroy(() => search.dispose())
 </script>
 

@@ -10,7 +10,7 @@ import { provideCatalog } from "./context"
 function setup(configure: (gateway: FakeCatalogGateway) => void) {
   const gateway = new FakeCatalogGateway()
   configure(gateway)
-  const provide = () => provideCatalog(new CatalogService(gateway))
+  const provide = () => provideCatalog({ service: new CatalogService(gateway) })
   const props = { spaceId: SPACE_ID, type: "movie", id: 1 }
   const view = render(Provided, { props: { provide, component: Availability, props } })
   return { gateway, view }

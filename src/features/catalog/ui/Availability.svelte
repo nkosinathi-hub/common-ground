@@ -20,7 +20,7 @@
 
   let { spaceId, type, id }: Props = $props()
 
-  const listing = new AvailabilityState(useCatalog())
+  const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
   const checked = $derived(listing.details ? formatDateTime(listing.details.checkedAt) : "")
 

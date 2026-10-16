@@ -36,7 +36,7 @@ function setup(extra: Record<string, unknown> = {}) {
   const onAdded = vi.fn()
   const provide = () => {
     provideWatch({ service: fakes.service, members: fakes.members })
-    provideCatalog(new CatalogService(catalog))
+    provideCatalog({ service: new CatalogService(catalog) })
   }
   const props = { open: true, spaceId: SPACE_ID, onAdded, ...extra }
   render(Provided, { props: { provide, component: AddTitleDialog, props } })

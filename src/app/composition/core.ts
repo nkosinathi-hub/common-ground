@@ -51,6 +51,6 @@ export function provideCore(services: ReturnType<typeof composeCore>): void {
   provideAuth({ service: services.auth, session: services.session })
   provideAccount({ service: services.account })
   provideSpaces({ service: services.spaces, store: services.spacesStore })
-  provideCatalog(services.catalog)
+  provideCatalog({ service: services.catalog })
   provideNotifications({ service: services.inbox, store: services.notifications })
 }
