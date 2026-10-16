@@ -5,7 +5,8 @@ import { MilestonesService } from "../application/milestones-service"
 import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
 import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
-import { tasksContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideTasks } from "./context"
 import MilestonesPanel from "./MilestonesPanel.svelte"
 
 const place = { spaceId: "s", ideaId: "i" }
@@ -15,12 +16,15 @@ async function setup() {
   const milestones = new MilestonesService(new InMemoryMilestones())
   const added = await milestones.add(place, { title: "Open", targetDate: null })
   if (!added.ok) throw new Error("add failed")
-  const context = tasksContext({
+  const services = {
     tasks: new TasksService(new InMemoryTasks(members), members),
     checklist: new ChecklistService(new InMemoryChecklist()),
     milestones,
+  }
+  const props = { ...place, canDelete: () => true }
+  render(Provided, {
+    props: { provide: () => provideTasks(services), component: MilestonesPanel, props },
   })
-  render(MilestonesPanel, { props: { ...place, canDelete: () => true }, context })
   return { milestones, base: added.value }
 }
 

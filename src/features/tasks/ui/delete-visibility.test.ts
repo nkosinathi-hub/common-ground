@@ -5,7 +5,8 @@ import { MilestonesService } from "../application/milestones-service"
 import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
 import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
-import { tasksContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideTasks } from "./context"
 import MilestonesPanel from "./MilestonesPanel.svelte"
 import TasksTab from "./TasksTab.svelte"
 
@@ -29,9 +30,10 @@ async function setup(author: string) {
   if (!task.ok) throw new Error("create failed")
   await services.checklist.add(task.value, "Sign", [])
   await services.milestones.add(place, { title: "Open", targetDate: null })
-  const context = tasksContext(services)
-  render(TasksTab, { props: { ...place, canDelete: mineOnly }, context })
-  render(MilestonesPanel, { props: { ...place, canDelete: mineOnly }, context })
+  const props = { ...place, canDelete: mineOnly }
+  const provide = () => provideTasks(services)
+  render(Provided, { props: { provide, component: TasksTab, props } })
+  render(Provided, { props: { provide, component: MilestonesPanel, props } })
   await screen.findByText("Open")
   await fireEvent.click(await screen.findByRole("button", { name: "Checklist" }))
   await screen.findByText("Sign")
