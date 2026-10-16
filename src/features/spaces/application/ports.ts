@@ -1,11 +1,37 @@
-import type { Result } from "@/shared/domain"
+import type { HomeCardId, Reauthenticator, Result } from "@/shared/domain"
+import type { DefaultWatchIntent, SpacePreset, WeekStart } from "../domain/look"
+import type { MediaSlot } from "../domain/media"
 import type { InvitePreview, InviteRecord, Member, Space } from "../domain/space"
 import type { SpaceTemplateId } from "../domain/templates"
 
-export interface SpacesGateway {
+/** Owner-only columns on a space; only the fields given change. */
+export interface SpaceProfilePatch {
+  readonly name?: string
+  readonly template?: SpaceTemplateId
+  readonly tagline?: string
+  readonly description?: string
+  readonly icon?: string | null
+  readonly theme?: SpacePreset | null
+  readonly accent?: string | null
+  readonly homeCards?: readonly HomeCardId[]
+  readonly defaultWatchIntent?: DefaultWatchIntent
+  readonly weekStartsOn?: WeekStart
+}
+
+/** The space profile and its pictures in the private space-media bucket. */
+export interface SpaceProfileGateway {
+  updateProfile(spaceId: string, patch: SpaceProfilePatch): Promise<Result<void>>
+  uploadMedia(path: string, file: Blob): Promise<Result<void>>
+  /** Points the slot at an uploaded object (or none) and returns the previous path. */
+  setMedia(spaceId: string, slot: MediaSlot, path: string | null): Promise<Result<string | null>>
+  removeMedia(paths: readonly string[]): Promise<Result<void>>
+  /** Signed read URLs by path; paths that could not be signed are left out. */
+  signMedia(paths: readonly string[], seconds: number): Promise<Result<Record<string, string>>>
+}
+
+export interface SpacesGateway extends SpaceProfileGateway {
   listMine(): Promise<Result<Space[]>>
   create(name: string, template: SpaceTemplateId): Promise<Result<string>>
-  rename(spaceId: string, name: string, template: SpaceTemplateId): Promise<Result<void>>
   members(spaceId: string): Promise<Result<Member[]>>
   leave(spaceId: string): Promise<Result<void>>
   removeMember(spaceId: string, userId: string): Promise<Result<void>>
@@ -22,4 +48,21 @@ export interface SpacesGateway {
 export interface ActiveSpaceStore {
   read(): string | null
   write(spaceId: string | null): void
+}
+
+export interface SpacesDeps {
+  readonly gateway: SpacesGateway
+  readonly active: ActiveSpaceStore
+  readonly auth: Reauthenticator
+  /** The app root that invite links open, for example https://x.github.io/common-ground/. */
+  readonly appUrl: string
+  /** Decides whether an invite has expired. */
+  readonly clock: () => Date
+  /** Names uploads; random by default. */
+  readonly newId?: () => string
+}
+
+export interface LoadedSpaces {
+  readonly spaces: Space[]
+  readonly active: Space | null
 }

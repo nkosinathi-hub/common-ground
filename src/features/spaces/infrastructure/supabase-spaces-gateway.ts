@@ -4,37 +4,42 @@ import type { Db } from "@/shared/infrastructure/supabase"
 import type { SpacesGateway } from "../application/ports"
 import type { Member, Space } from "../domain/space"
 import type { SpaceTemplateId } from "../domain/templates"
+import { toSpace } from "./space-row"
 import { invitesOf, previewOf } from "./supabase-invites"
+import { SupabaseSpaceProfile } from "./supabase-space-profile"
 
 /** The create and redeem RPCs already return the id or token the port promises. */
 const unchanged = <T>(value: T) => value
 
+const SPACE_SELECT =
+  "role, spaces!inner(id, name, template, tagline, description, theme, accent_color, icon, avatar_path, cover_path, home_cards, default_watch_intent, week_starts_on)"
+
 export class SupabaseSpacesGateway implements SpacesGateway {
-  constructor(private readonly db: Db) {}
+  private readonly profile: SupabaseSpaceProfile
+
+  constructor(private readonly db: Db) {
+    this.profile = new SupabaseSpaceProfile(db)
+  }
 
   async listMine(): Promise<Result<Space[]>> {
     const { data } = await this.db.auth.getUser()
     if (!data.user) return signedOut()
     const query = this.db
       .from("space_members")
-      .select("role, spaces!inner(id, name, template)")
+      .select(SPACE_SELECT)
       .eq("user_id", data.user.id)
       .order("joined_at")
-    return settle(query, (rows) =>
-      rows.map((row) => ({
-        id: row.spaces.id,
-        name: row.spaces.name,
-        template: row.spaces.template,
-        role: row.role,
-      })),
-    )
+    return settle(query, (rows) => rows.map((row) => toSpace(row.spaces, row.role)))
   }
 
   create = (name: string, template: SpaceTemplateId) =>
     settle(this.db.rpc("create_space", { space_name: name, space_template: template }), unchanged)
 
-  rename = (spaceId: string, name: string, template: SpaceTemplateId) =>
-    done(this.db.from("spaces").update({ name, template }).eq("id", spaceId))
+  updateProfile: SpacesGateway["updateProfile"] = (...args) => this.profile.updateProfile(...args)
+  uploadMedia: SpacesGateway["uploadMedia"] = (...args) => this.profile.uploadMedia(...args)
+  setMedia: SpacesGateway["setMedia"] = (...args) => this.profile.setMedia(...args)
+  removeMedia: SpacesGateway["removeMedia"] = (...args) => this.profile.removeMedia(...args)
+  signMedia: SpacesGateway["signMedia"] = (...args) => this.profile.signMedia(...args)
 
   members(spaceId: string): Promise<Result<Member[]>> {
     const query = this.db

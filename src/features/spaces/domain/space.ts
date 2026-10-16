@@ -1,9 +1,11 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
+import type { SpaceProfile } from "./look"
 import type { SpaceTemplateId } from "./templates"
 
 export type SpaceRole = "owner" | "member"
 
-export interface Space {
+/** A space the user belongs to, with everything the owner has customised. */
+export interface Space extends SpaceProfile {
   readonly id: string
   readonly name: string
   readonly template: SpaceTemplateId

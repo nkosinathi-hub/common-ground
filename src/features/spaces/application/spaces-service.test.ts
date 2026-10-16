@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { sampleSpace } from "../testing/sample-space"
 import { PASSWORD, spacesSetup } from "../testing/spaces-setup"
 
 describe("SpacesService", () => {
@@ -12,7 +13,7 @@ describe("SpacesService", () => {
 
   it("drops a remembered space the user no longer belongs to", async () => {
     const { active, gateway, service } = spacesSetup()
-    gateway.spaces.push({ id: "a", name: "A", template: "blank", role: "member" })
+    gateway.spaces.push(sampleSpace({ id: "a", role: "member" }))
     active.value = "gone"
     const loaded = await service.load()
     expect(loaded.ok && loaded.value.active?.id).toBe("a")

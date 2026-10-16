@@ -25,7 +25,9 @@
 
   async function save(event: SubmitEvent) {
     event.preventDefault()
-    if ((await form.run(() => service.rename(space.id, name, template))).ok) {
+    if (
+      (await form.run(() => service.profile.saveGeneral(space.id, { ...space, name, template }))).ok
+    ) {
       toast.success("Saved")
       await store.refresh()
     }

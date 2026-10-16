@@ -54,14 +54,16 @@ export function fromHsl({ h, s, l }: Hsl): Rgb {
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
   const m = l - c / 2
   const sector = Math.floor(h / 60) % 6
-  const [r, g, b] = [
-    [c, x, 0],
-    [x, c, 0],
-    [0, c, x],
-    [0, x, c],
-    [x, 0, c],
-    [c, 0, x],
-  ][sector]!
+  const [r, g, b] = (
+    [
+      [c, x, 0],
+      [x, c, 0],
+      [0, c, x],
+      [0, x, c],
+      [x, 0, c],
+      [c, 0, x],
+    ] as const
+  )[sector]!
   return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 }
 }
 

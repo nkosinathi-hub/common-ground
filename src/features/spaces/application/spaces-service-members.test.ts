@@ -35,12 +35,8 @@ describe("SpacesService membership operations", () => {
     ])
   })
 
-  it("renames with validation and previews invites", async () => {
-    const { gateway, service } = spacesSetup()
-    await service.create("Us", "blank")
-    expect((await service.rename("space-1", "", "blank")).ok).toBe(false)
-    expect((await service.rename("space-1", "Us two", "couple")).ok).toBe(true)
-    expect(gateway.spaces[0]?.name).toBe("Us two")
+  it("previews invites", async () => {
+    const { service } = spacesSetup()
     expect(await service.previewInvite("nope")).toMatchObject({
       ok: true,
       value: { status: "invalid" },
