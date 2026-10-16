@@ -1,4 +1,4 @@
-import { memberName, type MemberDirectory, type MemberRef } from "@/shared/domain"
+import { memberName, type AuthorDirectory, type MemberRef } from "@/shared/domain"
 import type { Note, NoteReply } from "../domain"
 import type { NoteRecord, ReplyRecord } from "./ports"
 
@@ -26,11 +26,11 @@ export const toReply = (members: readonly MemberRef[], r: ReplyRecord): NoteRepl
 
 /** Maps with member names; a lookup failure falls back to "Former member" rather than hiding. */
 export async function withNames<T, U>(
-  directory: MemberDirectory,
+  names: AuthorDirectory,
   spaceId: string,
   value: T,
-  map: (members: MemberRef[], value: T) => U,
+  map: (people: MemberRef[], value: T) => U,
 ): Promise<U> {
-  const members = await directory.members(spaceId)
-  return map(members.ok ? members.value : [], value)
+  const people = await names.authors(spaceId)
+  return map(people.ok ? people.value : [], value)
 }

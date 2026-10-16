@@ -1,4 +1,4 @@
-import { ok, type MemberDirectory, type MemberRef } from "@/shared/domain"
+import { ok, type AuthorDirectory, type MemberDirectory, type MemberRef } from "@/shared/domain"
 import { DraftsService } from "../application/drafts-service"
 import { HardTalkService } from "../application/hard-talk-service"
 import { NotesService } from "../application/notes-service"
@@ -14,7 +14,10 @@ export const MEMBERS: MemberRef[] = [
 /** Notes services over in-memory stores and members, with the clock at 16 Oct 2026 09:00 UTC. */
 export function inMemoryNotesService(members: MemberRef[] = MEMBERS) {
   const repo = new InMemoryNotes()
-  const directory: MemberDirectory = { members: async () => ok(members) }
+  const directory: MemberDirectory & AuthorDirectory = {
+    members: async () => ok(members),
+    authors: async () => ok(members),
+  }
   const clock = () => new Date("2026-10-16T09:00:00.000Z")
   const draftsRepo = new InMemoryDrafts(repo)
   const hardTalkRepo = new InMemoryHardTalk(repo)
