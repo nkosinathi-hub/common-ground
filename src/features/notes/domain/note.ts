@@ -46,7 +46,8 @@ export function validateNote(input: string): Result<string> {
 /** Unread until the viewer opens it, and again once someone replies after that. */
 export function isUnread(note: Pick<Note, "readAt" | "lastReplyAt">): boolean {
   if (note.readAt === null) return true
-  return note.lastReplyAt !== null && note.lastReplyAt > note.readAt
+  // Compared as instants: Postgres and the client format timestamps differently.
+  return note.lastReplyAt !== null && Date.parse(note.lastReplyAt) > Date.parse(note.readAt)
 }
 
 const rank = (note: Note) => (note.pinned ? 0 : isUnread(note) ? 1 : 2)

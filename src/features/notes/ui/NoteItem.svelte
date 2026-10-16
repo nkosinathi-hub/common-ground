@@ -44,7 +44,8 @@
       {/snippet}
     </Collapsible.Trigger>
     <Collapsible.Content>
-      <NoteThread {note} {notes} />
+      <!-- Content stays mounted while closed: load the thread on opening, and again on a reply. -->
+      {#if open}{#key note.replyCount}<NoteThread {note} {notes} />{/key}{/if}
     </Collapsible.Content>
   </Collapsible.Root>
 </li>

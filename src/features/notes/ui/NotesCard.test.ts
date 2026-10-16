@@ -47,6 +47,17 @@ describe("NotesCard", () => {
     expect(note.getByRole("button", { name: "Replies (1)" })).toBeInTheDocument()
   })
 
+  it("loads the thread when it is opened, not before", async () => {
+    const { repo, service } = await setup("ana")
+    await item("Dinner at 7?")
+    repo.me = "ben"
+    await service.reply("s", "note-1", "Later reply")
+    repo.me = "ana"
+    const note = within(await item("Dinner at 7?"))
+    await fireEvent.click(note.getByRole("button", { name: "Reply" }))
+    expect(await note.findByText("Later reply")).toBeInTheDocument()
+  })
+
   it("reloads when a note arrives", async () => {
     const { service, repo, arrive } = await setup("ben", [])
     expect(await screen.findByText("No notes yet.")).toBeInTheDocument()

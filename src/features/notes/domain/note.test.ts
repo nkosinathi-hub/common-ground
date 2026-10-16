@@ -39,6 +39,9 @@ describe("isUnread", () => {
     expect(isUnread(note("1"))).toBe(false)
     expect(isUnread(note("1", { lastReplyAt: "2026-10-16T10:00:00Z" }))).toBe(true)
     expect(isUnread(note("1", { lastReplyAt: "2026-10-16T08:00:00Z" }))).toBe(false)
+    const read = { readAt: "2026-10-16T09:00:00.300Z" }
+    expect(isUnread({ ...read, lastReplyAt: "2026-10-16T09:00:00.285734+00:00" })).toBe(false)
+    expect(isUnread({ ...read, lastReplyAt: "2026-10-16T11:00:00+02:00" })).toBe(false)
   })
 })
 

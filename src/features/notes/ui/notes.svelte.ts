@@ -6,7 +6,7 @@ import { sortForHome, type Note, type NoteReply } from "../domain"
 
 /** Read at least as late as the newest reply, so a slow client clock never leaves it unread. */
 const readNow = (note: Note, at = new Date().toISOString()) =>
-  note.lastReplyAt && note.lastReplyAt > at ? note.lastReplyAt : at
+  note.lastReplyAt && Date.parse(note.lastReplyAt) > Date.parse(at) ? note.lastReplyAt : at
 
 /** The Home card's notes: paged in server order, shown pinned, unread, then newest. */
 export class NotesState {
