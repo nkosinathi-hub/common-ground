@@ -7,14 +7,14 @@ export type Database = {
           Tables: {
             "activity_events": {
                   Row: {
-                    "actor_id": string | null,"created_at": string,"event_type": string,"id": string,"space_id": string,"subject_id": string,"subject_type": string
+                    "actor_id": string | null,"created_at": string,"event_type": string,"id": string,"space_id": string,"subject_id": string,"subject_type": string,"target_id": string | null,"visible_to": (string)[] | null,"by_me": boolean | null
                   }
-                  ComputedFields: never
+                  ComputedFields: "by_me"
                   Insert: {
-                    "actor_id"?: string | null,"created_at"?: string,"event_type": string,"id"?: string,"space_id": string,"subject_id": string,"subject_type": string
+                    "actor_id"?: string | null,"created_at"?: string,"event_type": string,"id"?: string,"space_id": string,"subject_id": string,"subject_type": string,"target_id"?: string | null,"visible_to"?: (string)[] | null
                   }
                   Update: {
-                    "actor_id"?: string | null,"created_at"?: string,"event_type"?: string,"id"?: string,"space_id"?: string,"subject_id"?: string,"subject_type"?: string
+                    "actor_id"?: string | null,"created_at"?: string,"event_type"?: string,"id"?: string,"space_id"?: string,"subject_id"?: string,"subject_type"?: string,"target_id"?: string | null,"visible_to"?: (string)[] | null
                   }
                   Relationships: [
                     {
@@ -28,6 +28,12 @@ isOneToOne: false
       columns: ["space_id"]
 isOneToOne: false
       referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "activity_events_target_id_fkey"
+      columns: ["target_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -80,6 +86,108 @@ isOneToOne: false
       columns: ["space_id","idea_id"]
 isOneToOne: false
       referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"calendar_event_attendees": {
+                  Row: {
+                    "added_by": string | null,"created_at": string,"event_id": string,"responded_at": string | null,"rsvp": Database["public"]['Enums']["event_rsvp"],"space_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "added_by"?: string | null,"created_at"?: string,"event_id": string,"responded_at"?: string | null,"rsvp"?: Database["public"]['Enums']["event_rsvp"],"space_id": string,"user_id": string
+                  }
+                  Update: {
+                    "added_by"?: string | null,"created_at"?: string,"event_id"?: string,"responded_at"?: string | null,"rsvp"?: Database["public"]['Enums']["event_rsvp"],"space_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "calendar_event_attendees_added_by_fkey"
+      columns: ["added_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "calendar_event_attendees_space_id_event_id_fkey"
+      columns: ["space_id","event_id"]
+isOneToOne: false
+      referencedRelation: "calendar_events"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "calendar_event_attendees_space_id_user_id_fkey"
+      columns: ["space_id","user_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
+                },"calendar_event_reminders": {
+                  Row: {
+                    "event_id": string,"id": string,"minutes_before": number,"remind_at": string,"sent_at": string | null,"space_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "event_id": string,"id"?: string,"minutes_before": number,"remind_at": string,"sent_at"?: string | null,"space_id": string,"user_id"?: string
+                  }
+                  Update: {
+                    "event_id"?: string,"id"?: string,"minutes_before"?: number,"remind_at"?: string,"sent_at"?: string | null,"space_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "calendar_event_reminders_space_id_event_id_fkey"
+      columns: ["space_id","event_id"]
+isOneToOne: false
+      referencedRelation: "calendar_events"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "calendar_event_reminders_space_id_user_id_fkey"
+      columns: ["space_id","user_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
+                },"calendar_events": {
+                  Row: {
+                    "all_day": boolean,"created_at": string,"created_by": string | null,"default_reminders": (number)[],"description": string,"end_date": string | null,"ends_at": string | null,"id": string,"idea_id": string | null,"location": string,"repeats_yearly": boolean,"space_id": string,"start_date": string | null,"starts_at": string | null,"task_id": string | null,"time_zone": string,"title": string,"updated_at": string,"watch_item_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "all_day"?: boolean,"created_at"?: string,"created_by"?: string | null,"default_reminders"?: (number)[],"description"?: string,"end_date"?: string | null,"ends_at"?: string | null,"id"?: string,"idea_id"?: string | null,"location"?: string,"repeats_yearly"?: boolean,"space_id": string,"start_date"?: string | null,"starts_at"?: string | null,"task_id"?: string | null,"time_zone": string,"title": string,"updated_at"?: string,"watch_item_id"?: string | null
+                  }
+                  Update: {
+                    "all_day"?: boolean,"created_at"?: string,"created_by"?: string | null,"default_reminders"?: (number)[],"description"?: string,"end_date"?: string | null,"ends_at"?: string | null,"id"?: string,"idea_id"?: string | null,"location"?: string,"repeats_yearly"?: boolean,"space_id"?: string,"start_date"?: string | null,"starts_at"?: string | null,"task_id"?: string | null,"time_zone"?: string,"title"?: string,"updated_at"?: string,"watch_item_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "calendar_events_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "calendar_events_space_id_fkey"
+      columns: ["space_id"]
+isOneToOne: false
+      referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "calendar_events_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "calendar_events_space_id_task_id_fkey"
+      columns: ["space_id","task_id"]
+isOneToOne: false
+      referencedRelation: "tasks"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "calendar_events_space_id_watch_item_id_fkey"
+      columns: ["space_id","watch_item_id"]
+isOneToOne: false
+      referencedRelation: "watch_items"
       referencedColumns: ["space_id","id"]
     }
                   ]
@@ -187,6 +295,38 @@ isOneToOne: false
       referencedColumns: ["space_id","id"]
     }
                   ]
+                },"idea_collaborators": {
+                  Row: {
+                    "accepted_at": string | null,"idea_id": string,"invited_at": string,"invited_by": string | null,"space_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string | null,"idea_id": string,"invited_at"?: string,"invited_by"?: string | null,"space_id": string,"user_id": string
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"idea_id"?: string,"invited_at"?: string,"invited_by"?: string | null,"space_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "idea_collaborators_invited_by_fkey"
+      columns: ["invited_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "idea_collaborators_space_id_idea_id_fkey"
+      columns: ["space_id","idea_id"]
+isOneToOne: false
+      referencedRelation: "ideas"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "idea_collaborators_space_id_user_id_fkey"
+      columns: ["space_id","user_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
                 },"idea_notes": {
                   Row: {
                     "body": string,"created_at": string,"created_by": string | null,"id": string,"idea_id": string,"space_id": string,"updated_at": string
@@ -215,9 +355,9 @@ isOneToOne: false
                   ]
                 },"ideas": {
                   Row: {
-                    "brief": NonNullable<Json>,"created_at": string,"created_by": string | null,"currency": string,"id": string,"space_id": string,"stage": Database["public"]['Enums']["idea_stage"],"tags": (string)[],"template": Database["public"]['Enums']["idea_template"],"title": string,"updated_at": string
+                    "brief": NonNullable<Json>,"created_at": string,"created_by": string | null,"currency": string,"id": string,"space_id": string,"stage": Database["public"]['Enums']["idea_stage"],"tags": (string)[],"template": Database["public"]['Enums']["idea_template"],"title": string,"updated_at": string,"ours": boolean | null
                   }
-                  ComputedFields: never
+                  ComputedFields: "ours"
                   Insert: {
                     "brief"?: NonNullable<Json>,"created_at"?: string,"created_by"?: string | null,"currency"?: string,"id"?: string,"space_id": string,"stage"?: Database["public"]['Enums']["idea_stage"],"tags"?: (string)[],"template"?: Database["public"]['Enums']["idea_template"],"title": string,"updated_at"?: string
                   }
@@ -453,16 +593,184 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"spaces": {
+                },"space_note_drafts": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"id": string,"name": string,"template": Database["public"]['Enums']["space_template"],"updated_at": string
+                    "author_id": string,"created_at": string,"id": string,"recipient_id": string | null,"response_wish": Database["public"]['Enums']["note_response_wish"],"sections": NonNullable<Json>,"space_id": string,"support_wish": Database["public"]['Enums']["note_support_wish"] | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"name": string,"template"?: Database["public"]['Enums']["space_template"],"updated_at"?: string
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"],"sections"?: NonNullable<Json>,"space_id": string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"name"?: string,"template"?: Database["public"]['Enums']["space_template"],"updated_at"?: string
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"],"sections"?: NonNullable<Json>,"space_id"?: string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_drafts_space_id_author_id_fkey"
+      columns: ["space_id","author_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    },{
+      foreignKeyName: "space_note_drafts_space_id_fkey"
+      columns: ["space_id"]
+isOneToOne: false
+      referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_drafts_space_id_recipient_id_fkey"
+      columns: ["space_id","recipient_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
+                },"space_note_nudges": {
+                  Row: {
+                    "created_at": string,"id": string,"note_id": string,"remind_at": string,"sent_at": string | null,"space_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"note_id": string,"remind_at": string,"sent_at"?: string | null,"space_id": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"note_id"?: string,"remind_at"?: string,"sent_at"?: string | null,"space_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_nudges_space_id_note_id_fkey"
+      columns: ["space_id","note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "space_note_nudges_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"space_note_reads": {
+                  Row: {
+                    "note_id": string,"read_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "note_id": string,"read_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "note_id"?: string,"read_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_reads_note_id_fkey"
+      columns: ["note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_reads_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"space_note_replies": {
+                  Row: {
+                    "author_id": string | null,"body": string,"created_at": string,"id": string,"note_id": string,"space_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"id"?: string,"note_id": string,"space_id": string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: string,"note_id"?: string,"space_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_replies_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_replies_space_id_note_id_fkey"
+      columns: ["space_id","note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"space_note_responses": {
+                  Row: {
+                    "author_id": string | null,"created_at": string,"id": string,"kind": Database["public"]['Enums']["note_response_kind"],"note_id": string,"space_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"created_at"?: string,"id"?: string,"kind": Database["public"]['Enums']["note_response_kind"],"note_id": string,"space_id": string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"created_at"?: string,"id"?: string,"kind"?: Database["public"]['Enums']["note_response_kind"],"note_id"?: string,"space_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_note_responses_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_note_responses_space_id_note_id_fkey"
+      columns: ["space_id","note_id"]
+isOneToOne: false
+      referencedRelation: "space_notes"
+      referencedColumns: ["space_id","id"]
+    }
+                  ]
+                },"space_notes": {
+                  Row: {
+                    "author_id": string | null,"body": string,"created_at": string,"expires_at": string | null,"id": string,"kind": Database["public"]['Enums']["note_kind"],"pinned": boolean,"recipient_id": string | null,"response_wish": Database["public"]['Enums']["note_response_wish"] | null,"sections": Json | null,"space_id": string,"support_wish": Database["public"]['Enums']["note_support_wish"] | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["note_kind"],"pinned"?: boolean,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"] | null,"sections"?: Json | null,"space_id": string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"expires_at"?: string | null,"id"?: string,"kind"?: Database["public"]['Enums']["note_kind"],"pinned"?: boolean,"recipient_id"?: string | null,"response_wish"?: Database["public"]['Enums']["note_response_wish"] | null,"sections"?: Json | null,"space_id"?: string,"support_wish"?: Database["public"]['Enums']["note_support_wish"] | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "space_notes_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_notes_space_id_fkey"
+      columns: ["space_id"]
+isOneToOne: false
+      referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "space_notes_space_id_recipient_id_fkey"
+      columns: ["space_id","recipient_id"]
+isOneToOne: false
+      referencedRelation: "space_members"
+      referencedColumns: ["space_id","user_id"]
+    }
+                  ]
+                },"spaces": {
+                  Row: {
+                    "accent_color": string | null,"avatar_path": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_watch_intent": Database["public"]['Enums']["watch_intent"],"description": string,"home_cards": (string)[],"icon": string | null,"id": string,"name": string,"tagline": string,"template": Database["public"]['Enums']["space_template"],"theme": Database["public"]['Enums']["space_theme"] | null,"updated_at": string,"week_starts_on": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name": string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
+                  }
+                  Update: {
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name"?: string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
                   }
                   Relationships: [
                     {
@@ -650,8 +958,14 @@ isOneToOne: false
             "add_catalog_title":
 { Args: { "intent": Database["public"]['Enums']["watch_intent"],"kind": Database["public"]['Enums']["watch_catalog_type"],"media": Database["public"]['Enums']["watch_media_type"],"poster_path": string,"release_year": number,"synopsis": string,"target_space": string,"title": string,"tmdb_id": number }; Returns: string
                            },
+"add_default_reminders":
+{ Args: { "event": string,"member": string }; Returns: undefined
+                           },
 "after_member_left":
 { Args: { "member": string,"target_space": string }; Returns: undefined
+                           },
+"by_me":
+{ Args: { "": Database["public"]['Tables']["activity_events"]['Row'] }; Returns: { error: true } & "the function public.by_me with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
                            },
 "can_read_attachment_object":
 { Args: { "path": string }; Returns: boolean
@@ -685,6 +999,12 @@ isOneToOne: false
 "delete_space":
 { Args: { "confirm_name": string,"target_space": string }; Returns: undefined
                            },
+"deliver_event_reminders":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"deliver_note_nudges":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "edit_comment":
 { Args: { "new_body": string,"new_spoiler": boolean,"target": string }; Returns: {
               "author_id": string | null,
@@ -710,6 +1030,9 @@ isOneToOne: false
 "export_space":
 { Args: { "target_space": string }; Returns: Json
                            },
+"export_table_filter":
+{ Args: { "tbl": string }; Returns: string
+                           },
 "export_table_names":
 { Args: Record<PropertyKey, never>; Returns: (string)[]
                            },
@@ -722,10 +1045,19 @@ isOneToOne: false
 "hash_invite_token":
 { Args: { "token": string }; Returns: string
                            },
+"idea_participants":
+{ Args: { "target_idea": string }; Returns: string[]
+                           },
+"invite_idea_collaborator":
+{ Args: { "idea": string,"member": string }; Returns: undefined
+                           },
 "invite_preview":
 { Args: { "token": string }; Returns: {
               "inviter_name": string,"space_name": string,"status": string
             }[]
+                           },
+"is_iana_time_zone":
+{ Args: { "zone": string }; Returns: boolean
                            },
 "is_member_of":
 { Args: { "target_space": string,"target_user": string }; Returns: boolean
@@ -736,11 +1068,22 @@ isOneToOne: false
 "is_space_owner":
 { Args: { "target_space": string }; Returns: boolean
                            },
+"is_valid_home_cards":
+{ Args: { "cards": (string)[] }; Returns: boolean
+                           },
 "is_valid_idea_brief":
 { Args: { "brief": Json }; Returns: boolean
                            },
+"is_valid_note_sections":
+{ Args: { "allow_empty": boolean,"sections": Json }; Returns: boolean
+                           },
 "leave_space":
 { Args: { "target_space": string }; Returns: undefined
+                           },
+"list_calendar":
+{ Args: { "from_date": string,"target_space": string,"to_date": string,"tz": string }; Returns: {
+              "all_day": boolean,"end_date": string,"ends_at": string,"id": string,"idea_id": string,"kind": string,"my_rsvp": Database["public"]['Enums']["event_rsvp"],"start_date": string,"starts_at": string,"status": string,"title": string
+            }[]
                            },
 "list_watch_items":
 { Args: { "after_id"?: string,"after_key"?: string,"intent"?: Database["public"]['Enums']["watch_intent"],"media"?: Database["public"]['Enums']["watch_media_type"],"my_status"?: string,"page_size"?: number,"search"?: string,"sort_by"?: string,"target_space": string }; Returns: {
@@ -750,8 +1093,17 @@ isOneToOne: false
 "log_watch_session":
 { Args: { "item": string,"member_ids": (string)[],"note"?: string,"watched_on": string }; Returns: string
                            },
+"mark_note_read":
+{ Args: { "note": string }; Returns: undefined
+                           },
+"next_remind_at":
+{ Args: { "after": string,"event": string,"minutes": number }; Returns: string
+                           },
 "notify":
 { Args: { "dedup": string,"kind": string,"recipient": string,"subject": string,"subject_kind": string,"target_space": string }; Returns: undefined
+                           },
+"ours":
+{ Args: { "": Database["public"]['Tables']["ideas"]['Row'] }; Returns: { error: true } & "the function public.ours with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
                            },
 "post_comment":
 { Args: { "body": string,"mention_ids": (string)[],"parent_id": string,"parent_kind": string,"spoiler": boolean,"target_space": string }; Returns: {
@@ -772,39 +1124,170 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"post_note":
+{ Args: { "body": string,"expires_at": string,"pinned": boolean,"recipient": string,"target_space": string }; Returns: {
+              "author_id": string | null,
+"body": string,
+"created_at": string,
+"expires_at": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["note_kind"],
+"pinned": boolean,
+"recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
+"space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_notes"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "recommend":
 { Args: { "item": string,"note": string,"recipient_ids": (string)[] }; Returns: (string)[]
                            },
 "record_activity":
 { Args: { "kind": string,"subject": string,"subject_kind": string,"target_space": string }; Returns: undefined
                            },
+"record_private_activity":
+{ Args: { "kind": string,"subject": string,"subject_kind": string,"target": string,"target_space": string }; Returns: undefined
+                           },
 "redeem_invite":
 { Args: { "token": string }; Returns: string
+                           },
+"remove_idea_collaborator":
+{ Args: { "idea": string,"member": string }; Returns: undefined
                            },
 "remove_member":
 { Args: { "member": string,"target_space": string }; Returns: undefined
                            },
+"reply_to_note":
+{ Args: { "body": string,"note": string }; Returns: {
+              "author_id": string | null,
+"body": string,
+"created_at": string,
+"id": string,
+"note_id": string,
+"space_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_note_replies"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"require_recent_sign_in":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"respond_idea_invite":
+{ Args: { "accept": boolean,"idea": string }; Returns: undefined
+                           },
 "respond_recommendation":
 { Args: { "response": string,"target": string }; Returns: undefined
                            },
+"respond_to_note":
+{ Args: { "kind": Database["public"]['Enums']["note_response_kind"],"note": string,"remind_in_days": number }; Returns: {
+              "author_id": string | null,
+"created_at": string,
+"id": string,
+"kind": Database["public"]['Enums']["note_response_kind"],
+"note_id": string,
+"space_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_note_responses"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "revoke_invite":
 { Args: { "invite": string }; Returns: undefined
+                           },
+"rsvp_event":
+{ Args: { "event": string,"response": Database["public"]['Enums']["event_rsvp"] }; Returns: undefined
                            },
 "save_watch_progress":
 { Args: { "item": string,"new_completed_on": string,"new_episode": number,"new_rating": number,"new_season": number,"new_status": Database["public"]['Enums']["watch_status"] }; Returns: undefined
                            },
+"send_note_draft":
+{ Args: { "draft": string }; Returns: {
+              "author_id": string | null,
+"body": string,
+"created_at": string,
+"expires_at": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["note_kind"],
+"pinned": boolean,
+"recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
+"space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_notes"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"set_event_attendees":
+{ Args: { "event": string,"members": (string)[] }; Returns: undefined
+                           },
+"set_my_event_reminders":
+{ Args: { "event": string,"minutes": (number)[] }; Returns: undefined
+                           },
+"set_space_media":
+{ Args: { "object_path": string,"slot": string,"target_space": string }; Returns: string
+                           },
 "shares_space_with":
 { Args: { "other_user": string }; Returns: boolean
+                           },
+"space_media_cleanup_candidates":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "object_path": string
+            }[]
+                           },
+"space_media_quota_ok":
+{ Args: { "target_space": string }; Returns: boolean
+                           },
+"space_media_space":
+{ Args: { "path": string }; Returns: string
                            },
 "transfer_ownership":
 { Args: { "new_owner": string,"target_space": string }; Returns: undefined
                            },
 "update_idea_brief":
 { Args: { "brief": Json,"expected_updated_at": string,"idea": string }; Returns: string
-                           }
+                           },
+"visible_note":
+{ Args: { "note": string }; Returns: {
+              "author_id": string | null,
+"body": string,
+"created_at": string,
+"expires_at": string | null,
+"id": string,
+"kind": Database["public"]['Enums']["note_kind"],
+"pinned": boolean,
+"recipient_id": string | null,
+"response_wish": Database["public"]['Enums']["note_response_wish"] | null,
+"sections": Json | null,
+"space_id": string,
+"support_wish": Database["public"]['Enums']["note_support_wish"] | null,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "space_notes"
+        isOneToOne: true
+        isSetofReturn: false
+      } }
           }
           Enums: {
-            "attachment_status": "pending"|"ready"|"rejected","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_status": "not_started"|"watching"|"completed"|"dropped"
+            "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","note_kind": "note"|"hard_talk","note_response_kind": "here"|"time"|"talk"|"thanks","note_response_wish": "talk"|"write"|"read"|"any","note_support_wish": "listen"|"solve","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_status": "not_started"|"watching"|"completed"|"dropped"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -920,7 +1403,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "attachment_status": ["pending", "ready", "rejected"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_status": ["not_started", "watching", "completed", "dropped"]
+            "attachment_status": ["pending", "ready", "rejected"],"event_rsvp": ["pending", "going", "maybe", "declined"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"note_kind": ["note", "hard_talk"],"note_response_kind": ["here", "time", "talk", "thanks"],"note_response_wish": ["talk", "write", "read", "any"],"note_support_wish": ["listen", "solve"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"space_theme": ["blank", "couple", "friends", "family", "ocean", "meadow", "dusk", "berry"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_status": ["not_started", "watching", "completed", "dropped"]
           }
         }
 } as const

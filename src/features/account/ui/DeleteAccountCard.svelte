@@ -2,7 +2,7 @@
   import { TriangleAlert } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import { CONFIRM_WORD } from "../domain/account"
   import { useAccount } from "./context"
 
@@ -50,7 +50,7 @@
         bind:value={confirmation}
         error={form.fieldError("confirmation")}
       />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button
         type="submit"
         variant="destructive"

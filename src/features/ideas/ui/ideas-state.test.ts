@@ -1,12 +1,18 @@
 import { describe, expect, it } from "vitest"
 import { appError, err } from "@/shared/domain"
-import { IdeasService } from "../application/ideas-service"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
 import { IdeasState } from "./ideas-state.svelte"
 
 const setup = () => {
-  const repo = new InMemoryIdeas()
-  return { repo, board: new IdeasState(new IdeasService(repo), () => "s") }
+  const { repo, service } = inMemoryIdeasService()
+  return {
+    repo,
+    board: new IdeasState(
+      service,
+      () => "s",
+      () => "ana",
+    ),
+  }
 }
 
 describe("IdeasState", () => {
@@ -30,6 +36,20 @@ describe("IdeasState", () => {
     await board.list.loadMore()
     expect(board.list.items).toHaveLength(51)
     expect(board.list.hasMore).toBe(false)
+  })
+
+  it("asks the server for the viewer's ideas when the whose filter is set", async () => {
+    const { repo, board } = setup()
+    repo.author = "ben"
+    await board.capture({ title: "Ben's" })
+    repo.author = "ana"
+    await board.capture({ title: "Ana's" })
+    board.filter = { whose: "mine" }
+    await board.load()
+    expect(board.list.items.map((i) => i.title)).toEqual(["Ana's"])
+    board.filter = { whose: "ours" }
+    await board.load()
+    expect(board.visible.map((i) => i.title)).toEqual(["Ana's"])
   })
 
   it("keeps a refused move apart from load errors, and clears it on reload", async () => {

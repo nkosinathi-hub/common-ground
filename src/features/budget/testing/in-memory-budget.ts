@@ -9,6 +9,8 @@ import type { BudgetEntry, EntryValues } from "../domain"
 export class InMemoryBudget implements BudgetRepository {
   readonly rows = new Map<string, BudgetEntry>()
   readonly currency = new Map<string, string>()
+  /** Who the next lines are written by. */
+  author: string | null = null
   private tick = 0
   private stamp() {
     this.tick += 1
@@ -25,6 +27,7 @@ export class InMemoryBudget implements BudgetRepository {
       ...values,
       id: `entry-${this.tick}`,
       ideaId,
+      createdBy: this.author,
       createdAt: stamp,
       updatedAt: stamp,
     }

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
+import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
 import { TasksService } from "./tasks-service"
 
 const place = { spaceId: "s", ideaId: "i" }
 
 const setup = () => {
-  const members = new FakeMembers()
+  const members = anaAndBen()
   return new TasksService(new InMemoryTasks(members), members)
 }
 

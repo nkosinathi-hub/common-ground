@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Plus } from "@lucide/svelte"
-  import type { AppError } from "@/shared/domain"
-  import { IDEA_TEMPLATE_OPTIONS, TITLE_MAX, type IdeaTemplate } from "../domain"
+  import { type AppError, TITLE_MAX } from "@/shared/domain"
+  import { IDEA_TEMPLATE_OPTIONS, type IdeaTemplate } from "../domain"
 
   interface Props {
     onCapture: (title: string, template: IdeaTemplate) => Promise<AppError | null>
@@ -48,4 +49,4 @@
   </select>
   <Button type="submit" disabled={busy || !title.trim()}><Plus />Capture</Button>
 </form>
-{#if error}<p id="idea-capture-error" class="text-sm text-destructive" role="alert">{error}</p>{/if}
+<FormError id="idea-capture-error" message={error} />

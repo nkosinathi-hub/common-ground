@@ -11,11 +11,13 @@ import { Store } from "./in-memory-store"
 
 export class InMemoryChecklist implements ChecklistRepository {
   readonly store = new Store<ChecklistItem>()
+  author: string | null = null
   async list(taskId: string): Promise<Result<ChecklistItem[]>> {
     return ok(this.store.where((i) => i.taskId === taskId).sort((a, b) => a.position - b.position))
   }
   async add({ taskId, label, position }: NewChecklistItem) {
-    return this.store.put({ id: this.store.nextId("item"), taskId, label, position, done: false })
+    const id = this.store.nextId("item")
+    return this.store.put({ id, taskId, label, position, done: false, createdBy: this.author })
   }
   async update(id: string, patch: { label?: string; done?: boolean }) {
     return this.store.patch(id, patch)
@@ -28,6 +30,7 @@ export class InMemoryChecklist implements ChecklistRepository {
 /** Behaves like the adapter: an edit from a stale updatedAt fails with kind "conflict". */
 export class InMemoryMilestones implements MilestonesRepository {
   readonly store = new Store<Milestone>()
+  author: string | null = null
   private tick = 0
   private stamp() {
     this.tick += 1
@@ -38,7 +41,14 @@ export class InMemoryMilestones implements MilestonesRepository {
   }
   async create(milestone: NewMilestone) {
     const id = this.store.nextId("ms")
-    return this.store.put({ ...milestone, id, completedAt: null, updatedAt: this.stamp() })
+    const updatedAt = this.stamp()
+    return this.store.put({
+      ...milestone,
+      id,
+      completedAt: null,
+      createdBy: this.author,
+      updatedAt,
+    })
   }
   async update(id: string, expectedUpdatedAt: string, patch: MilestonePatch) {
     const row = this.store.rows.get(id)

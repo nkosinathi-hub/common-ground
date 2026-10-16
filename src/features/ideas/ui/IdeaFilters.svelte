@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
-  import { IDEA_STAGES, type IdeaFilter } from "../domain"
+  import { IDEA_STAGES, type IdeaFilter, type Whose } from "../domain"
   import { STAGE_LABELS } from "./labels"
 
   interface Props {
@@ -42,5 +42,16 @@
   >
     <option value="">All stages</option>
     {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option>{/each}
+  </select>
+  <select
+    class={SELECT_CLASS}
+    aria-label="Whose"
+    value={filter.whose ?? ""}
+    onchange={(event) =>
+      (filter = { ...filter, whose: (event.currentTarget.value || undefined) as Whose })}
+  >
+    <option value="">All</option>
+    <option value="mine">Mine</option>
+    <option value="ours">Ours</option>
   </select>
 </div>

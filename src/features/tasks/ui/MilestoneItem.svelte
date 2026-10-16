@@ -1,18 +1,20 @@
 <script lang="ts">
+  import { formatDateOnly } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Pencil } from "@lucide/svelte"
   import { DeleteButton } from "@/shared/ui"
-  import { formatDue, type Milestone, type MilestoneInput } from "../domain"
+  import { type Milestone, type MilestoneInput } from "../domain"
   import MilestoneEdit from "./MilestoneEdit.svelte"
 
   interface Props {
     milestone: Milestone
+    deletable: boolean
     onToggle: (done: boolean) => void
     onEdit: (input: MilestoneInput) => Promise<boolean>
     onRemove: () => void
   }
 
-  let { milestone, onToggle, onEdit, onRemove }: Props = $props()
+  let { milestone, deletable, onToggle, onEdit, onRemove }: Props = $props()
   let editing = $state(false)
 </script>
 
@@ -32,7 +34,7 @@
     </label>
     <span class="flex items-center gap-2 text-xs">
       {#if milestone.targetDate}<span class="text-muted-foreground"
-          >Target {formatDue(milestone.targetDate)}</span
+          >Target {formatDateOnly(milestone.targetDate)}</span
         >{/if}
       <Button
         size="icon"
@@ -40,12 +42,14 @@
         aria-label="Edit milestone {milestone.title}"
         onclick={() => (editing = true)}><Pencil /></Button
       >
-      <DeleteButton
-        label="Delete milestone {milestone.title}"
-        what="this milestone"
-        description="Tasks linked to it stay, without a milestone."
-        onConfirm={onRemove}
-      />
+      {#if deletable}
+        <DeleteButton
+          label="Delete milestone {milestone.title}"
+          what="this milestone"
+          description="Tasks linked to it stay, without a milestone."
+          onConfirm={onRemove}
+        />
+      {/if}
     </span>
   {/if}
 </li>

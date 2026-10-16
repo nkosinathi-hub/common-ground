@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { ConfirmDialog, FormField, FormState, toast } from "@/shared/ui"
+  import { ConfirmDialog, FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
   import type { Space } from "../domain/space"
   import { useSpaces } from "./context"
 
@@ -23,7 +23,7 @@
       return
     }
     await store.refresh()
-    location.hash = "#/"
+    navigate({ name: "entry" })
   }
 
   async function remove(event: SubmitEvent) {
@@ -32,7 +32,7 @@
     if (!deleted.ok) return
     toast.success(`${space.name} was deleted`)
     await store.refresh()
-    location.hash = "#/"
+    navigate({ name: "entry" })
   }
 </script>
 
@@ -60,9 +60,7 @@
           autocomplete="current-password"
           bind:value={password}
         />
-        {#if form.error}<p role="alert" class="text-sm text-destructive">
-            {form.error.message}
-          </p>{/if}
+        <FormError message={form.error?.message} />
         <Button
           type="submit"
           variant="destructive"

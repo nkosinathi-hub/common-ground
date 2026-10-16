@@ -20,9 +20,10 @@
   }
 
   let { spaceId, itemId, backHref, comments, recommend }: Props = $props()
-  const { service, members } = useWatch()
+  const { service, members, authors } = useWatch()
   const view = new Resource(() => service.get(spaceId, itemId))
   const people = new Resource(() => members.members(spaceId))
+  const names = new Resource(() => authors.authors(spaceId))
   let progressVersion = $state(0)
 
   $effect(() => {
@@ -31,6 +32,7 @@
     untrack(() => {
       void view.load()
       void people.load()
+      void names.load()
     })
   })
 </script>
@@ -47,13 +49,14 @@
       <div class="grid gap-6 lg:grid-cols-2">
         <ProgressPanel
           item={current.item}
-          members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
           version={progressVersion}
           onSaved={() => view.load()}
         />
         <SessionsPanel
           item={current.item}
           members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
           onLogged={() => {
             progressVersion++
             void view.load()

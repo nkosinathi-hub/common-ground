@@ -13,8 +13,8 @@ const cards = () => within(screen.getByRole("list")).getAllByRole("link")
 function setup(count = 0) {
   const fakes = watchFakes()
   const provide = () => {
-    provideWatch({ service: fakes.service, members: fakes.members })
-    provideCatalog(new CatalogService(emptyCatalogGateway))
+    provideWatch({ service: fakes.service, members: fakes.members, authors: fakes.members })
+    provideCatalog({ service: new CatalogService(emptyCatalogGateway) })
   }
   fakes.gateway.items = Array.from({ length: count }, (_, n) =>
     item(n + 1, `Title ${n + 1}`, { intent: n % 2 ? "watch_together" : "want_to_watch" }),

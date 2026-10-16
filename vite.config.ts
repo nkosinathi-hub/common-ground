@@ -34,6 +34,8 @@ export default defineConfig(({ mode }) => ({
       include: [
         "src/**/domain/**",
         "src/**/application/**",
+        "src/**/infrastructure/**",
+        "src/app/routing/**",
         "src/shared/domain/**",
         "src/**/*.svelte.ts",
         "supabase/functions/_shared/**",

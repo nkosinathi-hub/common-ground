@@ -4,7 +4,7 @@ import { recordingClient, type Reply } from "@/shared/infrastructure/testing/rec
 import { HYPOTHESIS_COLUMNS, LINK_COLUMNS, NOTE_COLUMNS } from "./research-rows"
 import { SupabaseResearch } from "./supabase-research"
 
-const base = { id: "r1", idea_id: "i1", created_at: "2026-10-15T10:00:00Z" }
+const base = { id: "r1", idea_id: "i1", created_by: "u1", created_at: "2026-10-15T10:00:00Z" }
 const note = { ...base, body: "Call", created_by: null }
 const link = { ...base, url: "https://x.dev", title: "X", description: "" }
 const hypothesis = { ...base, statement: "Works", status: "untested" }
@@ -23,13 +23,15 @@ describe("SupabaseResearch", () => {
     ] as const) {
       const { calls, research } = setup({ data: [data], error: null })
       const page = await research[name].list("i1", null)
-      expect(page).toMatchObject({ ok: true, value: { items: [{ id: "r1", ideaId: "i1" }] } })
+      const author = data.created_by
+      const items = [{ id: "r1", ideaId: "i1", createdBy: author }]
+      expect(page).toMatchObject({ ok: true, value: { items } })
       expect(calls.slice(0, 3)).toEqual([
         ["from", table],
         ["select", columns],
         ["eq", "idea_id", "i1"],
       ])
-      expect(calls.at(-1)).toEqual(["limit", 50])
+      expect(calls.at(-1)).toEqual(["limit", 51])
     }
   })
 

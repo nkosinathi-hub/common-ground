@@ -3,6 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { Poster } from "@/features/catalog"
+  import { FormError } from "@/shared/ui"
   import type { PickState } from "./pick-state.svelte"
 
   interface Props {
@@ -26,7 +27,7 @@
           Shuffling your queue
         </p>
       {:else if picker.error}
-        <p role="alert" class="text-sm text-destructive">{picker.error.message}</p>
+        <FormError message={picker.error.message} />
         <Button variant="outline" onclick={() => picker.again()}>Try again</Button>
       {:else if picker.pick}
         <Poster

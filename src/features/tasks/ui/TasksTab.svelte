@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { TITLE_MAX } from "@/shared/domain"
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
-  import { ErrorState, LoadMore, Loading } from "@/shared/ui"
-  import { groupByStatus, TITLE_MAX } from "../domain"
+  import { ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
+  import { groupByStatus } from "../domain"
   import { useTasks } from "./context"
   import { STATUS_LABELS } from "./labels"
   import TaskCard from "./TaskCard.svelte"
@@ -12,14 +14,17 @@
   interface Props {
     spaceId: string
     ideaId: string
+    /** Whether the viewer may delete a row by this author (the author or the space owner). */
+    canDelete: (createdBy: string | null) => boolean
   }
 
-  let { spaceId, ideaId }: Props = $props()
+  let { spaceId, ideaId, canDelete }: Props = $props()
   const board = new TasksState(useTasks(), () => ({ spaceId, ideaId }))
   const list = board.list
-  // Reloads when the idea changes: the place callback reads spaceId and ideaId.
+  // Loads on mount and again when the idea changes.
   $effect(() => {
-    void board.load()
+    void [spaceId, ideaId]
+    untrack(() => void board.load())
   })
 
   let title = $state("")
@@ -65,7 +70,7 @@
       >
     </div>
   </div>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
 
   {#if list.error && list.items.length === 0}
     <ErrorState error={list.error} onRetry={() => board.load()} />
@@ -81,13 +86,13 @@
           <h3 class="text-sm font-semibold">
             {STATUS_LABELS[column.status]} ({column.tasks.length})
           </h3>
-          {#each column.tasks as task (task.id)}<TaskCard {task} {board} />{/each}
+          {#each column.tasks as task (task.id)}<TaskCard {task} {board} {canDelete} />{/each}
         </section>
       {/each}
     </div>
   {:else}
     <div class="grid gap-2 md:grid-cols-2">
-      {#each list.items as task (task.id)}<TaskCard {task} {board} />
+      {#each list.items as task (task.id)}<TaskCard {task} {board} {canDelete} />
       {:else}<p class="text-sm text-muted-foreground">No tasks yet.</p>{/each}
     </div>
   {/if}

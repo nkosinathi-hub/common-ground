@@ -16,8 +16,8 @@ import type {
 import { validateDetails, validateProgress, validateSession } from "../domain/validation"
 import type { WatchGateway } from "./ports"
 
-/** Upper bound on pages read to build the pick-for-us queue (5000 titles). */
-export const QUEUE_PAGE_LIMIT = 50
+/** Upper bound on pages read to build the pick-for-us queue: 50 pages of the page size. */
+const QUEUE_PAGE_LIMIT = 50
 
 export class WatchService {
   constructor(

@@ -5,10 +5,10 @@ import type { Db } from "@/shared/infrastructure/supabase"
 import type { BudgetRepository } from "../application/ports"
 import type { BudgetEntry, EntryValues } from "../domain"
 
-type EntryRow = Omit<Tables<"budget_entries">, "space_id" | "created_by">
+type EntryRow = Omit<Tables<"budget_entries">, "space_id">
 
 export const ENTRY_COLUMNS =
-  "id, idea_id, category, label, estimated_minor, actual_minor, created_at, updated_at"
+  "id, idea_id, category, label, estimated_minor, actual_minor, created_by, created_at, updated_at"
 
 const toEntry = (row: EntryRow): BudgetEntry => ({
   id: row.id,
@@ -17,6 +17,7 @@ const toEntry = (row: EntryRow): BudgetEntry => ({
   label: row.label,
   estimatedMinor: row.estimated_minor,
   actualMinor: row.actual_minor,
+  createdBy: row.created_by,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
 })

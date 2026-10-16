@@ -4,11 +4,11 @@ import { ChecklistService } from "../application/checklist-service"
 import { MilestonesService } from "../application/milestones-service"
 import { TasksService } from "../application/tasks-service"
 import { InMemoryChecklist, InMemoryMilestones } from "../testing/in-memory-plans"
-import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
+import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
 import { TasksState } from "./tasks-state.svelte"
 
 const setup = () => {
-  const members = new FakeMembers()
+  const members = anaAndBen()
   const repository = new InMemoryTasks(members)
   const services = {
     tasks: new TasksService(repository, members),

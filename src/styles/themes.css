@@ -1,31 +1,3 @@
-/* Per-space accents from the space templates. Contrast checked against --background. */
-[data-space-theme="couple"] {
-  --primary: #8a4f5d;
-  --ring: #8a4f5d;
-  --accent: #f3e4e6;
-  --sidebar: #f7f0ef;
-  --sidebar-accent: #f3e4e6;
-  --banner: #f5e6e7;
-  --highlight: #f8e8df;
-  --clay: #8e5a4c;
-}
-[data-space-theme="friends"] {
-  --primary: #62618c;
-  --ring: #62618c;
-  --accent: #eceaf4;
-  --sidebar: #f3f2f6;
-  --sidebar-accent: #eceaf4;
-  --banner: #ebe9f3;
-  --highlight: #f2ebf2;
-  --clay: #6f5f8c;
-}
-[data-space-theme="family"] {
-  --primary: #806330;
-  --ring: #806330;
-  --accent: #f5ecd9;
-  --sidebar: #f7f2e7;
-  --sidebar-accent: #f5ecd9;
-  --banner: #f4ead6;
-  --highlight: #f7e7d3;
-  --clay: #8a5d32;
-}
+/* Per-space palettes: a preset (or the template) sets [data-space-theme] on the root. */
+@import "./themes-light.css";
+@import "./themes-dark.css";

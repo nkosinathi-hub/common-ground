@@ -17,6 +17,3 @@ export function useComments(): CommentsContext {
   if (!value) throw new Error("Comments are not provided: call provideComments")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const commentsContext = (value: CommentsContext) => new Map([[KEY, value]])

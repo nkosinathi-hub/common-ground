@@ -3,13 +3,13 @@
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { todayDateOnly } from "@/shared/domain"
-  import { FormState, toast } from "@/shared/ui"
+  import { FormError, FormState, toast } from "@/shared/ui"
   import { STATUSES } from "../domain/labels"
   import { RATING_MAX } from "../domain/validation"
   import type { Progress } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
-  import { ProgressFormState } from "./progress-form.svelte"
+  import { ProgressFormState } from "./progress-form-state.svelte"
 
   const RATINGS = Array.from({ length: RATING_MAX }, (_, index) => String(index + 1)).map(
     (value) => ({ value, label: `${value} of ${RATING_MAX}` }),
@@ -42,9 +42,7 @@
 </script>
 
 {#snippet problem(field: string)}
-  {#if submission.fieldError(field)}
-    <p class="text-sm text-destructive">{submission.fieldError(field)}</p>
-  {/if}
+  <FormError message={submission.fieldError(field)} alert={false} />
 {/snippet}
 
 <form class="grid gap-3" onsubmit={submit} novalidate aria-label="My progress">
@@ -90,9 +88,7 @@
     </div>
   {/if}
   {@render problem("rating")}
-  {#if submission.formError}<p role="alert" class="text-sm text-destructive">
-      {submission.formError}
-    </p>{/if}
+  <FormError message={submission.formError} />
   <Button type="submit" class="justify-self-start" disabled={submission.pending}
     >Save my progress</Button
   >

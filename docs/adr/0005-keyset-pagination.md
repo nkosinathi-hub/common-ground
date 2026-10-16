@@ -12,7 +12,9 @@ are added while someone pages, and gets slower with depth.
 
 - Lists page by the keyset `(created_at desc, id desc)` with `PAGE_SIZE = 50`
   (`src/shared/domain/page.ts`). The cursor is the last row's `(createdAt, id)`.
-- A full page means there may be more; an empty or short page ends the list.
+- Adapters ask for one row past the page (`newestFirst` limits to `size + 1`) and `pageOf` drops
+  it: only that probe row means a next page, so a full last page ends the list without an empty
+  request. (Amended in v0.2; in-memory fakes still treat a full page as "maybe more".)
 - Each paged table has a matching index, e.g. `ideas (space_id, created_at desc, id desc)`.
 
 ## Consequences

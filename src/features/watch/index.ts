@@ -1,6 +1,5 @@
-export type * from "./domain/types"
 export { WatchService } from "./application/watch-service"
-export { provideWatch, useWatch } from "./ui/context"
+export { provideWatch } from "./ui/context"
 export { default as WatchPage } from "./ui/WatchPage.svelte"
 export { default as WatchItemDetail } from "./ui/WatchItemDetail.svelte"
 export { default as ContinueWatching } from "./ui/ContinueWatching.svelte"

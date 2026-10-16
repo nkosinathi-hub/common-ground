@@ -1,6 +1,6 @@
-export * from "./domain"
 export { IdeasService } from "./application/ideas-service"
 export { ResearchService } from "./application/research-service"
 export { provideIdeas, provideResearch, useIdeas } from "./ui/context"
 export { default as IdeasPage } from "./ui/IdeasPage.svelte"
 export { default as IdeaDetail } from "./ui/IdeaDetail.svelte"
+export { default as IdeasInProgress } from "./ui/IdeasInProgress.svelte"

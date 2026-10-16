@@ -65,8 +65,8 @@ select tests.reset_role();
 select is((select count(*)::int from seen where subject = tests.user_id('pol_dan')
     and space_id = (select space_id from ctx where name = 'home')), 0,
   'an owner is not told about a removal they made themselves');
-select is((select count(*)::int from seen where recipient = tests.user_id('pol_dan')), 0,
-  'the removed member is not notified');
+select is((select count(*)::int from seen where recipient = tests.user_id('pol_dan')
+    and type = 'member_left'), 0, 'the removed member gets no member_left (see member_removed)');
 
 -- deleting the space removes every member without a single member_left notification
 -- (the account deletions above also told the owner about 'gone'; start the count afresh)

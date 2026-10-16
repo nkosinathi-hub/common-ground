@@ -1,11 +1,12 @@
 // Attachments Edge Function: upload intent, finalize (magic-byte check), signed downloads and
-// the scheduled cleanup of abandoned uploads. Deployed with verify_jwt = false (config.toml):
+// the scheduled cleanup of abandoned uploads and orphaned space pictures. Deployed with verify_jwt = false (config.toml):
 // the handler verifies the caller JWT for user actions and the cleanup secret for cleanup.
 // Thin entry: wiring only. Behaviour lives in ../_shared/attachments and is unit-tested by Vitest.
 // Never log tokens, signed URLs, request bodies or file contents here.
 import { adminClient, createGate } from "../_deno/supabase-gate.ts"
 import { createAttachmentsHandler } from "../_shared/attachments/handler.ts"
 import { parseOrigins } from "../_shared/http/cors.ts"
+import { createSpaceMedia } from "./space-media.ts"
 import { createObjectStorage } from "./storage.ts"
 import { createStore } from "./store.ts"
 
@@ -20,6 +21,7 @@ const handler = createAttachmentsHandler({
   gate: createGate(supabaseUrl, env("SUPABASE_ANON_KEY"), admin),
   store: createStore(admin),
   storage: createObjectStorage(admin),
+  media: createSpaceMedia(admin),
 })
 
 Deno.serve(handler)

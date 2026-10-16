@@ -23,6 +23,8 @@ describe("NotificationsService", () => {
         subjectId: "u",
         actorName: null,
         createdAt: "2026-10-15T09:00:00Z",
+        byMe: false,
+        targetName: null,
       },
     ]
     expect((await service.list()).ok).toBe(true)

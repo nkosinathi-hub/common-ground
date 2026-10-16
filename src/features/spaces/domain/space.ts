@@ -1,9 +1,11 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
+import type { SpaceProfile } from "./look"
 import type { SpaceTemplateId } from "./templates"
 
 export type SpaceRole = "owner" | "member"
 
-export interface Space {
+/** A space the user belongs to, with everything the owner has customised. */
+export interface Space extends SpaceProfile {
   readonly id: string
   readonly name: string
   readonly template: SpaceTemplateId
@@ -44,13 +46,13 @@ export interface InvitePreview {
   readonly status: InvitePreviewStatus
 }
 
-export const MAX_SPACE_NAME = 80
+export const SPACE_NAME_MAX = 80
 
 export function validateSpaceName(name: string): Result<string> {
   const trimmed = name.trim()
-  return trimmed.length >= 1 && trimmed.length <= MAX_SPACE_NAME
+  return trimmed.length >= 1 && trimmed.length <= SPACE_NAME_MAX
     ? ok(trimmed)
-    : err(appError("validation", `Name your space (up to ${MAX_SPACE_NAME} characters)`, "name"))
+    : err(appError("validation", `Name your space (up to ${SPACE_NAME_MAX} characters)`, "name"))
 }
 
 export function inviteStatus(record: InviteRecord, now: Date): InviteStatus {

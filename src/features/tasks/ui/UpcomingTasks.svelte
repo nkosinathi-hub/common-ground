@@ -1,9 +1,9 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { CalendarCheck } from "@lucide/svelte"
-  import { todayDateOnly } from "@/shared/domain"
+  import { formatDateOnly, todayDateOnly } from "@/shared/domain"
   import { AsyncView, EmptyState, Resource } from "@/shared/ui"
-  import { dueState, formatDue, type UpcomingTask } from "../domain"
+  import { dueState, type UpcomingTask } from "../domain"
   import { useTasks } from "./context"
 
   const LABEL = { overdue: "Overdue", today: "Due today", soon: "Due" } as const
@@ -19,14 +19,14 @@
   // Reloads when Home switches to another space.
   $effect(() => {
     void spaceId
-    void tasks.load()
+    untrack(() => void tasks.load())
   })
 
   const today = todayDateOnly()
 </script>
 
-<section aria-labelledby="upcoming-heading" class="flex flex-col gap-2">
-  <h2 id="upcoming-heading" class="text-lg font-semibold">Upcoming tasks</h2>
+<!-- The Home card ("Coming up") titles this list, so it has no heading of its own. -->
+<div class="flex flex-col gap-2">
   <AsyncView resource={tasks}>
     {#snippet children(items)}
       {#if items.length === 0}
@@ -54,7 +54,7 @@
                     : 'text-muted-foreground'}"
                 >
                   {LABEL[state]}
-                  {formatDue(task.dueDate)}
+                  {formatDateOnly(task.dueDate)}
                 </span>
               </a>
             </li>
@@ -63,4 +63,4 @@
       {/if}
     {/snippet}
   </AsyncView>
-</section>
+</div>

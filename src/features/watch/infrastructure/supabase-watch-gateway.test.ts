@@ -1,26 +1,11 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { DEFAULT_FILTERS } from "../domain/filters"
+import { WATCH_ROW } from "../testing/watch-row"
 import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { SupabaseWatchGateway } from "./supabase-watch-gateway"
 
-const row = {
-  id: "i1",
-  space_id: "s1",
-  catalog_type: "tv",
-  catalog_id: 9,
-  title: "Show",
-  media_type: "anime",
-  release_year: null,
-  synopsis: "",
-  poster_path: "/p.jpg",
-  shared_intent: "watch_together",
-  manual_availability_note: null,
-  created_by: "u1",
-  created_at: "2026-10-15T10:00:00Z",
-  my_progress: "watching",
-  sort_key: "show",
-}
+const row = WATCH_ROW
 
 const gatewayFor = (replies: Reply[], userId?: string | null) => {
   const { client: db, calls } = recordingClient(replies, userId)
@@ -44,18 +29,6 @@ describe("SupabaseWatchGateway", () => {
         items: [{ id: "i1", catalog: { type: "tv", id: 9 }, myStatus: "watching" }],
         next: { key: "show", id: "i1" },
       },
-    })
-  })
-
-  it("lets the author delete, and reads their own progress status", async () => {
-    const { gateway } = gatewayFor([
-      { data: [row], error: null },
-      { data: false, error: null },
-      { data: [{ status: "completed" }], error: null },
-    ])
-    expect(await gateway.get("s1", "i1")).toMatchObject({
-      ok: true,
-      value: { item: { id: "i1", myStatus: "completed" }, canDelete: true },
     })
   })
 

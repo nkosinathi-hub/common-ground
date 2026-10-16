@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import type { AppError } from "@/shared/domain"
-  import { AsyncView, Resource } from "@/shared/ui"
+  import { AsyncView, FormError, Resource } from "@/shared/ui"
   import { budgetTotals, type BudgetEntry, type EntryForm as Form } from "../domain"
   import BudgetSummary from "./BudgetSummary.svelte"
   import BudgetTable from "./BudgetTable.svelte"
@@ -14,10 +14,12 @@
     spaceId: string
     ideaId: string
     currency: string
+    /** Whether the viewer may delete a line by this author (the author or the space owner). */
+    canDelete: (createdBy: string | null) => boolean
     onCurrencyChanged: (currency: string) => void
   }
 
-  let { spaceId, ideaId, currency, onCurrencyChanged }: Props = $props()
+  let { spaceId, ideaId, currency, canDelete, onCurrencyChanged }: Props = $props()
   const { service } = useBudget()
   const lines = new Resource<BudgetEntry[]>(() => service.list(untrack(() => ideaId)))
   /** A refused delete or a lost edit race; form errors stay on their form. */
@@ -25,31 +27,32 @@
   // Reloads when the page shows another idea.
   $effect(() => {
     void ideaId
-    void lines.load()
+    untrack(() => void lines.load())
   })
   const entries = () => lines.value ?? []
   const totals = $derived(budgetTotals(lines.value ?? [], currency))
 
   async function add(form: Form): Promise<AppError | null> {
-    const result = await service.add({ spaceId, ideaId, currency }, form)
-    if (result.ok) lines.set([...entries(), result.value])
-    return result.ok ? null : result.error
+    const added = service.add({ spaceId, ideaId, currency }, form)
+    return lines.apply(added, (line, list = []) => [...list, line])
   }
 
   /** A stale edit shows the conflict copy and reloads the lines; other errors stay on the row. */
   async function edit(base: BudgetEntry, form: Form): Promise<AppError | null> {
-    const result = await service.update(base, form, currency)
-    if (result.ok) lines.set(entries().map((line) => (line.id === base.id ? result.value : line)))
-    if (result.ok || result.error.kind !== "conflict") return result.ok ? null : result.error
+    const failure = await lines.apply(service.update(base, form, currency), (saved, list = []) =>
+      list.map((line) => (line.id === base.id ? saved : line)),
+    )
+    if (!failure || failure.kind !== "conflict") return failure
     notice = STALE_COPY
     await lines.load()
     return null
   }
 
   async function remove(id: string) {
-    const result = await service.remove(id)
-    if (result.ok) lines.set(entries().filter((line) => line.id !== id))
-    notice = result.ok ? null : result.error.message
+    const failure = await lines.apply(service.remove(id), (_done, list = []) =>
+      list.filter((line) => line.id !== id),
+    )
+    notice = failure?.message ?? null
   }
 
   function currencyChanged(next: string) {
@@ -65,8 +68,8 @@
     {#snippet children(list)}
       <BudgetSummary {totals} />
       <EntryForm {currency} onSubmit={add} />
-      <BudgetTable entries={list} {currency} onEdit={edit} onRemove={remove} />
+      <BudgetTable entries={list} {currency} {canDelete} onEdit={edit} onRemove={remove} />
     {/snippet}
   </AsyncView>
-  {#if notice}<p class="text-sm text-destructive" role="alert">{notice}</p>{/if}
+  <FormError message={notice} />
 </section>

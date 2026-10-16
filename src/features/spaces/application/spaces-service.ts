@@ -1,32 +1,29 @@
-import { map, ok, type Reauthenticator, type Result } from "@/shared/domain"
+import { map, ok, type Result } from "@/shared/domain"
 import {
   chooseActiveSpace,
   inviteAt,
   inviteLink,
   validateSpaceName,
   type Invite,
-  type Space,
 } from "../domain/space"
 import type { SpaceTemplateId } from "../domain/templates"
-import type { ActiveSpaceStore, SpacesGateway } from "./ports"
+import { MediaUrls, SIGNED_SECONDS } from "./media-urls"
+import type { LoadedSpaces, SpacesDeps } from "./ports"
+import { SpaceProfileService } from "./space-profile-service"
 
-export interface SpacesDeps {
-  readonly gateway: SpacesGateway
-  readonly active: ActiveSpaceStore
-  readonly auth: Reauthenticator
-  /** The app root that invite links open, for example https://x.github.io/common-ground/. */
-  readonly appUrl: string
-  /** Decides whether an invite has expired. */
-  readonly clock: () => Date
-}
-
-export interface LoadedSpaces {
-  readonly spaces: Space[]
-  readonly active: Space | null
-}
-
+/** Membership, invites and the space list; `profile` and `media` handle customisation. */
 export class SpacesService {
-  constructor(private readonly deps: SpacesDeps) {}
+  readonly profile: SpaceProfileService
+  readonly media: MediaUrls
+
+  constructor(private readonly deps: SpacesDeps) {
+    const { gateway, clock } = deps
+    this.profile = new SpaceProfileService(gateway, deps.newId)
+    this.media = new MediaUrls(
+      (paths) => gateway.signMedia(paths, SIGNED_SECONDS),
+      () => +clock(),
+    )
+  }
 
   async load(): Promise<Result<LoadedSpaces>> {
     const spaces = await this.deps.gateway.listMine()
@@ -47,12 +44,8 @@ export class SpacesService {
     return created
   }
 
-  async rename(spaceId: string, name: string, template: SpaceTemplateId): Promise<Result<void>> {
-    const valid = validateSpaceName(name)
-    return valid.ok ? this.deps.gateway.rename(spaceId, valid.value, template) : valid
-  }
-
   members = (spaceId: string) => this.deps.gateway.members(spaceId)
+  knownPeople = () => this.deps.gateway.knownPeople()
   revokeInvite = (inviteId: string) => this.deps.gateway.revokeInvite(inviteId)
   removeMember = (spaceId: string, userId: string) =>
     this.deps.gateway.removeMember(spaceId, userId)

@@ -3,6 +3,7 @@
   import { Compass, LoaderCircle, RefreshCw } from "@lucide/svelte"
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
+  import { formatDateTime } from "@/shared/domain"
   import { splitAvailability } from "../domain/rules"
   import type { CatalogType } from "../domain/types"
   import Attribution from "./Attribution.svelte"
@@ -19,16 +20,9 @@
 
   let { spaceId, type, id }: Props = $props()
 
-  const listing = new AvailabilityState(useCatalog())
+  const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
-  const checked = $derived(
-    listing.details
-      ? new Date(listing.details.checkedAt).toLocaleString("en-ZA", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
-      : "",
-  )
+  const checked = $derived(listing.details ? formatDateTime(listing.details.checkedAt) : "")
 
   $effect(() => {
     // Reload when the title or space changes; the load itself must not become a dependency.

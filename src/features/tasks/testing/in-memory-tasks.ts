@@ -5,32 +5,29 @@ import {
   ok,
   PAGE_SIZE,
   type Cursor,
-  type MemberDirectory,
-  type MemberRef,
   type Page,
   type Result,
 } from "@/shared/domain"
+import { FakeMemberDirectory } from "@/shared/domain/testing/fake-members"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
-import { sortUpcoming, type Task, type UpcomingTask } from "../domain"
+import type { Task, UpcomingTask } from "../domain"
 import { Store } from "./in-memory-store"
+import { sortUpcoming } from "./sql-mirror"
 
-export class FakeMembers implements MemberDirectory {
-  constructor(
-    public list: MemberRef[] = [
-      { id: "ana", displayName: "Ana" },
-      { id: "ben", displayName: "Ben" },
-    ],
-  ) {}
-  async members(): Promise<Result<MemberRef[]>> {
-    return ok(this.list)
-  }
-}
+/** Ana and Ben, the two members the tasks tests assign to. */
+export const anaAndBen = () =>
+  new FakeMemberDirectory([
+    { id: "ana", displayName: "Ana" },
+    { id: "ben", displayName: "Ben" },
+  ])
 
 /** Mirrors the database rule: an assignee must be a current member. */
 export class InMemoryTasks implements TasksRepository {
   readonly store = new Store<Task>()
   readonly ideaTitles = new Map<string, string>()
-  constructor(private readonly members = new FakeMembers()) {}
+  /** Who the next rows are written by. */
+  author: string | null = null
+  constructor(private readonly members: FakeMemberDirectory = anaAndBen()) {}
 
   async list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>> {
     const all = this.store.where((t) => t.ideaId === ideaId).reverse()
@@ -50,6 +47,7 @@ export class InMemoryTasks implements TasksRepository {
       priority: "medium",
       assigneeId: null,
       milestoneId: null,
+      createdBy: this.author,
       createdAt: at,
       updatedAt: at,
     })

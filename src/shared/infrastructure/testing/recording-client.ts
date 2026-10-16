@@ -10,8 +10,8 @@ const EMPTY: Reply = { data: null, error: null }
 
 /**
  * Stand-in for the typed Supabase client in adapter tests: every builder call (from, select, eq,
- * rpc...) is recorded as [method, ...args]. One reply answers every await; a list answers each
- * await in turn, then empty replies. Signed in as `userId` unless it is null. Adapter tests pass
+ * rpc...) is recorded as [method, ...args], and functions.invoke as ["invoke", name, options]. One
+ * reply answers every await; a list answers each await in turn, then empty replies. Signed in as `userId` unless it is null. Adapter tests pass
  * `client` where the client goes (`client as Db`).
  */
 export function recordingClient(replies: Reply | readonly Reply[], userId: string | null = "u1") {
@@ -20,11 +20,18 @@ export function recordingClient(replies: Reply | readonly Reply[], userId: strin
   const user = userId ? { id: userId } : null
   const auth = { getUser: async () => ({ data: { user }, error: null }) }
   const calls: unknown[][] = []
+  const functions = {
+    invoke: async (...args: unknown[]) => {
+      calls.push(["invoke", ...args])
+      return next()
+    },
+  }
   const chain: object = new Proxy(
     {},
     {
       get: (_target, method) => {
         if (method === "auth") return auth
+        if (method === "functions") return functions
         if (method === "then") return (resolve: (value: Reply) => void) => resolve(next())
         return (...args: unknown[]) => {
           calls.push([method, ...args])

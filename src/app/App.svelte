@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from "svelte"
+  import { ModeWatcher } from "mode-watcher"
   import { Toaster } from "$lib/components/ui/sonner"
-  import { Loading } from "@/shared/ui"
+  import { ErrorState, Loading } from "@/shared/ui"
   import { boot } from "./boot"
   import { compose, provideServices } from "./composition"
   import Page from "./Page.svelte"
@@ -40,7 +41,8 @@
 
   $effect(() => {
     const decision = gate.decision
-    if (booted && gate.ready && decision.kind === "redirect") router.go(decision.route, true)
+    if (booted && gate.ready && !gate.failed && decision.kind === "redirect")
+      router.go(decision.route, true)
   })
 
   async function signOut() {
@@ -50,9 +52,15 @@
   }
 </script>
 
+<!-- The CSP forbids inline scripts; mode changes apply synchronously so AppShell reads them. -->
+<ModeWatcher disableHeadScriptInjection synchronousModeChanges />
 <Toaster richColors position="top-center" />
 {#if !booted || !gate.ready}
   <div class="mx-auto max-w-md p-8"><Loading label="Opening Common Ground" /></div>
+{:else if gate.failed && spacesStore.error}
+  <div class="mx-auto max-w-md p-8">
+    <ErrorState error={spacesStore.error} onRetry={() => void spacesStore.refresh()} />
+  </div>
 {:else if gate.decision.kind === "render"}
   <Page
     route={gate.decision.route}

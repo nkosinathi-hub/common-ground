@@ -2,8 +2,7 @@
   import { DoorOpen } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { buildHash } from "@/shared/domain"
-  import { AsyncView, FormState, Resource } from "@/shared/ui"
+  import { AsyncView, FormError, FormState, navigate, Resource } from "@/shared/ui"
   import type { InvitePreviewStatus } from "../domain/space"
   import { useSpaces } from "./context"
 
@@ -29,7 +28,7 @@
     const joined = await form.run(() => service.redeemInvite(token))
     if (!joined.ok) return
     await store.refresh()
-    location.hash = buildHash({ name: "home", spaceId: joined.value })
+    navigate({ name: "home", spaceId: joined.value })
   }
 </script>
 
@@ -48,9 +47,7 @@
         </Card.Header>
         <Card.Content class="grid gap-3">
           {#if info.status === "valid"}
-            {#if form.formError}<p role="alert" class="text-sm text-destructive">
-                {form.formError}
-              </p>{/if}
+            <FormError message={form.formError} />
             <Button onclick={accept} disabled={form.pending}>Accept and join</Button>
           {:else}
             <p>{COPY[info.status]}</p>

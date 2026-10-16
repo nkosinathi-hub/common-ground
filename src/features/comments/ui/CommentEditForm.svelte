@@ -4,7 +4,7 @@
   import { Textarea } from "$lib/components/ui/textarea"
   import type { Result } from "@/shared/domain"
   import { toast } from "@/shared/ui"
-  import { MAX_BODY } from "../domain/comment"
+  import { BODY_MAX } from "../domain/comment"
 
   interface Props {
     body: string
@@ -27,7 +27,7 @@
 </script>
 
 <form class="grid gap-2" onsubmit={save}>
-  <Textarea aria-label="Edit comment" bind:value={draft} maxlength={MAX_BODY} />
+  <Textarea aria-label="Edit comment" bind:value={draft} maxlength={BODY_MAX} />
   <label class="flex items-center gap-2 text-sm">
     <input type="checkbox" class="accent-primary" bind:checked={draftSpoiler} />
     Contains spoilers

@@ -17,6 +17,3 @@ export function useRecommendations(): RecommendationsContext {
   if (!value) throw new Error("Recommendations are not provided: call provideRecommendations")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const recommendationsContext = (value: RecommendationsContext) => new Map([[KEY, value]])

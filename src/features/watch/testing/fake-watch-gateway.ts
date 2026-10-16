@@ -1,8 +1,8 @@
 import { appError, err, ok, type AppError, type Result } from "@/shared/domain"
 import type { ListRequest, WatchGateway } from "../application/ports"
-import { compareFor, isAfter, matches, pageOf, sortKeyOf } from "../domain/filters"
+import { pageOf } from "../domain/filters"
 import type * as T from "../domain/types"
-import { isDuplicate } from "./fake-members"
+import { compareFor, isAfter, isDuplicate, matches, sortKeyOf } from "./sql-mirror"
 import { ME, item as makeItem } from "./fixtures"
 
 const DUPLICATE = appError("conflict", "Already on your list")

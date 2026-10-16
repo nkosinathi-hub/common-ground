@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Columns3, Lightbulb, List } from "@lucide/svelte"
-  import { EmptyState, ErrorState, Loading, LoadMore } from "@/shared/ui"
+  import { EmptyState, ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
@@ -12,15 +13,22 @@
 
   interface Props {
     spaceId: string
+    /** The signed-in user, for the Mine and Ours filters. */
+    me: string
     ideaHref: (ideaId: string) => string
   }
 
-  let { spaceId, ideaHref }: Props = $props()
+  let { spaceId, me, ideaHref }: Props = $props()
 
-  const board = new IdeasState(useIdeas(), () => spaceId)
-  // Loads on mount, and again if spaceId changes: load reads it before its first await.
+  const board = new IdeasState(
+    useIdeas().service,
+    () => spaceId,
+    () => me,
+  )
+  // Loads on mount and again when spaceId changes.
   $effect(() => {
-    board.load()
+    void spaceId
+    untrack(() => board.load())
   })
 </script>
 
@@ -46,14 +54,12 @@
   <QuickCapture onCapture={(title, template) => board.capture({ title, template })} />
   <IdeaFilters bind:filter={board.filter} tags={allTags(board.list.items)} />
 
-  {#if board.moveError}
-    <p class="text-sm text-destructive" role="alert">{board.moveError.message}</p>
-  {/if}
+  <FormError message={board.moveError?.message} />
   {#if board.list.error && board.list.items.length === 0}
     <ErrorState error={board.list.error} onRetry={() => board.load()} />
   {:else if board.list.loading && board.list.items.length === 0}
     <Loading label="Loading ideas" />
-  {:else if board.list.items.length === 0}
+  {:else if board.list.items.length === 0 && !board.filter.whose}
     <EmptyState
       icon={Lightbulb}
       title="No ideas yet"

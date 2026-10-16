@@ -9,14 +9,15 @@ src/app/                    router (routing/), shell (shell/), pages (pages/)
 src/app/composition/        the only place adapters are built and provided as context:
   index.ts                  compose() and provideServices(), wires the modules below
   core.ts                   auth, account, spaces, catalog, notifications
-  members.ts                space membership as the shared MemberDirectory
+  members.ts                space membership as the shared MemberDirectory, provided to pages
   watch.ts                  watch
   ideas.ts                  ideas, research, tasks, budget
   collaboration.ts          comments, recommendations, attachments
-src/shared/domain/          Result, Money, DateOnly, ids, errors (pure)
-src/shared/infrastructure/  Supabase client, generated database types, query and paging helpers
+src/shared/domain/          Result, Money, DateOnly, formatters, ids, errors (pure)
+src/shared/domain/testing/  FakeMemberDirectory: the one MemberDirectory fake
+src/shared/infrastructure/  Supabase client, database types, query, paging and Edge Function helpers
 src/shared/infrastructure/testing/  recordingClient: the one fake Supabase client for adapter tests
-src/shared/ui/              cross-feature Svelte primitives (states, layout)
+src/shared/ui/              cross-feature Svelte primitives (states, lists, forms); see ui-patterns.md
 src/shared/ui/testing/      Provided.svelte: renders a component inside its provided contexts
 src/lib/components/ui/      shadcn-svelte generated components
 src/features/<name>/
@@ -73,7 +74,10 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
   | `400000-409999` | account: export and delete (`450000-459999` for account follow-ups)      |
   | `990000`        | function grants; runs last, revokes PUBLIC/anon EXECUTE on all functions |
 
-  Pick the next free slot in your concern's range; never reuse or renumber an applied file.
+  v0.2 files are dated `20261016`: `000100-009999` spaces, `100000-199999` notes,
+  `200000-299999` ideas, `300000-399999` calendar, `400000-409999` export, `990000` grants (last).
+
+  Pick the next free slot; never reuse or renumber an applied file. See migrations.md.
 
 - Every table: RLS enabled, deny by default, policies use `public.is_space_member(space_id)` /
   `public.is_space_owner(space_id)`; never read JWT claims for membership.
@@ -93,4 +97,4 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
 ## Commits
 
 Single-line conventional commits referencing the issue: `feat: invites, single-use redemption (#7)`.
-No Co-Authored-By trailers. All v0.1 work lands in branch `1-v0-1` and one MR.
+No Co-Authored-By trailers. v0.2 work lands in branch `2-v0-2` and one MR.

@@ -1,12 +1,16 @@
 import { appError, err, ok } from "@/shared/domain"
+import { FakeMemberDirectory } from "@/shared/domain/testing/fake-members"
 import { WatchService } from "../application/watch-service"
-import { FakeMemberDirectory } from "./fake-members"
+import { ME, PARTNER } from "./fixtures"
 import { FakeWatchGateway } from "./fake-watch-gateway"
 
 /** The fakes behind a rendered watch component; tests provide them with provideWatch. */
 export function watchFakes() {
   const gateway = new FakeWatchGateway()
-  const members = new FakeMemberDirectory()
+  const members = new FakeMemberDirectory([
+    { id: ME, displayName: "Nkosi" },
+    { id: PARTNER, displayName: "Lindi" },
+  ])
   const service = new WatchService(gateway)
   return { gateway, members, service }
 }

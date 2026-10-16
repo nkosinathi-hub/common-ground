@@ -1,19 +1,28 @@
 <script lang="ts">
+  import { useMembers } from "../composition/members"
   import { AttachmentsPanel } from "@/features/attachments"
-  import { useAuth } from "@/features/auth"
   import { CommentThread } from "@/features/comments"
   import { IdeaDetail, IdeasPage } from "@/features/ideas"
   import type { Space } from "@/features/spaces"
-  import { useWatch } from "@/features/watch"
   import { buildHash, type IdeaTab } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
 
-  let { space, ideaId, tab }: { space: Space; ideaId: string | null; tab: IdeaTab } = $props()
-  const { session } = useAuth()
-  const { members } = useWatch()
+  interface Props {
+    space: Space
+    /** The signed-in member's id. */
+    me: string
+    ideaId: string | null
+    tab: IdeaTab
+  }
+
+  let { space, me, ideaId, tab }: Props = $props()
+  const { members, authors } = useMembers()
   const people = new Resource(() => members.members(space.id))
-  $effect(() => void people.load())
-  const me = $derived(session.user?.id ?? "")
+  const names = new Resource(() => authors.authors(space.id))
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
   const isOwner = $derived(space.role === "owner")
   const ideaHref = (ideaId: string) =>
     buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "overview" })
@@ -25,6 +34,7 @@
       spaceId={space.id}
       {ideaId}
       {tab}
+      viewer={{ me, isOwner }}
       tabHref={(next) => buildHash({ name: "idea", spaceId: space.id, ideaId, tab: next })}
     >
       {#snippet discussion(idea)}
@@ -34,6 +44,7 @@
           {me}
           {isOwner}
           members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
         />
       {/snippet}
       {#snippet attachments(idea)}
@@ -42,5 +53,5 @@
     </IdeaDetail>
   {/key}
 {:else}
-  <IdeasPage spaceId={space.id} {ideaHref} />
+  <IdeasPage spaceId={space.id} {me} {ideaHref} />
 {/if}

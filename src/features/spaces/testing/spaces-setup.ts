@@ -13,12 +13,14 @@ export function spacesSetup() {
     reauthenticate: async (password: string) =>
       password === PASSWORD ? ok(undefined) : err(appError("denied", "Password is incorrect")),
   }
+  let ids = 0
   const service = new SpacesService({
     gateway,
     active,
     auth,
     appUrl: "https://x.io/cg/",
     clock: () => NOW,
+    newId: () => `id-${++ids}`,
   })
   return { gateway, active, service }
 }

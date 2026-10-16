@@ -1,14 +1,26 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
-import { afterEach, describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { notificationsSetup } from "../testing/notifications-setup"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import ActivityFeed from "./ActivityFeed.svelte"
 import { provideNotifications } from "./context"
 import NotificationsBell from "./NotificationsBell.svelte"
-import { NotificationsStore } from "./notifications.svelte"
+import { NotificationsStore } from "./notifications-store.svelte"
 
-afterEach(cleanup)
+// A wide viewport, so the bell opens its popover.
+beforeEach(() =>
+  vi.stubGlobal("matchMedia", (media: string) => ({
+    matches: true,
+    media,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  })),
+)
+afterEach(() => {
+  cleanup()
+  vi.unstubAllGlobals()
+})
 
 function setup() {
   const fakes = notificationsSetup()
@@ -39,6 +51,32 @@ describe("ActivityFeed", () => {
     render(Provided, { props: { provide, component: ActivityFeed, props } })
     expect(screen.getByText("Gathering recent activity")).toBeInTheDocument()
     expect(await screen.findByText("Nothing yet")).toBeInTheDocument()
+  })
+
+  it("asks for the latest six only on the home card", async () => {
+    const { activity, provide } = setup()
+    const sizes: (number | undefined)[] = []
+    const list = activity.list.bind(activity)
+    activity.list = (spaceId, after, size) => {
+      sizes.push(size)
+      return list(spaceId, after, size)
+    }
+    render(Provided, {
+      props: { provide, component: ActivityFeed, props: { spaceId: "s", limit: true } },
+    })
+    expect(await screen.findByText("Nothing yet")).toBeInTheDocument()
+    expect(sizes).toEqual([6])
+  })
+
+  it("words a private entry from the viewer's side", async () => {
+    const { activity, provide } = setup()
+    const at = "2026-10-15T09:00:00Z"
+    const base = { subjectType: "space_note", subjectId: "n", createdAt: at, targetName: "Ben" }
+    activity.events = [
+      { ...base, id: "e1", eventType: "hard_talk_shared", actorName: "Ana", byMe: true },
+    ]
+    render(Provided, { props: { provide, component: ActivityFeed, props: { spaceId: "s" } } })
+    expect(await screen.findByText("You shared something with Ben")).toBeInTheDocument()
   })
 
   it("reports a failed load with a retry", async () => {

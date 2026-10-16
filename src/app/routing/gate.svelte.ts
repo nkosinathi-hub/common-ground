@@ -17,6 +17,13 @@ export class RouteGate {
     return !this.session.user || this.spaces.status === "ready" || this.spaces.status === "error"
   }
 
+  /** Signed in, but memberships failed to load and none are known: show a retry, not a guess. */
+  get failed(): boolean {
+    return (
+      Boolean(this.session.user) && this.spaces.status === "error" && !this.spaces.spaces.length
+    )
+  }
+
   get decision(): Decision {
     const route = this.router.route
     return resolveRoute(route, {

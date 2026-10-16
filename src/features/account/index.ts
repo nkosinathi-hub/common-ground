@@ -1,5 +1,6 @@
 export { AccountService } from "./application/account-service"
 export { provideAccount } from "./ui/context"
+export { default as AppearanceCard } from "./ui/AppearanceCard.svelte"
 export { default as DataExportCard } from "./ui/DataExportCard.svelte"
 export { default as DeleteAccountCard } from "./ui/DeleteAccountCard.svelte"
 export { default as PasswordCard } from "./ui/PasswordCard.svelte"

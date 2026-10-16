@@ -16,7 +16,8 @@ supabase-deploy:
       ALLOWED_ORIGINS="$ALLOWED_ORIGINS"
 
 # Staging Supabase: migrations and Edge Functions to a second project. Manual, from an MR pipeline
-# or a "Run pipeline" (web) pipeline on 1-v0-1: the workflow rules start no push pipeline there.
+# or a "Run pipeline" (web) pipeline on a release integration branch named <issue>-v<major>-<minor>
+# (1-v0-1, 2-v0-2, ...), so no version is hard-coded; set STAGING_BRANCH to allow another branch.
 # Needs STAGING_SUPABASE_ACCESS_TOKEN, STAGING_SUPABASE_PROJECT_REF, STAGING_SUPABASE_DB_PASSWORD
 # (docs/runbooks/secrets.md); without them the job passes as a no-op.
 supabase-deploy-staging:
@@ -25,7 +26,10 @@ supabase-deploy-staging:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       when: manual
       allow_failure: true
-    - if: $CI_COMMIT_BRANCH == "1-v0-1" && $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH =~ /^[0-9]+-v[0-9]+-[0-9]+$/
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "web" && $STAGING_BRANCH && $CI_COMMIT_BRANCH == $STAGING_BRANCH
       when: manual
       allow_failure: true
   script:

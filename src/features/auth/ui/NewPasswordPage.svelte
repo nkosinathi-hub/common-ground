@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import { MIN_PASSWORD } from "@/shared/domain"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
@@ -31,7 +31,7 @@
       error={form.fieldError("password")}
       hint={`At least ${MIN_PASSWORD} characters.`}
     />
-    {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+    <FormError message={form.formError} />
     <Button type="submit" disabled={form.pending}>Save password</Button>
   </form>
 </AuthCard>

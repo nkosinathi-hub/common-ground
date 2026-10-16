@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { item } from "../testing/fixtures"
-import {
-  DEFAULT_FILTERS,
-  compareFor,
-  hasActiveFilters,
-  isAfter,
-  matches,
-  pageOf,
-  sortKeyOf,
-} from "./filters"
+import { compareFor, isAfter, matches, sortKeyOf } from "../testing/sql-mirror"
+import { DEFAULT_FILTERS, hasActiveFilters, pageOf } from "./filters"
 
 const dune = item(1, "Dune", { mediaType: "movie", intent: "watch_together", myStatus: "watching" })
 const frieren = item(2, "Frieren", { mediaType: "anime", intent: "want_to_watch" })

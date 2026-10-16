@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test"
+import { captureIdea } from "../support/fixtures"
 import { createSpace, secondMember, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -15,14 +16,7 @@ test("a stale overview save asks to merge instead of overwriting", async ({ page
   const ana = await createUser("merger")
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Merge test")
-  await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByLabel("Idea title").fill("Tea bar")
-  await page.getByRole("button", { name: "Capture", exact: true }).click()
-  await page
-    .getByRole("link", { name: /Tea bar/ })
-    .first()
-    .click()
-  await page.waitForURL(/\/ideas\/[0-9a-f-]{36}\/overview/)
+  await captureIdea(page, spaceId, "Tea bar")
 
   const other = await secondMember(browser, ana)
   await other.goto(page.url())

@@ -1,11 +1,13 @@
 <script lang="ts">
+  import { TITLE_MAX } from "@/shared/domain"
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
+  import { FormError } from "@/shared/ui"
   import { MEDIA_TYPES } from "../domain/labels"
-  import { NOTE_MAX, SYNOPSIS_MAX, TITLE_MAX, YEAR_DIGITS } from "../domain/validation"
+  import { NOTE_MAX, SYNOPSIS_MAX, YEAR_DIGITS } from "../domain/validation"
   import Choice from "./Choice.svelte"
-  import type { TitleFormState } from "./title-form.svelte"
+  import type { TitleFormState } from "./title-form-state.svelte"
 
   interface Props {
     form: TitleFormState
@@ -18,9 +20,7 @@
 </script>
 
 {#snippet problem(field: string)}
-  {#if errorFor(field)}
-    <p id={id(`${field}-error`)} class="text-sm text-destructive">{errorFor(field)}</p>
-  {/if}
+  <FormError id={id(`${field}-error`)} message={errorFor(field)} alert={false} />
 {/snippet}
 
 <div class="grid gap-1.5">

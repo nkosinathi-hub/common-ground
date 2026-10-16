@@ -19,7 +19,7 @@ function setup() {
   gateway.titles = [title(1, "Dune"), title(2, "Dune: Part Two"), title(3, "Arrival")]
   const onPick = vi.fn()
   const onManual = vi.fn()
-  const provide = () => provideCatalog(new CatalogService(gateway))
+  const provide = () => provideCatalog({ service: new CatalogService(gateway) })
   const props = { spaceId: SPACE_ID, onPick, onManual }
   render(Provided, { props: { provide, component: CatalogSearch, props } })
   const input = screen.getByRole("searchbox") as HTMLInputElement

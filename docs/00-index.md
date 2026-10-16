@@ -2,7 +2,9 @@
 
 1. [README](../README.md): what Common Ground is and the quick start
 2. [Engineering standards](standards.md): tests first, 100-line files, layers, commits
-3. [Conventions](CONVENTIONS.md): layout, layer table, database rules
+3. [Conventions](CONVENTIONS.md): layout, layer table, database rules; [UI patterns](ui-patterns.md):
+   lists, reloads, contexts, stores, navigation and naming people; [Migrations](migrations.md):
+   redefined functions, grants and cleanup slots
 4. [Security](security.md): threat model, RLS isolation, secrets, POPIA
 5. Architecture decisions (`adr/`)
    1. [0001 Svelte 5 SPA on Supabase; Figma export as reference](adr/0001-stack.md)
@@ -12,6 +14,7 @@
    5. [0005 Keyset pagination on (created_at, id), 50 per page](adr/0005-keyset-pagination.md)
    6. [0006 updated_at conflict detection with a merge prompt](adr/0006-conflict-detection.md)
    7. [0007 One branch and one MR for v0.1](adr/0007-one-mr-for-v0-1.md)
+   8. [0008 Calendar time model: instants, dates and window paging](adr/0008-calendar-time-model.md)
 6. Runbooks (`runbooks/`)
    1. [Setup](runbooks/setup.md): `pnpm run setup`, engines, demo accounts
    2. [Secrets](runbooks/secrets.md): where each secret lives and how to rotate it

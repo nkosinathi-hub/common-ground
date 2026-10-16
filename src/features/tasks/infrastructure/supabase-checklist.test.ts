@@ -4,7 +4,7 @@ import { recordingClient, type Reply } from "@/shared/infrastructure/testing/rec
 import { ITEM_COLUMNS } from "./rows"
 import { SupabaseChecklist } from "./supabase-checklist"
 
-const row = { id: "c1", task_id: "t1", label: "Sign", done: false, position: 0 }
+const row = { id: "c1", task_id: "t1", label: "Sign", done: false, position: 0, created_by: "u1" }
 
 const setup = (reply: Reply) => {
   const { calls, client } = recordingClient(reply)
@@ -16,7 +16,7 @@ describe("SupabaseChecklist", () => {
     const { calls, checklist } = setup({ data: [row], error: null })
     expect(await checklist.list("t1")).toEqual({
       ok: true,
-      value: [{ id: "c1", taskId: "t1", label: "Sign", done: false, position: 0 }],
+      value: [{ id: "c1", taskId: "t1", label: "Sign", done: false, position: 0, createdBy: "u1" }],
     })
     expect(calls).toEqual([
       ["from", "task_checklist_items"],

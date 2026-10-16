@@ -4,8 +4,8 @@ import type { AttachmentKind, AttachmentMime } from "./types"
 const KB = 1024
 const MB = 1024 * KB
 
-export const MAX_BYTES = 10 * MB
-export const MAX_FILENAME = 200
+export const BYTES_MAX = 10 * MB
+export const FILENAME_MAX = 200
 
 const EXTENSIONS: Record<AttachmentMime, readonly string[]> = {
   "image/jpeg": ["jpg", "jpeg"],
@@ -55,19 +55,15 @@ export function precheckFile(file: {
   if (!isAttachmentMime(mime) || !EXTENSIONS[mime].includes(extensionOf(name)))
     return err(appError("validation", "Only JPEG, PNG, WebP and PDF files can be attached"))
   if (file.size < 1) return err(appError("validation", "This file is empty"))
-  if (file.size > MAX_BYTES)
-    return err(appError("validation", `Files can be at most ${formatBytes(MAX_BYTES)}`))
-  if (name.length > MAX_FILENAME)
-    return err(appError("validation", `File names can be at most ${MAX_FILENAME} characters`))
+  if (file.size > BYTES_MAX)
+    return err(appError("validation", `Files can be at most ${formatBytes(BYTES_MAX)}`))
+  if (name.length > FILENAME_MAX)
+    return err(appError("validation", `File names can be at most ${FILENAME_MAX} characters`))
   return ok(mime)
 }
 
 export const kindOf = (mime: AttachmentMime): AttachmentKind =>
   mime === "application/pdf" ? "pdf" : "image"
-
-/** Delete is offered to the uploader and to the space owner; the RPC enforces the same rule. */
-export const canDelete = (uploaderId: string | null, me: string, isOwner: boolean): boolean =>
-  isOwner || (uploaderId !== null && uploaderId === me)
 
 /** Signed URLs come from the server; anything but http(s) is never rendered or opened. */
 export function isWebUrl(value: string): boolean {

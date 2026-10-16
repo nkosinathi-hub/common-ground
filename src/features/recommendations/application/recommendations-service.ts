@@ -1,4 +1,4 @@
-import { nextCursor, ok, PAGE_SIZE, type Cursor, type Page, type Result } from "@/shared/domain"
+import type { Cursor, Page, Result } from "@/shared/domain"
 import {
   validateNote,
   validateRecipients,
@@ -16,10 +16,7 @@ export interface SendRequest {
 }
 
 export class RecommendationsService {
-  constructor(
-    private readonly gateway: RecommendationsGateway,
-    private readonly pageSize = PAGE_SIZE,
-  ) {}
+  constructor(private readonly gateway: RecommendationsGateway) {}
 
   async send({ itemId, recipientIds, note, me }: SendRequest): Promise<Result<string[]>> {
     const recipients = validateRecipients(recipientIds, me)
@@ -33,11 +30,8 @@ export class RecommendationsService {
     })
   }
 
-  async inbox(spaceId: string, after: Cursor | null): Promise<Result<Page<Recommendation>>> {
-    const size = this.pageSize
-    const rows = await this.gateway.inbox({ spaceId, after, size })
-    if (!rows.ok) return rows
-    return ok({ items: rows.value, next: nextCursor(rows.value, size) })
+  inbox(spaceId: string, after: Cursor | null): Promise<Result<Page<Recommendation>>> {
+    return this.gateway.inbox({ spaceId, after })
   }
 
   respond = (id: string, response: RecommendationResponse) => this.gateway.respond(id, response)

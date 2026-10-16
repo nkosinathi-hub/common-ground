@@ -2,11 +2,11 @@
   import { untrack } from "svelte"
   import { Check, Inbox, X } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { EmptyState, ErrorState, Loading, toast } from "@/shared/ui"
-  import { FORMER_MEMBER, type Result } from "@/shared/domain"
+  import { EmptyState, ErrorState, Loading, LoadMore, toast } from "@/shared/ui"
+  import { FORMER_MEMBER } from "@/shared/domain"
   import type { RecommendationResponse } from "../domain/recommendation"
   import { useRecommendations } from "./context"
-  import { InboxState } from "./inbox.svelte"
+  import { InboxState } from "./inbox-state.svelte"
 
   interface Props {
     spaceId: string
@@ -16,33 +16,22 @@
 
   const { service } = useRecommendations()
   const inbox = $derived(new InboxState(service, spaceId))
+  const list = $derived(inbox.list)
   $effect(() => {
-    const current = inbox
-    untrack(() => void current.load())
+    void inbox
+    untrack(() => inbox.load())
   })
 
-  const report = (result: Result<void>) => {
-    if (!result.ok) toast.error(result.error.message)
+  async function answer(id: string, response: RecommendationResponse) {
+    const failure = await inbox.respond(id, response)
+    if (failure) toast.error(failure.message)
   }
-  const answer = async (id: string, response: RecommendationResponse) =>
-    report(await inbox.respond(id, response))
-  const more = async () => report(await inbox.loadMore())
 </script>
 
 <section class="grid gap-3" aria-label="Recommended to you">
-  {#if inbox.status === "loading"}
-    <Loading />
-  {:else if inbox.status === "error" && inbox.error}
-    <ErrorState error={inbox.error} onRetry={inbox.retry} />
-  {:else if inbox.items.length === 0}
-    <EmptyState
-      icon={Inbox}
-      title="Nothing waiting for you"
-      description="When someone recommends a title to you, it shows up here."
-    />
-  {:else}
+  {#if list.items.length > 0}
     <ul class="grid gap-2">
-      {#each inbox.items as rec (rec.id)}
+      {#each list.items as rec (rec.id)}
         <li class="grid gap-1 rounded-lg border p-3">
           <a class="font-medium underline-offset-4 hover:underline" href={itemHref(rec.itemId)}
             >{rec.itemTitle ?? "A saved title"}</a
@@ -66,10 +55,16 @@
         </li>
       {/each}
     </ul>
-    {#if inbox.hasMore}
-      <Button variant="ghost" size="sm" disabled={inbox.loadingMore} onclick={more}
-        >Show more</Button
-      >
-    {/if}
+  {:else if list.error}
+    <ErrorState error={list.error} onRetry={inbox.load} />
+  {:else if list.loading}
+    <Loading />
+  {:else}
+    <EmptyState
+      icon={Inbox}
+      title="Nothing waiting for you"
+      description="When someone recommends a title to you, it shows up here."
+    />
   {/if}
+  <LoadMore {list} label="Show more" />
 </section>

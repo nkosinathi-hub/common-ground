@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { FakeMembers, InMemoryTasks } from "../testing/in-memory-tasks"
+import { anaAndBen, InMemoryTasks } from "../testing/in-memory-tasks"
 import { TasksService } from "./tasks-service"
 
 const here = { spaceId: "s", ideaId: "i" }
 
 describe("upcoming tasks", () => {
   it("lists open tasks with a due date in the space, soonest first, at most 8", async () => {
-    const members = new FakeMembers()
+    const members = anaAndBen()
     const tasks = new InMemoryTasks(members)
     const service = new TasksService(tasks, members)
     for (let day = 20; day > 9; day--)

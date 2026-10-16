@@ -10,11 +10,14 @@
 
   interface Props {
     item: WatchItem
+    /** Current members, to pick who was there. */
     members: readonly MemberRef[]
+    /** Names for past sessions, including removed people still visible. */
+    authors: readonly MemberRef[]
     onLogged: () => void
   }
 
-  let { item, members, onLogged }: Props = $props()
+  let { item, members, authors, onLogged }: Props = $props()
   const { service } = useWatch()
   const sessions = new Resource(() => service.sessions(item.id))
   let logging = $state(false)
@@ -25,7 +28,7 @@
     untrack(() => void sessions.load())
   })
 
-  const names = (ids: readonly string[]) => ids.map((id) => memberName(members, id)).join(", ")
+  const names = (ids: readonly string[]) => ids.map((id) => memberName(authors, id)).join(", ")
 </script>
 
 <section class="space-y-4 rounded-xl border p-4" aria-labelledby="sessions-heading">

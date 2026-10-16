@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { addTitle, captureIdea, inviteToken, openIdeaTab } from "../support/fixtures"
+import { addTitle, captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
 import { realtimeJoined } from "../support/realtime"
 import { createSpace, signIn } from "../support/session"
 import { recommend } from "../support/social"
@@ -17,13 +17,10 @@ test("the notification badge updates live in the other member's browser", async 
   const [ana, ben] = await Promise.all([createUser("ana"), createUser("ben")])
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Live test")
-  const token = await inviteToken(page, spaceId)
-  const benPage = await (await browser.newContext()).newPage()
-  const joined = realtimeJoined(benPage, "notifications-")
-  await signIn(benPage, ben)
-  await benPage.goto(`./#/invite/${token}`)
-  await benPage.getByRole("button", { name: "Accept and join" }).click()
-  await benPage.waitForURL(new RegExp(`#/s/${spaceId}/home`))
+  let joined = Promise.resolve()
+  const benPage = await inviteMember(page, browser, spaceId, ben, (next) => {
+    joined = realtimeJoined(next, "notifications-")
+  })
   await joined
   const bell = benPage.getByRole("button", { name: /^Notifications/ })
   await expect(bell).toHaveAccessibleName("Notifications")

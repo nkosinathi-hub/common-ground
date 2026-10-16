@@ -1,22 +1,26 @@
 <script lang="ts">
-  import type { Cursor } from "@/shared/domain"
+  import { untrack } from "svelte"
+  import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { DeleteButton, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
   import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
-  let { idea }: Props = $props()
-  const research = useResearch()
+  let { idea, viewer }: Props = $props()
+  const research = useResearch().service
   const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
-  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
+  const ideaId = $derived(idea.id)
   $effect(() => {
-    list.load()
+    void ideaId
+    untrack(() => list.load())
   })
 
   let body = $state("")
@@ -44,14 +48,16 @@
       placeholder="Jot something down"
       rows={2}
     />
-    {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+    <FormError message={error} />
     <Button type="submit" size="sm" class="self-start" disabled={!body.trim()}>Add note</Button>
   </form>
   <ul class="flex flex-col gap-2">
     {#each list.items as note (note.id)}
       <li class="flex items-start justify-between gap-2 rounded-lg border p-3" data-testid="note">
         <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-        <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
+        {#if canDelete(note.createdBy, viewer)}
+          <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
+        {/if}
       </li>
     {/each}
   </ul>

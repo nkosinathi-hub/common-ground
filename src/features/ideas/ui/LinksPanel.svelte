@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import type { AppError, Cursor } from "@/shared/domain"
+  import { type AppError, canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import {
     LINK_DESCRIPTION_MAX,
     LINK_TITLE_MAX,
@@ -10,23 +11,26 @@
     type LinkInput,
     type ResearchLink,
   } from "../domain"
-  import { PagedList } from "@/shared/ui"
+  import { FormError, PagedList } from "@/shared/ui"
   import { useResearch } from "./context"
   import LinkItem from "./LinkItem.svelte"
   import ListFooter from "./ListFooter.svelte"
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
   const EMPTY: LinkInput = { url: "", title: "", description: "" }
 
-  let { idea }: Props = $props()
-  const research = useResearch()
+  let { idea, viewer }: Props = $props()
+  const research = useResearch().service
   const list = new PagedList<ResearchLink, Cursor>((after) => research.links(idea.id, after))
-  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
+  const ideaId = $derived(idea.id)
   $effect(() => {
-    list.load()
+    void ideaId
+    untrack(() => list.load())
   })
 
   let draft = $state<LinkInput>({ ...EMPTY })
@@ -68,14 +72,16 @@
       maxlength={LINK_DESCRIPTION_MAX}
       bind:value={draft.description}
     />
-    {#if error}<p class="text-sm text-destructive sm:col-span-2" role="alert">
-        {error.message}
-      </p>{/if}
+    <FormError message={error?.message} class="sm:col-span-2" />
     <Button type="submit" size="sm" class="self-start">Add link</Button>
   </form>
   <ul class="flex flex-col gap-2">
     {#each list.items as link (link.id)}
-      <LinkItem {link} onRemove={() => remove(link.id)} />
+      <LinkItem
+        {link}
+        deletable={canDelete(link.createdBy, viewer)}
+        onRemove={() => remove(link.id)}
+      />
     {/each}
   </ul>
   <ListFooter {list} empty="No links yet." />

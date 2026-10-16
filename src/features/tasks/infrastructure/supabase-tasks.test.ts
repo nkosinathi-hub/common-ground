@@ -15,6 +15,7 @@ const row = {
   due_date: "2026-10-20",
   assignee_id: null,
   milestone_id: null,
+  created_by: "u1",
   created_at: "2026-10-15T10:00:00Z",
   updated_at: "2026-10-15T10:00:00Z",
 }
@@ -30,14 +31,18 @@ describe("SupabaseTasks", () => {
     const page = await tasks.list("i1", null)
     expect(page).toMatchObject({
       ok: true,
-      value: { items: [{ id: "t1", ideaId: "i1", dueDate: "2026-10-20", priority: "high" }] },
+      value: {
+        items: [
+          { id: "t1", ideaId: "i1", dueDate: "2026-10-20", priority: "high", createdBy: "u1" },
+        ],
+      },
     })
     expect(calls.slice(0, 3)).toEqual([
       ["from", "tasks"],
       ["select", TASK_COLUMNS],
       ["eq", "idea_id", "i1"],
     ])
-    expect(calls.at(-1)).toEqual(["limit", 50])
+    expect(calls.at(-1)).toEqual(["limit", 51])
   })
 
   it("creates under its space and idea", async () => {

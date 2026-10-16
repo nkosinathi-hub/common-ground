@@ -1,5 +1,5 @@
 import { expect, type Browser, type Page } from "@playwright/test"
-import { secondMember } from "./session"
+import { secondMember, zoneOf } from "./session"
 import type { TestUser } from "./stack"
 
 const UUID = "[0-9a-f-]{36}"
@@ -14,10 +14,14 @@ export async function captureIdea(page: Page, spaceId: string, title: string): P
   return new RegExp(`/ideas/(${UUID})/`).exec(page.url())![1]!
 }
 
-/** Opens one tab of an idea and waits for its tab panel. */
+/** The region an idea section renders in, named after its link and the idea ("Tasks for Zine"). */
+export const ideaSection = (page: Page, tab: string) =>
+  page.getByRole("region", { name: new RegExp(`^${tab[0]!.toUpperCase()}${tab.slice(1)} for `) })
+
+/** Opens one section of an idea and waits for its region. */
 export async function openIdeaTab(page: Page, spaceId: string, ideaId: string, tab: string) {
   await page.goto(`./#/s/${spaceId}/ideas/${ideaId}/${tab}`)
-  await expect(page.getByRole("tabpanel", { name: tab })).toBeVisible()
+  await expect(ideaSection(page, tab)).toBeVisible()
 }
 
 /** Adds a watchlist title by hand, opens it and returns its id. */
@@ -31,6 +35,11 @@ export async function addTitle(page: Page, spaceId: string, title: string): Prom
   await page.getByRole("button", { name: "Add a title manually" }).click()
   await page.getByLabel("Title", { exact: true }).fill(title)
   await page.getByRole("button", { name: "Add to your list" }).click()
+  // The dialog stays open for the next title; it lists what was added until Done.
+  const dialog = page.getByRole("dialog", { name: "Add a title" })
+  await expect(dialog.getByRole("status")).toContainText(`Added: ${title}`)
+  await dialog.getByRole("button", { name: "Done" }).click()
+  await expect(dialog).toBeHidden()
   await page.getByRole("link", { name: title }).first().click()
   await page.waitForURL(new RegExp(`/watch/${UUID}`))
   return new RegExp(`/watch/(${UUID})`).exec(page.url())![1]!
@@ -45,15 +54,19 @@ export async function inviteToken(page: Page, spaceId: string): Promise<string> 
   return (await code.textContent())!.trim().split("#/invite/")[1]!
 }
 
-/** Signs a user in on a fresh context and joins the space through a new invite. */
+/**
+ * Signs a user in on a fresh context in the owner's time zone and locale, and joins the space
+ * through a new invite. `before` runs on the new page before it signs in.
+ */
 export async function inviteMember(
   owner: Page,
   browser: Browser,
   spaceId: string,
   user: TestUser,
+  before?: (page: Page) => void,
 ): Promise<Page> {
   const token = await inviteToken(owner, spaceId)
-  const page = await secondMember(browser, user)
+  const page = await secondMember(browser, user, await zoneOf(owner), before)
   await page.goto(`./#/invite/${token}`)
   await page.getByRole("button", { name: "Accept and join" }).click()
   await page.waitForURL(new RegExp(`#/s/${spaceId}/home`))

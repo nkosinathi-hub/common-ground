@@ -1,19 +1,27 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
-  import type { Result } from "@/shared/domain"
-  import { DeleteButton } from "@/shared/ui"
-  import { IDEA_STAGES, TITLE_MAX, type Idea, type IdeaStage } from "../domain"
+  import { canDelete, type MemberRef, type Result, TITLE_MAX, type Viewer } from "@/shared/domain"
+  import { DeleteButton, FormError } from "@/shared/ui"
+  import { IDEA_STAGES, type Idea, type IdeaStage } from "../domain"
   import { useIdeas } from "./context"
+  import IdeaByline from "./IdeaByline.svelte"
   import { STAGE_LABELS } from "./labels"
 
   interface Props {
     idea: Idea
+    viewer: Viewer
+    /** Current members, offered as collaborators. */
+    members: readonly MemberRef[]
+    /** Names for the byline, including removed people still visible. */
+    authors: readonly MemberRef[]
     onChange: (idea: Idea) => void
+    /** After invites or removals: the idea is reloaded with its people. */
+    onPeopleChanged: () => void
     onDeleted: () => void
   }
 
-  let { idea, onChange, onDeleted }: Props = $props()
-  const ideas = useIdeas()
+  let { idea, viewer, members, authors, onChange, onPeopleChanged, onDeleted }: Props = $props()
+  const ideas = useIdeas().service
   let error = $state<string | null>(null)
 
   async function apply(change: Promise<Result<Idea>>) {
@@ -21,7 +29,7 @@
     error = result.ok ? null : result.error.message
     if (result.ok) onChange(result.value)
   }
-  /** The server refuses anyone but the author or the space owner; that refusal is shown here. */
+  /** Offered to the author and the owner only; a server refusal (a stale role) is shown here. */
   async function remove() {
     const result = await ideas.remove(idea.id)
     error = result.ok ? null : result.error.message
@@ -41,14 +49,17 @@
       maxlength={TITLE_MAX}
       onchange={(event) => apply(ideas.rename(idea.id, event.currentTarget.value))}
     />
-    <DeleteButton
-      label="Delete idea"
-      what="this idea"
-      description="Its notes, links, tasks, budget and discussion go with it. This cannot be undone."
-      size="icon-sm"
-      onConfirm={remove}
-    />
+    {#if canDelete(idea.createdBy, viewer)}
+      <DeleteButton
+        label="Delete idea"
+        what="this idea"
+        description="Its notes, links, tasks, budget and discussion go with it. This cannot be undone."
+        size="icon-sm"
+        onConfirm={remove}
+      />
+    {/if}
   </div>
+  <IdeaByline {idea} {members} {authors} {onPeopleChanged} />
   <div class="flex flex-wrap items-center gap-2 text-sm">
     <label class="flex items-center gap-2"
       >Stage
@@ -72,5 +83,5 @@
       />
     </label>
   </div>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
 </header>

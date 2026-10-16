@@ -1,6 +1,8 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { ActiveSpaceStore, SpacesGateway } from "../application/ports"
 import type { InviteRecord, Member, Space } from "../domain/space"
+import { FakeSpaceProfile } from "./fake-space-profile"
+import { sampleSpace } from "./sample-space"
 
 export class MemoryActiveSpace implements ActiveSpaceStore {
   value: string | null = null
@@ -10,8 +12,7 @@ export class MemoryActiveSpace implements ActiveSpaceStore {
   }
 }
 
-export class FakeSpacesGateway implements SpacesGateway {
-  spaces: Space[] = []
+export class FakeSpacesGateway extends FakeSpaceProfile implements SpacesGateway {
   memberList: Member[] = []
   inviteList: InviteRecord[] = []
   tokens = new Map<string, string>()
@@ -22,14 +23,12 @@ export class FakeSpacesGateway implements SpacesGateway {
   }
   async create(name: string, template: Space["template"]) {
     const id = `space-${this.spaces.length + 1}`
-    this.spaces.push({ id, name, template, role: "owner" })
+    this.spaces.push(sampleSpace({ id, name, template }))
     return ok(id)
   }
-  async rename(spaceId: string, name: string) {
-    this.spaces = this.spaces.map((s) => (s.id === spaceId ? { ...s, name } : s))
-    return ok(undefined)
-  }
   members = async () => ok([...this.memberList])
+  knownPeople = async () =>
+    ok(this.memberList.map((m) => ({ id: m.userId, displayName: m.displayName })))
   invites = async () => ok([...this.inviteList])
   async leave(spaceId: string) {
     this.spaces = this.spaces.filter((s) => s.id !== spaceId)

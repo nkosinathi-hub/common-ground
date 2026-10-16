@@ -36,4 +36,15 @@ export class Resource<T> {
   set(value: T) {
     this.state = { status: "ready", value }
   }
+
+  /** Runs a write; on success folds it into the value (PagedList.apply's unpaged twin). */
+  async apply<V>(
+    write: Promise<Result<V>>,
+    change: (value: V, current: T | undefined) => T,
+  ): Promise<AppError | null> {
+    const result = await write
+    if (!result.ok) return result.error
+    this.set(change(result.value, this.value))
+    return null
+  }
 }

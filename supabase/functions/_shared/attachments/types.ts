@@ -1,5 +1,6 @@
 // Shared vocabulary of the attachments Edge Function. Mirrored by src/features/attachments/domain.
-export const MAX_BYTES = 10 * 1024 * 1024
+export const BYTES_MAX = 10 * 1024 * 1024
+export const FILENAME_MAX = 200
 
 /** Allowed types and the filename extensions that may declare them. */
 export const ALLOWED_TYPES = {

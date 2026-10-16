@@ -3,12 +3,14 @@ import { afterEach, describe, expect, it } from "vitest"
 import { CommentsService } from "../application/comments-service"
 import { MEMBERS, PARENT, SPACE, threadGateway } from "../testing/render-thread"
 import CommentThread from "./CommentThread.svelte"
-import { commentsContext } from "./context"
+import { provideComments } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 
 function setup(isOwner = false, gateway = threadGateway()) {
-  const context = commentsContext({ service: new CommentsService(gateway, 2) })
+  const provide = () => provideComments({ service: new CommentsService(gateway) })
   const props = { spaceId: SPACE, parent: PARENT, me: "me", isOwner, members: MEMBERS }
-  return { gateway, view: render(CommentThread, { props, context }) }
+  const view = render(Provided, { props: { provide, component: CommentThread, props } })
+  return { gateway, view }
 }
 const textbox = () => screen.getByLabelText("Add a comment")
 const write = (value: string) => fireEvent.input(textbox(), { target: { value } })

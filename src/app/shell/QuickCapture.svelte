@@ -4,12 +4,15 @@
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { useIdeas } from "@/features/ideas"
-  import { buildHash } from "@/shared/domain"
-  import { FormField, FormState, toast } from "@/shared/ui"
+  import { FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
-  let { spaceId }: { spaceId: string } = $props()
-  const ideas = useIdeas()
+  interface Props {
+    spaceId: string
+  }
+
+  let { spaceId }: Props = $props()
+  const ideas = useIdeas().service
   const form = new FormState()
   let open = $state(false)
   let title = $state(untrack(() => captureDraft.read(spaceId)))
@@ -24,13 +27,7 @@
     toast.success("Idea saved", {
       action: {
         label: "Open",
-        onClick: () =>
-          (location.hash = buildHash({
-            name: "idea",
-            spaceId,
-            ideaId: made.value.id,
-            tab: "overview",
-          })),
+        onClick: () => navigate({ name: "idea", spaceId, ideaId: made.value.id, tab: "overview" }),
       },
     })
   }
@@ -53,7 +50,7 @@
     </Dialog.Header>
     <form class="grid gap-4" onsubmit={submit} novalidate>
       <FormField id="quick-idea" label="Idea" bind:value={title} error={form.fieldError("title")} />
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Button type="submit" disabled={form.pending || !title.trim()}>Save idea</Button>
     </form>
   </Dialog.Content>

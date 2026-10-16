@@ -1,5 +1,5 @@
 import type { Result } from "@/shared/domain"
-import { done, settle, signedOut } from "@/shared/infrastructure/query"
+import { done, same, settle, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type * as T from "../domain/types"
 import { progressArgs } from "./watch-args"
@@ -51,6 +51,6 @@ export class SupabaseWatchProgress {
         member_ids: [...input.memberIds],
         note: input.note || undefined,
       }),
-      (id) => id,
+      same,
     )
 }

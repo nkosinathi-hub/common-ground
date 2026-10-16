@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { judgeUpload } from "./probe.ts"
 import { SAMPLES } from "./samples.ts"
-import { MAX_BYTES } from "./types.ts"
+import { BYTES_MAX } from "./types.ts"
 
 const DECLARED_SIZE = 2000
 const png = { declaredMime: "image/png" as const, bytes: DECLARED_SIZE }
@@ -24,8 +24,8 @@ describe("judgeUpload", () => {
   })
 
   it("rejects oversized, empty or resized uploads and missing objects", () => {
-    const huge = { head: SAMPLES.png, total: MAX_BYTES + 1 }
-    expect(judgeUpload({ ...png, bytes: MAX_BYTES + 1 }, huge)).toEqual({
+    const huge = { head: SAMPLES.png, total: BYTES_MAX + 1 }
+    expect(judgeUpload({ ...png, bytes: BYTES_MAX + 1 }, huge)).toEqual({
       ok: false,
       reason: "Files can be at most 10 MB",
     })

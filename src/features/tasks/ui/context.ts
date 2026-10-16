@@ -21,6 +21,3 @@ export function useTasks(): TasksContext {
   if (!value) throw new Error("Tasks are not provided: call provideTasks")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const tasksContext = (value: TasksContext) => new Map([[KEY, value]])

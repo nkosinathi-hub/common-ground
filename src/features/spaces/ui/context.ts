@@ -1,6 +1,6 @@
 import { getContext, setContext } from "svelte"
 import type { SpacesService } from "../application/spaces-service"
-import type { SpacesStore } from "./spaces.svelte"
+import type { SpacesStore } from "./spaces-store.svelte"
 
 export interface SpacesContext {
   readonly service: SpacesService

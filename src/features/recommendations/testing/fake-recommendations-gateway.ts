@@ -1,4 +1,4 @@
-import { appError, err, ok, type AppError } from "@/shared/domain"
+import { appError, err, nextCursor, ok, PAGE_SIZE, type AppError } from "@/shared/domain"
 import type {
   InboxPageRequest,
   RecommendationsGateway,
@@ -8,7 +8,7 @@ import type { Recommendation, RecommendationResponse } from "../domain/recommend
 
 const START = Date.parse("2026-10-15T10:00:00.000Z")
 
-export interface SentRecommendation {
+interface SentRecommendation {
   readonly itemId: string
   readonly recipientId: string
   readonly note: string | null
@@ -21,6 +21,8 @@ export class FakeRecommendationsGateway implements RecommendationsGateway {
   calls: string[] = []
   failWith: AppError | null = null
   private seq = 0
+
+  constructor(private readonly pageSize = PAGE_SIZE) {}
 
   receive(spaceId: string, count: number, over: Partial<Recommendation> = {}) {
     for (let i = 0; i < count; i += 1) {
@@ -51,7 +53,7 @@ export class FakeRecommendationsGateway implements RecommendationsGateway {
     return ok(recipientIds.map((_, i) => `sent${this.sent.length + i}`))
   }
 
-  async inbox({ spaceId, after, size }: InboxPageRequest) {
+  async inbox({ spaceId, after }: InboxPageRequest) {
     if (this.failWith) return err(this.failWith)
     const rows = this.received
       .filter((r) => r.spaceId === spaceId && r.status === "pending")
@@ -62,7 +64,8 @@ export class FakeRecommendationsGateway implements RecommendationsGateway {
           (r.createdAt === after.createdAt && r.id < after.id),
       )
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id))
-    return ok(rows.slice(0, size))
+    const items = rows.slice(0, this.pageSize)
+    return ok({ items, next: nextCursor(items, this.pageSize) })
   }
 
   async respond(id: string, response: RecommendationResponse) {

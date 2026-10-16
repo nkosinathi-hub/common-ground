@@ -1,5 +1,6 @@
-import { appError, err, ok, type Result } from "@/shared/domain"
+import { appError, err, ok, type Result, TITLE_MAX } from "@/shared/domain"
 import type { Brief } from "./brief"
+import type { Collaborator } from "./collaborators"
 
 export const IDEA_STAGES = [
   "inbox",
@@ -12,8 +13,7 @@ export const IDEA_STAGES = [
 ] as const
 export type IdeaStage = (typeof IDEA_STAGES)[number]
 
-export const IDEA_TEMPLATES = ["blank", "business", "creative"] as const
-export type IdeaTemplate = (typeof IDEA_TEMPLATES)[number]
+export type IdeaTemplate = "blank" | "business" | "creative"
 
 export interface Idea {
   readonly id: string
@@ -25,13 +25,20 @@ export interface Idea {
   readonly brief: Brief
   readonly currency: string
   readonly createdBy: string | null
+  /** Invited people, pending and accepted; the author is never among them. */
+  readonly collaborators: readonly Collaborator[]
   readonly createdAt: string
   /** Exact server timestamp string; the conflict check compares it verbatim. */
   readonly updatedAt: string
 }
 
-export const TITLE_MAX = 200
+/** Stages the Home "Ideas in progress" card lists, and how many it shows. */
+export const IN_PROGRESS_STAGES = ["exploring", "planning", "building"] as const
+export const IN_PROGRESS_LIMIT = 5
+
 export const TAGS_MAX = 20
+/** Longest tag, in characters. */
+export const TAG_MAX = 40
 
 export function validateTitle(input: string): Result<string> {
   const title = input.trim()
@@ -45,4 +52,11 @@ export function validateTitle(input: string): Result<string> {
 export function normalizeTags(input: readonly string[]): string[] {
   const tags = input.map((tag) => tag.trim().toLowerCase()).filter((tag) => tag.length > 0)
   return [...new Set(tags)].slice(0, TAGS_MAX)
+}
+
+export function validateTags(input: readonly string[]): Result<string[]> {
+  const tags = normalizeTags(input)
+  return tags.every((tag) => tag.length <= TAG_MAX)
+    ? ok(tags)
+    : err(appError("validation", `Keep each tag to ${TAG_MAX} characters`, "tags"))
 }

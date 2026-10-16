@@ -7,9 +7,10 @@ import {
   validateSpaceName,
   type Space,
 } from "./space"
+import { sampleSpace } from "../testing/sample-space"
 import { SPACE_TEMPLATES, templateFor } from "./templates"
 
-const space = (id: string): Space => ({ id, name: id, template: "blank", role: "member" })
+const space = (id: string): Space => sampleSpace({ id, role: "member" })
 const now = new Date("2026-10-15T12:00:00Z")
 
 describe("space rules", () => {

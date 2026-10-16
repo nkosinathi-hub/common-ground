@@ -1,20 +1,32 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
-import { IdeasService } from "../application/ideas-service"
-import { InMemoryIdeas } from "../testing/in-memory-ideas"
-import { ideasContext } from "./context"
+import { inMemoryIdeasService } from "../testing/ideas-fixture"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideIdeas } from "./context"
 import IdeaHeader from "./IdeaHeader.svelte"
 
-async function setup() {
-  const repo = new InMemoryIdeas()
-  const service = new IdeasService(repo)
+const AUTHOR = { me: "u1", isOwner: false }
+
+async function setup(viewer = AUTHOR) {
+  const { repo, service } = inMemoryIdeasService()
   const created = await service.capture({ spaceId: "s", title: "Tea bar" })
   if (!created.ok) throw new Error("capture failed")
+  const idea = { ...created.value, createdBy: "u1" }
   const onDeleted = vi.fn()
-  const props = { idea: created.value, onChange: vi.fn(), onDeleted }
-  render(IdeaHeader, { props, context: ideasContext(service) })
-  return { repo, idea: created.value, onDeleted }
+  const props = {
+    idea,
+    viewer,
+    members: [],
+    authors: [],
+    onChange: vi.fn(),
+    onPeopleChanged: vi.fn(),
+    onDeleted,
+  }
+  render(Provided, {
+    props: { provide: () => provideIdeas({ service }), component: IdeaHeader, props },
+  })
+  return { repo, idea, onDeleted }
 }
 
 async function confirmDelete() {
@@ -38,6 +50,14 @@ describe("IdeaHeader delete", () => {
     await confirmDelete()
     await waitFor(() => expect(onDeleted).toHaveBeenCalledOnce())
     expect(repo.rows.has(idea.id)).toBe(false)
+  })
+
+  it("offers delete only to the author or the space owner", async () => {
+    await setup({ me: "u2", isOwner: false })
+    expect(screen.queryByRole("button", { name: "Delete idea" })).toBeNull()
+    cleanup()
+    await setup({ me: "u2", isOwner: true })
+    expect(screen.getByRole("button", { name: "Delete idea" })).toBeInTheDocument()
   })
 
   it("shows the server's refusal and stays on the idea", async () => {

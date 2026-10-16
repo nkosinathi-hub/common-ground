@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { Cursor } from "@/shared/domain"
+  import { untrack } from "svelte"
+  import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { DeleteButton, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
   import {
     HYPOTHESIS_MAX,
     HYPOTHESIS_STATUSES,
@@ -16,14 +17,17 @@
 
   interface Props {
     idea: Idea
+    viewer: Viewer
   }
 
-  let { idea }: Props = $props()
-  const research = useResearch()
+  let { idea, viewer }: Props = $props()
+  const research = useResearch().service
   const list = new PagedList<Hypothesis, Cursor>((after) => research.hypotheses(idea.id, after))
-  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
+  const ideaId = $derived(idea.id)
   $effect(() => {
-    list.load()
+    void ideaId
+    untrack(() => list.load())
   })
 
   let statement = $state("")
@@ -54,7 +58,7 @@
     />
     <Button type="submit" size="sm" disabled={!statement.trim()}>Add</Button>
   </form>
-  {#if error}<p class="text-sm text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} />
   <ul class="flex flex-col gap-2">
     {#each list.items as hypothesis (hypothesis.id)}
       <li
@@ -74,11 +78,13 @@
                 >{HYPOTHESIS_LABELS[status]}</option
               >{/each}
           </select>
-          <DeleteButton
-            label="Delete hypothesis"
-            what="this hypothesis"
-            onConfirm={() => remove(hypothesis.id)}
-          />
+          {#if canDelete(hypothesis.createdBy, viewer)}
+            <DeleteButton
+              label="Delete hypothesis"
+              what="this hypothesis"
+              onConfirm={() => remove(hypothesis.id)}
+            />
+          {/if}
         </div>
       </li>
     {/each}

@@ -12,12 +12,12 @@ export interface Recommendation extends Cursor {
   readonly status: RecommendationStatus
 }
 
-export const MAX_NOTE = 500
+export const NOTE_MAX = 500
 
 export function validateNote(note: string): Result<string | null> {
   const trimmed = note.trim()
-  if (trimmed.length > MAX_NOTE)
-    return err(appError("validation", `Keep the note under ${MAX_NOTE} characters`, "note"))
+  if (trimmed.length > NOTE_MAX)
+    return err(appError("validation", `Keep the note under ${NOTE_MAX} characters`, "note"))
   return ok(trimmed === "" ? null : trimmed)
 }
 

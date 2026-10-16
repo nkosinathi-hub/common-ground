@@ -1,15 +1,12 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import { Pencil, Trash2 } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
   import { Poster } from "@/features/catalog"
-  import type { Result } from "@/shared/domain"
-  import { ConfirmDialog, toast } from "@/shared/ui"
+  import { toast } from "@/shared/ui"
   import { INTENTS, mediaTypeLabel } from "../domain/labels"
   import type { SharedIntent, WatchItemView } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
-  import EditTitleDialog from "./EditTitleDialog.svelte"
+  import ItemActions from "./ItemActions.svelte"
 
   interface Props {
     view: WatchItemView
@@ -21,24 +18,12 @@
   let { view, backHref, recommend, onChanged }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
-  let editing = $state(false)
-  let confirming = $state(false)
-
-  /** Toasts the outcome of a change and says whether it worked. */
-  async function confirmed(change: Promise<Result<void>>, success: string): Promise<boolean> {
-    const result = await change
-    if (result.ok) toast.success(success)
-    else toast.error(result.error.message)
-    return result.ok
-  }
 
   async function changeIntent(intent: SharedIntent) {
-    if (await confirmed(service.setIntent(item.id, intent), "List updated")) onChanged()
-  }
-
-  async function remove() {
-    if (await confirmed(service.remove(item.id), `${item.title} was removed`))
-      window.location.assign(backHref)
+    const result = await service.setIntent(item.id, intent)
+    if (!result.ok) return toast.error(result.error.message)
+    toast.success("List updated")
+    onChanged()
   }
 </script>
 
@@ -68,32 +53,6 @@
         onchange={(value) => value && changeIntent(value)}
       />
     </div>
-    <div class="flex flex-wrap gap-2">
-      <Button variant="outline" size="sm" onclick={() => (editing = true)}>
-        <Pencil aria-hidden="true" />
-        Edit details
-      </Button>
-      {#if view.canDelete}
-        <Button
-          variant="ghost"
-          size="sm"
-          class="text-destructive"
-          onclick={() => (confirming = true)}
-        >
-          <Trash2 aria-hidden="true" />
-          Delete
-        </Button>
-      {/if}
-      {@render recommend?.()}
-    </div>
+    <ItemActions {view} {backHref} {recommend} {onChanged} />
   </div>
 </header>
-
-<EditTitleDialog bind:open={editing} {item} onSaved={onChanged} />
-<ConfirmDialog
-  bind:open={confirming}
-  title={`Delete ${item.title}?`}
-  description="It leaves the shared list for everyone, with all progress and watched-together history."
-  confirmLabel="Delete"
-  onConfirm={remove}
-/>

@@ -28,7 +28,7 @@ export function stack(): Record<string, string> {
   return cached
 }
 
-export function stackRunning(): boolean {
+function stackRunning(): boolean {
   try {
     return Boolean(stack().API_URL)
   } catch {

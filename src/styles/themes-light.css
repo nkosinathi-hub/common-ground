@@ -1,0 +1,81 @@
+/* Space presets, light. Checked for 4.5:1 contrast by themes.test.ts. */
+[data-space-theme="blank"] {
+  --primary: #526b4a;
+  --ring: #526b4a;
+  --accent: #e8eddf;
+  --sidebar: #f4f3ed;
+  --sidebar-accent: #e8eddf;
+  --banner: #e9eddf;
+  --highlight: #f6e9dc;
+  --clay: #8f6343;
+}
+[data-space-theme="couple"] {
+  --primary: #8a4f5d;
+  --ring: #8a4f5d;
+  --accent: #f3e4e6;
+  --sidebar: #f7f0ef;
+  --sidebar-accent: #f3e4e6;
+  --banner: #f5e6e7;
+  --highlight: #f8e8df;
+  --clay: #8e5a4c;
+}
+[data-space-theme="friends"] {
+  --primary: #62618c;
+  --ring: #62618c;
+  --accent: #eceaf4;
+  --sidebar: #f3f2f6;
+  --sidebar-accent: #eceaf4;
+  --banner: #ebe9f3;
+  --highlight: #f2ebf2;
+  --clay: #6f5f8c;
+}
+[data-space-theme="family"] {
+  --primary: #806330;
+  --ring: #806330;
+  --accent: #f5ecd9;
+  --sidebar: #f7f2e7;
+  --sidebar-accent: #f5ecd9;
+  --banner: #f4ead6;
+  --highlight: #f7e7d3;
+  --clay: #8a5d32;
+}
+[data-space-theme="ocean"] {
+  --primary: #2f6a80;
+  --ring: #2f6a80;
+  --accent: #e2e8e8;
+  --sidebar: #f0f2f0;
+  --sidebar-accent: #e2e8e8;
+  --banner: #e0e6e7;
+  --highlight: #e5e8e7;
+  --clay: #4f6f7a;
+}
+[data-space-theme="meadow"] {
+  --primary: #47682a;
+  --ring: #47682a;
+  --accent: #e5e8de;
+  --sidebar: #f1f2ec;
+  --sidebar-accent: #e5e8de;
+  --banner: #e3e6db;
+  --highlight: #eae7de;
+  --clay: #76662f;
+}
+[data-space-theme="dusk"] {
+  --primary: #6a5285;
+  --ring: #6a5285;
+  --accent: #e9e5e8;
+  --sidebar: #f3f1f0;
+  --sidebar-accent: #e9e5e8;
+  --banner: #e7e3e7;
+  --highlight: #ebe6e6;
+  --clay: #7d5a6e;
+}
+[data-space-theme="berry"] {
+  --primary: #94405f;
+  --ring: #94405f;
+  --accent: #eee3e4;
+  --sidebar: #f5f0ee;
+  --sidebar-accent: #eee3e4;
+  --banner: #ede1e2;
+  --highlight: #ede5e3;
+  --clay: #8c4f5a;
+}

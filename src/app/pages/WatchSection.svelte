@@ -1,18 +1,27 @@
 <script lang="ts">
-  import { useAuth } from "@/features/auth"
+  import { useMembers } from "../composition/members"
   import { CommentThread } from "@/features/comments"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
-  import { useWatch, WatchItemDetail, WatchPage } from "@/features/watch"
+  import { WatchItemDetail, WatchPage } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
 
-  let { space, itemId }: { space: Space; itemId: string | null } = $props()
-  const { session } = useAuth()
-  const { members } = useWatch()
+  interface Props {
+    space: Space
+    /** The signed-in member's id. */
+    me: string
+    itemId: string | null
+  }
+
+  let { space, me, itemId }: Props = $props()
+  const { members, authors } = useMembers()
   const people = new Resource(() => members.members(space.id))
-  $effect(() => void people.load())
-  const me = $derived(session.user?.id ?? "")
+  const names = new Resource(() => authors.authors(space.id))
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
 </script>
 
@@ -33,10 +42,11 @@
           {me}
           isOwner={space.role === "owner"}
           members={people.value ?? []}
+          authors={names.value ?? people.value ?? []}
         />
       {/snippet}
     </WatchItemDetail>
   {/key}
 {:else}
-  <WatchPage spaceId={space.id} {itemHref} />
+  <WatchPage spaceId={space.id} {itemHref} defaultIntent={space.defaultWatchIntent} />
 {/if}

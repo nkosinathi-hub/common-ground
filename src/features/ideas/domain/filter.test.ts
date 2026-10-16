@@ -17,7 +17,9 @@ const idea = (
   template: "blank",
   brief: pitch ? { pitch } : {},
   currency: "ZAR",
-  createdBy: null,
+  createdBy: id === "1" ? "ana" : "ben",
+  collaborators:
+    id === "2" ? [{ userId: "ana", invitedBy: "ben", invitedAt: "", acceptedAt: "" }] : [],
   createdAt: "",
   updatedAt: "",
 })
@@ -34,6 +36,11 @@ describe("filterIdeas", () => {
   it("combines tag and stage", () => {
     expect(filterIdeas(ideas, { tag: "food", stage: "inbox" }).map((i) => i.id)).toEqual(["1", "3"])
     expect(filterIdeas(ideas, { tag: "events", stage: "building" })).toEqual([])
+  })
+  it("keeps the viewer's own ideas, or every idea they are on", () => {
+    expect(filterIdeas(ideas, { whose: "mine" }, "ana").map((i) => i.id)).toEqual(["1"])
+    expect(filterIdeas(ideas, { whose: "ours" }, "ana").map((i) => i.id)).toEqual(["1", "2"])
+    expect(filterIdeas(ideas, { whose: "ours" })).toEqual([])
   })
 })
 

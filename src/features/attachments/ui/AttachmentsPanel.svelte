@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { canDelete } from "@/shared/domain"
   import { untrack } from "svelte"
   import { AsyncView, Resource, toast } from "@/shared/ui"
-  import { canDelete } from "../domain/rules"
   import type { Attachment } from "../domain/types"
   import AttachmentItem from "./AttachmentItem.svelte"
   import { useAttachments } from "./context"
@@ -56,7 +56,7 @@
           {#each items as attachment (attachment.id)}
             <AttachmentItem
               {attachment}
-              deletable={canDelete(attachment.uploaderId, me, isOwner)}
+              deletable={canDelete(attachment.uploaderId, { me, isOwner })}
               onDelete={remove}
             />
           {/each}

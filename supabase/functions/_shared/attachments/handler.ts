@@ -3,6 +3,7 @@ import { success, type Outcome } from "../http/outcome.ts"
 import { bearerToken } from "../http/request.ts"
 import { serveJson } from "../http/serve.ts"
 import { runCleanup } from "./cleanup.ts"
+import { runMediaCleanup, type MediaBucket, type MediaCandidates } from "./cleanup-media.ts"
 import { failure } from "./outcome.ts"
 import type { AttachmentsStore, ObjectStorage } from "./ports.ts"
 import { CLEANUP_HEADER, isCleanupAuthorized } from "./secret.ts"
@@ -15,6 +16,8 @@ export interface HandlerDeps {
   readonly gate: Gate
   readonly store: AttachmentsStore
   readonly storage: ObjectStorage
+  /** The space-media orphan pass; optional so the entry can wire it when deployed. */
+  readonly media?: { readonly candidates: MediaCandidates; readonly bucket: MediaBucket }
 }
 
 type UserRequest = Exclude<AttachmentsRequest, { action: "cleanup" }>
@@ -36,7 +39,10 @@ export function createAttachmentsHandler(deps: HandlerDeps) {
   async function cleanup(request: Request): Promise<Outcome<unknown>> {
     if (!isCleanupAuthorized(request.headers.get(CLEANUP_HEADER), deps.cleanupSecret))
       return failure("denied", "Not allowed")
-    return success(await runCleanup(deps.store, deps.storage))
+    const attachments = await runCleanup(deps.store, deps.storage)
+    if (!deps.media) return success(attachments)
+    const media = await runMediaCleanup(deps.media.candidates, deps.media.bucket)
+    return success({ ...attachments, media })
   }
 
   async function handle(raw: unknown, request: Request): Promise<Outcome<unknown>> {

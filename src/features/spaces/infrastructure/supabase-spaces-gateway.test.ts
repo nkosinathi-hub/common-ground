@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
+import { SPACE_ROW } from "./space-row.fixture"
 import { SupabaseSpacesGateway } from "./supabase-spaces-gateway"
 
 const gatewayFor = (replies: Reply[], userId?: string | null) => {
@@ -10,13 +11,14 @@ const gatewayFor = (replies: Reply[], userId?: string | null) => {
 
 describe("SupabaseSpacesGateway", () => {
   it("lists the signed-in user's memberships as spaces", async () => {
-    const row = { role: "owner", spaces: { id: "s1", name: "Us", template: "couple" } }
+    const row = { role: "owner", spaces: SPACE_ROW }
     const { gateway, calls } = gatewayFor([{ data: [row], error: null }])
-    expect(await gateway.listMine()).toEqual({
+    expect(await gateway.listMine()).toMatchObject({
       ok: true,
-      value: [{ id: "s1", name: "Us", template: "couple", role: "owner" }],
+      value: [{ id: "s1", name: "Us", template: "couple", role: "owner", accent: "#aabbcc" }],
     })
     expect(calls).toContainEqual(["eq", "user_id", "u1"])
+    expect(String(calls[1]?.[1])).toContain("home_cards")
   })
 
   it("never queries with an empty user id when signed out", async () => {
@@ -32,6 +34,17 @@ describe("SupabaseSpacesGateway", () => {
       ok: true,
       value: [{ userId: "u2", role: "member", joinedAt: "t", displayName: "Ana" }],
     })
+  })
+
+  it("reads the profiles RLS lets the viewer see, for naming former members", async () => {
+    const { gateway, calls } = gatewayFor([
+      { data: [{ id: "u3", display_name: "Ben" }], error: null },
+    ])
+    expect(await gateway.knownPeople()).toEqual({
+      ok: true,
+      value: [{ id: "u3", displayName: "Ben" }],
+    })
+    expect(calls).toContainEqual(["from", "profiles"])
   })
 
   it("returns invite records untouched by time", async () => {
@@ -65,5 +78,14 @@ describe("SupabaseSpacesGateway", () => {
     expect(await gateway.create("Us", "blank")).toEqual({ ok: true, value: "s9" })
     expect(calls[0]).toEqual(["rpc", "create_space", { space_name: "Us", space_template: "blank" }])
     expect(await gateway.leave("s9")).toMatchObject({ ok: false, error: { kind: "denied" } })
+  })
+  it("delegates profile writes to the profile adapter", async () => {
+    const { gateway, calls } = gatewayFor([
+      { data: [{ id: "s1" }], error: null },
+      { data: "old", error: null },
+    ])
+    expect((await gateway.updateProfile("s1", { icon: "heart" })).ok).toBe(true)
+    expect(await gateway.setMedia("s1", "cover", null)).toEqual({ ok: true, value: "old" })
+    expect(calls).toContainEqual(["update", { icon: "heart" }])
   })
 })

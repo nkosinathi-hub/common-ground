@@ -1,6 +1,17 @@
 <script lang="ts">
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
+  import FormError from "./FormError.svelte"
+
+  interface Props {
+    id: string
+    label: string
+    value?: string
+    type?: string
+    autocomplete?: HTMLInputElement["autocomplete"]
+    error?: string | undefined
+    hint?: string
+  }
 
   let {
     id,
@@ -10,15 +21,7 @@
     autocomplete,
     error,
     hint,
-  }: {
-    id: string
-    label: string
-    value?: string
-    type?: string
-    autocomplete?: HTMLInputElement["autocomplete"]
-    error?: string | undefined
-    hint?: string
-  } = $props()
+  }: Props = $props()
 </script>
 
 <div class="grid gap-1.5">
@@ -33,7 +36,7 @@
     required
   />
   {#if error}
-    <p id={`${id}-error`} class="text-sm text-destructive">{error}</p>
+    <FormError id={`${id}-error`} message={error} alert={false} />
   {:else if hint}
     <p id={`${id}-hint`} class="text-xs text-muted-foreground">{hint}</p>
   {/if}

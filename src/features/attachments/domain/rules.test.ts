@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest"
 import {
   ACCEPT,
-  MAX_BYTES,
-  canDelete,
-  MAX_FILENAME,
+  BYTES_MAX,
+  FILENAME_MAX,
   formatBytes,
   isAttachmentMime,
   isWebUrl,
@@ -33,11 +32,11 @@ describe("precheckFile (convenience only, the server decides)", () => {
     expect(precheckFile(file("a.gif", "image/gif")).ok).toBe(false)
     expect(precheckFile(file("a.exe", "application/pdf")).ok).toBe(false)
     expect(precheckFile(file("a.png", "image/png", 0)).ok).toBe(false)
-    expect(precheckFile(file("a.png", "image/png", MAX_BYTES + 1))).toEqual({
+    expect(precheckFile(file("a.png", "image/png", BYTES_MAX + 1))).toEqual({
       ok: false,
       error: { kind: "validation", message: "Files can be at most 10 MB" },
     })
-    expect(precheckFile(file(`${"a".repeat(MAX_FILENAME)}.png`, "image/png")).ok).toBe(false)
+    expect(precheckFile(file(`${"a".repeat(FILENAME_MAX)}.png`, "image/png")).ok).toBe(false)
   })
 })
 
@@ -55,7 +54,7 @@ describe("attachment helpers", () => {
     expect(formatBytes(900)).toBe("900 B")
     expect(formatBytes(2048)).toBe("2 KB")
     expect(formatBytes(3.5 * 1024 * 1024)).toBe("3.5 MB")
-    expect(formatBytes(MAX_BYTES)).toBe("10 MB")
+    expect(formatBytes(BYTES_MAX)).toBe("10 MB")
   })
 
   it("recognises only the allowed types", () => {
@@ -69,12 +68,5 @@ describe("attachment helpers", () => {
     expect(isWebUrl("javascript:alert(1)")).toBe(false)
     expect(isWebUrl("data:text/html,x")).toBe(false)
     expect(isWebUrl("not a url")).toBe(false)
-  })
-
-  it("offers delete to the uploader and the owner only", () => {
-    expect(canDelete("me", "me", false)).toBe(true)
-    expect(canDelete("them", "me", true)).toBe(true)
-    expect(canDelete("them", "me", false)).toBe(false)
-    expect(canDelete(null, "me", false)).toBe(false)
   })
 })

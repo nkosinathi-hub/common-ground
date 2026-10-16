@@ -1,5 +1,9 @@
-import { describe, expect, it } from "vitest"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { compareDateOnly, isDateOnly, todayDateOnly, toDateOnly } from "./date-only"
+
+const TZ = process.env.TZ
+beforeEach(() => (process.env.TZ = "America/Los_Angeles"))
+afterEach(() => (process.env.TZ = TZ))
 
 describe("DateOnly", () => {
   it("accepts real calendar dates only", () => {
@@ -9,8 +13,8 @@ describe("DateOnly", () => {
   })
 
   it("derives today in the local calendar, not UTC", () => {
-    const lateNightJohannesburg = new Date(2026, 9, 15, 23, 30)
-    expect(todayDateOnly(lateNightJohannesburg)).toBe("2026-10-15")
+    // 05:30 UTC on 16 Oct is 22:30 on 15 Oct in Los Angeles; UTC would say the 16th.
+    expect(todayDateOnly(new Date("2026-10-16T05:30:00Z"))).toBe("2026-10-15")
   })
 
   it("compares lexically", () => {

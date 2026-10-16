@@ -3,16 +3,20 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 import { appError, err } from "@/shared/domain"
 import { AccountService } from "../application/account-service"
 import { FakeAccountRepository, FakeReauthenticator } from "../testing/fake-account"
-import { accountContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideAccount } from "./context"
 import DeleteAccountCard from "./DeleteAccountCard.svelte"
 
 function setup() {
   const repo = new FakeAccountRepository()
   const onDeleted = vi.fn()
   const service = new AccountService(repo, new FakeReauthenticator())
-  render(DeleteAccountCard, {
-    props: { onDeleted },
-    context: accountContext({ service }),
+  render(Provided, {
+    props: {
+      provide: () => provideAccount({ service }),
+      component: DeleteAccountCard,
+      props: { onDeleted },
+    },
   })
   const fill = async (password: string, confirmation: string) => {
     await fireEvent.input(screen.getByLabelText("Your password"), { target: { value: password } })

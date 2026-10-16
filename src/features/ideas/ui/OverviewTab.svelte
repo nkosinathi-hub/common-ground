@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
   import type { AppError } from "@/shared/domain"
-  import { toast } from "@/shared/ui"
+  import { FormError, toast } from "@/shared/ui"
   import {
     BRIEF_FIELDS,
     BRIEF_MAX,
@@ -22,7 +22,7 @@
   }
 
   let { idea, onSaved }: Props = $props()
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
 
   // The editor owns its copy from mount; IdeaDetail remounts it per idea.
   let base = $state(untrack(() => idea))
@@ -90,9 +90,7 @@
           </p>{/if}
       </div>
     {/each}
-    {#if fieldError && !fieldError.field}<p class="text-sm text-destructive" role="alert">
-        {fieldError.message}
-      </p>{/if}
+    <FormError message={fieldError && !fieldError.field ? fieldError.message : null} />
     <Button type="submit" class="self-start" disabled={busy}>Save overview</Button>
   </form>
 {/if}

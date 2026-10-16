@@ -5,6 +5,7 @@ import { createSpace, signIn } from "../support/session"
 import { comment, expectNotification, PIXEL_PNG, recommend } from "../support/social"
 import { createUser, requireStack } from "../support/stack"
 import { addTask, setTaskField } from "../support/tasks"
+import { daysFromNow } from "../support/dates"
 
 requireStack()
 
@@ -45,7 +46,7 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
   await expect(page.getByText("The bathhouse scene is the best part")).toBeVisible()
 
   await openIdeaTab(page, spaceId, ideaId, "tasks")
-  await addTask(page, "Buy snacks", "2026-11-01")
+  await addTask(page, "Buy snacks", daysFromNow(20).iso)
   await setTaskField(page, "Buy snacks", "Assignee", "ben")
   await benPage.reload()
   await expectNotification(benPage, /ana assigned you a task/)

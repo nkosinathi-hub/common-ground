@@ -1,12 +1,12 @@
 <script lang="ts">
   import { Pencil } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { memberName } from "@/shared/domain"
+  import { canDelete, formatDateTime, memberName } from "@/shared/domain"
   import { DeleteButton, toast } from "@/shared/ui"
-  import { canDelete, canEdit, type Comment, type Viewer } from "../domain/comment"
+  import { canEdit, type Comment, type Viewer } from "../domain/comment"
   import CommentEditForm from "./CommentEditForm.svelte"
   import SpoilerBody from "./SpoilerBody.svelte"
-  import type { ThreadState } from "./thread.svelte"
+  import type { ThreadState } from "./thread-state.svelte"
 
   interface Props {
     comment: Comment
@@ -15,14 +15,9 @@
   }
   let { comment, thread, viewer }: Props = $props()
 
-  const author = $derived(memberName(viewer.members, comment.authorId))
-  const mentioned = $derived(comment.mentionIds.map((id) => memberName(viewer.members, id)))
-  const when = $derived(
-    new Date(comment.createdAt).toLocaleString("en-ZA", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
-  )
+  const author = $derived(memberName(viewer.authors, comment.authorId))
+  const mentioned = $derived(comment.mentionIds.map((id) => memberName(viewer.authors, id)))
+  const when = $derived(formatDateTime(comment.createdAt))
   let editing = $state(false)
 
   async function remove() {
@@ -59,7 +54,7 @@
           <Pencil aria-hidden="true" />Edit
         </Button>
       {/if}
-      {#if canDelete(comment, viewer.me, viewer.isOwner)}
+      {#if canDelete(comment.authorId, viewer)}
         <DeleteButton
           label="Delete comment"
           what="this comment"

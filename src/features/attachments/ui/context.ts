@@ -17,6 +17,3 @@ export function useAttachments(): AttachmentsContext {
   if (!value) throw new Error("Attachments are not provided: call provideAttachments")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const attachmentsContext = (value: AttachmentsContext) => new Map([[KEY, value]])

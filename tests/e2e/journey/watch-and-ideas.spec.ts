@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { addTitle, captureIdea } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
@@ -8,16 +9,7 @@ test("add a title manually, track progress and comment", async ({ page }) => {
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Movie nights")
 
-  await page.goto(`./#/s/${spaceId}/watch`)
-  await page.getByRole("button", { name: "Add your first title" }).click()
-  await page.getByRole("button", { name: "Add a title manually" }).click()
-  await page.getByLabel("Title", { exact: true }).fill("Frieren")
-  await page.getByRole("button", { name: "Add to your list" }).click()
-  await page
-    .getByRole("link", { name: /Frieren/ })
-    .first()
-    .click()
-  await page.waitForURL(/#\/s\/.+\/watch\/[0-9a-f-]{36}/)
+  await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
   await expect(page.getByText(/no verified provider data/i)).toBeVisible()
 
@@ -34,14 +26,7 @@ test("capture an idea and open every tab", async ({ page }) => {
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Big plans")
 
-  await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByLabel("Idea title").fill("Night market stall")
-  await page.getByRole("button", { name: "Capture", exact: true }).click()
-  await page
-    .getByRole("link", { name: /Night market stall/ })
-    .first()
-    .click()
-  await page.waitForURL(/#\/s\/.+\/ideas\/[0-9a-f-]{36}\/overview/)
+  await captureIdea(page, spaceId, "Night market stall")
   for (const tab of ["research", "tasks", "milestones", "discussion", "overview"]) {
     await page.goto(page.url().replace(/\/[a-z]+$/, `/${tab}`))
     await expect(page.getByLabel("Title", { exact: true }).first()).toHaveValue(

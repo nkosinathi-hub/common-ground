@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import type { AppError } from "@/shared/domain"
@@ -53,6 +54,6 @@
   <td class="p-1 text-right whitespace-nowrap">
     <Button size="sm" onclick={save}>Save</Button>
     <Button size="sm" variant="ghost" onclick={onCancel}>Cancel</Button>
-    {#if error}<p class="text-sm text-destructive" role="alert">{error.message}</p>{/if}
+    <FormError message={error?.message} />
   </td>
 </tr>

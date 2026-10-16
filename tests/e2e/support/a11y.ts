@@ -14,9 +14,11 @@ export async function axeViolations(page: Page, include?: string): Promise<strin
   )
 }
 
-/** Waits for a route's data to load: main is shown and no loading placeholder remains. */
+/**
+ * Waits for a route's data to load: main is shown and no loading placeholder remains. Not
+ * networkidle: the Realtime socket keeps the network busy.
+ */
 export async function settled(page: Page): Promise<void> {
-  await page.waitForLoadState("networkidle")
   await expect(page.locator("main")).toBeVisible()
   await expect(page.getByRole("status").filter({ hasText: /^Loading/ })).toHaveCount(0)
 }

@@ -2,6 +2,16 @@
   import type { Snippet } from "svelte"
   import * as AlertDialog from "$lib/components/ui/alert-dialog"
 
+  interface Props {
+    open?: boolean
+    title: string
+    description: string
+    confirmLabel: string
+    destructive?: boolean
+    onConfirm: () => unknown
+    children?: Snippet
+  }
+
   let {
     open = $bindable(false),
     title,
@@ -10,15 +20,7 @@
     destructive = true,
     onConfirm,
     children,
-  }: {
-    open?: boolean
-    title: string
-    description: string
-    confirmLabel: string
-    destructive?: boolean
-    onConfirm: () => unknown
-    children?: Snippet
-  } = $props()
+  }: Props = $props()
 </script>
 
 <AlertDialog.Root bind:open>

@@ -17,6 +17,3 @@ export function useBudget(): BudgetContext {
   if (!value) throw new Error("Budget is not provided: call provideBudget")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const budgetContext = (value: BudgetContext) => new Map([[KEY, value]])

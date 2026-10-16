@@ -1,15 +1,10 @@
-import { nextCursor, type Cursor, type Page, type Result } from "@/shared/domain"
-import { newestFirst } from "@/shared/infrastructure/paging"
+import type { Cursor, Page, Result } from "@/shared/domain"
+import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { IdeaPatch, IdeasRepository, NewIdea } from "../application/ports"
-import type { Brief, Idea } from "../domain"
-import { IDEA_COLUMNS, toIdea, type IdeaRow } from "./idea-row"
-
-const toPage = (rows: IdeaRow[]): Page<Idea> => {
-  const items = rows.map(toIdea)
-  return { items, next: nextCursor(items) }
-}
+import type { IdeaPatch, IdeaScope, IdeasRepository, NewIdea } from "../application/ports"
+import { IN_PROGRESS_STAGES, type Brief, type Idea } from "../domain"
+import { IDEA_COLUMNS, toIdea } from "./idea-row"
 
 export class SupabaseIdeas implements IdeasRepository {
   constructor(private readonly db: Db) {}
@@ -18,9 +13,23 @@ export class SupabaseIdeas implements IdeasRepository {
     return this.db.from("ideas")
   }
 
-  list(spaceId: string, after: Cursor | null): Promise<Result<Page<Idea>>> {
-    const query = this.ideas.select(IDEA_COLUMNS).eq("space_id", spaceId)
-    return settle(newestFirst(query, after), toPage)
+  list(spaceId: string, after: Cursor | null, scope?: IdeaScope): Promise<Result<Page<Idea>>> {
+    let query = this.ideas.select(IDEA_COLUMNS).eq("space_id", spaceId)
+    if (scope?.whose === "mine") query = query.eq("created_by", scope.me)
+    // `ours` is a computed field: the caller started the idea or accepted an invite to it.
+    if (scope?.whose === "ours") query = query.is("ours", true)
+    return settle(newestFirst(query, after), pageOf(toIdea))
+  }
+
+  inProgress(spaceId: string, limit: number): Promise<Result<Idea[]>> {
+    const query = this.ideas
+      .select(IDEA_COLUMNS)
+      .eq("space_id", spaceId)
+      .in("stage", [...IN_PROGRESS_STAGES])
+      .order("updated_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(limit)
+    return settle(query, (rows) => rows.map(toIdea))
   }
 
   get(id: string): Promise<Result<Idea>> {

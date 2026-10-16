@@ -27,7 +27,7 @@ describe("SupabaseNotifications", () => {
     ])
     expect(page.ok && page.value.next).toBeNull()
     expect(calls).toContainEqual(["order", "created_at", { ascending: false }])
-    expect(calls).toContainEqual(["limit", PAGE_SIZE])
+    expect(calls).toContainEqual(["limit", PAGE_SIZE + 1])
   })
 
   it("pages older than the cursor with the quoted keyset filter", async () => {
@@ -53,8 +53,21 @@ describe("SupabaseNotifications", () => {
   })
 })
 
+describe("SupabaseNotifications unread count", () => {
+  it("counts every unread notification on the server without fetching rows", async () => {
+    const reply = { data: null, error: null, count: 61 }
+    const { client: db, calls } = recordingClient([reply])
+    expect(await new SupabaseNotifications(db as Db).unreadCount()).toEqual({ ok: true, value: 61 })
+    expect(calls).toEqual([
+      ["from", "notifications"],
+      ["select", "id", { count: "exact", head: true }],
+      ["is", "read_at", null],
+    ])
+  })
+})
+
 describe("SupabaseActivity", () => {
-  it("lists one space's events", async () => {
+  it("lists one space's events, with who did it and who a private one was with", async () => {
     const row = {
       id: "e1",
       event_type: "member_joined",
@@ -63,9 +76,25 @@ describe("SupabaseActivity", () => {
       created_at: "2026-10-15T10:00:00Z",
       actor: { display_name: "Ben" },
     }
-    const { client: db, calls } = recordingClient([{ data: [row], error: null }])
+    const shared = { ...row, id: "e2", by_me: true, target: { display_name: "Ana" } }
+    const { client: db, calls } = recordingClient([{ data: [row, shared], error: null }])
     const page = await new SupabaseActivity(db as Db).list("s", null)
-    expect(page).toMatchObject({ ok: true, value: { items: [{ id: "e1", actorName: "Ben" }] } })
+    expect(page).toMatchObject({
+      ok: true,
+      value: {
+        items: [
+          { id: "e1", actorName: "Ben", byMe: false, targetName: null },
+          { id: "e2", byMe: true, targetName: "Ana" },
+        ],
+      },
+    })
     expect(calls).toContainEqual(["eq", "space_id", "s"])
+    expect(calls.at(-1)).toEqual(["limit", PAGE_SIZE + 1])
+  })
+
+  it("lists only the latest few when given a size", async () => {
+    const { client: db, calls } = recordingClient([{ data: [], error: null }])
+    await new SupabaseActivity(db as Db).list("s", null, 6)
+    expect(calls.at(-1)).toEqual(["limit", 7])
   })
 })

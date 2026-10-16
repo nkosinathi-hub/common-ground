@@ -1,31 +1,43 @@
-import { appError, type Cursor, err, ok, type Result } from "@/shared/domain"
+import {
+  appError,
+  asAuthors,
+  type AuthorDirectory,
+  type Cursor,
+  err,
+  type MemberDirectory,
+  ok,
+  type Result,
+} from "@/shared/domain"
 import {
   cleanBrief,
-  normalizeTags,
+  IN_PROGRESS_LIMIT,
   templateBrief,
+  validateTags,
   validateTitle,
   type Brief,
   type Idea,
   type IdeaStage,
-  type IdeaTemplate,
 } from "../domain"
-import type { IdeasRepository } from "./ports"
-
-export type SaveBriefOutcome =
-  | { readonly status: "saved"; readonly idea: Idea }
-  | { readonly status: "conflict"; readonly latest: Idea }
-
-export interface CaptureInput {
-  readonly spaceId: string
-  readonly title: string
-  readonly template?: IdeaTemplate
-}
+import type {
+  CaptureInput,
+  CollaboratorsRepository,
+  IdeaScope,
+  IdeasRepository,
+  SaveBriefOutcome,
+} from "./ports"
 
 export class IdeasService {
-  constructor(private readonly repo: IdeasRepository) {}
+  constructor(
+    private readonly repo: IdeasRepository,
+    private readonly people: CollaboratorsRepository,
+    private readonly directory: MemberDirectory,
+    private readonly names: AuthorDirectory = asAuthors(directory),
+  ) {}
 
-  list = (spaceId: string, after: Cursor | null) => this.repo.list(spaceId, after)
+  list = (spaceId: string, after: Cursor | null, scope?: IdeaScope) =>
+    this.repo.list(spaceId, after, scope)
   get = (id: string) => this.repo.get(id)
+  inProgress = (spaceId: string) => this.repo.inProgress(spaceId, IN_PROGRESS_LIMIT)
   /** Only the author or the space owner may delete; the server refuses anyone else. */
   remove = (id: string) => this.repo.remove(id)
 
@@ -46,10 +58,29 @@ export class IdeasService {
     return title.ok ? this.repo.update(id, { title: title.value }) : title
   }
 
+  /** Current members for pickers; authors also names removed members still visible. */
+  members = (spaceId: string) => this.directory.members(spaceId)
+  authors = (spaceId: string) => this.names.authors(spaceId)
+  collaborators = (ideaId: string) => this.people.list(ideaId)
+  respond = (ideaId: string, accept: boolean) => this.people.respond(ideaId, accept)
+  removeCollaborator = (ideaId: string, userId: string) => this.people.remove(ideaId, userId)
+
+  /** Invites each member in turn; a refusal does not stop the rest. Reports the first one. */
+  async invite(ideaId: string, userIds: readonly string[]): Promise<Result<void>> {
+    let first: Result<void> = ok(undefined)
+    for (const userId of userIds) {
+      const sent = await this.people.invite(ideaId, userId)
+      if (!sent.ok && first.ok) first = sent
+    }
+    return first
+  }
+
   moveStage = (id: string, stage: IdeaStage) => this.repo.update(id, { stage })
 
-  setTags = (id: string, tags: readonly string[]) =>
-    this.repo.update(id, { tags: normalizeTags(tags) })
+  async setTags(id: string, input: readonly string[]): Promise<Result<Idea>> {
+    const tags = validateTags(input)
+    return tags.ok ? this.repo.update(id, { tags: tags.value }) : tags
+  }
 
   /** Never overwrites silently: a stale base returns the latest copy for the merge prompt. */
   async saveBrief(base: Idea, draft: Brief): Promise<Result<SaveBriefOutcome>> {

@@ -1,28 +1,28 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
-  import { BudgetPanel } from "@/features/budget"
-  import { MilestonesPanel, TasksTab } from "@/features/tasks"
-  import { ErrorState, Loading } from "@/shared/ui"
+  import { untrack, type Snippet } from "svelte"
+  import { ErrorState, Loading, Resource, navigate } from "@/shared/ui"
   import {
     appError,
-    buildHash,
     err,
     type AppError,
     type IdeaTab,
     type Result,
+    type Viewer,
   } from "@/shared/domain"
   import type { Idea } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
+  import IdeaTabContent from "./IdeaTabContent.svelte"
   import IdeaTabs from "./IdeaTabs.svelte"
-  import OverviewTab from "./OverviewTab.svelte"
-  import ResearchTab from "./ResearchTab.svelte"
+  import InviteBanner from "./InviteBanner.svelte"
 
   interface Props {
     spaceId: string
     ideaId: string
     tab: IdeaTab
     tabHref: (tab: IdeaTab) => string
+    /** The signed-in member; delete buttons show only for their own work, or to the owner. */
+    viewer: Viewer
     /** Comments thread for this idea (collaboration feature). */
     discussion?: Snippet<[Idea]>
     /** Attachment list for the research tab (attachments feature). */
@@ -31,9 +31,12 @@
     onDeleted?: () => void
   }
 
-  let { spaceId, ideaId, tab, tabHref, discussion, attachments, onDeleted }: Props = $props()
+  let { spaceId, ideaId, tab, tabHref, viewer, discussion, attachments, onDeleted }: Props =
+    $props()
 
-  const ideas = useIdeas()
+  const ideas = useIdeas().service
+  const people = new Resource(() => ideas.members(spaceId))
+  const names = new Resource(() => ideas.authors(spaceId))
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)
 
@@ -48,16 +51,20 @@
     idea = result.ok ? result.value : null
     error = result.ok ? null : result.error
   }
-  // Loads on mount, and again if ideaId changes: load reads it before its first await.
+  // Loads on mount and again when the idea changes.
   $effect(() => {
-    load()
+    void ideaId
+    untrack(() => void load())
   })
+  $effect(() => {
+    void people.load()
+    void names.load()
+  })
+  const authors = $derived(names.value ?? people.value ?? [])
 
-  const backToList = () => (location.hash = buildHash({ name: "ideas", spaceId }))
+  const backToList = () => navigate({ name: "ideas", spaceId })
   const deleted = () => (onDeleted ?? backToList)()
-  function setCurrency(currency: string) {
-    if (idea) idea = { ...idea, currency }
-  }
+  const changed = (next: Idea) => (idea = next)
 </script>
 
 {#if error}
@@ -66,28 +73,17 @@
   <Loading label="Loading idea" />
 {:else}
   <div class="flex flex-col gap-4">
-    <IdeaHeader {idea} onChange={(next) => (idea = next)} onDeleted={deleted} />
+    <InviteBanner {idea} me={viewer.me} {authors} onAnswered={load} />
+    <IdeaHeader
+      {idea}
+      {viewer}
+      members={people.value ?? []}
+      {authors}
+      onChange={changed}
+      onPeopleChanged={load}
+      onDeleted={deleted}
+    />
     <IdeaTabs current={tab} href={tabHref} />
-    <div role="tabpanel" tabindex="0" aria-label={tab}>
-      {#if tab === "overview"}
-        {#key idea.id}<OverviewTab {idea} onSaved={(next) => (idea = next)} />{/key}
-      {:else if tab === "research"}
-        <ResearchTab {idea} {attachments} />
-      {:else if tab === "tasks"}
-        <TasksTab spaceId={idea.spaceId} ideaId={idea.id} />
-      {:else if tab === "milestones"}
-        <div class="grid gap-6 lg:grid-cols-2">
-          <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} />
-          <BudgetPanel
-            spaceId={idea.spaceId}
-            ideaId={idea.id}
-            currency={idea.currency}
-            onCurrencyChanged={setCurrency}
-          />
-        </div>
-      {:else if tab === "discussion"}
-        {@render discussion?.(idea)}
-      {/if}
-    </div>
+    <IdeaTabContent {idea} {tab} {viewer} {discussion} {attachments} onChange={changed} />
   </div>
 {/if}

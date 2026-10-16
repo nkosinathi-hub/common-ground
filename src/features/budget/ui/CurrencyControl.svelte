@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FormError } from "@/shared/ui"
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import { currencyOptions } from "../domain"
@@ -48,5 +49,5 @@
       onclick={change}>Change currency</Button
     >
   {/if}
-  {#if error}<p class="w-full text-destructive" role="alert">{error}</p>{/if}
+  <FormError message={error} class="w-full" />
 </div>

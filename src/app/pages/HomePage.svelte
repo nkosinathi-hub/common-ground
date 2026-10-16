@@ -1,59 +1,31 @@
 <script lang="ts">
   import { greetingFor } from "../shell/greeting"
-  import * as Card from "$lib/components/ui/card"
-  import { useAuth } from "@/features/auth"
-  import { ActivityFeed } from "@/features/notifications"
-  import { RecommendationsInbox } from "@/features/recommendations"
-  import { UpcomingTasks } from "@/features/tasks"
-  import { ContinueWatching } from "@/features/watch"
-  import { buildHash } from "@/shared/domain"
-  import { Illustration } from "@/shared/ui"
-  import { templateFor, type Space } from "@/features/spaces"
+  import { SharedWithYou } from "@/features/notes"
+  import { visibleCards } from "@/shared/domain"
+  import HomeCard from "./home/HomeCard.svelte"
+  import { RENDERABLE_CARDS } from "./home/cards"
+  import { SpaceBanner, type Space } from "@/features/spaces"
 
-  let { space }: { space: Space } = $props()
-  const { session } = useAuth()
-  const template = $derived(templateFor(space.template))
+  interface Props {
+    space: Space
+    /** The signed-in member's name, for the greeting. */
+    displayName: string
+  }
+
+  let { space, displayName }: Props = $props()
   const greeting = greetingFor(new Date().getHours())
+  // The owner's layout, limited to the cards this build can render.
+  const cards = $derived(visibleCards(space.homeCards, RENDERABLE_CARDS))
 </script>
 
 <div class="grid gap-6">
-  <section class="flex items-center justify-between gap-6 rounded-2xl bg-banner px-6 py-8">
-    <div>
-      <h1 class="text-2xl font-semibold">{greeting}, {session.user?.displayName}</h1>
-      <p class="mt-1 text-muted-foreground">{template.headline} {template.welcome}</p>
-    </div>
-    <Illustration class="hidden h-24 shrink-0 sm:block" />
-  </section>
-  <Card.Root>
-    <Card.Header><Card.Title>Continue watching</Card.Title></Card.Header>
-    <Card.Content>
-      <ContinueWatching
-        spaceId={space.id}
-        listHref={buildHash({ name: "watch", spaceId: space.id })}
-        itemHref={(itemId) => buildHash({ name: "watch-item", spaceId: space.id, itemId })}
-      />
-    </Card.Content>
-  </Card.Root>
-  <Card.Root>
-    <Card.Header><Card.Title>Coming up</Card.Title></Card.Header>
-    <Card.Content>
-      <UpcomingTasks
-        spaceId={space.id}
-        taskHref={(ideaId) => buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "tasks" })}
-      />
-    </Card.Content>
-  </Card.Root>
-  <Card.Root>
-    <Card.Header><Card.Title>Recommended for you</Card.Title></Card.Header>
-    <Card.Content>
-      <RecommendationsInbox
-        spaceId={space.id}
-        itemHref={(itemId) => buildHash({ name: "watch-item", spaceId: space.id, itemId })}
-      />
-    </Card.Content>
-  </Card.Root>
-  <Card.Root>
-    <Card.Header><Card.Title>Recently in {space.name}</Card.Title></Card.Header>
-    <Card.Content><ActivityFeed spaceId={space.id} limit /></Card.Content>
-  </Card.Root>
+  <SpaceBanner {space} title={`${greeting}, ${displayName}`} />
+  <!-- Above every card, whatever the layout: something shared with you, until it is opened. -->
+  <SharedWithYou spaceId={space.id} />
+  <div class="grid gap-6 md:grid-cols-2">
+    {#each cards as id (id)}
+      <!-- Notes are the conversation of the space, so they get the full width on wider screens. -->
+      <HomeCard {id} {space} class={id === "notes" ? "md:col-span-2" : undefined} />
+    {/each}
+  </div>
 </div>

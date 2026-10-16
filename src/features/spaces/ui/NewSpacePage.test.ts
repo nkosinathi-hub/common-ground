@@ -5,7 +5,7 @@ import Provided from "@/shared/ui/testing/Provided.svelte"
 import { spacesSetup } from "../testing/spaces-setup"
 import { provideSpaces } from "./context"
 import NewSpacePage from "./NewSpacePage.svelte"
-import { SpacesStore } from "./spaces.svelte"
+import { SpacesStore } from "./spaces-store.svelte"
 
 afterEach(cleanup)
 

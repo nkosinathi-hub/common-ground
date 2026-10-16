@@ -1,10 +1,10 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
-  import { FormState, toast } from "@/shared/ui"
+  import { FormError, FormState, toast } from "@/shared/ui"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
-  import { TitleFormState } from "./title-form.svelte"
+  import { TitleFormState } from "./title-form-state.svelte"
   import TitleFields from "./TitleFields.svelte"
 
   interface Props {
@@ -43,9 +43,7 @@
     </Dialog.Header>
     <form class="grid gap-4" onsubmit={submit} novalidate>
       <TitleFields form={fields} prefix="edit" errorFor={(f) => submission.fieldError(f)} />
-      {#if submission.formError}
-        <p role="alert" class="text-sm text-destructive">{submission.formError}</p>
-      {/if}
+      <FormError message={submission.formError} />
       <Dialog.Footer>
         <Button type="button" variant="ghost" onclick={() => (open = false)}>Cancel</Button>
         <Button type="submit" disabled={submission.pending}>Save</Button>

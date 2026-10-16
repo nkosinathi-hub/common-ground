@@ -5,8 +5,8 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import type { MemberRef } from "@/shared/domain"
-  import { FormState, toast } from "@/shared/ui"
-  import { MAX_NOTE, recipientOptions } from "../domain/recommendation"
+  import { FormError, FormState, toast } from "@/shared/ui"
+  import { NOTE_MAX, recipientOptions } from "../domain/recommendation"
   import { useRecommendations } from "./context"
 
   interface Props {
@@ -67,18 +67,14 @@
             {member.displayName}
           </label>
         {/each}
-        {#if form.fieldError("recipients")}
-          <p role="alert" class="text-sm text-destructive">{form.fieldError("recipients")}</p>
-        {/if}
+        <FormError message={form.fieldError("recipients")} />
       </fieldset>
       <div class="grid gap-1.5">
         <Label for={noteId}>Note (optional)</Label>
-        <Textarea id={noteId} bind:value={note} maxlength={MAX_NOTE} />
-        {#if form.fieldError("note")}
-          <p class="text-sm text-destructive">{form.fieldError("note")}</p>
-        {/if}
+        <Textarea id={noteId} bind:value={note} maxlength={NOTE_MAX} />
+        <FormError message={form.fieldError("note")} alert={false} />
       </div>
-      {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+      <FormError message={form.formError} />
       <Dialog.Footer>
         <Button type="submit" disabled={form.pending}>Send</Button>
       </Dialog.Footer>

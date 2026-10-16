@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { canDelete, canEdit, isConcealed, MAX_BODY, validateBody, type Comment } from "./comment"
+import { canEdit, isConcealed, BODY_MAX, validateBody, type Comment } from "./comment"
 
 const comment = (over: Partial<Comment> = {}): Comment => ({
   id: "c1",
@@ -18,17 +18,14 @@ describe("comment rules", () => {
   it("trims and bounds the body", () => {
     expect(validateBody("  hi  ")).toEqual({ ok: true, value: "hi" })
     expect(validateBody("   ")).toMatchObject({ ok: false, error: { field: "body" } })
-    expect(validateBody("x".repeat(MAX_BODY)).ok).toBe(true)
-    expect(validateBody("x".repeat(MAX_BODY + 1)).ok).toBe(false)
+    expect(validateBody("x".repeat(BODY_MAX)).ok).toBe(true)
+    expect(validateBody("x".repeat(BODY_MAX + 1)).ok).toBe(false)
   })
 
   it("lets authors edit and authors or owners delete", () => {
     expect(canEdit(comment(), "ana")).toBe(true)
     expect(canEdit(comment(), "ben")).toBe(false)
     expect(canEdit(comment({ authorId: null }), "ben")).toBe(false)
-    expect(canDelete(comment(), "ana", false)).toBe(true)
-    expect(canDelete(comment(), "ben", false)).toBe(false)
-    expect(canDelete(comment(), "ben", true)).toBe(true)
   })
 
   it("conceals spoilers until revealed", () => {

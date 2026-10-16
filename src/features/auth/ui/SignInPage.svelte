@@ -1,6 +1,7 @@
 <script lang="ts">
+  import { buildHash } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
-  import { FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
@@ -41,7 +42,7 @@
       autocomplete="current-password"
       bind:value={password}
     />
-    {#if form.formError}<p role="alert" class="text-sm text-destructive">{form.formError}</p>{/if}
+    <FormError message={form.formError} />
     {#if unverified && !resent}
       <Button type="button" variant="outline" onclick={resend}>Resend verification email</Button>
     {:else if resent}
@@ -50,10 +51,13 @@
     <Button type="submit" disabled={form.pending}>{form.pending ? "Signing in" : "Sign in"}</Button>
   </form>
   {#snippet footer()}
-    <a class="underline-offset-4 hover:underline" href="#/auth/reset">Forgot your password?</a>
+    <a class="underline-offset-4 hover:underline" href={buildHash({ name: "reset" })}
+      >Forgot your password?</a
+    >
     <span
-      >New here? <a class="text-primary underline underline-offset-4" href="#/auth/sign-up"
-        >Create an account</a
+      >New here? <a
+        class="text-primary underline underline-offset-4"
+        href={buildHash({ name: "sign-up" })}>Create an account</a
       ></span
     >
   {/snippet}

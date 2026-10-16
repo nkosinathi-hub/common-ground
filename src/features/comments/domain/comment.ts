@@ -1,12 +1,19 @@
-import { appError, err, ok, type Cursor, type MemberRef, type Result } from "@/shared/domain"
+import {
+  appError,
+  err,
+  ok,
+  type Cursor,
+  type MemberRef,
+  type Result,
+  type Viewer as SpaceViewer,
+} from "@/shared/domain"
 
 export type ParentKind = "watch" | "idea"
 
 /** Who is reading a thread: decides what they may change and how authors are named. */
-export interface Viewer {
-  readonly me: string
-  readonly isOwner: boolean
-  readonly members: readonly MemberRef[]
+export interface Viewer extends SpaceViewer {
+  /** Names authors and mentions: current members, then removed people still visible. */
+  readonly authors: readonly MemberRef[]
 }
 
 /** What a thread hangs off: a saved title or an idea. */
@@ -26,21 +33,17 @@ export interface Comment extends Cursor {
   readonly mentionIds: readonly string[]
 }
 
-export const MAX_BODY = 4000
+export const BODY_MAX = 4000
 
 export function validateBody(body: string): Result<string> {
   const trimmed = body.trim()
-  return trimmed.length >= 1 && trimmed.length <= MAX_BODY
+  return trimmed.length >= 1 && trimmed.length <= BODY_MAX
     ? ok(trimmed)
-    : err(appError("validation", `Write something (up to ${MAX_BODY} characters)`, "body"))
+    : err(appError("validation", `Write something (up to ${BODY_MAX} characters)`, "body"))
 }
 
 export const canEdit = (comment: Comment, me: string): boolean =>
   comment.authorId !== null && comment.authorId === me
-
-/** Authors remove their own comments; the space owner moderates everyone's. */
-export const canDelete = (comment: Comment, me: string, isOwner: boolean): boolean =>
-  isOwner || canEdit(comment, me)
 
 export const isConcealed = (comment: Comment, revealed: ReadonlySet<string>): boolean =>
   comment.spoiler && !revealed.has(comment.id)

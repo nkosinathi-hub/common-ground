@@ -70,6 +70,11 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
     page.getByRole("button", { name: "Add a title", exact: true }),
     dialog("Add a title"),
   )
+  const trigger = page.getByRole("button", { name: "Add a title", exact: true })
+  await trigger.click()
+  await dialog("Add a title").getByRole("button", { name: "Done" }).click()
+  await expect(dialog("Add a title")).toBeHidden()
+  await expect(trigger).toBeFocused()
   const bell = page.getByRole("button", { name: /^Notifications/ })
   await bell.focus()
   await page.keyboard.press("Enter")

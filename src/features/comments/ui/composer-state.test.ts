@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ComposerState } from "./composer.svelte"
+import { ComposerState } from "./composer-state.svelte"
 
 const members = [
   { id: "me", displayName: "Nkosi" },

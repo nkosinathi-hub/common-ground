@@ -10,9 +10,9 @@ export const MEMBERS: MemberRef[] = [
   { id: "anele", displayName: "Anele" },
 ]
 
-/** A gateway acting as "me" with one comment by Zola already in the thread. */
+/** A gateway acting as "me", paging two at a time, with one comment by Zola in the thread. */
 export function threadGateway(): FakeCommentsGateway {
-  const gateway = new FakeCommentsGateway()
+  const gateway = new FakeCommentsGateway(2)
   gateway.seed(SPACE, PARENT, 1, "zola")
   return gateway
 }

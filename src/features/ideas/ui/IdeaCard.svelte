@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Badge } from "$lib/components/ui/badge"
-  import { IDEA_STAGES, type Idea, type IdeaStage } from "../domain"
+  import { IDEA_STAGES, isShared, type Idea, type IdeaStage } from "../domain"
   import { STAGE_LABELS } from "./labels"
+  import OursBadge from "./OursBadge.svelte"
 
   interface Props {
     idea: Idea
@@ -18,6 +19,7 @@
       {idea.brief.pitch}
     </p>{/if}
   <div class="flex flex-wrap items-center gap-1">
+    {#if isShared(idea)}<OursBadge />{/if}
     {#each idea.tags as tag (tag)}<Badge variant="secondary">{tag}</Badge>{/each}
   </div>
   <label class="flex items-center gap-2 text-xs text-muted-foreground">

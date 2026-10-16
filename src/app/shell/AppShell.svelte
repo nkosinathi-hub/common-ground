@@ -1,32 +1,27 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
+  import { mode } from "mode-watcher"
+  import { applySpaceLook, type Space } from "@/features/spaces"
   import AccountMenu from "./AccountMenu.svelte"
   import BottomNav from "./BottomNav.svelte"
   import NavRail from "./NavRail.svelte"
   import type { Section } from "./nav"
   import SpaceSwitcher from "./SpaceSwitcher.svelte"
 
-  let {
-    spaceId,
-    current,
-    theme,
-    onSignOut,
-    actions,
-    children,
-  }: {
-    spaceId: string
+  interface Props {
+    space: Space
     current: Section | null
-    theme: string
     onSignOut: () => void
     actions?: Snippet
     children: Snippet
-  } = $props()
+  }
 
-  // Theme applies only inside a space; leaving the shell restores the neutral palette.
-  $effect(() => {
-    document.documentElement.dataset.spaceTheme = theme
-    return () => delete document.documentElement.dataset.spaceTheme
-  })
+  let { space, current, onSignOut, actions, children }: Props = $props()
+
+  // The look applies only inside a space; leaving the shell restores the neutral palette.
+  const spaceId = $derived(space.id)
+  const colourMode = $derived(mode.current === "dark" ? "dark" : "light")
+  $effect(() => applySpaceLook(document.documentElement, space, colourMode))
   /** The router reads every hash as a route, so the skip link moves focus itself. */
   function skipToMain(event: MouseEvent) {
     event.preventDefault()

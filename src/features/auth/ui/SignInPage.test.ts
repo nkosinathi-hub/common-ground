@@ -4,7 +4,7 @@ import { AuthService } from "../application/auth-service"
 import { FakeAuthGateway } from "../testing/fake-auth-gateway"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import { provideAuth } from "./context"
-import { SessionStore } from "./session.svelte"
+import { SessionStore } from "./session-store.svelte"
 import SignInPage from "./SignInPage.svelte"
 
 afterEach(cleanup)

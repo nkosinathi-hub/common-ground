@@ -20,7 +20,6 @@ export type Result<T, E = AppError> = Ok<T> | Err<E>
 
 export const ok = <T>(value: T): Ok<T> => ({ ok: true, value })
 export const err = <E = AppError>(error: E): Err<E> => ({ ok: false, error })
-export const isOk = <T, E>(result: Result<T, E>): result is Ok<T> => result.ok
 
 export function map<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<U, E> {
   return result.ok ? ok(fn(result.value)) : result

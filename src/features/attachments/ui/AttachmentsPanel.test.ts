@@ -9,7 +9,8 @@ import {
   attachment,
 } from "../testing/fake-attachments"
 import AttachmentsPanel from "./AttachmentsPanel.svelte"
-import { attachmentsContext } from "./context"
+import { provideAttachments } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
 
 const opened = vi.hoisted(() => [] as string[])
 vi.mock("./open-url", () => ({ openUrl: (url: string) => opened.push(url) }))
@@ -21,11 +22,15 @@ function setup(props: { me?: string; isOwner?: boolean } = {}) {
     attachment("pic", { filename: "Sketch <b>.png", uploaderId: "me" }),
     attachment("doc", { filename: "plan.pdf", mime: "application/pdf", uploaderId: "them" }),
   ]
-  const context = attachmentsContext({ service: new AttachmentsService(gateway, uploader) })
-  render(AttachmentsPanel, {
-    props: { spaceId: SPACE_ID, ideaId: IDEA_ID, me: props.me ?? "me", isOwner: !!props.isOwner },
-    context,
-  })
+  const service = new AttachmentsService(gateway, uploader)
+  const panel = {
+    spaceId: SPACE_ID,
+    ideaId: IDEA_ID,
+    me: props.me ?? "me",
+    isOwner: !!props.isOwner,
+  }
+  const provide = () => provideAttachments({ service })
+  render(Provided, { props: { provide, component: AttachmentsPanel, props: panel } })
   const input = screen.getByLabelText("Choose a file to attach") as HTMLInputElement
   const choose = (file: File) => fireEvent.change(input, { target: { files: [file] } })
   return { gateway, uploader, input, choose }

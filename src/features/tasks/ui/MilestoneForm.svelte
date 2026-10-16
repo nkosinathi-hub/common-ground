@@ -2,8 +2,8 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Flag } from "@lucide/svelte"
-  import type { AppError } from "@/shared/domain"
-  import { TITLE_MAX, type MilestoneInput } from "../domain"
+  import { type AppError, TITLE_MAX } from "@/shared/domain"
+  import { type MilestoneInput } from "../domain"
 
   interface Props {
     error: AppError | null

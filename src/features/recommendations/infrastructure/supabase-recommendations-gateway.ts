@@ -1,5 +1,5 @@
-import type { Result } from "@/shared/domain"
-import { olderThan } from "@/shared/infrastructure/paging"
+import type { Page, Result } from "@/shared/domain"
+import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { done, settle, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type {
@@ -48,21 +48,16 @@ export class SupabaseRecommendationsGateway implements RecommendationsGateway {
     return settle(reply, (ids) => ids ?? [])
   }
 
-  async inbox({ spaceId, after, size }: InboxPageRequest): Promise<Result<Recommendation[]>> {
+  async inbox({ spaceId, after }: InboxPageRequest): Promise<Result<Page<Recommendation>>> {
     const { data: auth } = await this.db.auth.getUser()
     if (!auth.user) return signedOut()
-    let query = this.db
+    const query = this.db
       .from("recommendations")
       .select(INBOX_COLUMNS)
       .eq("space_id", spaceId)
       .eq("recipient_id", auth.user.id)
       .eq("status", "pending")
-    if (after) query = query.or(olderThan(after))
-    const page = query
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: false })
-      .limit(size)
-    return settle(page, (rows: InboxRow[]) => rows.map(toRecommendation))
+    return settle(newestFirst(query, after), pageOf(toRecommendation))
   }
 
   respond(id: string, response: RecommendationResponse): Promise<Result<void>> {

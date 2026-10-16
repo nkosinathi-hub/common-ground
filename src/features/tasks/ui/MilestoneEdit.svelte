@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { TITLE_MAX } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { TITLE_MAX, type Milestone, type MilestoneInput } from "../domain"
+  import { type Milestone, type MilestoneInput } from "../domain"
 
   interface Props {
     milestone: Milestone

@@ -3,6 +3,9 @@ import { captureIdea, openIdeaTab } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
 import { addTask, setTaskField, written } from "../support/tasks"
+import { daysFromNow } from "../support/dates"
+
+const target = daysFromNow(50)
 
 requireStack()
 
@@ -16,10 +19,10 @@ test("milestones persist and the budget guards its currency", async ({ page }) =
 
   await openIdeaTab(page, spaceId, ideaId, "milestones")
   await page.getByLabel("Milestone title").fill("First market")
-  await page.getByLabel("Target date").fill("2026-12-05")
+  await page.getByLabel("Target date").fill(target.iso)
   await page.getByRole("button", { name: "Add milestone" }).click()
   const milestone = page.getByTestId("milestone").filter({ hasText: "First market" })
-  await expect(milestone).toContainText("Target 5 Dec 2026")
+  await expect(milestone).toContainText(`Target ${target.shown}`)
 
   await openIdeaTab(page, spaceId, ideaId, "tasks")
   await addTask(page, "Bake samples")

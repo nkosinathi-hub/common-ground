@@ -34,5 +34,4 @@ Supabase dashboard (Storage), or with the CLI's `supabase storage cp` (see
 
 Every member can download a JSON export of a space (all content plus attachment references) and
 of their own personal data from the account page. This is the members' own backup and POPIA
-access right; it does not replace the database dump. Status: a v0.1 requirement (plan item 18)
-not yet merged to `1-v0-1`.
+access right; it does not replace the database dump. Shipped in v0.1.

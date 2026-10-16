@@ -32,4 +32,15 @@ describe("Resource", () => {
     await Promise.all([first, second])
     expect(r.value).toBe(2)
   })
+
+  it("applies a successful write to its value and reports a failed one", async () => {
+    const r = new Resource(async () => ok([1, 2]))
+    await r.load()
+    const append = (n: number, list: number[] = []) => [...list, n]
+    expect(await r.apply(Promise.resolve(ok(3)), append)).toBeNull()
+    expect(r.value).toEqual([1, 2, 3])
+    const failed = await r.apply(Promise.resolve(err(appError("validation", "no"))), append)
+    expect(failed?.kind).toBe("validation")
+    expect(r.value).toEqual([1, 2, 3])
+  })
 })

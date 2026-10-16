@@ -8,16 +8,17 @@
   import { useWatch } from "./context"
   import PickDialog from "./PickDialog.svelte"
   import { PickState } from "./pick-state.svelte"
-  import WatchCard from "./WatchCard.svelte"
-  import { WatchListState } from "./watch-list.svelte"
+  import WatchGrid from "./WatchGrid.svelte"
+  import { WatchListState } from "./watch-list-state.svelte"
   import WatchToolbar from "./WatchToolbar.svelte"
 
   interface Props {
     spaceId: string
     itemHref: (id: string) => string
+    defaultIntent?: "want_to_watch" | "watch_together"
   }
 
-  let { spaceId, itemHref }: Props = $props()
+  let { spaceId, itemHref, defaultIntent }: Props = $props()
   const { service } = useWatch()
   const list = new WatchListState(service, () => spaceId)
   const picker = new PickState(service, () => spaceId)
@@ -41,8 +42,7 @@
     </div>
     <div class="flex flex-wrap gap-2">
       <Button variant="secondary" onclick={() => picker.start()}>
-        <Shuffle aria-hidden="true" />
-        Pick for us
+        <Shuffle aria-hidden="true" />Pick for us
       </Button>
       <Button onclick={() => (adding = true)}>
         <Plus aria-hidden="true" />
@@ -74,27 +74,10 @@
       <Button onclick={() => (adding = true)}>Add your first title</Button>
     </EmptyState>
   {:else}
-    <ul
-      class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-      aria-busy={list.status === "loading"}
-    >
-      {#each list.items as item (item.id)}
-        <li><WatchCard {item} href={itemHref(item.id)} /></li>
-      {/each}
-    </ul>
-    {#if list.moreError}
-      <p role="alert" class="text-center text-sm text-destructive">{list.moreError.message}</p>
-    {/if}
-    {#if list.next}
-      <div class="flex justify-center">
-        <Button variant="outline" disabled={list.loadingMore} onclick={() => list.loadMore()}>
-          {list.moreLabel}
-        </Button>
-      </div>
-    {/if}
+    <WatchGrid {list} {itemHref} />
   {/if}
   <Attribution />
 </section>
 
-<AddTitleDialog bind:open={adding} {spaceId} onAdded={() => list.load()} />
+<AddTitleDialog bind:open={adding} {spaceId} {defaultIntent} onAdded={() => list.load()} />
 <PickDialog {picker} {itemHref} />

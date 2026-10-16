@@ -11,12 +11,29 @@ export interface MemberDirectory {
   members(spaceId: string): Promise<Result<MemberRef[]>>
 }
 
+/**
+ * Names authors and actors: the space's current members first, then anyone else whose profile the
+ * viewer can still see (a removed member who shares another space with them). Pickers use
+ * MemberDirectory; attribution uses this.
+ */
+export interface AuthorDirectory {
+  authors(spaceId: string): Promise<Result<MemberRef[]>>
+}
+
+/** Names authors from current members only, for callers without a wider directory. */
+export const asAuthors = (directory: MemberDirectory): AuthorDirectory => ({
+  authors: (spaceId) => directory.members(spaceId),
+})
+
 /** Confirms the signed-in user's password before a destructive action. */
 export interface Reauthenticator {
   reauthenticate(password: string): Promise<Result<void>>
 }
 
-/** Shown wherever an author or actor has left the space or deleted their account. */
+/**
+ * Shown for an author or actor whose profile the viewer can no longer see: a deleted account, or
+ * someone who left or was removed and shares no other space with the viewer.
+ */
 export const FORMER_MEMBER = "Former member"
 
 export function memberName(members: readonly MemberRef[], id: string | null): string {

@@ -2,12 +2,17 @@
   import { cn } from "$lib/utils"
   import { SECTIONS, sectionHref, type Section } from "./nav"
 
-  let { spaceId, current }: { spaceId: string; current: Section | null } = $props()
+  interface Props {
+    spaceId: string
+    current: Section | null
+  }
+
+  let { spaceId, current }: Props = $props()
 </script>
 
 <nav
   aria-label="Main"
-  class="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+  class="fixed inset-x-0 bottom-0 z-40 grid auto-cols-fr grid-flow-col border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
 >
   {#each SECTIONS as section (section.id)}
     <a

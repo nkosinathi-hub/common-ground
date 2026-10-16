@@ -17,14 +17,34 @@
   const { service } = useAttachments()
   let preview = $state<string | null>(null)
   let failed = $state(false)
+  // Bumped per attachment and on unmount, so a late URL never lands on the wrong item.
+  let generation = 0
+  let retried = false
+
+  async function loadPreview(id: string) {
+    const mine = generation
+    const result = await service.signedUrl(id)
+    if (mine !== generation) return
+    if (result.ok) preview = result.value
+    else failed = true
+  }
 
   $effect(() => {
-    if (kindOf(attachment.mime) !== "image") return
-    void service.signedUrl(attachment.id).then((result) => {
-      if (result.ok) preview = result.value
-      else failed = true
-    })
+    const { id, mime } = attachment
+    generation += 1
+    retried = false
+    preview = null
+    failed = false
+    if (kindOf(mime) === "image") void loadPreview(id)
+    return () => (generation += 1)
   })
+
+  /** Signed URLs expire; an image that stops loading gets one fresh URL. */
+  function previewFailed() {
+    if (retried) failed = true
+    else void loadPreview(attachment.id)
+    retried = true
+  }
 
   async function download() {
     const result = await service.signedUrl(attachment.id, "attachment")
@@ -37,7 +57,12 @@
   {#if kindOf(attachment.mime) === "image"}
     <div class="size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
       {#if preview}
-        <img src={preview} alt={attachment.filename} class="size-full object-cover" />
+        <img
+          src={preview}
+          alt={attachment.filename}
+          class="size-full object-cover"
+          onerror={previewFailed}
+        />
       {/if}
     </div>
   {:else}

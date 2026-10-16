@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { PAGE_SIZE } from "@/shared/domain"
-import { newestFirst, olderThan } from "./paging"
+import { newestFirst, olderThan, pageOf } from "./paging"
 import { recordingClient } from "./testing/recording-client"
 
 interface Query {
@@ -13,7 +13,7 @@ const CURSOR = { createdAt: "2026-10-15T10:00:00+00:00", id: "b" }
 const ORDERED = [
   ["order", "created_at", { ascending: false }],
   ["order", "id", { ascending: false }],
-  ["limit", PAGE_SIZE],
+  ["limit", PAGE_SIZE + 1],
 ]
 
 describe("olderThan", () => {
@@ -25,15 +25,50 @@ describe("olderThan", () => {
 })
 
 describe("newestFirst", () => {
-  it("orders the first page newest first on (created_at, id), one page long", () => {
+  it("orders the first page newest first on (created_at, id), one row past a page", () => {
     const { calls, client } = recordingClient({ data: [], error: null })
     newestFirst(client as Query, null)
     expect(calls).toEqual(ORDERED)
+  })
+
+  it("takes a shorter page when asked, still probing one row further", () => {
+    const { calls, client } = recordingClient({ data: [], error: null })
+    newestFirst(client as Query, null, 6)
+    expect(calls.at(-1)).toEqual(["limit", 7])
   })
 
   it("continues strictly after the cursor", () => {
     const { calls, client } = recordingClient({ data: [], error: null })
     newestFirst(client as Query, CURSOR)
     expect(calls).toEqual([["or", olderThan(CURSOR)], ...ORDERED])
+  })
+})
+
+describe("pageOf", () => {
+  const toItem = (row: { n: number }) => ({ id: `id-${row.n}`, createdAt: `t${row.n}` })
+  const rows = (count: number) => Array.from({ length: count }, (_, n) => ({ n }))
+
+  it("keeps one page and, when the probe row came back, ends on the cursor for the next", () => {
+    const page = pageOf(toItem)(rows(PAGE_SIZE + 1))
+    expect(page.items).toHaveLength(PAGE_SIZE)
+    expect(page.next).toEqual({ id: `id-${PAGE_SIZE - 1}`, createdAt: `t${PAGE_SIZE - 1}` })
+  })
+
+  it("has no next page after exactly a full last page, so Load more hides", () => {
+    expect(pageOf(toItem)(rows(PAGE_SIZE)).next).toBeNull()
+  })
+
+  it("probes past a shorter page size too", () => {
+    const page = pageOf(toItem, 6)(rows(7))
+    expect(page.items).toHaveLength(6)
+    expect(page.next).toEqual({ id: "id-5", createdAt: "t5" })
+    expect(pageOf(toItem, 6)(rows(6)).next).toBeNull()
+  })
+
+  it("has no next page after a short one", () => {
+    expect(pageOf(toItem)(rows(2))).toEqual({
+      items: [toItem({ n: 0 }), toItem({ n: 1 })],
+      next: null,
+    })
   })
 })
