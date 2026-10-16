@@ -1,5 +1,5 @@
 <script lang="ts">
-  // Static notice; no logic.
+  // svelte-check types a component through its script block; this static notice needs no logic.
 </script>
 
 <main class="prose-sm mx-auto grid max-w-2xl gap-4 px-4 py-10">
