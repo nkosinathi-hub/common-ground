@@ -73,6 +73,9 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
   | `400000-409999` | account: export and delete (`450000-459999` for account follow-ups)      |
   | `990000`        | function grants; runs last, revokes PUBLIC/anon EXECUTE on all functions |
 
+  v0.2 files are dated `20261016`: `000100-009999` spaces, `100000-199999` notes,
+  `200000-299999` ideas, `300000-399999` calendar, `400000-409999` export, `990000` grants (last).
+
   Pick the next free slot in your concern's range; never reuse or renumber an applied file.
 
 - Every table: RLS enabled, deny by default, policies use `public.is_space_member(space_id)` /

@@ -37,6 +37,14 @@ says what they defend against.
   `ALLOWED_ORIGINS`, and rate-limit through the service-only `rate_limits` table.
 - **Attachments** are in a private bucket, checked by magic bytes and size (10 MB), served only
   through short-lived signed URLs to members.
+- **Space pictures** (avatar and cover) are in the private `space-media` bucket: JPEG, PNG or
+  WebP only (no SVG), at most 5 MB, at most 6 objects per space. Only the owner uploads and
+  deletes, members read through signed URLs, nobody updates an object. Image content is not
+  sniffed; the client re-encodes uploads to WebP, which strips metadata. A signed URL keeps
+  working for up to an hour after a member is removed. Orphaned objects are listed by
+  `space_media_cleanup_candidates()` and removed by the cleanup Edge Function.
+- **Exports** run as security definer, so `export_table_filter` repeats each table's select
+  policy: private notes, their replies, other people's recommendations and reminders never leave.
 - **No user HTML.** ESLint forbids `{@html}` and `innerHTML`; research links accept http(s) only.
 - **Auth** uses PKCE; the callback scrubs `?code=` from the URL before the router runs.
 
