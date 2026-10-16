@@ -27,14 +27,27 @@ describe("SupabaseAccountRepository", () => {
     expect(calls).toEqual([["rpc", "delete_my_account"]])
   })
 
-  it("renames only my own profile row", async () => {
-    const { calls, repo } = recordingDb({ data: null, error: null })
+  it("renames my profile row and the session's copy, so the new name survives a reload", async () => {
+    const { calls, client } = recordingClient({ data: null, error: null })
+    const metadata: unknown[] = []
+    const auth = { updateUser: async (attrs: unknown) => (metadata.push(attrs), { error: null }) }
+    const repo = new SupabaseAccountRepository(Object.assign(Object.create(client), { auth }) as Db)
     expect(await repo.updateDisplayName("u1", "Ana")).toEqual({ ok: true, value: undefined })
     expect(calls).toEqual([
       ["from", "profiles"],
       ["update", { display_name: "Ana" }],
       ["eq", "id", "u1"],
     ])
+    expect(metadata).toEqual([{ data: { display_name: "Ana" } }])
+  })
+
+  it("leaves the session alone when the profile could not be renamed", async () => {
+    const { client } = recordingClient({ data: null, error: { code: "42501", message: "rls" } })
+    const metadata: unknown[] = []
+    const auth = { updateUser: async (attrs: unknown) => (metadata.push(attrs), { error: null }) }
+    const repo = new SupabaseAccountRepository(Object.assign(Object.create(client), { auth }) as Db)
+    expect((await repo.updateDisplayName("u1", "Ana")).ok).toBe(false)
+    expect(metadata).toEqual([])
   })
 
   it("maps a denied export to a user-safe error", async () => {

@@ -14,6 +14,12 @@ export class SupabaseAccountRepository implements AccountRepository {
 
   deleteMe = () => done(this.db.rpc("delete_my_account"))
 
-  updateDisplayName = (userId: string, name: string) =>
-    done(this.db.from("profiles").update({ display_name: name }).eq("id", userId))
+  /** The session's name comes from auth metadata, so it changes with the profile (A7). */
+  async updateDisplayName(userId: string, name: string) {
+    const saved = await done(
+      this.db.from("profiles").update({ display_name: name }).eq("id", userId),
+    )
+    if (!saved.ok) return saved
+    return done(this.db.auth.updateUser({ data: { display_name: name } }))
+  }
 }
