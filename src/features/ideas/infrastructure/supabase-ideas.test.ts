@@ -45,7 +45,7 @@ describe("SupabaseIdeas", () => {
       ],
       ["order", "created_at", { ascending: false }],
       ["order", "id", { ascending: false }],
-      ["limit", 50],
+      ["limit", 51],
     ])
   })
 

@@ -27,7 +27,7 @@ describe("SupabaseNotifications", () => {
     ])
     expect(page.ok && page.value.next).toBeNull()
     expect(calls).toContainEqual(["order", "created_at", { ascending: false }])
-    expect(calls).toContainEqual(["limit", PAGE_SIZE])
+    expect(calls).toContainEqual(["limit", PAGE_SIZE + 1])
   })
 
   it("pages older than the cursor with the quoted keyset filter", async () => {
@@ -89,12 +89,12 @@ describe("SupabaseActivity", () => {
       },
     })
     expect(calls).toContainEqual(["eq", "space_id", "s"])
-    expect(calls.at(-1)).toEqual(["limit", PAGE_SIZE])
+    expect(calls.at(-1)).toEqual(["limit", PAGE_SIZE + 1])
   })
 
   it("lists only the latest few when given a size", async () => {
     const { client: db, calls } = recordingClient([{ data: [], error: null }])
     await new SupabaseActivity(db as Db).list("s", null, 6)
-    expect(calls.at(-1)).toEqual(["limit", 6])
+    expect(calls.at(-1)).toEqual(["limit", 7])
   })
 })

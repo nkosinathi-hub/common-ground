@@ -31,7 +31,7 @@ describe("SupabaseResearch", () => {
         ["select", columns],
         ["eq", "idea_id", "i1"],
       ])
-      expect(calls.at(-1)).toEqual(["limit", 50])
+      expect(calls.at(-1)).toEqual(["limit", 51])
     }
   })
 

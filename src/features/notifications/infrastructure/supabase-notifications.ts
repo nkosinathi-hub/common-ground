@@ -73,16 +73,19 @@ export class SupabaseActivity implements ActivityGateway {
     const query = this.db.from("activity_events").select(EVENT).eq("space_id", spaceId)
     return settle(
       newestFirst(query, after, size),
-      pageOf((row) => ({
-        id: row.id,
-        eventType: row.event_type,
-        subjectType: row.subject_type,
-        subjectId: row.subject_id,
-        createdAt: row.created_at,
-        actorName: row.actor?.display_name ?? null,
-        byMe: row.by_me === true,
-        targetName: row.target?.display_name ?? null,
-      })),
+      pageOf(
+        (row) => ({
+          id: row.id,
+          eventType: row.event_type,
+          subjectType: row.subject_type,
+          subjectId: row.subject_id,
+          createdAt: row.created_at,
+          actorName: row.actor?.display_name ?? null,
+          byMe: row.by_me === true,
+          targetName: row.target?.display_name ?? null,
+        }),
+        size,
+      ),
     )
   }
 }

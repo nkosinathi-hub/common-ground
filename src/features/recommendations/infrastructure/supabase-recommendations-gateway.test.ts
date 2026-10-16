@@ -40,7 +40,7 @@ describe("SupabaseRecommendationsGateway", () => {
       ["eq", "status", "pending"],
       ["or", expect.stringContaining("id.lt.r1")],
     ])
-    expect(calls.at(-1)).toEqual(["limit", 50])
+    expect(calls.at(-1)).toEqual(["limit", 51])
   })
 
   it("asks a signed-out caller to sign in without querying", async () => {

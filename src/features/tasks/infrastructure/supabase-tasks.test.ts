@@ -42,7 +42,7 @@ describe("SupabaseTasks", () => {
       ["select", TASK_COLUMNS],
       ["eq", "idea_id", "i1"],
     ])
-    expect(calls.at(-1)).toEqual(["limit", 50])
+    expect(calls.at(-1)).toEqual(["limit", 51])
   })
 
   it("creates under its space and idea", async () => {

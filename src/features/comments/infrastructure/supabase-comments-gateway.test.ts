@@ -40,7 +40,7 @@ describe("SupabaseCommentsGateway", () => {
       ["or", expect.stringContaining('created_at.lt."2026-10-15T09:00:00+00:00"')],
       ["order", "created_at", { ascending: false }],
       ["order", "id", { ascending: false }],
-      ["limit", 50],
+      ["limit", 51],
     ])
   })
 
