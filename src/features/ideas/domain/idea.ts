@@ -32,6 +32,10 @@ export interface Idea {
   readonly updatedAt: string
 }
 
+/** Stages the Home "Ideas in progress" card lists, and how many it shows. */
+export const IN_PROGRESS_STAGES = ["exploring", "planning", "building"] as const
+export const IN_PROGRESS_LIMIT = 5
+
 export const TAGS_MAX = 20
 /** Longest tag, in characters. */
 export const TAG_MAX = 40

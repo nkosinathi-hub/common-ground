@@ -9,7 +9,7 @@ import {
   type Result,
 } from "@/shared/domain"
 import type { IdeaPatch, IdeaScope, IdeasRepository, NewIdea } from "../application/ports"
-import { filterIdeas, type Brief, type Idea } from "../domain"
+import { filterIdeas, IN_PROGRESS_STAGES, type Brief, type Idea } from "../domain"
 
 const stamp = (n: number) => new Date(Date.UTC(2026, 9, 15, 0, 0, n)).toISOString()
 
@@ -37,6 +37,14 @@ export class InMemoryIdeas implements IdeasRepository {
     const start = after ? sorted.findIndex((idea) => idea.id === after.id) + 1 : 0
     const items = sorted.slice(start, start + PAGE_SIZE)
     return ok({ items, next: nextCursor(items) })
+  }
+
+  async inProgress(spaceId: string, limit: number): Promise<Result<Idea[]>> {
+    const stages: readonly string[] = IN_PROGRESS_STAGES
+    const open = [...this.rows.values()].filter(
+      (i) => i.spaceId === spaceId && stages.includes(i.stage),
+    )
+    return ok(open.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, limit))
   }
 
   async get(id: string): Promise<Result<Idea>> {

@@ -10,6 +10,7 @@ import {
 } from "@/shared/domain"
 import {
   cleanBrief,
+  IN_PROGRESS_LIMIT,
   templateBrief,
   validateTags,
   validateTitle,
@@ -25,8 +26,6 @@ import type {
   SaveBriefOutcome,
 } from "./ports"
 
-export type { CaptureInput, SaveBriefOutcome } from "./ports"
-
 export class IdeasService {
   constructor(
     private readonly repo: IdeasRepository,
@@ -38,6 +37,7 @@ export class IdeasService {
   list = (spaceId: string, after: Cursor | null, scope?: IdeaScope) =>
     this.repo.list(spaceId, after, scope)
   get = (id: string) => this.repo.get(id)
+  inProgress = (spaceId: string) => this.repo.inProgress(spaceId, IN_PROGRESS_LIMIT)
   /** Only the author or the space owner may delete; the server refuses anyone else. */
   remove = (id: string) => this.repo.remove(id)
 
@@ -58,9 +58,8 @@ export class IdeasService {
     return title.ok ? this.repo.update(id, { title: title.value }) : title
   }
 
-  /** Current members, for pickers. */
+  /** Current members for pickers; authors also names removed members still visible. */
   members = (spaceId: string) => this.directory.members(spaceId)
-  /** Names for authors and people, including removed members still visible to the viewer. */
   authors = (spaceId: string) => this.names.authors(spaceId)
   collaborators = (ideaId: string) => this.people.list(ideaId)
   respond = (ideaId: string, accept: boolean) => this.people.respond(ideaId, accept)

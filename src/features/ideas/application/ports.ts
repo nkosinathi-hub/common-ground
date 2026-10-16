@@ -35,6 +35,8 @@ export interface IdeaScope {
 export interface IdeasRepository {
   list(spaceId: string, after: Cursor | null, scope?: IdeaScope): Promise<Result<Page<Idea>>>
   get(id: string): Promise<Result<Idea>>
+  /** Ideas in the in-progress stages, most recently changed first. */
+  inProgress(spaceId: string, limit: number): Promise<Result<Idea[]>>
   create(input: NewIdea): Promise<Result<Idea>>
   update(id: string, patch: IdeaPatch): Promise<Result<Idea>>
   /** Fails with kind "conflict" when expectedUpdatedAt is stale. Returns the new updatedAt. */

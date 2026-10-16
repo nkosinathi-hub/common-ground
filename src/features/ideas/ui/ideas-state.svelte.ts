@@ -1,6 +1,7 @@
 import type { AppError, Cursor } from "@/shared/domain"
 import { PagedList } from "@/shared/ui"
-import type { CaptureInput, IdeasService } from "../application/ideas-service"
+import type { IdeasService } from "../application/ideas-service"
+import type { CaptureInput } from "../application/ports"
 import { filterIdeas, type Idea, type IdeaFilter, type IdeaStage } from "../domain"
 
 type View = "list" | "board"

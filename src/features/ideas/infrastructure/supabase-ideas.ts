@@ -3,7 +3,7 @@ import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { IdeaPatch, IdeaScope, IdeasRepository, NewIdea } from "../application/ports"
-import type { Brief, Idea } from "../domain"
+import { IN_PROGRESS_STAGES, type Brief, type Idea } from "../domain"
 import { IDEA_COLUMNS, toIdea } from "./idea-row"
 
 export class SupabaseIdeas implements IdeasRepository {
@@ -19,6 +19,17 @@ export class SupabaseIdeas implements IdeasRepository {
     // `ours` is a computed field: the caller started the idea or accepted an invite to it.
     if (scope?.whose === "ours") query = query.is("ours", true)
     return settle(newestFirst(query, after), pageOf(toIdea))
+  }
+
+  inProgress(spaceId: string, limit: number): Promise<Result<Idea[]>> {
+    const query = this.ideas
+      .select(IDEA_COLUMNS)
+      .eq("space_id", spaceId)
+      .in("stage", [...IN_PROGRESS_STAGES])
+      .order("updated_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(limit)
+    return settle(query, (rows) => rows.map(toIdea))
   }
 
   get(id: string): Promise<Result<Idea>> {
