@@ -15,7 +15,13 @@
   import HardTalkReader from "./HardTalkReader.svelte"
   import type { NotesState } from "./notes-state.svelte"
 
-  let { note, notes, me }: { note: Note; notes: NotesState; me: string } = $props()
+  interface Props {
+    note: Note
+    notes: NotesState
+    me: string
+  }
+
+  let { note, notes, me }: Props = $props()
   const { changes } = useNotes()
   const mine = $derived(note.authorId === me)
   const unread = $derived(isUnread(note))

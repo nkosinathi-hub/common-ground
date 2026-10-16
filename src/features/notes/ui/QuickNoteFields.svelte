@@ -4,7 +4,12 @@
   import { EXPIRY_CHOICES, NOTE_MAX } from "../domain"
   import type { ComposerState } from "./composer-state.svelte"
 
-  let { composer, select }: { composer: ComposerState; select: string } = $props()
+  interface Props {
+    composer: ComposerState
+    select: string
+  }
+
+  let { composer, select }: Props = $props()
 </script>
 
 <div class="grid gap-1.5">

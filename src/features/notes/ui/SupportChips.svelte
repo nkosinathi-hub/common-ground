@@ -2,7 +2,11 @@
   import { Button } from "$lib/components/ui/button"
   import { SUPPORT_WISHES, type SupportWish } from "../domain"
 
-  let { value = $bindable(null) }: { value: SupportWish | null } = $props()
+  interface Props {
+    value: SupportWish | null
+  }
+
+  let { value = $bindable(null) }: Props = $props()
 
   /** Optional: tapping the chosen chip again clears it. */
   const toggle = (wish: SupportWish) => (value = value === wish ? null : wish)

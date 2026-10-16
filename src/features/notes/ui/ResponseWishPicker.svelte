@@ -1,7 +1,11 @@
 <script lang="ts">
   import { RESPONSE_WISHES, type ResponseWish } from "../domain"
 
-  let { value = $bindable("any") }: { value: ResponseWish } = $props()
+  interface Props {
+    value: ResponseWish
+  }
+
+  let { value = $bindable("any") }: Props = $props()
 </script>
 
 <fieldset class="grid gap-1.5">

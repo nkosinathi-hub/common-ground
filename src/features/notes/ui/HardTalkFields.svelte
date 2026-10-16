@@ -7,7 +7,11 @@
   import SupportChips from "./SupportChips.svelte"
   import TipOnce from "./TipOnce.svelte"
 
-  let { composer }: { composer: ComposerState } = $props()
+  interface Props {
+    composer: ComposerState
+  }
+
+  let { composer }: Props = $props()
   let feel = $state<HTMLTextAreaElement | null>(null)
 </script>
 

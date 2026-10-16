@@ -3,7 +3,12 @@
   import { FilePen } from "@lucide/svelte"
   import { draftLabel, type Draft } from "../domain"
 
-  let { drafts, onOpen }: { drafts: readonly Draft[]; onOpen: (draft: Draft) => void } = $props()
+  interface Props {
+    drafts: readonly Draft[]
+    onOpen: (draft: Draft) => void
+  }
+
+  let { drafts, onOpen }: Props = $props()
   const now = new Date()
 </script>
 

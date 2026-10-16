@@ -6,7 +6,13 @@
   import NoteThread from "./NoteThread.svelte"
   import type { NotesState } from "./notes-state.svelte"
 
-  let { note, notes, mine }: { note: Note; notes: NotesState; mine: boolean } = $props()
+  interface Props {
+    note: Note
+    notes: NotesState
+    mine: boolean
+  }
+
+  let { note, notes, mine }: Props = $props()
   let open = $state(false)
   const replies = $derived(note.replyCount > 0 ? `Replies (${note.replyCount})` : "Reply")
   const label = $derived(mine || note.replyCount > 0 ? replies : "Add a few words (optional)")

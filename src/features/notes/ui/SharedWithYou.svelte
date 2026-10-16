@@ -8,7 +8,11 @@
   import HardTalkReader from "./HardTalkReader.svelte"
   import { NotesState } from "./notes-state.svelte"
 
-  let { spaceId }: { spaceId: string } = $props()
+  interface Props {
+    spaceId: string
+  }
+
+  let { spaceId }: Props = $props()
   const { service, hardTalk, arrivals, changes, me } = useNotes()
   const notes = new NotesState(service, () => spaceId, hardTalk)
   const waiting = new Resource(() => hardTalk.waiting(spaceId, me()))
