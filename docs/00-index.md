@@ -3,7 +3,8 @@
 1. [README](../README.md): what Common Ground is and the quick start
 2. [Engineering standards](standards.md): tests first, 100-line files, layers, commits
 3. [Conventions](CONVENTIONS.md): layout, layer table, database rules; [UI patterns](ui-patterns.md):
-   lists, reloads, contexts and stores
+   lists, reloads, contexts, stores, navigation and naming people; [Migrations](migrations.md):
+   redefined functions, grants and cleanup slots
 4. [Security](security.md): threat model, RLS isolation, secrets, POPIA
 5. Architecture decisions (`adr/`)
    1. [0001 Svelte 5 SPA on Supabase; Figma export as reference](adr/0001-stack.md)
