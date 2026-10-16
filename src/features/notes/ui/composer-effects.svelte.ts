@@ -1,4 +1,4 @@
-import type { ComposerState } from "./composer.svelte"
+import type { ComposerState } from "./composer-state.svelte"
 
 /**
  * Call during component setup: every edit may save the draft, hiding the tab saves at once,

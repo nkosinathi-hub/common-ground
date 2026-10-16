@@ -2,7 +2,7 @@
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { EXPIRY_CHOICES, NOTE_MAX } from "../domain"
-  import type { ComposerState } from "./composer.svelte"
+  import type { ComposerState } from "./composer-state.svelte"
 
   let { composer, select }: { composer: ComposerState; select: string } = $props()
 </script>

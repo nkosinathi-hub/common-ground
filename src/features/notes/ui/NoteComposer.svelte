@@ -6,7 +6,7 @@
   import { COMPOSER_INTRO, type Draft } from "../domain"
   import { sendHardTalk, sendQuick } from "./composer-actions"
   import { autosaveWhileOpen } from "./composer-effects.svelte"
-  import { ComposerState } from "./composer.svelte"
+  import { ComposerState } from "./composer-state.svelte"
   import { useNotes } from "./context"
   import HardTalkFields from "./HardTalkFields.svelte"
   import HardTalkFooter from "./HardTalkFooter.svelte"

@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import { ConfirmDialog } from "@/shared/ui"
   import { SAVE_STATUS } from "../domain"
-  import type { ComposerState } from "./composer.svelte"
+  import type { ComposerState } from "./composer-state.svelte"
 
   interface Props {
     composer: ComposerState

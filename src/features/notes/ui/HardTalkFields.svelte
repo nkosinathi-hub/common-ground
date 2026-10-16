@@ -1,6 +1,6 @@
 <script lang="ts">
   import { I_TIP } from "../domain"
-  import type { ComposerState } from "./composer.svelte"
+  import type { ComposerState } from "./composer-state.svelte"
   import FeelingWords from "./FeelingWords.svelte"
   import HardTalkSection from "./HardTalkSection.svelte"
   import ResponseWishPicker from "./ResponseWishPicker.svelte"
