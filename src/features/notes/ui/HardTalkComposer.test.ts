@@ -1,12 +1,19 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import { notesContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideNotes } from "./context"
 import NotesCard from "./NotesCard.svelte"
 
 async function open(members?: Parameters<typeof notesHarness>[1]) {
   const harness = notesHarness("ana", members)
-  render(NotesCard, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+  render(Provided, {
+    props: {
+      provide: () => provideNotes(harness.services),
+      component: NotesCard,
+      props: { spaceId: "s" },
+    },
+  })
   await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
   const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
   return { ...harness, dialog }

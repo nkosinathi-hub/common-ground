@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import { notesContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideNotes } from "./context"
 import SharedWithYou from "./SharedWithYou.svelte"
 
 const shared = { recipientId: "ben", sections: { feel: "Lonely lately" } }
@@ -12,7 +13,13 @@ describe("SharedWithYou", () => {
   it("waits calmly at the top of Home until it is opened, then settles", async () => {
     const harness = notesHarness("ben")
     await harness.share("ana", shared)
-    render(SharedWithYou, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+    render(Provided, {
+      props: {
+        provide: () => provideNotes(harness.services),
+        component: SharedWithYou,
+        props: { spaceId: "s" },
+      },
+    })
     const card = within(
       await screen.findByRole("region", { name: "Ana shared something with you" }),
     )
@@ -28,7 +35,13 @@ describe("SharedWithYou", () => {
   it("shows nothing to the author or anyone else, and appears when one arrives", async () => {
     const harness = notesHarness("cy")
     await harness.share("ana", shared)
-    render(SharedWithYou, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+    render(Provided, {
+      props: {
+        provide: () => provideNotes(harness.services),
+        component: SharedWithYou,
+        props: { spaceId: "s" },
+      },
+    })
     await waitFor(() => expect(screen.queryByRole("region")).toBeNull())
     await harness.share("ana", { ...shared, recipientId: "cy" })
     harness.arrive()

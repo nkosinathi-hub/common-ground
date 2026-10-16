@@ -34,6 +34,3 @@ export function useNotes(): ProvidedNotes {
   if (!value) throw new Error("Notes are not provided: call provideNotes in the composition root")
   return value
 }
-
-/** The context map for render({ context }) in component tests. */
-export const notesContext = (value: NotesContext) => new Map([[KEY, withChanges(value)]])

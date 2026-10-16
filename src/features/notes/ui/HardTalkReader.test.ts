@@ -1,7 +1,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import { notesContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideNotes } from "./context"
 import NotesCard from "./NotesCard.svelte"
 
 const shared = {
@@ -14,7 +15,13 @@ const shared = {
 async function setup(me: string) {
   const harness = notesHarness(me)
   await harness.share("ana", shared)
-  render(NotesCard, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+  render(Provided, {
+    props: {
+      provide: () => provideNotes(harness.services),
+      component: NotesCard,
+      props: { spaceId: "s" },
+    },
+  })
   return harness
 }
 

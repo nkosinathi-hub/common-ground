@@ -2,7 +2,7 @@ import type { MemberRef } from "@/shared/domain"
 import { EMPTY_DRAFT, type DraftFields } from "../domain"
 import { inMemoryNotesService } from "./notes-fixture"
 
-/** In-memory notes for component tests as `me`; `services` goes to notesContext. */
+/** In-memory notes for component tests as `me`; `services` goes to provideNotes. */
 export function notesHarness(me = "ana", members?: MemberRef[]) {
   const fixture = inMemoryNotesService(members)
   fixture.repo.me = me

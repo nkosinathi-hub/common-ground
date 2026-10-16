@@ -2,14 +2,21 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, describe, expect, it } from "vitest"
 import { EMPTY_DRAFT } from "../domain"
 import { notesHarness } from "../testing/notes-harness"
-import { notesContext } from "./context"
+import Provided from "@/shared/ui/testing/Provided.svelte"
+import { provideNotes } from "./context"
 import NotesCard from "./NotesCard.svelte"
 
 async function withDraft() {
   const harness = notesHarness("ana")
   const fields = { ...EMPTY_DRAFT, recipientId: "ben", sections: { happened: "Sunday" } }
   await harness.drafts.save("s", null, fields)
-  render(NotesCard, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+  render(Provided, {
+    props: {
+      provide: () => provideNotes(harness.services),
+      component: NotesCard,
+      props: { spaceId: "s" },
+    },
+  })
   return harness
 }
 
@@ -58,7 +65,13 @@ describe("Your drafts", () => {
   it("shows a save that failed, and closing saves and lists the draft", async () => {
     const harness = notesHarness("ana")
     harness.draftsRepo.failSaves = true
-    render(NotesCard, { props: { spaceId: "s" }, context: notesContext(harness.services) })
+    render(Provided, {
+      props: {
+        provide: () => provideNotes(harness.services),
+        component: NotesCard,
+        props: { spaceId: "s" },
+      },
+    })
     await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
     const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
     await fireEvent.click(dialog.getByRole("radio", { name: "Something on my mind" }))
