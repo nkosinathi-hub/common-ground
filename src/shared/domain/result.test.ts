@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { err, isOk, map, ok } from "./result"
+import { err, map, ok } from "./result"
 
 describe("Result", () => {
   it("wraps success and failure", () => {
-    expect(isOk(ok(1))).toBe(true)
-    expect(isOk(err({ kind: "network", message: "down" }))).toBe(false)
+    expect(ok(1).ok).toBe(true)
+    expect(err({ kind: "network", message: "down" }).ok).toBe(false)
   })
 
   it("maps only successes", () => {
