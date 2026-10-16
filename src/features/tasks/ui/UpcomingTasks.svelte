@@ -25,8 +25,8 @@
   const today = todayDateOnly()
 </script>
 
-<section aria-labelledby="upcoming-heading" class="flex flex-col gap-2">
-  <h2 id="upcoming-heading" class="text-lg font-semibold">Upcoming tasks</h2>
+<!-- The Home card ("Coming up") titles this list, so it has no heading of its own. -->
+<div class="flex flex-col gap-2">
   <AsyncView resource={tasks}>
     {#snippet children(items)}
       {#if items.length === 0}
@@ -63,4 +63,4 @@
       {/if}
     {/snippet}
   </AsyncView>
-</section>
+</div>
