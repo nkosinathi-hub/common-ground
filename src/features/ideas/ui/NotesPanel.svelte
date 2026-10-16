@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from "svelte"
   import type { Cursor } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
@@ -15,9 +16,11 @@
   let { idea, viewer }: Props = $props()
   const research = useResearch()
   const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
-  // Loads on mount, and again if the idea prop changes: the fetch reads idea.id synchronously.
+  // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
+  const ideaId = $derived(idea.id)
   $effect(() => {
-    list.load()
+    void ideaId
+    untrack(() => list.load())
   })
 
   let body = $state("")
