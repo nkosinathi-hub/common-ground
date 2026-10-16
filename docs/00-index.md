@@ -12,6 +12,7 @@
    5. [0005 Keyset pagination on (created_at, id), 50 per page](adr/0005-keyset-pagination.md)
    6. [0006 updated_at conflict detection with a merge prompt](adr/0006-conflict-detection.md)
    7. [0007 One branch and one MR for v0.1](adr/0007-one-mr-for-v0-1.md)
+   8. [0008 Calendar time model: instants, dates and window paging](adr/0008-calendar-time-model.md)
 6. Runbooks (`runbooks/`)
    1. [Setup](runbooks/setup.md): `pnpm run setup`, engines, demo accounts
    2. [Secrets](runbooks/secrets.md): where each secret lives and how to rotate it
