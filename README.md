@@ -25,7 +25,7 @@ needs TMDB credentials: `pnpm secrets:tmdb` ([secrets](docs/runbooks/secrets.md)
 
 `pnpm guard` runs everything a change must pass: format, a dependency audit (high and above),
 file-length and layer rules, lint, type check, unit tests with coverage, database tests (pgTAP),
-build and a bundle secret scan.
+the Supabase advisors, build and a bundle secret scan.
 `pnpm guard:e2e` adds the Playwright suite (desktop, tablet and 360px phone; axe on every route).
 GitLab CI runs the same steps on every merge request.
 

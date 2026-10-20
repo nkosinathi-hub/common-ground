@@ -15,7 +15,8 @@
     - corepack enable && corepack prepare pnpm@10.34.3 --activate
     - pnpm install --frozen-lockfile
 
-# pgTAP: RLS isolation, RPCs, invites. Required on every MR: it is the security gate.
+# pgTAP (RLS isolation, RPCs, invites) and the Supabase advisors (splinter, any WARN or ERROR
+# fails). Required on every MR: it is the security gate.
 database:
   extends: [.on-change, .supabase]
   stage: test
@@ -23,6 +24,7 @@ database:
   script:
     - pnpm exec supabase start -x studio,imgproxy,vector,logflare,supavisor,edge-runtime
     - pnpm exec supabase test db
+    - pnpm exec supabase db advisors --local --fail-on warn
 
 # Playwright against a full local stack. Manual and non-blocking: it pulls every Supabase
 # image and a browser, which is slow on shared runners. `pnpm guard:e2e` is the local gate.

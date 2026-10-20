@@ -15,6 +15,7 @@ const steps: [string, string][] = [
   ["unit", "pnpm -s vitest run --coverage"],
   ["supabase", "pnpm -s supabase status >/dev/null 2>&1 || pnpm -s supabase start"],
   ["db", "pnpm -s supabase migration up --local >/dev/null && pnpm -s supabase test db"],
+  ["advisors", "pnpm -s supabase db advisors --local --fail-on warn"],
   ["build", "pnpm -s build"],
   ["bundle", "tsx scripts/guard/bundle-scan.ts"],
 ]

@@ -28,6 +28,9 @@ says what they defend against.
   `supabase/tests/database/` (third user, removed member, guessed UUIDs).
 - **Privileged operations** run as security-definer RPCs with `search_path = ''`, an
   `auth.uid()` check and explicit grants.
+- **Supabase advisors** (`supabase db advisors --local --fail-on warn`) run in guard and in the
+  `database` CI job, so any splinter WARN or ERROR fails the change. The CLI's splinter has no
+  security-definer execute lints, so `function_grants.test.sql` keeps an exact allow-list instead.
 - **Invites** store only a token hash, expire after 7 days, are single use, and are revocable.
 - **Secrets never in the bundle.** The browser only receives the URL and publishable key.
   `scripts/guard/bundle-scan.ts` fails the guard and CI if `dist/` contains a service-role marker,
