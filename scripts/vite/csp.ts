@@ -18,6 +18,8 @@ export function contentSecurityPolicy(supabaseUrl: string, siteUrl = ""): string
     `img-src 'self' data: blob: https://image.tmdb.org ${http}`,
     `connect-src 'self' ${http} ${socket}${release}`,
     "font-src 'self'",
+    // Realtime runs its heartbeat in a worker made from a blob (the party channel's keepalive).
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { createSupabase } from "./supabase"
 
 describe("createSupabase", () => {
@@ -21,6 +21,13 @@ describe("createSupabase", () => {
 
   it("refuses a missing URL or key", () => {
     expect(() => createSupabase("", "key")).toThrow(/not configured/)
+  })
+
+  it("keeps the Realtime heartbeat in a worker, so a backgrounded tab stays connected", () => {
+    vi.stubGlobal("Worker", class {})
+    expect(createSupabase("http://127.0.0.1:54321", "key").realtime.worker).toBe(true)
+    vi.unstubAllGlobals()
+    expect(createSupabase("http://127.0.0.1:54321", "key").realtime.worker).toBeFalsy()
   })
 
   it("creates a client for a bare origin", () => {

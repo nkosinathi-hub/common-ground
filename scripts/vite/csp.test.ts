@@ -15,6 +15,10 @@ describe("contentSecurityPolicy", () => {
     expect(policy).not.toContain("unsafe-eval")
   })
 
+  it("lets Realtime run its heartbeat in a worker it builds from a blob, and nothing else", () => {
+    expect(policy).toContain("worker-src 'self' blob:")
+  })
+
   it("supports a local http stack", () => {
     expect(contentSecurityPolicy("http://127.0.0.1:54321")).toContain("ws://127.0.0.1:54321")
   })

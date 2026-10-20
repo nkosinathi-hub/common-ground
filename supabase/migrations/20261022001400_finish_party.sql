@@ -3,20 +3,21 @@
 -- moves only when every current member of the space confirmed, and only forwards: a rewatch
 -- behind it is personal history only. Personal pointers follow episode_watches elsewhere.
 
--- Internal: the episodes of a range, across season boundaries; one null row for a film.
-create or replace function public.party_episodes(party public.watch_parties)
-returns table (season integer, episode integer)
+-- Internal: the episodes of a range, across season boundaries; one null row for a film. Takes
+-- the columns, not the row, so PostgREST does not offer it as a computed field of parties.
+create or replace function public.party_episodes(
+  s1 integer, e1 integer, s2 integer, e2 integer, counts integer[]
+) returns table (season integer, episode integer)
 language sql
 immutable
 set search_path = ''
 as $$
-  select null::integer, null::integer where party.from_season is null
+  select null::integer, null::integer where s1 is null
   union all
-  select s, e from generate_series(party.from_season, party.to_season) s,
-    generate_series(case when s = party.from_season then party.from_episode else 1 end,
-      case when s = party.to_season then party.to_episode
-        else party.season_episode_counts[s - party.from_season + 1] end) e
-  where party.from_season is not null;
+  select s, e from generate_series(s1, s2) s,
+    generate_series(case when s = s1 then e1 else 1 end,
+      case when s = s2 then e2 else counts[s - s1 + 1] end) e
+  where s1 is not null;
 $$;
 
 create or replace function public.finish_party(party uuid)
@@ -37,7 +38,8 @@ begin
   insert into public.episode_watches (space_id, watch_item_id, user_id, season, episode, source,
     party_id)
   select found.space_id, found.watch_item_id, m.user_id, r.season, r.episode, 'party', found.id
-  from public.watch_party_members m, public.party_episodes(found) r
+  from public.watch_party_members m, public.party_episodes(found.from_season, found.from_episode,
+    found.to_season, found.to_episode, found.season_episode_counts) r
   where m.party_id = found.id and m.confirmed;
 
   if not exists (select 1 from public.space_members s where s.space_id = found.space_id
@@ -56,6 +58,6 @@ begin
 end;
 $$;
 
-revoke execute on function public.party_episodes(public.watch_parties)
+revoke execute on function public.party_episodes(integer, integer, integer, integer, integer[])
   from public, anon, authenticated;
 grant execute on function public.finish_party(uuid) to authenticated;

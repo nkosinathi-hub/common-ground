@@ -945,11 +945,9 @@ isOneToOne: false
                   ]
                 },"watch_parties": {
                   Row: {
-                    "created_at": string,"ended_at": string | null,"from_episode": number | null,"from_season": number | null,"host_id": string | null,"id": string,"season_episode_counts": (number)[] | null,"source": Database["public"]['Enums']["party_source"],"space_id": string,"started_at": string | null,"status": Database["public"]['Enums']["party_status"],"to_episode": number | null,"to_season": number | null,"watch_item_id": string,"party_episodes": {
-              "episode": number,"season": number
-            } | null
+                    "created_at": string,"ended_at": string | null,"from_episode": number | null,"from_season": number | null,"host_id": string | null,"id": string,"season_episode_counts": (number)[] | null,"source": Database["public"]['Enums']["party_source"],"space_id": string,"started_at": string | null,"status": Database["public"]['Enums']["party_status"],"to_episode": number | null,"to_season": number | null,"watch_item_id": string
                   }
-                  ComputedFields: "party_episodes"
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"ended_at"?: string | null,"from_episode"?: number | null,"from_season"?: number | null,"host_id"?: string | null,"id"?: string,"season_episode_counts"?: (number)[] | null,"source": Database["public"]['Enums']["party_source"],"space_id": string,"started_at"?: string | null,"status"?: Database["public"]['Enums']["party_status"],"to_episode"?: number | null,"to_season"?: number | null,"watch_item_id": string
                   }
@@ -1282,7 +1280,7 @@ isOneToOne: false
 { Args: { "": Database["public"]['Tables']["ideas"]['Row'] }; Returns: { error: true } & "the function public.ours with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
                            },
 "party_episodes":
-{ Args: { "party": Omit<Database["public"]['Tables']["watch_parties"]['Row'], Database["public"]['Tables']["watch_parties"]['ComputedFields']> }; Returns: {
+{ Args: { "counts": (number)[],"e1": number,"e2": number,"s1": number,"s2": number }; Returns: {
               "episode": number,"season": number
             }[]
                            },
