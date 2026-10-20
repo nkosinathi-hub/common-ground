@@ -1,15 +1,6 @@
-import type { ProgressStatus } from "./progress-types"
+import type { MemberPlace, Place, ProgressStatus } from "./progress-types"
 
-/** Where someone is in a series: the last episode watched. A film has no season or episode. */
-export interface Place {
-  readonly season: number | null
-  readonly episode: number | null
-}
-
-export interface MemberPlace extends Place {
-  readonly userId: string
-  readonly status: ProgressStatus
-}
+export type { MemberPlace, Place }
 
 const STATUSES: readonly ProgressStatus[] = ["not_started", "watching", "completed", "dropped"]
 type Raw = Record<string, unknown>

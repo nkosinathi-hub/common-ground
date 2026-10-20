@@ -1,4 +1,3 @@
-import type { Place } from "./places"
 import type { DateOnly } from "@/shared/domain"
 
 export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
@@ -34,4 +33,15 @@ export interface WatchSession {
   readonly watchedOn: DateOnly
   readonly note: string | null
   readonly memberIds: readonly string[]
+}
+
+/** Where someone is in a series: the last episode watched. A film has no season or episode. */
+export interface Place {
+  readonly season: number | null
+  readonly episode: number | null
+}
+
+export interface MemberPlace extends Place {
+  readonly userId: string
+  readonly status: ProgressStatus
 }

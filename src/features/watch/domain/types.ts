@@ -1,4 +1,4 @@
-import type { MemberPlace, Place } from "./places"
+import type { MemberPlace, Place } from "./progress-types"
 import type { ProgressStatus } from "./progress-types"
 export type * from "./progress-types"
 
