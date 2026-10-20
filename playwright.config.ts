@@ -37,9 +37,10 @@ export default defineConfig({
       grep: RESPONSIVE,
     },
   ],
-  // Builds with the current .env, then serves the production bundle the way Pages does.
+  // Builds with the current .env, then serves the production bundle the way Pages does. The
+  // playback fixture (loopback only) lets the real player play tests/fixtures/playback.
   webServer: {
-    command: `pnpm build && pnpm exec vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
+    command: `VITE_PLAYBACK_FIXTURE_ORIGIN=http://127.0.0.1:4391 pnpm build && pnpm exec vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
     timeout: 300_000,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,

@@ -21,9 +21,10 @@ import {
 } from "../../features/playback/infrastructure/peertube/blender"
 import { peertubePlugin } from "../../features/playback/infrastructure/peertube/plugin"
 import { youtubeTrailerPlugin } from "../../features/playback/infrastructure/youtube-trailer/plugin"
+import { fixtureConfigs, fixturePlugins, type FixtureBuild } from "./playback-fixture"
 
 /** Fixed at build time: the CSP and the plugins' policies come from the same values. */
-export interface PlaybackBuild {
+export interface PlaybackBuild extends FixtureBuild {
   /** VITE_JELLYFIN_ORIGIN: the household's own Jellyfin server, https only. */
   readonly jellyfinOrigin?: string
 }
@@ -35,6 +36,7 @@ export function playbackPlugins(build: PlaybackBuild): ProviderPlugin[] {
     internetArchivePlugin(),
     peertubePlugin(BLENDER_INSTANCE),
     youtubeTrailerPlugin,
+    ...fixturePlugins(build),
   ]
 }
 
@@ -49,6 +51,7 @@ function defaultConfigs(build: PlaybackBuild): ProviderConfig[] {
     entry("internet-archive", 2, 8_000, 1),
     { ...entry("peertube", 3, 6_000, 1), id: "blender", options: { titles: BLENDER_TITLES } },
     entry("youtube-trailer", 9, 5_000, 0),
+    ...fixtureConfigs(build),
   ]
 }
 
@@ -61,7 +64,8 @@ export interface PlaybackDeps {
 }
 
 export function composePlayback(deps: PlaybackDeps) {
-  const registry = new PluginRegistry()
+  // Only the end-to-end build's loopback media server may use http (playback-fixture.ts).
+  const registry = new PluginRegistry({ allowLoopback: !!deps.build.fixtureOrigin })
   for (const plugin of playbackPlugins(deps.build)) {
     const registered = registry.register(plugin)
     if (!registered.ok) throw new Error(`${plugin.type}: ${registered.error.message}`)

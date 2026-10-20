@@ -31,6 +31,14 @@ describe("cspOrigins", () => {
     expect(() => cspOrigins([plugin("bad", { connect: ["javascript:x"] })])).toThrow(/script/)
   })
 
+  it("accepts a loopback http origin only when the build opts in (end-to-end tests)", () => {
+    const local = plugin("fixture", { media: ["http://127.0.0.1:4391"] })
+    expect(() => cspOrigins([local])).toThrow(/https/)
+    expect(cspOrigins([local], { allowLoopback: true }).media).toEqual(["http://127.0.0.1:4391"])
+    const remote = plugin("bad", { media: ["http://a.org"] })
+    expect(() => cspOrigins([remote], { allowLoopback: true })).toThrow(/https/)
+  })
+
   it("is empty with no plugins", () => {
     expect(cspOrigins([])).toEqual({ connect: [], media: [], frames: [] })
   })

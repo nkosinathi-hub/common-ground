@@ -3,6 +3,7 @@ import { DeviceCredentials } from "@/features/playback/infrastructure/device-cre
 import type { WatchHistory, WatchService } from "@/features/watch"
 import { deviceStore } from "@/shared/ui"
 import { composePlayback } from "./playback"
+import { fixtureBuild } from "./playback-fixture"
 import type { ActivePlayer } from "./player-bridge"
 import { deviceKeyValue, pendingTmdb, playbackPorts } from "./playback-ports"
 
@@ -12,8 +13,9 @@ const CHOICES = "playback-providers"
 export function composePlaybackFeature(watch: WatchService, history: WatchHistory) {
   const device = deviceStore()
   const jellyfinOrigin = (import.meta.env.VITE_JELLYFIN_ORIGIN as string | undefined) || undefined
+  const fixture = fixtureBuild(import.meta.env.VITE_PLAYBACK_FIXTURE_ORIGIN as string | undefined)
   const playback = composePlayback({
-    build: jellyfinOrigin ? { jellyfinOrigin } : {},
+    build: { ...(jellyfinOrigin ? { jellyfinOrigin } : {}), ...fixture },
     credentials: new DeviceCredentials(deviceKeyValue()),
     tmdb: pendingTmdb,
     choices: device.read(CHOICES),
