@@ -34,6 +34,14 @@ unit:
     paths: [coverage/]
     expire_in: 1 week
 
+functions:
+  extends: .on-change
+  stage: static
+  image: denoland/deno:2.1.4
+  before_script: []
+  cache: []
+  script: [cd supabase/functions && deno check --frozen catalog/index.ts attachments/index.ts]
+
 build:
   extends: .on-change
   stage: build

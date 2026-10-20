@@ -3,6 +3,7 @@ import { findEmDashes } from "./em-dash-rule"
 import { findEmoji } from "./emoji-rule"
 import { findLengthViolations } from "./file-length-rule"
 import { checkFile } from "./layers-rule"
+import { checkDenoImportMap, checkFunctionImports, IMPORT_MAP } from "./pinned-imports-rule"
 import { checkPurity } from "./purity-rule"
 import { trackedFiles } from "./tracked-files"
 
@@ -22,6 +23,11 @@ const problems = [
     .flatMap((f) => checkFile(f.path, f.text))
     .map((v) => `${v.path}: layer violation importing "${v.specifier}"`),
   ...code.flatMap((f) => checkPurity(f.path, f.text)).map((v) => `${v.path}: ${v.reason}`),
+  ...code.flatMap((f) => checkFunctionImports(f.path, f.text)).map((v) => `${v.path}: ${v.reason}`),
+  ...files
+    .filter((f) => f.path === IMPORT_MAP)
+    .flatMap((f) => checkDenoImportMap(f.text))
+    .map((v) => `${v.path}: ${v.reason}`),
 ]
 
 for (const line of problems) console.error(line)

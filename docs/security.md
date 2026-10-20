@@ -30,6 +30,9 @@ says what they defend against.
   `auth.uid()` check and explicit grants.
 - **One API.** Only `public` is exposed through PostgREST; `pg_graphql` is dropped, so the
   platform's GraphQL endpoint answers "not enabled" (`20261020000100_api_no_graphql.sql`).
+- **Pinned Edge Function dependencies.** Functions import remote code by bare name only;
+  `supabase/functions/deno.json` pins exact versions and `deno.lock` their content. The static
+  checks refuse an `npm:`/`jsr:`/URL import elsewhere, and guard runs `deno check --frozen`.
 - **Supabase advisors** (`supabase db advisors --local --fail-on warn`) run in guard and in the
   `database` CI job, so any splinter WARN or ERROR fails the change. The CLI's splinter has no
   security-definer execute lints, so `function_grants.test.sql` keeps an exact allow-list instead.

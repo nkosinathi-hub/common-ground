@@ -6,6 +6,10 @@ const e2e = process.argv.includes("--e2e")
 const host = dockerHost()
 const DOCKER = host ? { DOCKER_HOST: host } : {}
 
+// Edge Functions type-check under the edge runtime's Deno, against the committed deno.lock.
+const DENO = "docker.io/denoland/deno:2.1.4"
+const DENO_CHECK = "deno check --frozen catalog/index.ts attachments/index.ts"
+
 const steps: [string, string][] = [
   ["format", "pnpm -s format:check"],
   ["audit", "pnpm -s audit --audit-level high"],
@@ -13,6 +17,7 @@ const steps: [string, string][] = [
   ["lint", "pnpm -s lint"],
   ["check", "pnpm -s check"],
   ["unit", "pnpm -s vitest run --coverage"],
+  ["functions", `docker run --rm -v "$PWD/supabase/functions:/fn:z" -w /fn ${DENO} ${DENO_CHECK}`],
   ["supabase", "pnpm -s supabase status >/dev/null 2>&1 || pnpm -s supabase start"],
   ["db", "pnpm -s supabase migration up --local >/dev/null && pnpm -s supabase test db"],
   ["advisors", "pnpm -s supabase db advisors --local --fail-on warn"],

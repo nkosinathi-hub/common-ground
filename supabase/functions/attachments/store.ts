@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "npm:@supabase/supabase-js@2"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type { AttachmentsStore } from "../_shared/attachments/ports.ts"
 import type { AttachmentRow } from "../_shared/attachments/types.ts"
 

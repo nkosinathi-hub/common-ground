@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "npm:@supabase/supabase-js@2"
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type { ObjectStorage } from "../_shared/attachments/ports.ts"
 import { fetchProbe } from "../_shared/attachments/probe.ts"
 

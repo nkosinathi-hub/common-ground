@@ -1,5 +1,5 @@
 // Deno-only adapters shared by the Edge Function entries. Not deployed as a function.
-import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2"
+import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import type { Gate } from "../_shared/http/gate.ts"
 
 const NO_SESSION = { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
