@@ -44,3 +44,15 @@ function walk(dir: string): string[] {
 export function scanDir(dir: string, values: readonly string[]): string[] {
   return walk(dir).filter((path) => findSecrets(readFileSync(path, "utf8"), values).length > 0)
 }
+
+/** Functions env keys whose values are public by design (origins, URLs the bundle already has). */
+const PUBLIC_KEYS = new Set(["ALLOWED_ORIGINS", "PUBLIC_API_URL", "TMDB_BASE_URL"])
+
+/** The values in a functions .env that must never reach the bundle. Short values are skipped. */
+export function secretValuesOf(envText: string): string[] {
+  return envText
+    .split("\n")
+    .map((line) => [line.split("=")[0]?.trim() ?? "", line.split("=").slice(1).join("=").trim()])
+    .filter(([key, value]) => !PUBLIC_KEYS.has(key!) && value!.length >= 16)
+    .map(([, value]) => value!)
+}
