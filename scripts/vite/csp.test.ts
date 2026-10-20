@@ -27,6 +27,11 @@ describe("contentSecurityPolicy", () => {
     const html = cspPlugin("https://abc.supabase.co").transformIndexHtml("<head></head>")
     expect(html).toMatch(/<head><meta http-equiv="Content-Security-Policy" content="default-src/)
   })
+
+  it("sends only the origin as the referrer, never a path", () => {
+    const html = cspPlugin("https://abc.supabase.co").transformIndexHtml("<head></head>")
+    expect(html).toContain('<meta name="referrer" content="strict-origin" />')
+  })
 })
 
 describe("bareOrigin", () => {

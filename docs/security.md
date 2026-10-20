@@ -33,6 +33,11 @@ says what they defend against.
 - **Pinned Edge Function dependencies.** Functions import remote code by bare name only;
   `supabase/functions/deno.json` pins exact versions and `deno.lock` their content. The static
   checks refuse an `npm:`/`jsr:`/URL import elsewhere, and guard runs `deno check --frozen`.
+- **No framing, minimal referrer.** GitHub Pages cannot send `frame-ancestors` or
+  `Referrer-Policy` headers. `src/app/framing.ts` refuses to mount inside any frame and shows only
+  a link out, and the build adds `<meta name="referrer" content="strict-origin">`
+  (`tests/e2e/security/framing.spec.ts`). Residual risk: a framing page still sees the empty
+  shell for a moment, and a browser with scripts off gets an empty page, never the app.
 - **Nothing left on a shared device.** Web storage goes through `src/shared/ui/device-store.ts`,
   which prefixes every key `common-ground:`; sign-out removes them all (drafts, the active space,
   a pending invite) and keeps only the light or dark choice. A static rule forbids other access.

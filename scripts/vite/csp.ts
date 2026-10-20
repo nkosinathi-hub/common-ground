@@ -1,6 +1,7 @@
 /**
  * GitHub Pages cannot send headers, so the Content Security Policy ships as a meta tag built
- * from the configured Supabase origin. frame-ancestors is header-only and not set here.
+ * from the configured Supabase origin. frame-ancestors is header-only, so src/app/framing.ts
+ * refuses to render inside a frame instead (docs/security.md).
  */
 export const ORIGIN_ONLY =
   "VITE_SUPABASE_URL must be the project origin, e.g. https://<ref>.supabase.co, without a path such as /rest/v1/"
@@ -41,8 +42,9 @@ export function cspPlugin(supabaseUrl: string) {
   return {
     name: "common-ground-csp",
     transformIndexHtml(html: string): string {
-      const tag = `<meta http-equiv="Content-Security-Policy" content="${policy}" />`
-      return html.replace("<head>", `<head>${tag}`)
+      const csp = `<meta http-equiv="Content-Security-Policy" content="${policy}" />`
+      const referrer = '<meta name="referrer" content="strict-origin" />'
+      return html.replace("<head>", `<head>${csp}${referrer}`)
     },
   }
 }
