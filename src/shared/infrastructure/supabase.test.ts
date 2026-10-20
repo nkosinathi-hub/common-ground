@@ -13,6 +13,12 @@ describe("createSupabase", () => {
     expect(() => createSupabase("https://abc.supabase.co/#a", "key")).toThrow(/project origin/)
   })
 
+  it("refuses an invalid URL with the same message as the build", () => {
+    expect(() => createSupabase("abc.supabase.co", "key")).toThrow(
+      /needs a valid VITE_SUPABASE_URL/,
+    )
+  })
+
   it("refuses a missing URL or key", () => {
     expect(() => createSupabase("", "key")).toThrow(/not configured/)
   })
