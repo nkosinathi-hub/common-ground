@@ -33,10 +33,21 @@ browser streams straight from the server with its own Jellyfin login.
   fixed from 10.11.7, and 12.x also dropped the legacy `api_key` routes.
 - Set "Login attempts before lockout" (Dashboard, Users, each user) to a small number, and give
   every account a long, unique password.
+- Jellyfin 12.2 serves `/Videos/{id}/stream` without a token (found by the live test,
+  `jellyfin.live.test.ts`); only the API that lists item ids needs one. Behind `serve` only your
+  tailnet can reach it; behind `funnel` anyone holding an item id could stream that file, so
+  prefer `serve` and Tailscale on her phone.
 - Do not ban by IP: behind Funnel every request arrives from the local Tailscale proxy, so an
   IP ban locks out both of you.
 - Leave remote access settings as they are: Jellyfin listens only on 127.0.0.1 and Tailscale
   is the only way in. Keep the image updated (`podman pull`, then stop and start).
+
+## Live test
+
+`JELLYFIN_LIVE_URL=<server> JELLYFIN_LIVE_USER=<everyday user> JELLYFIN_LIVE_PASSWORD_FILE=<file>
+JELLYFIN_LIVE_TMDB=<a film's TMDB id> pnpm exec vitest run jellyfin.live` signs in, resolves the
+film, streams it with the token in a header, reports progress and checks the resume point, then
+signs out. It is skipped without `JELLYFIN_LIVE_URL`.
 
 ## Signing in from Common Ground
 
