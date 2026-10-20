@@ -10,7 +10,7 @@ create table public.episode_watches (
   season integer check (season >= 0),
   episode integer check (episode >= 0),
   watched_at timestamptz not null default now(),
-  source text not null check (source in ('jellyfin', 'simkl', 'manual', 'party')),
+  source text not null check (source in ('player', 'simkl', 'manual', 'party')),
   party_id uuid,
   check ((season is null) = (episode is null)),
   foreign key (space_id, watch_item_id) references public.watch_items (space_id, id)

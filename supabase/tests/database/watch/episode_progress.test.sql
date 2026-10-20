@@ -28,7 +28,7 @@ select public.mark_episode_watched((select show from ids), 1, 1, 'manual');
 select is((select (season, episode) from public.watch_progress
   where watch_item_id = (select show from ids) and user_id = tests.user_id('ep_ana')),
   (1, 2), 'an earlier episode, a rewatch, never moves the place back');
-select public.mark_episode_watched((select show from ids), 2, 1, 'jellyfin');
+select public.mark_episode_watched((select show from ids), 2, 1, 'player');
 select is((select (season, episode) from public.watch_progress
   where watch_item_id = (select show from ids) and user_id = tests.user_id('ep_ana')),
   (2, 1), 'a later episode moves it forward across seasons');

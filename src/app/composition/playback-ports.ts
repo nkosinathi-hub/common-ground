@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core"
 import { ok } from "@/shared/domain"
 import { preferencesStorage } from "@/shared/infrastructure/preferences-storage"
 import { deviceStore } from "@/shared/ui"
-import type { WatchService } from "@/features/watch"
+import type { WatchHistory, WatchService } from "@/features/watch"
 import type { PlaybackPorts } from "@/features/playback"
 import type { KeyValue } from "@/features/playback/infrastructure/device-credentials"
 import type { JellyfinAccount } from "@/features/playback/infrastructure/jellyfin/account"
@@ -37,6 +37,7 @@ export const pendingTmdb: TmdbLookup = {
 export function playbackPorts(
   watch: WatchService,
   jellyfin: JellyfinAccount | null,
+  history: WatchHistory,
 ): PlaybackPorts {
   const fromJellyfin = async (tmdbId: number) =>
     jellyfin && (await jellyfin.signedIn()) ? jellyfin.nextUp(tmdbId) : ok(null)
@@ -59,7 +60,12 @@ export function playbackPorts(
         same ? { season: current.season, episode: current.episode + 1, title: "" } : next.value,
       )
     },
-    // The episode-history data model is another stream's issue; this port is its seam.
-    markWatched: async () => ok(undefined),
+    // 90% played: the person's history, which moves their own place forward.
+    markWatched: (target, ref) =>
+      history.markWatched(
+        target.itemId,
+        ref.kind === "episode" ? { season: ref.season, episode: ref.episode } : null,
+        "player",
+      ),
   }
 }

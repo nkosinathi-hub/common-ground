@@ -18,7 +18,7 @@
   }
 
   let { playing, target, title, onclose, onnext }: Props = $props()
-  const { service, device } = usePlayback()
+  const { service, device, attachVideo } = usePlayback()
   const prefs = captionPreference(device)
   let captions = $state(prefs.read())
   let index = $state(0)
@@ -29,7 +29,6 @@
   let theatre = $state(false)
   let next = $state<NextUp | null>(null)
   const source = $derived(playing.sources[index] ?? null)
-
   /** A failing source hands over to the next ranked one; the list running out is the end. */
   const fail = () => (index += 1)
 
@@ -50,6 +49,8 @@
       detach()
     }
   })
+  // A watch party drives this video while it plays (src/app/composition/player-bridge.ts).
+  $effect(() => (video && attachVideo ? untrack(() => attachVideo(video!)) : undefined))
 
   $effect(() => {
     void service.nextUp(target, playing.ref).then((r) => (next = r.ok ? r.value : null))

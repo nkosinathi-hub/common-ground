@@ -34,7 +34,7 @@ create trigger episode_watches_advance after insert on public.episode_watches
   for each row execute function public.episode_watches_advance();
 
 -- One episode (or a film, season and episode null) the caller watched. Parties write their own
--- history through finish_party; the player sends 'jellyfin', a tick by hand 'manual'.
+-- history through finish_party; the in-app player sends 'player', a tick by hand 'manual'.
 create or replace function public.mark_episode_watched(
   item uuid, watched_season integer, watched_episode integer, origin text
 ) returns void
@@ -45,7 +45,7 @@ as $$
 declare target_space uuid; caller uuid := (select auth.uid());
 begin
   if caller is null then raise exception 'sign in required' using errcode = '28000'; end if;
-  if origin not in ('manual', 'jellyfin') then
+  if origin not in ('manual', 'player') then
     raise exception 'Unknown history source' using errcode = '22023';
   end if;
   select w.space_id into target_space from public.watch_items w

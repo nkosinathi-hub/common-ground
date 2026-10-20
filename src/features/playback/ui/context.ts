@@ -9,6 +9,8 @@ export interface PlaybackContext {
   readonly device: DeviceStore
   /** The signed-in media server account (Jellyfin) when the build has one. */
   readonly account: ProviderAccount | null
+  /** Hands the playing video to whatever drives it from outside (a watch party); returns detach. */
+  readonly attachVideo?: (video: HTMLVideoElement) => () => void
 }
 
 const KEY = Symbol("playback")
