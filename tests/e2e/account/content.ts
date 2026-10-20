@@ -39,5 +39,5 @@ export async function exportFrom<T = SpaceExport>(page: Page, button: string | R
     page.getByRole("button", { name: button }).click(),
   ])
   expect(download.suggestedFilename()).toMatch(/^common-ground-[a-z0-9-]+-\d{4}-\d{2}-\d{2}\.json$/)
-  return JSON.parse(await readFile((await download.path())!, "utf8")) as T
+  return JSON.parse(await readFile(await download.path(), "utf8")) as T
 }

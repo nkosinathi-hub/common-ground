@@ -43,4 +43,10 @@ describe("Resource", () => {
     expect(failed?.kind).toBe("validation")
     expect(r.value).toEqual([1, 2, 3])
   })
+
+  it("ends in an error, not loading, when the loader throws", async () => {
+    const r = new Resource<number>(() => Promise.reject(new Error("mapper bug")))
+    await r.load()
+    expect(r.state).toMatchObject({ status: "error", error: { kind: "unknown" } })
+  })
 })

@@ -43,4 +43,11 @@ describe("shared PagedList", () => {
     await Promise.all([first, second])
     expect(list.items.map((r) => r.id)).toEqual(["new"])
   })
+
+  it("ends in an error, not loading, when the loader throws", async () => {
+    const list = new PagedList<Row, string>(() => Promise.reject(new Error("mapper bug")))
+    await list.load()
+    expect(list.loading).toBe(false)
+    expect(list.error?.kind).toBe("unknown")
+  })
 })

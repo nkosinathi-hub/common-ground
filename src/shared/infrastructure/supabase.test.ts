@@ -18,6 +18,6 @@ describe("createSupabase", () => {
   })
 
   it("creates a client for a bare origin", () => {
-    expect(createSupabase("http://127.0.0.1:54321", "key").from).toBeTypeOf("function")
+    expect(typeof createSupabase("http://127.0.0.1:54321", "key").from).toBe("function")
   })
 })

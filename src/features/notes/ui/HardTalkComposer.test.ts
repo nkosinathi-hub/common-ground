@@ -1,4 +1,12 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte"
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+  type BoundFunctions,
+  type queries,
+} from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
 import Provided from "@/shared/ui/testing/Provided.svelte"
@@ -19,7 +27,7 @@ async function open(members?: Parameters<typeof notesHarness>[1]) {
   return { ...harness, dialog }
 }
 
-const mode = (dialog: ReturnType<typeof within>, name: string) =>
+const mode = (dialog: BoundFunctions<typeof queries>, name: string) =>
   dialog.getByRole("radio", { name })
 
 afterEach(() => {

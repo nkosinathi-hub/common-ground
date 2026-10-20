@@ -61,7 +61,7 @@
 
   function submit(event: SubmitEvent) {
     event.preventDefault()
-    save(draft, base)
+    void save(draft, base)
   }
 </script>
 

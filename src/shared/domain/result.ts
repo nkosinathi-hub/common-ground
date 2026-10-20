@@ -27,3 +27,12 @@ export function map<T, U, E>(result: Result<T, E>, fn: (value: T) => U): Result<
 
 export const appError = (kind: AppErrorKind, message: string, field?: string): AppError =>
   field === undefined ? { kind, message } : { kind, message, field }
+
+/** Runs a task that answers with a Result; a throw or rejection becomes an "unknown" error. */
+export async function attempt<T>(task: () => Promise<Result<T>>): Promise<Result<T>> {
+  try {
+    return await task()
+  } catch {
+    return err(appError("unknown", "Something went wrong. Try again"))
+  }
+}

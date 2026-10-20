@@ -28,7 +28,7 @@
   // Loads on mount and again when spaceId changes.
   $effect(() => {
     void spaceId
-    untrack(() => board.load())
+    untrack(() => void board.load())
   })
 </script>
 

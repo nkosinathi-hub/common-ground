@@ -43,7 +43,7 @@ describe("attachments handler, user actions", () => {
     const response = await setup().call(start)
     expect(response.status).toBe(200)
     expect(response.headers.get("access-control-allow-origin")).toBe(ORIGIN)
-    expect(await response.json()).toMatchObject({ attachmentId: expect.any(String) })
+    expect(await response.json()).toMatchObject({ attachmentId: expect.any(String) as string })
   })
 
   it("verifies the JWT itself, since the gateway does not (verify_jwt = false)", async () => {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import type { AppError } from "@/shared/domain"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { MILESTONE_COLUMNS } from "./rows"
@@ -67,7 +68,7 @@ describe("SupabaseMilestones", () => {
       error: expect.objectContaining({
         kind: "conflict",
         message: "Someone else changed this. Reload to see their version",
-      }),
+      }) as AppError,
     })
   })
 

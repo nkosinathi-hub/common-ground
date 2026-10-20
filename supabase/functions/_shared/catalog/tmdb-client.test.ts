@@ -48,7 +48,9 @@ describe("createTmdbClient", () => {
     const fetch = vi.fn(
       (_url: string, init?: RequestInit) =>
         new Promise<Response>((_resolve, reject) =>
-          init?.signal?.addEventListener("abort", () => reject(init.signal?.reason)),
+          init?.signal?.addEventListener("abort", () =>
+            reject(init.signal?.reason as DOMException),
+          ),
         ),
     )
     const result = await createTmdbClient({ token: "t", fetch, timeoutMs: 5 }).get("x")

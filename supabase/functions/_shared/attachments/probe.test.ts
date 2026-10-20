@@ -48,7 +48,7 @@ describe("fetchProbe", () => {
   it("gives up on a storage read that runs past the timeout", async () => {
     const hanging = (_url: string, init: RequestInit) =>
       new Promise<Response>((_resolve, reject) =>
-        init.signal?.addEventListener("abort", () => reject(init.signal?.reason)),
+        init.signal?.addEventListener("abort", () => reject(init.signal?.reason as DOMException)),
       )
     await expect(fetchProbe(hanging, "https://storage.test/sign/a", 5)).rejects.toThrow()
   })

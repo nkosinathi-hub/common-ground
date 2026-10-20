@@ -27,7 +27,7 @@ const invalid = (field: string, message: string) => err(appError("validation", m
 function checkTiming(draft: EventDraft): Result<EventTiming> {
   if (!isDateOnly(draft.startDate)) return invalid("startDate", "Choose a start date")
   if (!isDateOnly(draft.endDate)) return invalid("endDate", "Choose an end date")
-  const [startDate, endDate] = [draft.startDate as DateOnly, draft.endDate as DateOnly]
+  const [startDate, endDate] = [draft.startDate, draft.endDate]
   if (draft.allDay) {
     const span = daysBetween(startDate, endDate)
     if (span < 0) return invalid("endDate", "End on or after the start date")

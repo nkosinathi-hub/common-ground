@@ -37,7 +37,7 @@ describe("NotesState", () => {
     await notes.load()
     const reply = await notes.reply(notes.visible[0]!, "Yes")
     expect(reply.ok).toBe(true)
-    expect(notes.visible[0]).toMatchObject({ replyCount: 1, readAt: expect.any(String) })
+    expect(notes.visible[0]).toMatchObject({ replyCount: 1, readAt: expect.any(String) as string })
     expect(await notes.reply(notes.visible[0]!, " ")).toMatchObject({ ok: false })
   })
 })

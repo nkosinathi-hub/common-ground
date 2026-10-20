@@ -19,7 +19,7 @@ afterEach(cleanup)
 describe("NoteComposer", () => {
   it("offers everyone or each other member, and sends a pinned note", async () => {
     const { repo, dialog } = await open()
-    const to = dialog.getByLabelText("To") as HTMLSelectElement
+    const to = dialog.getByLabelText<HTMLSelectElement>("To")
     await screen.findByRole("option", { name: "Cy" })
     expect([...to.options].map((o) => o.text)).toEqual(["Everyone", "Ben", "Cy"])
     await fireEvent.change(to, { target: { value: "cy" } })
@@ -32,7 +32,7 @@ describe("NoteComposer", () => {
     expect(repo.rows[0]).toMatchObject({
       recipientId: "cy",
       pinned: true,
-      expiresAt: expect.any(String),
+      expiresAt: expect.any(String) as string,
     })
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
   })

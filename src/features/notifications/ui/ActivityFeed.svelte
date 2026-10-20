@@ -21,7 +21,7 @@
   )
   $effect(() => {
     void spaceId
-    untrack(() => list.load())
+    untrack(() => void list.load())
   })
 </script>
 

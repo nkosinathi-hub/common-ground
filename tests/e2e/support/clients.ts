@@ -15,9 +15,9 @@ export async function signedInClient(user: TestUser): Promise<SupabaseClient> {
 
 /** Calls an RPC and returns its data, throwing on any error. */
 export async function rpc<T>(client: SupabaseClient, fn: string, args: object): Promise<T> {
-  const { data, error } = await client.rpc(fn, args)
-  if (error) throw new Error(`${fn}: ${error.message}`)
-  return data as T
+  const reply: { data: unknown; error: { message: string } | null } = await client.rpc(fn, args)
+  if (reply.error) throw new Error(`${fn}: ${reply.error.message}`)
+  return reply.data as T
 }
 
 /** Member user ids of a space, read past RLS with the admin client. */

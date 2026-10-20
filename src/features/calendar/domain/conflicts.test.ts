@@ -14,7 +14,7 @@ const entry = (id: string, startsAt: string, endsAt: string, patch: Partial<Cale
     myRsvp: "going",
     timing: { allDay: false, startsAt, endsAt },
     ...patch,
-  }) as CalendarEntry
+  }) satisfies CalendarEntry
 
 const target = {
   id: "me",
