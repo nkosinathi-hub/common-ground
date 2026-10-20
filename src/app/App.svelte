@@ -8,6 +8,7 @@
   import { compose, provideServices } from "./composition"
   import Page from "./Page.svelte"
   import { RouteGate } from "./routing/gate.svelte"
+  import { PushSession } from "./native/push-session"
   import { Router } from "./routing/router.svelte"
 
   const services = compose()
@@ -38,15 +39,14 @@
     return notifications.start()
   })
 
-  // The Android app registers for push once Firebase is configured in the build (docs/android.md).
-  const push = Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
-  let phone: Promise<{ forget(): Promise<void> }> | null = null
-  $effect(() => {
-    if (userId && push && !phone)
-      phone = import("./native/push")
-        .then((m) => m.startPush(services.pushDevices))
-        .catch(() => ({ forget: () => Promise.resolve() }))
-  })
+  // The Android app registers for push once Firebase is in the build (docs/runbooks/android.md).
+  const phonePush =
+    Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
+      ? new PushSession(() =>
+          import("./native/push").then((m) => m.startPush(services.pushDevices)),
+        )
+      : null
+  $effect(() => void phonePush?.follow(userId))
 
   $effect(() => gate.rememberInvite())
 
@@ -57,9 +57,7 @@
   })
 
   async function signOut(scope: "here" | "everywhere" = "here") {
-    // Push must never hold up signing out (offline, Firebase down).
-    await (await phone)?.forget().catch(() => {})
-    phone = null
+    await phonePush?.follow(null) // while the session still exists, so the server forgets too
     await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
     clearDeviceData()
     spacesStore.clear()

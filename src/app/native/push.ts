@@ -1,3 +1,4 @@
+import { App } from "@capacitor/app"
 import { PushNotifications } from "@capacitor/push-notifications"
 import type { PushDevicesGateway } from "@/features/notifications"
 
@@ -28,14 +29,23 @@ export async function startPush(devices: PushDevicesGateway): Promise<PhonePush>
     importance: 4,
   })
   let token: string | null = null
-  const listener = await PushNotifications.addListener("registration", ({ value }) => {
+  let saved = false
+  let pending: Promise<unknown> = Promise.resolve()
+  // Saving the token fails offline; the next resume tries again.
+  const save = () => {
+    if (token && !saved) pending = devices.register(token).then((result) => (saved = result.ok))
+  }
+  const registration = await PushNotifications.addListener("registration", ({ value }) => {
     token = value
-    void devices.register(value)
+    saved = false
+    save()
   })
+  const resume = await App.addListener("resume", save)
   await PushNotifications.register()
   return {
     forget: async () => {
-      await listener.remove()
+      await Promise.all([registration.remove(), resume.remove()])
+      await pending // a save still in flight must not land after the forget
       if (token) await devices.unregister(token)
       await PushNotifications.unregister()
     },

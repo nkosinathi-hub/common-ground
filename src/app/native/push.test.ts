@@ -11,6 +11,14 @@ const plugin = vi.hoisted(() => ({
   addListener: vi.fn(),
 }))
 vi.mock("@capacitor/push-notifications", () => ({ PushNotifications: plugin }))
+vi.mock("@capacitor/app", () => ({
+  App: {
+    addListener: (name: string, fn: (event: unknown) => void) => {
+      listeners.set(name, fn)
+      return Promise.resolve({ remove: () => Promise.resolve() })
+    },
+  },
+}))
 
 const { startPush } = await import("./push")
 const devices = { register: vi.fn(), unregister: vi.fn() }
@@ -45,6 +53,34 @@ describe("startPush", () => {
     await push.forget()
     expect(devices.unregister).toHaveBeenCalledWith("tok")
     expect(plugin.unregister).toHaveBeenCalledOnce()
+  })
+
+  it("tries again when the app resumes if saving the token failed", async () => {
+    state.receive = "granted"
+    devices.register.mockResolvedValueOnce({ ok: false, error: { kind: "network" } })
+    await startPush(devices)
+    listeners.get("registration")!({ value: "tok" })
+    await vi.waitFor(() => expect(devices.register).toHaveBeenCalledOnce())
+    listeners.get("resume")!({})
+    await vi.waitFor(() => expect(devices.register).toHaveBeenCalledTimes(2))
+    listeners.get("resume")!({})
+    expect(devices.register).toHaveBeenCalledTimes(2)
+  })
+
+  it("waits for a save in flight before forgetting, so the forget lands last", async () => {
+    state.receive = "granted"
+    const order: string[] = []
+    devices.register.mockImplementationOnce(
+      () =>
+        new Promise((done) =>
+          setTimeout(() => done((order.push("register"), { ok: true, value: undefined })), 5),
+        ),
+    )
+    devices.unregister.mockImplementationOnce(() => Promise.resolve(void order.push("unregister")))
+    const push = await startPush(devices)
+    listeners.get("registration")!({ value: "tok" })
+    await push.forget()
+    expect(order).toEqual(["register", "unregister"])
   })
 
   it("does nothing when notifications are refused", async () => {
