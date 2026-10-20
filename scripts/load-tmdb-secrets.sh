@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Puts TMDB credentials into supabase/functions/.env (gitignored) for `supabase functions serve`,
-# keeping every other key in that file. With --remote it pushes ONLY the TMDB keys to the linked
+# keeping every other key in that file (and adding the local-only defaults below). With --remote it pushes ONLY the TMDB keys to the linked
 # project, so production ALLOWED_ORIGINS and CLEANUP_SECRET are never overwritten.
 # Secret values are never printed: only key names reach the terminal.
 set -euo pipefail
@@ -9,6 +9,7 @@ KEYS_FILE="${TMDB_KEYS_FILE:-$HOME/Downloads/tmdb keys}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="$ROOT/supabase/functions/.env"
 LOCAL_ORIGINS="http://127.0.0.1:5173,http://localhost:5173,http://127.0.0.1:4173,http://localhost:4173"
+LOCAL_API="http://127.0.0.1:54321"
 
 [[ -r "$KEYS_FILE" ]] || { echo "TMDB keys file not found: $KEYS_FILE (set TMDB_KEYS_FILE)" >&2; exit 1; }
 
@@ -33,6 +34,8 @@ trap 'rm -f "$tmp" "${remote_tmp:-}"' EXIT
   printf 'TMDB_ACCESS_TOKEN=%s\nTMDB_API_KEY=%s\nTMDB_BASE_URL=%s\n' \
     "$token" "$api_key" "${TMDB_BASE_URL:-https://api.themoviedb.org/3}"
   [[ -f "$ENV_FILE" ]] && grep -q '^ALLOWED_ORIGINS=' "$ENV_FILE" || printf 'ALLOWED_ORIGINS=%s\n' "$LOCAL_ORIGINS"
+  # Locally, signed Storage URLs name the internal gateway; hand the browser this origin instead.
+  [[ -f "$ENV_FILE" ]] && grep -q '^PUBLIC_API_URL=' "$ENV_FILE" || printf 'PUBLIC_API_URL=%s\n' "$LOCAL_API"
 } > "$tmp"
 mv "$tmp" "$ENV_FILE"
 echo "Wrote $(cut -d= -f1 "$ENV_FILE" | paste -sd, -) to $ENV_FILE"
