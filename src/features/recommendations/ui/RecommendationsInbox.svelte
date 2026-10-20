@@ -19,7 +19,7 @@
   const list = $derived(inbox.list)
   $effect(() => {
     void inbox
-    untrack(() => inbox.load())
+    untrack(() => void inbox.load())
   })
 
   async function answer(id: string, response: RecommendationResponse) {

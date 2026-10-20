@@ -21,6 +21,7 @@ values
    10, 'pending', null);
 insert into storage.objects (bucket_id, name)
 select 'attachments', object_path from public.attachments
+ where space_id = '51000000-0000-4000-8000-000000000001' -- never rows other runs left behind
 union all select 'attachments', '51000000-0000-4000-8000-000000000001/11000000-0000-4000-8000-000000000001/stray';
 
 select is((select public from storage.buckets where id = 'attachments'), false, 'the bucket is private');

@@ -36,7 +36,10 @@ describe("toFunctionError", () => {
     )
     expect(await toFunctionError(null, COPY)).toEqual(outage)
     expect(await toFunctionError(httpError(500, "not json"), COPY)).toEqual(outage)
-    const broken = { name: "FunctionsHttpError", context: { json: () => Promise.reject() } }
+    const broken = {
+      name: "FunctionsHttpError",
+      context: { json: () => Promise.reject(new SyntaxError("not json")) },
+    }
     expect(await toFunctionError(broken, COPY)).toEqual(outage)
   })
 

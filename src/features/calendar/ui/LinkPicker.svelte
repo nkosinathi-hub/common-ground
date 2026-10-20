@@ -26,14 +26,16 @@
   let results = $state<LinkOption[]>([])
   let generation = 0
 
+  async function search(k: LinkKind, q: string) {
+    const mine = ++generation
+    const found = await service.linkSearch(spaceId, k, q)
+    if (mine === generation) results = found.ok ? found.value : []
+  }
+
   // Searches again whenever the tab or the text changes; only the newest answer is shown.
   $effect(() => {
     const [k, q] = [kind, query]
-    untrack(async () => {
-      const mine = ++generation
-      const found = await service.linkSearch(spaceId, k, q)
-      if (mine === generation) results = found.ok ? found.value : []
-    })
+    untrack(() => void search(k, q))
   })
 </script>
 

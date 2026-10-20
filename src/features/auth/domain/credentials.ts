@@ -6,9 +6,9 @@ export interface SignUpInput {
   readonly displayName: string
 }
 
-export const PASSWORD_MAX = 128
+const PASSWORD_MAX = 128
 /** RFC 5321 limit on a forward path. */
-export const EMAIL_MAX = 254
+const EMAIL_MAX = 254
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 

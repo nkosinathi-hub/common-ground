@@ -1,12 +1,4 @@
-import type { Idea } from "./idea"
-
-/** Someone invited onto an idea. acceptedAt null means the invite is still pending. */
-export interface Collaborator {
-  readonly userId: string
-  readonly invitedBy: string | null
-  readonly invitedAt: string
-  readonly acceptedAt: string | null
-}
+import type { Collaborator, Idea } from "./idea"
 
 type WithPeople = Pick<Idea, "createdBy" | "collaborators">
 

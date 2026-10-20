@@ -27,7 +27,7 @@ export const weekdayName = (day: DateOnly, width: "short" | "long") =>
   dayFormat({ weekday: width }).format(atNoonUtc(day))
 
 export const dayHeading = (day: DateOnly) => spelled(LONG, day, false)
-export const fullDay = (day: DateOnly) => spelled(SHORT, day, true)
+const fullDay = (day: DateOnly) => spelled(SHORT, day, true)
 
 /** The month grid cell's accessible name, e.g. "Thu 16 October, 2 events". */
 export function cellLabel(day: DateOnly, count: number): string {

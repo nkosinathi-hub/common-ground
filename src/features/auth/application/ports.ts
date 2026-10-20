@@ -1,6 +1,6 @@
 import type { Result } from "@/shared/domain"
 import type { SignUpInput } from "../domain/credentials"
-import type { AuthEvent, SessionUser } from "../domain/session"
+import type { AuthEvent, SessionUser, SignOutScope } from "../domain/session"
 
 export interface SignUpRequest extends SignUpInput {
   /** Where the verification email sends the new user back to. */
@@ -12,7 +12,7 @@ export interface AuthGateway {
   signUp(request: SignUpRequest): Promise<Result<void>>
   /** Fails with kind "denied" only when the email is not confirmed yet. */
   signIn(email: string, password: string): Promise<Result<SessionUser>>
-  signOut(): Promise<Result<void>>
+  signOut(scope?: SignOutScope): Promise<Result<void>>
   requestPasswordReset(email: string, redirectTo: string): Promise<Result<void>>
   resendVerification(email: string, redirectTo: string): Promise<Result<void>>
   updatePassword(password: string): Promise<Result<void>>

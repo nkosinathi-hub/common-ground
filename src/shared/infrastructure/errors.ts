@@ -35,7 +35,7 @@ export function toAppError(error: PostgrestLike | null | undefined): AppError {
   if (!error) return appError("unknown", "Something went wrong")
   const kind = (error.code && BY_CODE[error.code]) || fallback(error)
   const authored = kind === "validation" && AUTHORED.has(error.code ?? "") && error.message
-  const message = authored ? error.message! : COPY[kind]
+  const message = authored ? error.message : COPY[kind]
   return appError(kind, message)
 }
 

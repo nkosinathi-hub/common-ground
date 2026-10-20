@@ -1,26 +1,12 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte"
+import { cleanup, fireEvent } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import Provided from "@/shared/ui/testing/Provided.svelte"
-import { provideNotes } from "./context"
-import NotesCard from "./NotesCard.svelte"
+import { mode, openComposer } from "./testing/notes-card"
 
 async function open(members?: Parameters<typeof notesHarness>[1]) {
   const harness = notesHarness("ana", members)
-  render(Provided, {
-    props: {
-      provide: () => provideNotes(harness.services),
-      component: NotesCard,
-      props: { spaceId: "s" },
-    },
-  })
-  await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
-  const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
-  return { ...harness, dialog }
+  return { ...harness, dialog: await openComposer(harness.services) }
 }
-
-const mode = (dialog: ReturnType<typeof within>, name: string) =>
-  dialog.getByRole("radio", { name })
 
 afterEach(() => {
   cleanup()
@@ -73,6 +59,6 @@ describe("one composer for both kinds of note", () => {
     )
     await fireEvent.click(dialog.getByRole("button", { name: "Got it" }))
     expect(dialog.queryByRole("complementary", { name: "Tip" })).toBeNull()
-    expect(localStorage.getItem("cg.notes.iTip")).toBe("1")
+    expect(localStorage.getItem("common-ground:notes.iTip")).toBe("1")
   })
 })

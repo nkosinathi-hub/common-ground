@@ -4,6 +4,7 @@ import type { Db } from "@/shared/infrastructure/supabase"
 import type { HardTalkRepository, ResponseRecord } from "../application/hard-talk-ports"
 import type { NoteRecord } from "../application/ports"
 import type { RemindIn, ResponseKind } from "../domain"
+import { newestEmbeds } from "./home-filter"
 import { HOME_COLUMNS, toRecord } from "./note-rows"
 
 /** How many unopened notes the top of Home looks through. */
@@ -16,16 +17,14 @@ export class SupabaseHardTalk implements HardTalkRepository {
   constructor(private readonly db: Db) {}
 
   toMe(spaceId: string, me: string): Promise<Result<NoteRecord[]>> {
-    const query = this.db
-      .from("space_notes")
-      .select(HOME_COLUMNS)
-      .eq("space_id", spaceId)
-      .eq("kind", "hard_talk")
-      .eq("recipient_id", me)
-      .order("created_at", { referencedTable: "latest", ascending: false })
-      .limit(1, { referencedTable: "latest" })
-      .order("created_at", { referencedTable: "responses", ascending: false })
-      .limit(1, { referencedTable: "responses" })
+    const query = newestEmbeds(
+      this.db
+        .from("space_notes")
+        .select(HOME_COLUMNS)
+        .eq("space_id", spaceId)
+        .eq("kind", "hard_talk")
+        .eq("recipient_id", me),
+    )
       .order("created_at", { ascending: false })
       .limit(WAITING_MAX)
     return settle(query, (rows) => rows.map(toRecord))

@@ -34,7 +34,7 @@ export interface SessionRow extends Pick<Tables<"watch_sessions">, "id" | "watch
 export const ITEM_COLUMNS =
   "id, space_id, catalog_type, catalog_id, title, media_type, release_year, synopsis, poster_path, shared_intent, manual_availability_note, created_by, created_at"
 
-export const DUPLICATE_MESSAGE = "Already on your list"
+const DUPLICATE_MESSAGE = "Already on your list"
 
 export const toItem = (row: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchItem => ({
   id: row.id,

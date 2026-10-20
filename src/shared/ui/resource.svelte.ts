@@ -1,5 +1,5 @@
 import { untrack } from "svelte"
-import type { AppError, Result } from "@/shared/domain"
+import { attempt, type AppError, type Result } from "@/shared/domain"
 
 export type ResourceState<T> =
   { status: "loading" } | { status: "ready"; value: T } | { status: "error"; error: AppError }
@@ -21,7 +21,7 @@ export class Resource<T> {
       if (this.state.status !== "ready") this.state = { status: "loading" }
       return ++this.generation
     })
-    const result = await untrack(() => this.loader())
+    const result = await attempt(() => untrack(() => this.loader()))
     if (mine !== this.generation) return
     this.state = result.ok
       ? { status: "ready", value: result.value }

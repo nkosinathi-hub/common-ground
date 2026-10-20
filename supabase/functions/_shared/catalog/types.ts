@@ -1,4 +1,4 @@
-/** Wire types of the catalog Edge Function. The SPA mirrors these in src/features/catalog/domain. */
+/** Wire types of the catalog Edge Function; src/features/catalog/domain re-exports them. */
 export type CatalogType = "movie" | "tv"
 export type MediaKind = "movie" | "series" | "anime"
 
@@ -29,6 +29,7 @@ export interface ProviderCategory {
 export interface Region {
   readonly code: string
   readonly name: string
+  /** Country-level TMDB or JustWatch page; never a provider deep link. */
   readonly link: string | null
   readonly categories: ProviderCategory[]
 }

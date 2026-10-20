@@ -1,16 +1,9 @@
 import { existsSync, readFileSync } from "node:fs"
-import { scanDir } from "./bundle-rules"
+import { scanDir, secretValuesOf } from "./bundle-rules"
 
-function secretValues(): string[] {
-  const envFile = "supabase/functions/.env"
-  if (!existsSync(envFile)) return []
-  return readFileSync(envFile, "utf8")
-    .split("\n")
-    .map((line) => line.split("=").slice(1).join("=").trim())
-    .filter((value) => value.length >= 16)
-}
-
-const hits = scanDir("dist", secretValues())
+const ENV_FILE = "supabase/functions/.env"
+const secrets = existsSync(ENV_FILE) ? secretValuesOf(readFileSync(ENV_FILE, "utf8")) : []
+const hits = scanDir("dist", secrets)
 
 for (const path of hits) console.error(`${path}: contains a server-side secret`)
 if (hits.length > 0) process.exit(1)

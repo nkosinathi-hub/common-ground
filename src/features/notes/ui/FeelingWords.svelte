@@ -10,7 +10,7 @@
   }
 
   let { value = $bindable(""), target }: Props = $props()
-  const memory = remembered("cg.notes.feelingWords")
+  const memory = remembered("notes.feelingWords")
   let open = $state(memory.get())
   const id = "feeling-words"
 

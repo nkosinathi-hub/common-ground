@@ -27,7 +27,8 @@ export class AuthService {
 
   currentUser = () => this.gateway.currentUser()
   onChange: AuthGateway["onChange"] = (listener) => this.gateway.onChange(listener)
-  signOut = () => this.gateway.signOut()
+  signOut = () => this.gateway.signOut("local")
+  signOutEverywhere = () => this.gateway.signOut("global")
   exchangeCode = (code: string) => this.gateway.exchangeCode(code)
 
   async signUp(input: SignUpInput): Promise<Result<void>> {
@@ -57,6 +58,8 @@ export class AuthService {
   async updatePassword(password: string): Promise<Result<void>> {
     const valid = validatePassword(password)
     if (!valid.ok) return valid
+    // The auth server revokes every other session's refresh token on a password change
+    // (tests/e2e/account/sessions.spec.ts), so nothing else is needed here.
     return this.gateway.updatePassword(valid.value)
   }
 

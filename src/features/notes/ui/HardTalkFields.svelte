@@ -15,7 +15,7 @@
   let feel = $state<HTMLTextAreaElement | null>(null)
 </script>
 
-<TipOnce storageKey="cg.notes.iTip" text={I_TIP} />
+<TipOnce storageKey="notes.iTip" text={I_TIP} />
 <HardTalkSection key="happened" bind:value={composer.body} />
 <HardTalkSection key="feel" bind:value={composer.sections.feel} bind:ref={feel}>
   <FeelingWords bind:value={composer.sections.feel} target={feel} />

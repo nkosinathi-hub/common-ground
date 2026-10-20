@@ -23,3 +23,11 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   by default, so a new table needs no `revoke all`; grant exactly the columns and verbs the app
   uses. Functions get an explicit `grant execute ... to authenticated` for client
   RPCs and `revoke execute ... from public, anon, authenticated` for triggers and helpers.
+
+- v0.3 files are dated `20261020`: `000100-099999` platform (API exposure, foreign-key indexes).
+  `000100` drops `pg_graphql`; the API is PostgREST only (`api_exposure.test.sql`).
+  `000200` indexes the foreign keys a parent delete follows. The rule (`foreign_key_indexes.test.sql`):
+  an index on exactly the key's columns, or leading with the parent id, which is enough for a
+  `(space_id, parent_id)` key because ids are unique. Author links to `profiles` (`created_by`,
+  `author_id` and similar, `on delete set null`) stay unindexed: they fire only on account deletion.
+  Splinter's `unindexed_foreign_keys` (INFO) accepts exact matches only, so it still lists ~49.

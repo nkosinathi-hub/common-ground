@@ -59,7 +59,11 @@ export async function invokeFunction<T>(
   signal?: AbortSignal,
 ): Promise<Result<T>> {
   try {
-    const { data, error } = await db.functions.invoke<T>(name, { body, signal })
+    const reply: { data: T | null; error: unknown } = await db.functions.invoke<T>(name, {
+      body,
+      signal,
+    })
+    const { data, error } = reply
     if (error) return err(await toFunctionError(error, words))
     return ok(data as T)
   } catch {

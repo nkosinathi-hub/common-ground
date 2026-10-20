@@ -14,8 +14,8 @@ import type { ProgressInput, SessionInput, TitleDetailsInput } from "./types"
 export const SYNOPSIS_MAX = 2000
 export const NOTE_MAX = 500
 export const YEAR_DIGITS = 4
-export const FIRST_FILM_YEAR = 1870
-export const LAST_YEAR = 2100
+const FIRST_FILM_YEAR = 1870
+const LAST_YEAR = 2100
 export const RATING_MAX = 5
 
 const fail = (message: string, field: string) => err(appError("validation", message, field))

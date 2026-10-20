@@ -57,7 +57,7 @@ export class InMemoryTasks implements TasksRepository {
     if (patch.assigneeId && !this.members.list.some((m) => m.id === patch.assigneeId)) {
       return err(appError("validation", "assignee must be a member of this space"))
     }
-    return this.store.patch(id, patch as Partial<Task>)
+    return this.store.patch(id, patch)
   }
 
   async remove(id: string) {

@@ -13,6 +13,7 @@ export async function join(
   spaceId: string,
   user: TestUser,
 ): Promise<Page> {
+  // Leave settings first: a hash goto to the page already open would keep the last link on screen.
   await owner.goto(`./#/s/${spaceId}/home`)
   const token = await inviteToken(owner, spaceId)
   const page = await projectPage(browser)
@@ -66,5 +67,6 @@ export async function threeMembers(browser: Browser, name: string) {
 export async function readable(user: TestUser, table: string): Promise<unknown[]> {
   const { data, error } = await (await signedInClient(user)).from(table).select("*")
   if (error) throw new Error(`${table}: ${error.message}`)
-  return data ?? []
+  const rows: unknown[] = data ?? []
+  return rows
 }

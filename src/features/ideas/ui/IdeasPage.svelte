@@ -1,8 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Button } from "$lib/components/ui/button"
   import { Columns3, Lightbulb, List } from "@lucide/svelte"
-  import { EmptyState, ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
+  import { EmptyState, ErrorState, FormError, Loading, LoadMore, ViewToggle } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
@@ -28,27 +27,18 @@
   // Loads on mount and again when spaceId changes.
   $effect(() => {
     void spaceId
-    untrack(() => board.load())
+    untrack(() => void board.load())
   })
+  const VIEWS = [
+    { value: "list", label: "List", icon: List },
+    { value: "board", label: "Board", icon: Columns3 },
+  ] as const
 </script>
 
 <div class="flex flex-col gap-4">
   <header class="flex flex-wrap items-center justify-between gap-2">
     <h1 class="text-2xl font-semibold">Ideas</h1>
-    <div class="flex gap-1" role="group" aria-label="View">
-      <Button
-        size="sm"
-        variant={board.view === "list" ? "default" : "outline"}
-        aria-pressed={board.view === "list"}
-        onclick={() => (board.view = "list")}><List />List</Button
-      >
-      <Button
-        size="sm"
-        variant={board.view === "board" ? "default" : "outline"}
-        aria-pressed={board.view === "board"}
-        onclick={() => (board.view = "board")}><Columns3 />Board</Button
-      >
-    </div>
+    <ViewToggle value={board.view} options={VIEWS} onchange={(view) => (board.view = view)} />
   </header>
 
   <QuickCapture onCapture={(title, template) => board.capture({ title, template })} />

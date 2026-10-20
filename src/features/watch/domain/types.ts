@@ -1,9 +1,9 @@
+import type { ProgressStatus } from "./progress-types"
 export type * from "./progress-types"
 
 export type CatalogType = "movie" | "tv"
 export type MediaType = "movie" | "series" | "anime"
 export type SharedIntent = "want_to_watch" | "watch_together" | "archived"
-export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
 export type WatchSort = "recent" | "title"
 
 export interface CatalogRef {

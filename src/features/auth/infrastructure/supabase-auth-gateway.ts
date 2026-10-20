@@ -3,7 +3,7 @@ import { appError, err, ok, type Result } from "@/shared/domain"
 import { done, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { AuthGateway, SignUpRequest } from "../application/ports"
-import type { AuthEvent, SessionUser } from "../domain/session"
+import type { AuthEvent, SessionUser, SignOutScope } from "../domain/session"
 import { isOutage, outage, settleAuth } from "./auth-errors"
 
 const EVENTS: Record<string, AuthEvent> = {
@@ -44,7 +44,7 @@ export class SupabaseAuthGateway implements AuthGateway {
     return ok(toUser(data.user))
   }
 
-  signOut = () => done(this.db.auth.signOut())
+  signOut = (scope: SignOutScope = "local") => done(this.db.auth.signOut({ scope }))
 
   requestPasswordReset = (email: string, redirectTo: string) =>
     settleAuth(this.db.auth.resetPasswordForEmail(email, { redirectTo }))

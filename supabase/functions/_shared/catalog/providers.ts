@@ -1,7 +1,7 @@
 import { safeWatchLink } from "./links.ts"
 import type { Availability, ProviderCategory, ProviderCategoryKey, Region } from "./types.ts"
 
-export const HOME_REGION = "ZA"
+const HOME_REGION = "ZA"
 
 const CATEGORIES: readonly { key: ProviderCategoryKey; label: string }[] = [
   { key: "flatrate", label: "Subscription" },

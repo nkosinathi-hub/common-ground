@@ -1,0 +1,39 @@
+import type { DeviceStore } from "@/shared/domain"
+
+// The only module that touches web storage (scripts/guard/storage-rule.ts), so every key carries
+// the prefix and sign-out can forget them all. `cg.` is the prefix v0.2 used for a few keys.
+const PREFIX = "common-ground:"
+const LEGACY = "cg."
+
+type Area = "local" | "session"
+const area = (where: Area): Storage => (where === "local" ? localStorage : sessionStorage)
+
+function attempt<T>(fn: () => T, fallback: T): T {
+  try {
+    return fn()
+  } catch {
+    return fallback // private windows and blocked site data: storage is a convenience only
+  }
+}
+
+export function deviceStore(where: Area = "local"): DeviceStore {
+  return {
+    read: (key) => attempt(() => area(where).getItem(PREFIX + key), null),
+    write: (key, value) =>
+      attempt(() => {
+        if (value === null) area(where).removeItem(PREFIX + key)
+        else area(where).setItem(PREFIX + key, value)
+      }, undefined),
+  }
+}
+
+function forget(storage: Storage): void {
+  const keys = Array.from({ length: storage.length }, (_, i) => storage.key(i) ?? "")
+  for (const key of keys.filter((k) => k.startsWith(PREFIX) || k.startsWith(LEGACY)))
+    storage.removeItem(key)
+}
+
+/** Sign-out: remove everything this app stored on the device, except the light or dark choice. */
+export function clearDeviceData(): void {
+  for (const where of ["local", "session"] as const) attempt(() => forget(area(where)), undefined)
+}

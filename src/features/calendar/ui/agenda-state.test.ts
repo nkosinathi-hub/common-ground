@@ -53,7 +53,7 @@ describe("AgendaState", () => {
     expect(agenda.hasMore).toBe(false)
     await agenda.loadMore()
     expect(repo.windows).toHaveLength(3)
-    const repoRange = repo.range
+    const repoRange = repo.range.bind(repo)
     repo.range = async () => err(appError("network", "down"))
     await agenda.start(d("2026-10-16"))
     expect(agenda.error?.kind).toBe("network")

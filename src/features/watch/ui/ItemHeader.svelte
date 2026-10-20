@@ -1,19 +1,15 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
+  import type { ComponentProps } from "svelte"
   import { Poster } from "@/features/catalog"
   import { toast } from "@/shared/ui"
   import { INTENTS, mediaTypeLabel } from "../domain/labels"
-  import type { SharedIntent, WatchItemView } from "../domain/types"
+  import type { SharedIntent } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import ItemActions from "./ItemActions.svelte"
 
-  interface Props {
-    view: WatchItemView
-    backHref: string
-    recommend?: Snippet
-    onChanged: () => void
-  }
+  // The header forwards everything to ItemActions, so it takes exactly ItemActions' props.
+  type Props = ComponentProps<typeof ItemActions>
 
   let { view, backHref, recommend, onChanged }: Props = $props()
   const { service } = useWatch()

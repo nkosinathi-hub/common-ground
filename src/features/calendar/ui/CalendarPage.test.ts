@@ -69,7 +69,7 @@ describe("CalendarPage", () => {
     expect(await screen.findByRole("heading", { name: "September 2026" })).toBeVisible()
     await fireEvent.click(screen.getByRole("button", { name: "Today" }))
     expect(await screen.findByRole("heading", { name: "October 2026" })).toBeVisible()
-    expect(localStorage.getItem("cg.calendar.month.s1")).toBe("2026-10")
+    expect(localStorage.getItem("common-ground:calendar.month.s1")).toBe("2026-10")
   })
 
   it("lists the agenda by day and remembers the choice", async () => {
@@ -79,6 +79,6 @@ describe("CalendarPage", () => {
     expect(
       within(screen.getByTestId("agenda")).getByRole("link", { name: "Event: Dinner" }),
     ).toBeVisible()
-    expect(localStorage.getItem("cg.calendar.view")).toBe("agenda")
+    expect(localStorage.getItem("common-ground:calendar.view")).toBe("agenda")
   })
 })

@@ -1,17 +1,11 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import Provided from "@/shared/ui/testing/Provided.svelte"
-import { provideNotes } from "./context"
-import NotesCard from "./NotesCard.svelte"
+import { openComposer } from "./testing/notes-card"
 
 async function open() {
   const { repo, services } = notesHarness("ana")
-  render(Provided, {
-    props: { provide: () => provideNotes(services), component: NotesCard, props: { spaceId: "s" } },
-  })
-  await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
-  return { repo, dialog: within(await screen.findByRole("dialog", { name: "Write a note" })) }
+  return { repo, dialog: await openComposer(services) }
 }
 
 afterEach(cleanup)
@@ -19,7 +13,7 @@ afterEach(cleanup)
 describe("NoteComposer", () => {
   it("offers everyone or each other member, and sends a pinned note", async () => {
     const { repo, dialog } = await open()
-    const to = dialog.getByLabelText("To") as HTMLSelectElement
+    const to = dialog.getByLabelText<HTMLSelectElement>("To")
     await screen.findByRole("option", { name: "Cy" })
     expect([...to.options].map((o) => o.text)).toEqual(["Everyone", "Ben", "Cy"])
     await fireEvent.change(to, { target: { value: "cy" } })
@@ -32,7 +26,7 @@ describe("NoteComposer", () => {
     expect(repo.rows[0]).toMatchObject({
       recipientId: "cy",
       pinned: true,
-      expiresAt: expect.any(String),
+      expiresAt: expect.any(String) as string,
     })
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
   })

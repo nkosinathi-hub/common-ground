@@ -1,27 +1,11 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
+import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
-import { notesHarness } from "../testing/notes-harness"
-import Provided from "@/shared/ui/testing/Provided.svelte"
-import { provideNotes } from "./context"
-import NotesCard from "./NotesCard.svelte"
-
-const shared = {
-  recipientId: "ben",
-  sections: { happened: "Sunday dinner", help: "A walk" },
-  responseWish: "talk",
-  supportWish: "listen",
-} as const
+import { sharedHarness } from "../testing/notes-harness"
+import { renderNotesCard } from "./testing/notes-card"
 
 async function setup(me: string) {
-  const harness = notesHarness(me)
-  await harness.share("ana", shared)
-  render(Provided, {
-    props: {
-      provide: () => provideNotes(harness.services),
-      component: NotesCard,
-      props: { spaceId: "s" },
-    },
-  })
+  const harness = await sharedHarness(me)
+  renderNotesCard(harness.services)
   return harness
 }
 

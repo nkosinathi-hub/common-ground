@@ -7,7 +7,7 @@ import type { CalendarEvent, EventWrite, RsvpAnswer } from "../domain"
 import * as rows from "./rows"
 
 /** list_calendar answers at most this many rows; a full answer was cut short. */
-export const ROW_LIMIT = 1000
+const ROW_LIMIT = 1000
 
 export class SupabaseCalendar implements CalendarRepository {
   constructor(private readonly db: Db) {}

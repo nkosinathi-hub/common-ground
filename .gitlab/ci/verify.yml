@@ -4,6 +4,11 @@ format:
   stage: static
   script: [pnpm format:check]
 
+audit:
+  extends: .on-change
+  stage: static
+  script: [pnpm audit --audit-level high]
+
 static:
   extends: .on-change
   stage: static
@@ -13,6 +18,21 @@ lint:
   extends: .on-change
   stage: static
   script: [pnpm lint]
+
+deadcode:
+  extends: .on-change
+  stage: static
+  script: [pnpm deadcode]
+
+cycles:
+  extends: .on-change
+  stage: static
+  script: [pnpm cycles]
+
+duplication:
+  extends: .on-change
+  stage: static
+  script: [pnpm duplication]
 
 check:
   extends: .on-change
@@ -28,6 +48,14 @@ unit:
     when: always
     paths: [coverage/]
     expire_in: 1 week
+
+functions:
+  extends: .on-change
+  stage: static
+  image: denoland/deno:2.1.4
+  before_script: []
+  cache: []
+  script: [cd supabase/functions && deno check --frozen catalog/index.ts attachments/index.ts]
 
 build:
   extends: .on-change

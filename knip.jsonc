@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  // Entries knip's plugins cannot see: the theme script index.html loads, the Deno functions,
+  // and the script CI runs (.gitlab/ci/database.yml).
+  "entry": ["public/mode-init.js", "supabase/functions/*/index.ts", "scripts/e2e/env.ts"],
+  "project": [
+    "src/**/*.{ts,svelte}",
+    "scripts/**/*.ts",
+    "supabase/functions/**/*.ts",
+    "tests/**/*.ts",
+  ],
+  // Vendored shadcn-svelte barrels and generated database types.
+  "ignore": ["src/lib/components/ui/**", "src/shared/infrastructure/database.types.ts"],
+  // tw-animate-css is imported from src/app.css, which knip does not read; jscpd is run by
+  // scripts/guard/duplication.ts as a child process.
+  "ignoreDependencies": ["tw-animate-css", "jscpd"],
+  // Types and interfaces are public shapes even when only their own file uses them yet.
+  "ignoreExportsUsedInFile": { "interface": true, "type": true },
+}

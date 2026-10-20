@@ -69,7 +69,8 @@ test("an attached image opens for the other member", async ({ page, browser, bas
     mimeType: "image/png",
     buffer: PIXEL_PNG,
   })
-  await expect(page.getByText("pixel.png")).toBeVisible()
+  // The name shows while uploading; the preview only once the server has finalized the file.
+  await expect(page.getByRole("img", { name: "pixel.png" })).toBeVisible()
 
   await openIdeaTab(benPage, spaceId, ideaId, "research")
   const preview = benPage.getByRole("img", { name: "pixel.png" })

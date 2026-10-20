@@ -2,24 +2,10 @@ import { describe, expect, it } from "vitest"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { recordingClient, type Reply } from "@/shared/infrastructure/testing/recording-client"
 import { HOME_COLUMNS } from "./note-rows"
+import { AT, NOTE_ROW } from "../testing/note-row"
 import { SupabaseNotes } from "./supabase-notes"
 
-const AT = "2026-10-16T09:00:00Z"
-const note = {
-  id: "n1",
-  space_id: "s1",
-  author_id: "ana",
-  recipient_id: "ben",
-  body: "Hi",
-  pinned: true,
-  expires_at: null,
-  created_at: AT,
-  updated_at: AT,
-  kind: "note",
-  sections: null,
-  response_wish: null,
-  support_wish: null,
-}
+const note = NOTE_ROW
 const home = {
   ...note,
   responses: [],

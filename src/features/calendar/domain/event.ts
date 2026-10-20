@@ -13,9 +13,9 @@ import { isTimeZone, toInstant } from "./zone"
 
 export type * from "./types"
 
-export const LOCATION_MAX = 300
-export const DESCRIPTION_MAX = 4000
-export const ALL_DAY_SPAN_MAX = 30
+const LOCATION_MAX = 300
+const DESCRIPTION_MAX = 4000
+const ALL_DAY_SPAN_MAX = 30
 const TIMED_MS_MAX = 14 * 86_400_000
 /** Minutes before the start a reminder may be set; the database allows these only. */
 export const REMINDER_MINUTES = [0, 5, 10, 15, 30, 60, 120, 1440, 2880, 10080] as const
@@ -27,7 +27,7 @@ const invalid = (field: string, message: string) => err(appError("validation", m
 function checkTiming(draft: EventDraft): Result<EventTiming> {
   if (!isDateOnly(draft.startDate)) return invalid("startDate", "Choose a start date")
   if (!isDateOnly(draft.endDate)) return invalid("endDate", "Choose an end date")
-  const [startDate, endDate] = [draft.startDate as DateOnly, draft.endDate as DateOnly]
+  const [startDate, endDate] = [draft.startDate, draft.endDate]
   if (draft.allDay) {
     const span = daysBetween(startDate, endDate)
     if (span < 0) return invalid("endDate", "End on or after the start date")

@@ -27,7 +27,7 @@
   const list = $derived(thread.list)
   $effect(() => {
     void thread
-    untrack(() => thread.load())
+    untrack(() => void thread.load())
   })
 </script>
 

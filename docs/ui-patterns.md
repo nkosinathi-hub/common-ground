@@ -13,9 +13,12 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
   ```ts
   $effect(() => {
     void [spaceId, filter]
-    untrack(() => list.load())
+    untrack(() => void list.load())
   })
   ```
+
+  `load()` never rejects (a loader that throws ends in an "unknown" error), so `void` marks the
+  call as fire-and-forget; lint (`no-floating-promises`) requires it.
 
   An effect with no dependencies loads once on mount. A change of space, idea or item remounts the
   page (`{#key}` in src/app), so components do not reload for those.

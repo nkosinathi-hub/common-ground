@@ -28,6 +28,26 @@ says what they defend against.
   `supabase/tests/database/` (third user, removed member, guessed UUIDs).
 - **Privileged operations** run as security-definer RPCs with `search_path = ''`, an
   `auth.uid()` check and explicit grants.
+- **One API.** Only `public` is exposed through PostgREST; `pg_graphql` is dropped, so the
+  platform's GraphQL endpoint answers "not enabled" (`20261020000100_api_no_graphql.sql`).
+- **Dependency advisories** at high and above fail guard and CI (`pnpm audit --audit-level high`).
+  One is ignored in `package.json` (`pnpm.auditConfig.ignoreGhsas`): GHSA-vfj7-8cjw-p6xm, `braces`
+  stack exhaustion on deeply nested patterns, which has no patched release. It reaches only knip's
+  dev-time globbing of our own patterns, never the bundle. Remove the ignore once braces ships a fix.
+- **Pinned Edge Function dependencies.** Functions import remote code by bare name only;
+  `supabase/functions/deno.json` pins exact versions and `deno.lock` their content. The static
+  checks refuse an `npm:`/`jsr:`/URL import elsewhere, and guard runs `deno check --frozen`.
+- **No framing, minimal referrer.** GitHub Pages cannot send `frame-ancestors` or
+  `Referrer-Policy` headers. `src/app/framing.ts` refuses to mount inside any frame and shows only
+  a link out, and the build adds `<meta name="referrer" content="strict-origin">`
+  (`tests/e2e/security/framing.spec.ts`). Residual risk: a framing page still sees the empty
+  shell for a moment, and a browser with scripts off gets an empty page, never the app.
+- **Nothing left on a shared device.** Web storage goes through `src/shared/ui/device-store.ts`,
+  which prefixes every key `common-ground:`; sign-out removes them all (drafts, the active space,
+  a pending invite) and keeps only the light or dark choice. A static rule forbids other access.
+- **Supabase advisors** (`supabase db advisors --local --fail-on warn`) run in guard and in the
+  `database` CI job, so any splinter WARN or ERROR fails the change. The CLI's splinter has no
+  security-definer execute lints, so `function_grants.test.sql` keeps an exact allow-list instead.
 - **Invites** store only a token hash, expire after 7 days, are single use, and are revocable.
 - **Secrets never in the bundle.** The browser only receives the URL and publishable key.
   `scripts/guard/bundle-scan.ts` fails the guard and CI if `dist/` contains a service-role marker,

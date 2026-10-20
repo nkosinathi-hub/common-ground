@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { describe, expect, it } from "vitest"
-import { findSecrets, scanDir } from "./bundle-rules"
+import { findSecrets, scanDir, secretValuesOf } from "./bundle-rules"
 
 const b64 = (value: object) => Buffer.from(JSON.stringify(value)).toString("base64url")
 const jwt = (payload: object) => `${b64({ alg: "HS256", typ: "JWT" })}.${b64(payload)}.c2lnbmF0dXJl`
@@ -54,5 +54,18 @@ describe("bundle scan of a directory", () => {
     writeFileSync(join(dir, "assets", "app.js"), bundle(SERVICE))
     writeFileSync(join(dir, "index.html"), bundle(ANON))
     expect(scanDir(dir, [])).toEqual([join(dir, "assets", "app.js")])
+  })
+})
+
+describe("secretValuesOf", () => {
+  it("takes every functions env value except the ones that are public by design", () => {
+    const env = [
+      "CLEANUP_SECRET=a-long-cleanup-secret-value",
+      "PUBLIC_API_URL=http://127.0.0.1:54321",
+      "ALLOWED_ORIGINS=http://127.0.0.1:5173,http://localhost:5173",
+      "TMDB_BASE_URL=https://api.themoviedb.org/3",
+      "SHORT=abc",
+    ].join("\n")
+    expect(secretValuesOf(env)).toEqual(["a-long-cleanup-secret-value"])
   })
 })

@@ -1,23 +1,12 @@
+import type { DeviceStore } from "@/shared/domain"
 import type { ActiveSpaceStore } from "../application/ports"
 
-const KEY = "common-ground:active-space"
+const KEY = "active-space"
 
-/** Only the space id is stored locally. Storage can be unavailable (private mode). */
+/** Only the space id is stored on the device. */
 export class LocalActiveSpace implements ActiveSpaceStore {
-  read(): string | null {
-    try {
-      return localStorage.getItem(KEY)
-    } catch {
-      return null
-    }
-  }
+  constructor(private readonly store: DeviceStore) {}
 
-  write(spaceId: string | null): void {
-    try {
-      if (spaceId) localStorage.setItem(KEY, spaceId)
-      else localStorage.removeItem(KEY)
-    } catch {
-      /* storage unavailable: nothing to remember */
-    }
-  }
+  read = (): string | null => this.store.read(KEY)
+  write = (spaceId: string | null): void => this.store.write(KEY, spaceId)
 }

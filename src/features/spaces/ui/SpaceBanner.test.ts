@@ -10,7 +10,8 @@ import { SpacesStore } from "./spaces-store.svelte"
 
 afterEach(cleanup)
 
-async function show(component: typeof SpaceBanner | typeof SpaceAvatar, extra = {}) {
+// SpaceBanner and SpaceAvatar take the same props, so one component type covers both.
+async function show(component: typeof SpaceBanner, extra = {}) {
   const { gateway, service } = spacesSetup()
   const space = sampleSpace({ id: "s1", name: "hearth", template: "family", ...extra })
   gateway.spaces.push(space)

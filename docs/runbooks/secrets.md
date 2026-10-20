@@ -12,6 +12,7 @@ Rule: secrets live in exactly one store per environment and never in git, the bu
 | `TMDB_ACCESS_TOKEN`         | catalog Edge Function   | `supabase/functions/.env`         | Supabase function secret        |
 | `ALLOWED_ORIGINS`           | catalog Edge Function   | written by `pnpm secrets:tmdb`    | Supabase function secret        |
 | `CLEANUP_SECRET`            | attachments cleanup     | `supabase/functions/.env`         | Supabase secret + GitLab CI var |
+| `PUBLIC_API_URL`            | attachments signed URLs | written by `pnpm secrets:tmdb`    | not set (hosted URL is public)  |
 | SMTP user and password      | Supabase Auth emails    | not needed (Mailpit catches mail) | Supabase dashboard, Auth > SMTP |
 | `SUPABASE_ACCESS_TOKEN`     | `supabase-deploy` job   | not needed                        | GitLab CI variable, masked      |
 | `SUPABASE_DB_PASSWORD`      | `supabase-deploy` job   | not needed                        | GitLab CI variable, masked      |

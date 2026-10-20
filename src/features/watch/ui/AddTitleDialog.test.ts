@@ -43,7 +43,7 @@ function setup(extra: Record<string, unknown> = {}) {
   return { ...fakes, onAdded }
 }
 
-const search = () => screen.getByRole("searchbox") as HTMLInputElement
+const search = () => screen.getByRole<HTMLInputElement>("searchbox")
 
 async function addManually(title: string) {
   await fireEvent.click(await screen.findByRole("button", { name: /add a title manually/i }))

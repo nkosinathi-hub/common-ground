@@ -30,7 +30,7 @@
   const ideaId = $derived(idea.id)
   $effect(() => {
     void ideaId
-    untrack(() => list.load())
+    untrack(() => void list.load())
   })
 
   let draft = $state<LinkInput>({ ...EMPTY })

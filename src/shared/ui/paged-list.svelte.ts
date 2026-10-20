@@ -1,5 +1,5 @@
 import { untrack } from "svelte"
-import type { AppError, Result } from "@/shared/domain"
+import { attempt, type AppError, type Result } from "@/shared/domain"
 
 export interface PageOf<T, C> {
   readonly items: readonly T[]
@@ -32,7 +32,7 @@ export class PagedList<T extends { id: string }, C = unknown> {
       this.loading = true
       return ++this.generation
     })
-    const result = await untrack(() => this.loader(null))
+    const result = await attempt(() => untrack(() => this.loader(null)))
     if (mine !== this.generation) return
     this.loading = false
     this.settle(result, false)
@@ -43,7 +43,7 @@ export class PagedList<T extends { id: string }, C = unknown> {
     if (after === null || untrack(() => this.loadingMore)) return
     const mine = this.generation
     this.loadingMore = true
-    const result = await untrack(() => this.loader(after))
+    const result = await attempt(() => untrack(() => this.loader(after)))
     if (mine !== this.generation) return
     this.loadingMore = false
     this.settle(result, true)

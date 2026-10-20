@@ -31,7 +31,7 @@ function setup(props: { me?: string; isOwner?: boolean } = {}) {
   }
   const provide = () => provideAttachments({ service })
   render(Provided, { props: { provide, component: AttachmentsPanel, props: panel } })
-  const input = screen.getByLabelText("Choose a file to attach") as HTMLInputElement
+  const input = screen.getByLabelText<HTMLInputElement>("Choose a file to attach")
   const choose = (file: File) => fireEvent.change(input, { target: { files: [file] } })
   return { gateway, uploader, input, choose }
 }

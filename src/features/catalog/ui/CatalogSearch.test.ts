@@ -22,7 +22,7 @@ function setup() {
   const provide = () => provideCatalog({ service: new CatalogService(gateway) })
   const props = { spaceId: SPACE_ID, onPick, onManual }
   render(Provided, { props: { provide, component: CatalogSearch, props } })
-  const input = screen.getByRole("searchbox") as HTMLInputElement
+  const input = screen.getByRole<HTMLInputElement>("searchbox")
   const type = (value: string) => fireEvent.input(input, { target: { value } })
   return { gateway, onPick, onManual, input, type }
 }

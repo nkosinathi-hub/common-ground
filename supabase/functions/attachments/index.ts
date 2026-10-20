@@ -20,7 +20,7 @@ const handler = createAttachmentsHandler({
   cleanupSecret: env("CLEANUP_SECRET"),
   gate: createGate(supabaseUrl, env("SUPABASE_ANON_KEY"), admin),
   store: createStore(admin),
-  storage: createObjectStorage(admin),
+  storage: createObjectStorage(admin, env("PUBLIC_API_URL")),
   media: createSpaceMedia(admin),
 })
 

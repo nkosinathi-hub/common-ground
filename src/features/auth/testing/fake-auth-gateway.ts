@@ -1,6 +1,6 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { AuthGateway, SignUpRequest } from "../application/ports"
-import type { AuthEvent, SessionUser } from "../domain/session"
+import type { AuthEvent, SessionUser, SignOutScope } from "../domain/session"
 
 interface Account {
   password: string
@@ -11,6 +11,7 @@ export class FakeAuthGateway implements AuthGateway {
   readonly accounts = new Map<string, Account>()
   readonly sent: { kind: string; email: string; redirectTo: string }[] = []
   user: SessionUser | null = null
+  readonly signOuts: SignOutScope[] = []
   private listeners = new Set<(event: AuthEvent, user: SessionUser | null) => void>()
 
   emit(event: AuthEvent) {
@@ -39,7 +40,8 @@ export class FakeAuthGateway implements AuthGateway {
     return ok(account.user)
   }
 
-  async signOut() {
+  async signOut(scope: SignOutScope = "local") {
+    this.signOuts.push(scope)
     this.user = null
     this.emit("signed_out")
     return ok(undefined)

@@ -20,3 +20,18 @@ export function notesHarness(me = "ana", members?: MemberRef[]) {
   }
   return { ...fixture, services, share, arrive: () => arrive() }
 }
+
+/** What Ana shares with Ben in the hard-talk tests. */
+const SHARED_WITH_BEN = {
+  recipientId: "ben",
+  sections: { happened: "Sunday dinner", help: "A walk" },
+  responseWish: "talk",
+  supportWish: "listen",
+} as const
+
+/** A harness as `me` in which Ana has already shared SHARED_WITH_BEN. */
+export async function sharedHarness(me: string) {
+  const harness = notesHarness(me)
+  await harness.share("ana", SHARED_WITH_BEN)
+  return harness
+}

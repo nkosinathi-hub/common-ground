@@ -13,11 +13,17 @@ describe("createSupabase", () => {
     expect(() => createSupabase("https://abc.supabase.co/#a", "key")).toThrow(/project origin/)
   })
 
+  it("refuses an invalid URL with the same message as the build", () => {
+    expect(() => createSupabase("abc.supabase.co", "key")).toThrow(
+      /needs a valid VITE_SUPABASE_URL/,
+    )
+  })
+
   it("refuses a missing URL or key", () => {
     expect(() => createSupabase("", "key")).toThrow(/not configured/)
   })
 
   it("creates a client for a bare origin", () => {
-    expect(createSupabase("http://127.0.0.1:54321", "key").from).toBeTypeOf("function")
+    expect(typeof createSupabase("http://127.0.0.1:54321", "key").from).toBe("function")
   })
 })
