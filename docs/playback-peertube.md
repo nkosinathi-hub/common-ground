@@ -66,5 +66,6 @@ licence is permanent, and repeated failures open the circuit for 60 s.
 - `E2E_LIVE=1 pnpm exec playwright test tests/e2e/watch/open-movie-playback.spec.ts`: signs in,
   adds Big Buck Bunny, plays it in the app's player, and checks it plays from
   `video.blender.org` with no CSP violation. It needs the local stack and the internet.
-- Android: build and start the emulator with `pnpm android:smoke`, open the same title in the app,
-  and press play; the WebView plays the same `video.blender.org` source.
+- Android: install a debug APK built against the local stack (as `pnpm android:smoke` does), then
+  drive its WebView with Playwright's `_android.devices()` and `device.webView({ pkg })`; a plain
+  `connectOverCDP` is refused by Android WebView. Press `k` in the player and read `currentTime`.
