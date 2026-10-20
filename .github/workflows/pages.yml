@@ -21,7 +21,6 @@ jobs:
     env:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
-      VITE_PUSH: "on"
       VITE_PUBLIC_APP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       CG_KEYSTORE_FILE: ${{ runner.temp }}/release.keystore
       CG_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -46,6 +45,7 @@ jobs:
           echo "$KEYSTORE" | base64 -d > "$CG_KEYSTORE_FILE"
           echo "$GOOGLE_SERVICES" | base64 -d > android/app/google-services.json
           bash scripts/android/version.sh >> "$GITHUB_ENV"
+          if [ -s android/app/google-services.json ]; then echo VITE_PUSH=on >> "$GITHUB_ENV"; fi
       - run: pnpm exec vite build --mode app && pnpm exec cap sync android
       - run: ./gradlew --no-daemon -q assembleRelease
         working-directory: android

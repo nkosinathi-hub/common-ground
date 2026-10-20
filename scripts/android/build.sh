@@ -20,7 +20,7 @@ podman image exists "$image" ||
 
 export VITE_PUBLIC_APP_URL=${VITE_PUBLIC_APP_URL:-https://nkosinathi-hub.github.io/common-ground/}
 # Push needs Firebase's client config; without it the app runs with push switched off.
-[ -f android/app/google-services.json ] && export VITE_PUSH=on
+if [ -s android/app/google-services.json ]; then export VITE_PUSH=on; fi
 pnpm exec vite build --mode app
 pnpm exec cap sync android
 
