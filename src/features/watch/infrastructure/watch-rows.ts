@@ -3,6 +3,7 @@ import type { Tables } from "@/shared/infrastructure/database.types"
 import { toAppError } from "@/shared/infrastructure/errors"
 import type { QueryError, QueryReply } from "@/shared/infrastructure/query"
 import { progressStatusOf } from "../domain/labels"
+import { parsePlaces, parseTogether } from "../domain/places"
 import type * as T from "../domain/types"
 
 type Item = Tables<"watch_items">
@@ -23,7 +24,12 @@ export type WatchItemRow = Pick<
   | "manual_availability_note"
   | "created_by"
   | "created_at"
-> & { readonly my_progress?: string | null }
+> & {
+  readonly my_progress?: string | null
+  /** list_watch_items only: every member's place and the together pointer (jsonb). */
+  readonly places?: unknown
+  readonly together?: unknown
+}
 
 export type ProgressRow = Omit<Tables<"watch_progress">, "space_id" | "watch_item_id">
 
@@ -51,6 +57,8 @@ export const toItem = (row: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchI
   createdBy: row.created_by,
   createdAt: row.created_at,
   myStatus: myStatus ?? progressStatusOf(row.my_progress),
+  places: parsePlaces(row.places),
+  together: parseTogether(row.together),
 })
 
 // Postgres renders date columns as YYYY-MM-DD, which is exactly a DateOnly.

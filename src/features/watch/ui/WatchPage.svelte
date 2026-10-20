@@ -74,7 +74,7 @@
       <Button onclick={() => (adding = true)}>Add your first title</Button>
     </EmptyState>
   {:else}
-    <WatchGrid {list} {itemHref} />
+    <WatchGrid {spaceId} {list} {itemHref} />
   {/if}
   <Attribution />
 </section>

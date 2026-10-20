@@ -1,3 +1,4 @@
+import type { Place } from "./places"
 import type { DateOnly } from "@/shared/domain"
 
 export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
@@ -18,6 +19,8 @@ export interface Progress extends ProgressInput {
 export interface MemberProgress {
   readonly me: string
   readonly entries: readonly Progress[]
+  /** Where the space is together; null (or absent) before a watch party finishes. */
+  readonly together?: Place | null
 }
 
 export interface SessionInput {

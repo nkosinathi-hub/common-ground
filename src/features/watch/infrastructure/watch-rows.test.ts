@@ -40,4 +40,15 @@ describe("watch rows", () => {
     expect(toItem({ ...row, my_progress: "rewatching" }).myStatus).toBe("not_started")
     expect(toItem(row, "completed").myStatus).toBe("completed")
   })
+
+  it("carries everyone's place and the together pointer from the list, none for a single read", () => {
+    const listed = toItem({
+      ...row,
+      places: [{ user_id: "u1", status: "watching", season: 1, episode: 2 }],
+      together: { season: 1, episode: 1 },
+    })
+    expect(listed.places).toEqual([{ userId: "u1", status: "watching", season: 1, episode: 2 }])
+    expect(listed.together).toEqual({ season: 1, episode: 1 })
+    expect(toItem(row)).toMatchObject({ places: [], together: null })
+  })
 })

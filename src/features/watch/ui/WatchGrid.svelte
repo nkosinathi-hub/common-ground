@@ -1,14 +1,17 @@
 <script lang="ts">
   import { Button } from "$lib/components/ui/button"
+  import { spaceNames } from "./space-names.svelte"
   import WatchCard from "./WatchCard.svelte"
   import type { WatchListState } from "./watch-list-state.svelte"
 
   interface Props {
+    spaceId: string
     list: WatchListState
     itemHref: (id: string) => string
   }
 
-  let { list, itemHref }: Props = $props()
+  let { spaceId, list, itemHref }: Props = $props()
+  const names = spaceNames(() => spaceId)
 </script>
 
 <ul
@@ -16,7 +19,7 @@
   aria-busy={list.status === "loading"}
 >
   {#each list.items as item (item.id)}
-    <li><WatchCard {item} href={itemHref(item.id)} /></li>
+    <li><WatchCard {item} href={itemHref(item.id)} names={names.value ?? []} /></li>
   {/each}
 </ul>
 {#if list.moreError}

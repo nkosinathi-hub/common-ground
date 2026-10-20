@@ -2,6 +2,7 @@
   import { untrack } from "svelte"
   import { AsyncView, Resource } from "@/shared/ui"
   import { progressSummary } from "../domain/labels"
+  import { placeLabel } from "../domain/places"
   import { memberName, type MemberRef } from "@/shared/domain"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
@@ -44,6 +45,12 @@
       />
       <div class="border-t pt-4">
         <h3 class="mb-2 text-sm font-medium">Everyone's progress</h3>
+        {#if state.together}
+          <p class="mb-2 text-sm">
+            Together: {placeLabel(state.together) ?? "watched"}
+            <span class="text-muted-foreground">(moves only when you watch together)</span>
+          </p>
+        {/if}
         {#if state.entries.length === 0}
           <p class="text-sm text-muted-foreground">Nobody has started this one yet.</p>
         {:else}
