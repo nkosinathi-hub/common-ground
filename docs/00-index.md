@@ -7,7 +7,8 @@
    redefined functions, grants and cleanup slots
 4. [Security](security.md): threat model, RLS isolation, secrets, POPIA; [Watch parties](parties.md):
    crediting rules, the private party channel (and its deploy setting), sync protocol, player port;
-   [Playback plugins](playback-plugins.md): the provider interface, origin policy and the CSP rule
+   [Playback plugins](playback-plugins.md): the provider interface, origin policy and the CSP rule;
+   [PeerTube adapter](playback-peertube.md): its options, licence rule and live checks
 5. Architecture decisions (`adr/`)
    1. [0001 Svelte 5 SPA on Supabase; Figma export as reference](adr/0001-stack.md)
    2. [0002 Hash-routed SPA on GitHub Pages; GitLab primary, GitHub mirror](adr/0002-hosting-and-remotes.md)

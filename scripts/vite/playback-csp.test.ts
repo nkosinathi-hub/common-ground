@@ -17,11 +17,20 @@ describe("the playback plugins compiled into the build", () => {
     const origins = cspOrigins(plugins)
     for (const origin of [...origins.connect, ...origins.media, ...origins.frames])
       expect(origin).toMatch(/^https:\/\/(\*\.)?[a-z0-9.-]+$/)
-    expect(origins.frames).toEqual(["https://archive.org", "https://www.youtube-nocookie.com"])
+    expect(origins.frames).toEqual([
+      "https://archive.org",
+      "https://video.blender.org",
+      "https://www.youtube-nocookie.com",
+    ])
   })
 
   it("include Jellyfin only when the build names its origin", () => {
-    expect(plugins.map((p) => p.type)).toEqual(["jellyfin", "internet-archive", "youtube-trailer"])
+    expect(plugins.map((p) => p.type)).toEqual([
+      "jellyfin",
+      "internet-archive",
+      "peertube",
+      "youtube-trailer",
+    ])
     expect(playbackPlugins({}).map((p) => p.type)).not.toContain("jellyfin")
     expect(() => playbackPlugins({ jellyfinOrigin: "http://jf.example.org" })).toThrow(/https/)
     const loopback = playbackPlugins({ jellyfinOrigin: "http://127.0.0.1:8096" })

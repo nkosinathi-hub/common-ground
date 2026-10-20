@@ -15,6 +15,11 @@ import { internetArchivePlugin } from "../../features/playback/infrastructure/in
 import { JellyfinAccount } from "../../features/playback/infrastructure/jellyfin/account"
 import { jellyfinPlugin } from "../../features/playback/infrastructure/jellyfin/plugin"
 import { MemoryPlaybackLog } from "../../features/playback/infrastructure/memory-log"
+import {
+  BLENDER_INSTANCE,
+  BLENDER_TITLES,
+} from "../../features/playback/infrastructure/peertube/blender"
+import { peertubePlugin } from "../../features/playback/infrastructure/peertube/plugin"
 import { youtubeTrailerPlugin } from "../../features/playback/infrastructure/youtube-trailer/plugin"
 
 /** Fixed at build time: the CSP and the plugins' policies come from the same values. */
@@ -28,6 +33,7 @@ export function playbackPlugins(build: PlaybackBuild): ProviderPlugin[] {
   return [
     ...(build.jellyfinOrigin ? [jellyfinPlugin(build.jellyfinOrigin, browserProbe)] : []),
     internetArchivePlugin(),
+    peertubePlugin(BLENDER_INSTANCE),
     youtubeTrailerPlugin,
   ]
 }
@@ -41,6 +47,7 @@ function defaultConfigs(build: PlaybackBuild): ProviderConfig[] {
       ? [{ ...entry("jellyfin", 1, 8_000, 1), options: { serverUrl: build.jellyfinOrigin } }]
       : []),
     entry("internet-archive", 2, 8_000, 1),
+    { ...entry("peertube", 3, 6_000, 1), id: "blender", options: { titles: BLENDER_TITLES } },
     entry("youtube-trailer", 9, 5_000, 0),
   ]
 }

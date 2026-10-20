@@ -67,8 +67,7 @@ change. Without the variable, Jellyfin is not in the build.
    function returning one). Use relative imports only: `vite.config.ts` loads it.
 2. Add one line to `playbackPlugins()` in `src/app/composition/playback.ts`, and its default
    config entry (priority, timeout, retries) beside it.
-3. Test it against the local fixture server (`testing/fixture-server.ts`), as the shipped
-   adapters do. Nothing in the core changes.
+3. Test it against the local fixture server (`testing/fixture-server.ts`); the core never changes.
 
 People can turn a provider off or reorder providers on their device; storage can never add a
 provider or change its options (`application/stored-configs.ts`).
@@ -82,9 +81,10 @@ provider or change its options (`application/stored-configs.ts`).
   sign-out revokes the session (`POST /Sessions/Logout`) before forgetting it.
 - **internet-archive**: films only, TMDB to IMDb to Wikidata (P345 to P724), accepted only with
   an explicit public-domain or Creative Commons licence; an MP4 file, then the archive embed.
+- **peertube** (id `blender`): Blender's open movies on `video.blender.org`, from a curated TMDB
+  list; options and how to add titles in [playback-peertube.md](playback-peertube.md).
 - **youtube-trailer**: official TMDB trailers as `youtube-nocookie.com` embeds.
-- **fixture** (tests only, never in a build): the committed samples in `tests/fixtures/playback`
-  (`scripts/playback/fixtures.sh` regenerates them).
+- **fixture** (tests only, never in a build): `tests/fixtures/playback` (`scripts/playback/fixtures.sh`).
 
 ## Player (`ui/`)
 
