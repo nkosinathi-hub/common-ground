@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
   import { Columns3, List, Plus } from "@lucide/svelte"
-  import { ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
+  import { ErrorState, FormError, Loading, LoadMore, ViewToggle } from "@/shared/ui"
   import { groupByStatus } from "../domain"
   import { useTasks } from "./context"
   import { STATUS_LABELS } from "./labels"
@@ -38,6 +38,10 @@
     title = ""
     due = ""
   }
+  const VIEWS = [
+    { value: "list", label: "List", icon: List },
+    { value: "kanban", label: "Kanban", icon: Columns3 },
+  ] as const
 </script>
 
 <div class="flex flex-col gap-4">
@@ -55,20 +59,7 @@
       >
       <Button type="submit" size="sm" disabled={!title.trim()}><Plus />Add task</Button>
     </form>
-    <div class="flex gap-1" role="group" aria-label="View">
-      <Button
-        size="sm"
-        variant={board.view === "list" ? "default" : "outline"}
-        aria-pressed={board.view === "list"}
-        onclick={() => (board.view = "list")}><List />List</Button
-      >
-      <Button
-        size="sm"
-        variant={board.view === "kanban" ? "default" : "outline"}
-        aria-pressed={board.view === "kanban"}
-        onclick={() => (board.view = "kanban")}><Columns3 />Kanban</Button
-      >
-    </div>
+    <ViewToggle value={board.view} options={VIEWS} onchange={(view) => (board.view = view)} />
   </div>
   <FormError message={error} />
 
