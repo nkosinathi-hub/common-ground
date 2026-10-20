@@ -21,6 +21,7 @@ const cases: [string, Route][] = [
   [`#/s/${id}/settings`, { name: "settings", spaceId: id }],
   [`#/s/${id}/calendar`, { name: "calendar", spaceId: id }],
   [`#/s/${id}/calendar/${other}`, { name: "event", spaceId: id, eventId: other }],
+  [`#/s/${id}/party/${other}`, { name: "party", spaceId: id, partyId: other }],
 ]
 
 describe("hash routes", () => {
@@ -49,6 +50,8 @@ describe("hash routes", () => {
       `#/s/${id}/ideas/${other}/hack`,
       "#/nope",
       "#/invite/",
+      `#/s/${id}/party`,
+      `#/s/${id}/party/${other}/extra`,
     ]) {
       expect(parseHash(hash)).toEqual({ name: "not-found" })
     }

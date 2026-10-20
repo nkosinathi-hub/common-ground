@@ -25,13 +25,14 @@ export const PUSH_BODIES: Readonly<Record<string, (actor: string) => string>> = 
   hard_talk: (a) => `${a} shared something with you`,
   note_response: (a) => `${a} responded to what you shared`,
   note_nudge: () => "A gentle reminder you asked for: a note is waiting when you're ready",
+  watch_party: (a) => `${a} started a watch party`,
 }
 
 const TITLES: readonly (readonly [RegExp, string])[] = [
   [/^event_/, "Plans"],
   [/^(note|hard_talk)/, "Notes"],
   [/^(idea_|task_|mention)/, "Ideas"],
-  [/^recommendation/, "Watch"],
+  [/^(recommendation|watch_)/, "Watch"],
   [/^(invite_|member_|ownership_)/, "Your space"],
 ]
 
@@ -71,6 +72,8 @@ export function pushRoute(
       return `${space}/ideas`
     case "calendar_event":
       return `${space}/calendar/${subjectId}`
+    case "watch_party":
+      return `${space}/party/${subjectId}`
     case "profile":
     case "space":
       return `${space}/settings`

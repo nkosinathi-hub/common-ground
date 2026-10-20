@@ -18,6 +18,7 @@ const SECTION_OF_ROUTE: Partial<Record<Route["name"], Section>> = {
   idea: "ideas",
   calendar: "calendar",
   event: "calendar",
+  party: "watch",
 }
 
 /** The primary destination a route belongs to; settings and other pages highlight none. */

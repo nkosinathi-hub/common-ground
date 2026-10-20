@@ -67,6 +67,8 @@ export function subjectHref(
       return buildHash({ name: "ideas", spaceId })
     case "calendar_event":
       return buildHash({ name: "event", spaceId, eventId: subjectId })
+    case "watch_party":
+      return buildHash({ name: "party", spaceId, partyId: subjectId })
     case "profile":
     case "space":
       return buildHash({ name: "settings", spaceId })
