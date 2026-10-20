@@ -36,13 +36,15 @@ select tests.act_as('push_ana');
 select is((select count(*)::int from public.push_devices), 0, 'the previous owner lost it');
 select public.unregister_push_device('tok-ana-phone-0001');
 select tests.reset_role();
-select is((select count(*)::int from public.push_devices), 1,
+-- as the superuser, count only this test's token: the local stack may hold real devices
+select is((select count(*)::int from public.push_devices where token = 'tok-ana-phone-0001'), 1,
   'unregistering someone else''s token does nothing');
 
 select tests.act_as('push_ben');
 select public.unregister_push_device('tok-ana-phone-0001');
 select tests.reset_role();
-select is((select count(*)::int from public.push_devices), 0, 'the owner unregisters it');
+select is((select count(*)::int from public.push_devices where token = 'tok-ana-phone-0001'), 0,
+  'the owner unregisters it');
 
 select * from finish();
 rollback;

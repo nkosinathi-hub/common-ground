@@ -41,7 +41,8 @@ select is((select count(*)::int from public.push_targets(
 reset role;
 
 delete from auth.users where id = tests.user_id('pr_ana');
-select is((select count(*)::int from public.push_devices), 0, 'deleting the account drops its devices');
+select is((select count(*)::int from public.push_devices where token like 'tok-pr-ana-%'), 0,
+  'deleting the account drops its devices');
 select has_index('public', 'push_devices', 'push_devices_user', 'devices are indexed by user');
 
 select * from finish();
