@@ -15,7 +15,51 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The signed Android APK, published with the site at app/ (docs/android.md).
+  apk:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      VITE_PUBLIC_APP_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+      CG_KEYSTORE_FILE: ${{ runner.temp }}/release.keystore
+      CG_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      CG_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      CG_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: pnpm install --frozen-lockfile
+      - name: Signing key and Firebase config
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          GOOGLE_SERVICES: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          echo "$KEYSTORE" | base64 -d > "$CG_KEYSTORE_FILE"
+          echo "$GOOGLE_SERVICES" | base64 -d > android/app/google-services.json
+      - run: bash scripts/android/version.sh >> "$GITHUB_ENV"
+      - run: pnpm exec vite build --mode app && pnpm exec cap sync android
+      - run: ./gradlew --no-daemon -q assembleRelease
+        working-directory: android
+      - run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/release/app-release.apk release/common-ground.apk
+          printf '{"version":"%s","apk":"common-ground.apk"}\n' "$CG_VERSION_NAME" > release/version.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: release
+
   build:
+    needs: apk
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
@@ -37,6 +81,10 @@ jobs:
       - run: pnpm build
       - run: pnpm exec tsx scripts/guard/bundle-scan.ts
       - run: cp dist/index.html dist/404.html
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+          path: dist/app
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

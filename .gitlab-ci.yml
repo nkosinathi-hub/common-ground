@@ -7,6 +7,7 @@ include:
   - local: .gitlab/ci/verify.yml
   - local: .gitlab/ci/database.yml
   - local: .gitlab/ci/deploy.yml
+  - local: .gitlab/ci/android.yml
 
 workflow:
   rules:
