@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -22,13 +22,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- App Links: the website's email and invite links open the app (docs/runbooks/android.md). -->
+            <!-- App Links: only the website's app-link page opens the app (docs/runbooks/android.md). -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="nkosinathi-hub.github.io"
-                    android:pathPrefix="/common-ground" />
+                    android:pathPrefix="/common-ground/app-link/" />
             </intent-filter>
 
         </activity>

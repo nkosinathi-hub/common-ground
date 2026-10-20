@@ -4,21 +4,25 @@ import { backAction, inAppPath, pushRoute } from "./links"
 const site = "https://nkosinathi-hub.github.io/common-ground/"
 
 describe("inAppPath", () => {
+  const link = `${site}app-link/`
+
   it("keeps the query and hash of an email link so boot can finish it", () => {
-    expect(inAppPath(`${site}?next=home&code=abc`, site)).toBe("/?next=home&code=abc")
+    expect(inAppPath(`${link}?next=home&code=abc`, site)).toBe("/?next=home&code=abc")
   })
 
   it("opens an invite link at its route", () => {
-    expect(inAppPath(`${site}#/invite/tok_123`, site)).toBe("/#/invite/tok_123")
+    expect(inAppPath(`${link}#/invite/tok_123`, site)).toBe("/#/invite/tok_123")
+    expect(inAppPath(`${site}app-link/index.html#/invite/t`, site)).toBe("/#/invite/t")
   })
 
-  it("accepts the site root without its trailing slash", () => {
-    expect(inAppPath("https://nkosinathi-hub.github.io/common-ground", site)).toBe("/")
+  it("leaves the website's own pages to the browser", () => {
+    expect(inAppPath(`${site}?code=abc`, site)).toBeNull()
+    expect(inAppPath(`${site}app/common-ground.apk`, site)).toBeNull()
   })
 
   it("ignores links to anywhere else", () => {
-    expect(inAppPath("https://nkosinathi-hub.github.io/other/#/x", site)).toBeNull()
-    expect(inAppPath("https://evil.example/common-ground/?code=1", site)).toBeNull()
+    expect(inAppPath("https://nkosinathi-hub.github.io/other/app-link/#/x", site)).toBeNull()
+    expect(inAppPath("https://evil.example/common-ground/app-link/?code=1", site)).toBeNull()
     expect(inAppPath("not a url", site)).toBeNull()
   })
 })

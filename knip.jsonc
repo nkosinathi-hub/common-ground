@@ -2,7 +2,12 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   // Entries knip's plugins cannot see: the theme script index.html loads, the Deno functions,
   // and the script CI runs (.gitlab/ci/database.yml).
-  "entry": ["public/mode-init.js", "supabase/functions/*/index.ts", "scripts/e2e/env.ts"],
+  "entry": [
+    "public/mode-init.js",
+    "public/app-link/forward.js",
+    "supabase/functions/*/index.ts",
+    "scripts/e2e/env.ts",
+  ],
   "project": [
     "src/**/*.{ts,svelte}",
     "scripts/**/*.ts",

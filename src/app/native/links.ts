@@ -1,8 +1,9 @@
 import { parseHash } from "@/shared/domain"
+import { APP_LINK } from "../composition/app-address"
 
 /**
- * An App Link to the website, as the path to load inside the app. Query and hash survive, so
- * boot finishes an emailed `?code=` and the router opens `#/invite/<token>`.
+ * An App Link to the website's app-link page, as the path to load inside the app. Query and
+ * hash survive, so boot finishes an emailed `?code=` and the router opens `#/invite/<token>`.
  */
 export function inAppPath(link: string, siteUrl: string): string | null {
   let url: URL
@@ -11,9 +12,9 @@ export function inAppPath(link: string, siteUrl: string): string | null {
   } catch {
     return null
   }
-  const site = new URL(siteUrl)
-  const path = url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`
-  if (url.origin !== site.origin || path !== site.pathname) return null
+  const page = new URL(APP_LINK, siteUrl)
+  const path = url.pathname.replace(/index\.html$/, "")
+  if (url.origin !== page.origin || path !== page.pathname) return null
   return `/${url.search}${url.hash}`
 }
 
