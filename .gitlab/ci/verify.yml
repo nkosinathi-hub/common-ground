@@ -19,6 +19,11 @@ lint:
   stage: static
   script: [pnpm lint]
 
+cycles:
+  extends: .on-change
+  stage: static
+  script: [pnpm cycles]
+
 check:
   extends: .on-change
   stage: static

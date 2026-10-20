@@ -15,6 +15,7 @@ const steps: [string, string][] = [
   ["audit", "pnpm -s audit --audit-level high"],
   ["static", "tsx scripts/guard/static-checks.ts"],
   ["lint", "pnpm -s lint"],
+  ["cycles", "pnpm -s cycles"],
   ["check", "pnpm -s check"],
   ["unit", "pnpm -s vitest run --coverage"],
   ["functions", `docker run --rm -v "$PWD/supabase/functions:/fn:z" -w /fn ${DENO} ${DENO_CHECK}`],

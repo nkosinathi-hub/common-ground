@@ -29,8 +29,9 @@ Security is proven at the database (pgTAP), not through the UI.
 ## Before pushing
 
 - `pnpm guard` must be green: format, dependency audit (high and above), static rules, lint,
-  type check, unit tests with coverage, Edge Function check, database tests, Supabase advisors,
-  build, bundle secret scan. `pnpm guard:e2e` adds Playwright for flow changes.
+  import cycles (madge), type check, unit tests with coverage, Edge Function check, database
+  tests, Supabase advisors, build, bundle secret scan. `pnpm guard:e2e` adds Playwright for flow
+  changes.
 - Lefthook runs format, static rules and lint on every commit.
 - Never push to `main`.
 
