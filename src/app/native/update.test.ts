@@ -29,8 +29,16 @@ describe("parseRelease", () => {
     })
   })
 
-  it("refuses an APK hosted anywhere but the website", () => {
-    expect(parseRelease({ version: "0.4.1", apk: "https://evil.example/x.apk" }, site)).toBeNull()
+  it("refuses an APK hosted anywhere but the website's app folder", () => {
+    const folder = `${site}app/`
+    expect(parseRelease({ version: "0.4.1", apk: "https://evil.example/x.apk" }, folder)).toBeNull()
+    expect(
+      parseRelease(
+        { version: "0.4.1", apk: "https://nkosinathi-hub.github.io/other/x.apk" },
+        folder,
+      ),
+    ).toBeNull()
+    expect(parseRelease({ version: "0.4.1", apk: "../x.apk" }, folder)).toBeNull()
   })
 
   it("refuses a malformed file", () => {
