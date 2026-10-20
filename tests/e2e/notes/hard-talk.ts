@@ -7,7 +7,13 @@ import { createSpace } from "../support/session"
 import { createUser, type TestUser } from "../support/stack"
 
 /** Joins `spaceId` through an invite, waiting until Home listens for arriving notes. */
-async function join(browser: Browser, owner: Page, spaceId: string, user: TestUser): Promise<Page> {
+export async function join(
+  browser: Browser,
+  owner: Page,
+  spaceId: string,
+  user: TestUser,
+): Promise<Page> {
+  // Leave settings first: a hash goto to the page already open would keep the last link on screen.
   await owner.goto(`./#/s/${spaceId}/home`)
   const token = await inviteToken(owner, spaceId)
   const page = await projectPage(browser)

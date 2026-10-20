@@ -1,9 +1,9 @@
-import { expect, test, type Browser, type Locator, type Page } from "@playwright/test"
-import { inviteToken } from "../support/fixtures"
+import { expect, test, type Locator, type Page } from "@playwright/test"
 import { realtimeJoined } from "../support/realtime"
 import { createSpace, projectPage, signIn } from "../support/session"
 import { expectNotification } from "../support/social"
-import { createUser, requireStack, type TestUser } from "../support/stack"
+import { join } from "./hard-talk"
+import { createUser, requireStack } from "../support/stack"
 
 requireStack()
 
@@ -11,21 +11,6 @@ let spaceId = ""
 let ana: Page
 let ben: Page
 let cy: Page
-
-/** Joins through an invite, waiting until Home listens for arriving notes. */
-async function join(browser: Browser, owner: Page, user: TestUser): Promise<Page> {
-  // Leave settings first: a hash goto to the page already open would keep the last link on screen.
-  await owner.goto(`./#/s/${spaceId}/home`)
-  const token = await inviteToken(owner, spaceId)
-  const page = await projectPage(browser)
-  const listening = realtimeJoined(page, "note-arrivals-")
-  await signIn(page, user)
-  await page.goto(`./#/invite/${token}`)
-  await page.getByRole("button", { name: "Accept and join" }).click()
-  await page.waitForURL(new RegExp(`#/s/${spaceId}/home`))
-  await listening
-  return page
-}
 
 async function write(page: Page, to: string, body: string) {
   await page.getByRole("button", { name: "Write a note" }).click()
@@ -47,8 +32,8 @@ test.beforeAll(async ({ browser }) => {
   await signIn(ana, owner!)
   spaceId = await createSpace(ana, "Notes test")
   await listening
-  ben = await join(browser, ana, second!)
-  cy = await join(browser, ana, third!)
+  ben = await join(browser, ana, spaceId, second!)
+  cy = await join(browser, ana, spaceId, third!)
   await ana.goto(`./#/s/${spaceId}/home`)
 })
 
