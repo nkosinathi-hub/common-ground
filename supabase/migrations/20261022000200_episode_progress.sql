@@ -1,4 +1,4 @@
--- Episode history (episode_watches, 20261022001000) moves each person's place in a show
+-- Episode history (episode_watches, 20261022000100) moves each person's place in a show
 -- forward, never back: a rewatch or a party behind someone adds history only. Specials
 -- (season 0) are history only. A film's row has no season or episode and completes it.
 -- Moving back stays possible by hand through save_watch_progress.

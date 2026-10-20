@@ -38,7 +38,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   explicit in each file, so v0.4 needs no `990000` file.
 
 - v0.5 files are dated `20261022`: `000100-000999` episode history and personal progress
-  (`000100`: the forward-only `episode_watches_advance` trigger and `mark_episode_watched`),
-  `001000-001999` watch parties. `001000` episode_watches and together_progress (the parties
-  stream's copy, to reconcile at integration), `001100-001500` parties, RPCs and expiry,
+  (`000100` episode_watches and together_progress, `000200` the forward-only
+  `episode_watches_advance` trigger and `mark_episode_watched`), `001000-001999` watch parties:
+  `001100-001500` parties, RPCs and expiry,
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).

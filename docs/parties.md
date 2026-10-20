@@ -1,7 +1,7 @@
 # Watch parties
 
 Watching a title together, in the app in sync (#57) or on a TV elsewhere as a co-watch (#58).
-Code: `src/features/parties`. Data: `supabase/migrations/20261022001000-001900`.
+Code: `src/features/parties`. Data: `supabase/migrations/20261022000100` (history and together) and `20261022001100-001900`.
 
 ## Server: who is in, and what gets credited
 

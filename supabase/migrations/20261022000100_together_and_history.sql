@@ -1,6 +1,6 @@
--- Episode history and the together pointer, as the v0.5 plan's data model defines them. Kept in
--- their own file so the episode-history stream can take them over at integration. A film has no
--- season or episode: its rows leave both null. The party foreign key on episode_watches.party_id
+-- Episode history and the together pointer, as the v0.5 plan's data model defines them.
+-- 20261022000200 moves each person's place from this history. A film has no season or
+-- episode: its rows leave both null. The party foreign key on episode_watches.party_id
 -- is added by 20261022001100_watch_parties, which creates the parties table.
 create table public.episode_watches (
   id uuid primary key default gen_random_uuid(),
