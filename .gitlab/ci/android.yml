@@ -1,5 +1,5 @@
 # The Android app builds on every change (unsigned debug APK). The signed APK is built and
-# published by the GitHub Pages workflow (.github/workflows/pages.yml, docs/android.md).
+# published by the GitHub Pages workflow (.github/workflows/pages.yml, docs/runbooks/android.md).
 android:
   extends: .on-change
   stage: build

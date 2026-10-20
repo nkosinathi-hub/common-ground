@@ -24,10 +24,11 @@
    6. [Backup](runbooks/backup.md): database dump, restore drill, member export
    7. [Rollback](runbooks/rollback.md): Pages, migrations, functions
    8. [Push](runbooks/push.md): FCM delivery path, its secrets and deploy steps
+   9. [Android](runbooks/android.md): the app build, signing, App Links, releases and updates
 
 ## CI and deployment
 
-- GitLab CI: `.gitlab-ci.yml` with `.gitlab/ci/{verify,database,deploy}.yml`. Jobs mirror
+- GitLab CI: `.gitlab-ci.yml` with `.gitlab/ci/{verify,database,deploy,android}.yml`. Jobs mirror
   `pnpm guard`; `e2e` is manual; `supabase-deploy` is manual on `main`; `keep-alive` runs on a
   daily schedule.
 - GitHub Pages: `.github/workflows/pages.yml` on push to `main` of the GitHub mirror.
