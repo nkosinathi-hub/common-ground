@@ -8,7 +8,7 @@ Rules every change follows. `pnpm guard` enforces the mechanical ones.
 src/app/                    router (routing/), shell (shell/), pages (pages/)
 src/app/composition/        the only place adapters are built and provided as context:
   index.ts                  compose() and provideServices(), wires the modules below
-  core.ts                   auth, account, spaces, catalog, notifications
+  core.ts                   auth, account, spaces, catalog, notifications, simkl
   members.ts                space membership as the shared MemberDirectory, provided to pages
   watch.ts, parties.ts      watch; parties and co-watch; playback.ts lists the playback plugins
   ideas.ts                  ideas, research, tasks, budget

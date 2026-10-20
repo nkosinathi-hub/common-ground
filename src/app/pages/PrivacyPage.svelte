@@ -25,7 +25,9 @@
   <h2 class="text-lg font-semibold">Third parties</h2>
   <p>
     Data is hosted by Supabase. Title search and streaming availability come from TMDB and
-    JustWatch; your searches are sent to TMDB through our server without your identity.
+    JustWatch; your searches are sent to TMDB through our server without your identity. If you
+    connect Simkl, we keep only the access key it gives us, read your Simkl watch history to tick
+    titles on your lists, and send Simkl nothing. Disconnecting deletes the key.
   </p>
   <h2 class="text-lg font-semibold">Your rights</h2>
   <p>

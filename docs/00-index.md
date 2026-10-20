@@ -29,6 +29,7 @@
    8. [Push](runbooks/push.md): FCM delivery path, its secrets and deploy steps
    9. [Android](runbooks/android.md): the app build, signing, App Links, releases and updates
    10. [Jellyfin](runbooks/jellyfin.md): your own media server for in-app playback, and its hardening
+   11. [Simkl](runbooks/simkl.md): the optional history import, its client id and data rules
 
 ## CI and deployment
 
