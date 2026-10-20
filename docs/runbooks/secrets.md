@@ -14,7 +14,7 @@ Rule: secrets live in exactly one store per environment and never in git, the bu
 | `CLEANUP_SECRET`            | attachments cleanup     | `supabase/functions/.env`         | Supabase secret + GitLab CI var |
 | `PUSH_SECRET`               | push function and Vault | not set (push stays off)          | Supabase secret + GitLab CI var |
 | `FCM_SERVICE_ACCOUNT`       | push Edge Function      | not set (push stays off)          | Supabase secret + GitLab CI var |
-| `SIMKL_CLIENT_ID`           | simkl Edge Function     | not set (Simkl import stays off)  | Supabase secret + GitLab CI var |
+| `SIMKL_CLIENT_ID`           | simkl function, V2 id   | not set (Simkl import stays off)  | Supabase secret + GitLab CI var |
 | `PUBLIC_API_URL`            | attachments signed URLs | written by `pnpm secrets:tmdb`    | not set (hosted URL is public)  |
 | SMTP user and password      | Supabase Auth emails    | not needed (Mailpit catches mail) | Supabase dashboard, Auth > SMTP |
 | `SUPABASE_ACCESS_TOKEN`     | `supabase-deploy` job   | not needed                        | GitLab CI variable, masked      |
