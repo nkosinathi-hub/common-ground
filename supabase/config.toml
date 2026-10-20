@@ -404,6 +404,9 @@ import_map = "./functions/deno.json"
 verify_jwt = false
 import_map = "./functions/deno.json"
 
+[functions.simkl]
+import_map = "./functions/deno.json"
+
 [analytics]
 enabled = false
 port = 54327

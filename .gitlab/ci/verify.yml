@@ -57,7 +57,7 @@ functions:
   cache: []
   script:
     - cd supabase/functions
-    - deno check --frozen catalog/index.ts attachments/index.ts push/index.ts
+    - deno check --frozen catalog/index.ts attachments/index.ts push/index.ts simkl/index.ts
 
 build:
   extends: .on-change
