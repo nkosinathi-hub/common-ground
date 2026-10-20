@@ -29,6 +29,11 @@ cycles:
   stage: static
   script: [pnpm cycles]
 
+duplication:
+  extends: .on-change
+  stage: static
+  script: [pnpm duplication]
+
 check:
   extends: .on-change
   stage: static

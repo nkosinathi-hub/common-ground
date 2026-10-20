@@ -16,6 +16,7 @@ const steps: [string, string][] = [
   ["static", "tsx scripts/guard/static-checks.ts"],
   ["lint", "pnpm -s lint"],
   ["cycles", "pnpm -s cycles"],
+  ["duplication", "pnpm -s duplication"],
   ["deadcode", "pnpm -s deadcode"],
   ["check", "pnpm -s check"],
   ["unit", "pnpm -s vitest run --coverage"],
