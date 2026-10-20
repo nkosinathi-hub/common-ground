@@ -5,6 +5,7 @@
   import { ErrorState, FormError, FormState, Loading, Resource } from "@/shared/ui"
   import { describeRange } from "../domain/episode-range"
   import { isOpen } from "../domain/party"
+  import CoWatchPanel from "./CoWatchPanel.svelte"
   import { useParties } from "./context"
   import LiveControls from "./LiveControls.svelte"
   import { PartyRoomState } from "./party-room-state.svelte"
@@ -50,7 +51,11 @@
     </header>
     {#if isOpen(party) && room.view}
       <PartyPeople {party} view={room.view} names={names.value ?? []} />
-      <LiveControls {room} view={room.view} />
+      {#if party.source === "external"}
+        <CoWatchPanel {room} />
+      {:else}
+        <LiveControls {room} view={room.view} />
+      {/if}
       <div class="flex flex-wrap gap-2">
         {#if room.view.ready}
           <Button onclick={() => action.run(() => room.finish())}>We finished</Button>

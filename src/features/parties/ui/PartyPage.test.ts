@@ -18,6 +18,24 @@ function setup(party: Partial<Party> = {}, me = "me") {
   return fakes
 }
 
+describe("PartyPage, co-watch (#58)", () => {
+  it("confirms the episode, counts down together, pauses, and finishes", async () => {
+    const { gateway } = setup({ source: "external" })
+    expect(await screen.findByRole("heading", { name: "Watch party" })).toBeInTheDocument()
+    expect(await screen.findByText("Nkosi")).toBeInTheDocument()
+    expect(screen.getByText("Host")).toBeInTheDocument()
+    await fireEvent.click(await screen.findByRole("button", { name: "We are on S1E1" }))
+    await waitFor(() => expect(gateway.calls).toContainEqual(["confirm", "p1"]))
+    await fireEvent.click(await screen.findByRole("button", { name: "Start the 3-2-1" }))
+    expect(await screen.findByRole("status")).toHaveTextContent("3")
+    await fireEvent.click(screen.getByRole("button", { name: "Pause for everyone" }))
+    expect(await screen.findByText("Paused")).toBeInTheDocument()
+    await fireEvent.click(screen.getByRole("button", { name: "We finished" }))
+    expect(await screen.findByText(/This party has ended/)).toBeInTheDocument()
+    expect(gateway.calls).toContainEqual(["finish", "p1"])
+  })
+})
+
 describe("PartyPage, in the app (#57)", () => {
   it("starts only after Ready, then offers live controls", async () => {
     setup()
