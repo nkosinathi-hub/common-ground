@@ -1,3 +1,4 @@
+export type { PushDevicesGateway } from "./application/ports"
 export { NotificationsService } from "./application/notifications-service"
 export { provideNotifications } from "./ui/context"
 export { NotificationsStore } from "./ui/notifications-store.svelte"

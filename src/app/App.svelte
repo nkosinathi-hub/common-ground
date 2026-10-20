@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Capacitor } from "@capacitor/core"
   import { onMount } from "svelte"
   import { ModeWatcher } from "mode-watcher"
   import { Toaster } from "$lib/components/ui/sonner"
@@ -37,6 +38,16 @@
     return notifications.start()
   })
 
+  // The Android app registers for push once Firebase is configured in the build (docs/android.md).
+  const push = Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
+  let phone: Promise<{ forget(): Promise<void> }> | null = null
+  $effect(() => {
+    if (userId && push && !phone)
+      phone = import("./native/push")
+        .then((m) => m.startPush(services.pushDevices))
+        .catch(() => ({ forget: () => Promise.resolve() }))
+  })
+
   $effect(() => gate.rememberInvite())
 
   $effect(() => {
@@ -46,6 +57,9 @@
   })
 
   async function signOut(scope: "here" | "everywhere" = "here") {
+    // Push must never hold up signing out (offline, Firebase down).
+    await (await phone)?.forget().catch(() => {})
+    phone = null
     await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
     clearDeviceData()
     spacesStore.clear()

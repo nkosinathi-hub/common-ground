@@ -1,8 +1,9 @@
 import { App } from "@capacitor/app"
+import { PushNotifications } from "@capacitor/push-notifications"
 import { deviceStore } from "@/shared/ui"
 import { checkForUpdate } from "./check-update"
 import { firstTime } from "./launch"
-import { backAction, inAppPath } from "./links"
+import { backAction, inAppPath, pushRoute } from "./links"
 
 const opened = deviceStore("session")
 
@@ -25,6 +26,10 @@ export function startNative(siteUrl: string): void {
   void App.addListener("appUrlOpen", ({ url }) => {
     const path = pathFor(url, siteUrl)
     if (path) location.replace(path)
+  })
+  void PushNotifications.addListener("pushNotificationActionPerformed", ({ notification }) => {
+    const route = pushRoute((notification.data ?? {}) as Record<string, unknown>)
+    if (route) location.hash = route
   })
   void App.addListener("backButton", ({ canGoBack }) => {
     if (backAction(location.hash, canGoBack) === "back") history.back()

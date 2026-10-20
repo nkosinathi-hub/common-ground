@@ -3,7 +3,7 @@
 # build image (scripts/android/Containerfile), so the host needs only Node and podman.
 # Usage: scripts/android/build.sh [debug|release]
 # A release needs CG_KEYSTORE_FILE (host path), CG_KEYSTORE_PASSWORD, CG_KEY_ALIAS and
-# CG_KEY_PASSWORD (docs/android.md); VITE_* comes from the environment or .env.
+# CG_KEY_PASSWORD (docs/runbooks/android.md); VITE_* comes from the environment or .env.
 set -euo pipefail
 
 type=${1:-debug}
@@ -19,6 +19,8 @@ podman image exists "$image" ||
   podman build -t "$image" -f scripts/android/Containerfile scripts/android
 
 export VITE_PUBLIC_APP_URL=${VITE_PUBLIC_APP_URL:-https://nkosinathi-hub.github.io/common-ground/}
+# Push needs Firebase's client config; without it the app runs with push switched off.
+[ -f android/app/google-services.json ] && export VITE_PUSH=on
 pnpm exec vite build --mode app
 pnpm exec cap sync android
 

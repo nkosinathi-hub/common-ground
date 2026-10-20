@@ -11,6 +11,7 @@ import {
   SupabaseActivity,
   SupabaseNotifications,
 } from "@/features/notifications/infrastructure/supabase-notifications"
+import { SupabasePushDevices } from "@/features/notifications/infrastructure/supabase-push-devices"
 import { CatalogService, provideCatalog } from "@/features/catalog"
 import { SupabaseCatalogGateway } from "@/features/catalog/infrastructure/supabase-catalog-gateway"
 import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
@@ -47,7 +48,11 @@ export function composeCore(db: Db) {
   )
   const notifications = new NotificationsStore(inbox)
   const account = new AccountService(new SupabaseAccountRepository(db), auth)
-  return { db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications }
+  const pushDevices = new SupabasePushDevices(db)
+  return {
+    ...{ db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications },
+    pushDevices,
+  }
 }
 
 export function provideCore(services: ReturnType<typeof composeCore>): void {
