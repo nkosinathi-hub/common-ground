@@ -1,11 +1,11 @@
 <script lang="ts">
   import { useMembers } from "../composition/members"
+  import { spacePeople } from "../composition/people.svelte"
   import { CommentThread } from "@/features/comments"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
-  import { Resource } from "@/shared/ui"
 
   interface Props {
     space: Space
@@ -15,13 +15,7 @@
   }
 
   let { space, me, itemId }: Props = $props()
-  const { members, authors } = useMembers()
-  const people = new Resource(() => members.members(space.id))
-  const names = new Resource(() => authors.authors(space.id))
-  $effect(() => {
-    void people.load()
-    void names.load()
-  })
+  const people = spacePeople(useMembers(), () => space.id)
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
 </script>
 
@@ -33,7 +27,7 @@
       backHref={buildHash({ name: "watch", spaceId: space.id })}
     >
       {#snippet recommend()}
-        <RecommendButton spaceId={space.id} {itemId} members={people.value ?? []} {me} />
+        <RecommendButton spaceId={space.id} {itemId} members={people.members} {me} />
       {/snippet}
       {#snippet comments()}
         <CommentThread
@@ -41,8 +35,8 @@
           parent={{ kind: "watch", id: itemId }}
           {me}
           isOwner={space.role === "owner"}
-          members={people.value ?? []}
-          authors={names.value ?? people.value ?? []}
+          members={people.members}
+          authors={people.authors}
         />
       {/snippet}
     </WatchItemDetail>

@@ -1,11 +1,11 @@
 <script lang="ts">
   import { useMembers } from "../composition/members"
+  import { spacePeople } from "../composition/people.svelte"
   import { AttachmentsPanel } from "@/features/attachments"
   import { CommentThread } from "@/features/comments"
   import { IdeaDetail, IdeasPage } from "@/features/ideas"
   import type { Space } from "@/features/spaces"
   import { buildHash, type IdeaTab } from "@/shared/domain"
-  import { Resource } from "@/shared/ui"
 
   interface Props {
     space: Space
@@ -16,13 +16,7 @@
   }
 
   let { space, me, ideaId, tab }: Props = $props()
-  const { members, authors } = useMembers()
-  const people = new Resource(() => members.members(space.id))
-  const names = new Resource(() => authors.authors(space.id))
-  $effect(() => {
-    void people.load()
-    void names.load()
-  })
+  const people = spacePeople(useMembers(), () => space.id)
   const isOwner = $derived(space.role === "owner")
   const ideaHref = (ideaId: string) =>
     buildHash({ name: "idea", spaceId: space.id, ideaId, tab: "overview" })
@@ -43,8 +37,8 @@
           parent={{ kind: "idea", id: idea.id }}
           {me}
           {isOwner}
-          members={people.value ?? []}
-          authors={names.value ?? people.value ?? []}
+          members={people.members}
+          authors={people.authors}
         />
       {/snippet}
       {#snippet attachments(idea)}
