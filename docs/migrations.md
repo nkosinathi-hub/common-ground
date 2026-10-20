@@ -18,6 +18,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   | `export_space`                              | `20261015 400200`, `20261016 400300`                              |
   | `export_table_names`, `export_table_filter` | `20261015 400100`, `20261016 400100`, `400400`, `20261022 001700` |
   | `export_table_rows`                         | `20261015 400100`, `20261016 400200`, `400500`                    |
+  | `list_watch_items`                          | `20261015 100600`, `20261022 000300` (adds places and together)   |
 
 - Grants: the foundation migration revokes everything on tables from `anon` and `authenticated`
   by default, so a new table needs no `revoke all`; grant exactly the columns and verbs the app

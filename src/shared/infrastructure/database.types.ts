@@ -1238,7 +1238,7 @@ isOneToOne: false
                            },
 "list_watch_items":
 { Args: { "after_id"?: string,"after_key"?: string,"intent"?: Database["public"]['Enums']["watch_intent"],"media"?: Database["public"]['Enums']["watch_media_type"],"my_status"?: string,"page_size"?: number,"search"?: string,"sort_by"?: string,"target_space": string }; Returns: {
-              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"poster_path": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"updated_at": string
+              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"places": Json,"poster_path": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"together": Json,"updated_at": string
             }[]
                            },
 "log_watch_session":
