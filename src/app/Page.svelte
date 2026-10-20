@@ -12,10 +12,11 @@
     route: Route
     linkExpired: boolean
     signOut: () => void
+    signOutEverywhere: () => void
     onPasswordSaved: () => void
   }
 
-  let { route, linkExpired, signOut, onPasswordSaved }: Props = $props()
+  let { route, linkExpired, signOut, signOutEverywhere, onPasswordSaved }: Props = $props()
   const { session } = useAuth()
 </script>
 
@@ -32,7 +33,7 @@
 {:else if route.name === "new-space"}
   <NewSpacePage />
 {:else if route.name === "account"}
-  <AccountPage {signOut} />
+  <AccountPage {signOut} {signOutEverywhere} />
 {:else if route.name === "privacy"}
   <PrivacyPage />
 {:else if route.name === "not-found" || route.name === "entry"}

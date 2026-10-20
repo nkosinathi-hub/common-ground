@@ -45,8 +45,8 @@
       router.go(decision.route, true)
   })
 
-  async function signOut() {
-    await auth.signOut()
+  async function signOut(scope: "here" | "everywhere" = "here") {
+    await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
     clearDeviceData()
     spacesStore.clear()
     router.go({ name: "sign-in" }, true)
@@ -66,7 +66,8 @@
   <Page
     route={gate.decision.route}
     {linkExpired}
-    {signOut}
+    signOut={() => signOut()}
+    signOutEverywhere={() => signOut("everywhere")}
     onPasswordSaved={() => router.go({ name: "entry" }, true)}
   />
 {/if}

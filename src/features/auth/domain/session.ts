@@ -6,3 +6,6 @@ export interface SessionUser {
 }
 
 export type AuthEvent = "signed_in" | "signed_out" | "password_recovery" | "refreshed"
+
+/** This device only, or every device signed in to the account. */
+export type SignOutScope = "local" | "global"

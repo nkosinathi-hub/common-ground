@@ -7,6 +7,7 @@
     DeleteAccountCard,
     PasswordCard,
     ProfileCard,
+    SessionsCard,
   } from "@/features/account"
   import { useAuth } from "@/features/auth"
   import { useSpaces } from "@/features/spaces"
@@ -14,9 +15,10 @@
 
   interface Props {
     signOut: () => void
+    signOutEverywhere: () => void
   }
 
-  let { signOut }: Props = $props()
+  let { signOut, signOutEverywhere }: Props = $props()
   const { session } = useAuth()
   const { store } = useSpaces()
   const spaces = $derived(store.spaces.map((s) => ({ id: s.id, name: s.name })))
@@ -41,6 +43,7 @@
     <ProfileCard userId={session.user.id} displayName={session.user.displayName} />
     <AppearanceCard />
     <PasswordCard />
+    <SessionsCard onSignOutEverywhere={signOutEverywhere} />
     <DataExportCard {spaces} />
     <DeleteAccountCard onDeleted={deleted} />
   {/if}
