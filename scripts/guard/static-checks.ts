@@ -10,8 +10,10 @@ import { trackedFiles } from "./tracked-files"
 
 // Every tracked text file, including dot files and extensionless scripts. Binaries hold NUL bytes.
 const BINARY = /\.(png|jpe?g|webp|gif|ico|pdf|woff2?|zip)$/i
+// The Gradle wrapper scripts are vendored verbatim from Gradle; regenerate them, never edit.
+const VENDORED = /^android\/gradlew(\.bat)?$/
 const files = trackedFiles()
-  .filter((path) => !BINARY.test(path))
+  .filter((path) => !BINARY.test(path) && !VENDORED.test(path))
   .map((path) => ({ path, text: readFileSync(path, "utf8") }))
   .filter((file) => !file.text.includes("\u0000"))
 const code = files.filter((f) => /\.(ts|svelte)$/.test(f.path))

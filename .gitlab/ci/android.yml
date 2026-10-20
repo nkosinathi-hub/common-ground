@@ -1,0 +1,18 @@
+# The Android app builds on every change (unsigned debug APK). The signed APK is built and
+# published by the GitHub Pages workflow (.github/workflows/pages.yml, docs/runbooks/android.md).
+android:
+  extends: .on-change
+  stage: build
+  image: cimg/android:2026.08.1-node
+  before_script:
+    - sudo corepack enable && corepack prepare pnpm@10.34.3 --activate
+    - pnpm install --frozen-lockfile
+  variables:
+    VITE_PUBLIC_APP_URL: https://nkosinathi-hub.github.io/common-ground/
+  script:
+    - pnpm exec vite build --mode app
+    - pnpm exec cap sync android
+    - cd android && ./gradlew --no-daemon -q assembleDebug
+  artifacts:
+    paths: [android/app/build/outputs/apk/debug/app-debug.apk]
+    expire_in: 1 week

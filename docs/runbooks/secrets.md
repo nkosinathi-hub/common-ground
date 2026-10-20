@@ -12,6 +12,8 @@ Rule: secrets live in exactly one store per environment and never in git, the bu
 | `TMDB_ACCESS_TOKEN`         | catalog Edge Function   | `supabase/functions/.env`         | Supabase function secret        |
 | `ALLOWED_ORIGINS`           | catalog Edge Function   | written by `pnpm secrets:tmdb`    | Supabase function secret        |
 | `CLEANUP_SECRET`            | attachments cleanup     | `supabase/functions/.env`         | Supabase secret + GitLab CI var |
+| `PUSH_SECRET`               | push function and Vault | not set (push stays off)          | Supabase secret + GitLab CI var |
+| `FCM_SERVICE_ACCOUNT`       | push Edge Function      | not set (push stays off)          | Supabase secret + GitLab CI var |
 | `PUBLIC_API_URL`            | attachments signed URLs | written by `pnpm secrets:tmdb`    | not set (hosted URL is public)  |
 | SMTP user and password      | Supabase Auth emails    | not needed (Mailpit catches mail) | Supabase dashboard, Auth > SMTP |
 | `SUPABASE_ACCESS_TOKEN`     | `supabase-deploy` job   | not needed                        | GitLab CI variable, masked      |
@@ -31,7 +33,9 @@ prints key names only, never values.
 
 Set under Settings > CI/CD > Variables, masked and protected (main only): `SUPABASE_ACCESS_TOKEN`,
 `SUPABASE_PROJECT_REF`, `SUPABASE_DB_PASSWORD`, `TMDB_ACCESS_TOKEN`, `CLEANUP_SECRET`,
-`ALLOWED_ORIGINS`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`. See `.gitlab/ci/deploy.yml`.
+`ALLOWED_ORIGINS`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `PUSH_SECRET`,
+`FCM_SERVICE_ACCOUNT`. See `.gitlab/ci/deploy.yml`; push values are described in
+[push](push.md).
 
 ## Staging deploy
 

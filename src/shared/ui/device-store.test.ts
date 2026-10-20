@@ -29,6 +29,14 @@ describe("device store", () => {
     expect(() => clearDeviceData()).not.toThrow()
   })
 
+  it("keeps the Android app's opened-links memory, so a reload never replays an old link", () => {
+    deviceStore("session").write("opened-links", '["https://a/"]')
+    deviceStore("session").write("pending-invite", "t1")
+    clearDeviceData()
+    expect(deviceStore("session").read("opened-links")).toBe('["https://a/"]')
+    expect(deviceStore("session").read("pending-invite")).toBeNull()
+  })
+
   it("forgets everything the app stored on sign-out, and keeps the theme", () => {
     deviceStore().write("capture-draft:s1", "a private idea")
     deviceStore("session").write("pending-invite", "t1")

@@ -5,8 +5,10 @@
  */
 import { bareOrigin } from "../../src/shared/domain/origin"
 
-export function contentSecurityPolicy(supabaseUrl: string): string {
+/** `siteUrl` is set for the Android app, which checks the website for a newer APK. */
+export function contentSecurityPolicy(supabaseUrl: string, siteUrl = ""): string {
   const origin = bareOrigin(supabaseUrl)
+  const release = siteUrl ? ` ${new URL("app/version.json", siteUrl).href}` : ""
   const http = origin.origin
   const socket = `${origin.protocol === "https:" ? "wss:" : "ws:"}//${origin.host}`
   return [
@@ -14,7 +16,7 @@ export function contentSecurityPolicy(supabaseUrl: string): string {
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: https://image.tmdb.org ${http}`,
-    `connect-src 'self' ${http} ${socket}`,
+    `connect-src 'self' ${http} ${socket}${release}`,
     "font-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -23,8 +25,8 @@ export function contentSecurityPolicy(supabaseUrl: string): string {
   ].join("; ")
 }
 
-export function cspPlugin(supabaseUrl: string) {
-  const policy = contentSecurityPolicy(supabaseUrl)
+export function cspPlugin(supabaseUrl: string, siteUrl = "") {
+  const policy = contentSecurityPolicy(supabaseUrl, siteUrl)
   return {
     name: "common-ground-csp",
     transformIndexHtml(html: string): string {

@@ -1,4 +1,4 @@
-export { AuthService } from "./application/auth-service"
+export { AuthService, type AppAddress } from "./application/auth-service"
 export { parseAuthCallback, scrubbedUrl } from "./domain/callback"
 export { provideAuth, useAuth } from "./ui/context"
 export { SessionStore } from "./ui/session-store.svelte"

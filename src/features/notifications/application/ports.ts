@@ -16,3 +16,9 @@ export interface ActivityGateway {
   /** Newest first; `size` asks for fewer than a full page. */
   list(spaceId: string, after: Cursor | null, size?: number): Promise<Result<Page<ActivityEvent>>>
 }
+
+/** Phones that receive push for the signed-in user (the Android app only). */
+export interface PushDevicesGateway {
+  register(token: string): Promise<Result<void>>
+  unregister(token: string): Promise<Result<void>>
+}

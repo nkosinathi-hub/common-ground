@@ -19,6 +19,13 @@ describe("contentSecurityPolicy", () => {
     expect(contentSecurityPolicy("http://127.0.0.1:54321")).toContain("ws://127.0.0.1:54321")
   })
 
+  it("lets the Android app read the website's version.json, and nothing else of it", () => {
+    const app = contentSecurityPolicy("https://abc.supabase.co", "https://site.example/cg/")
+    expect(app).toContain(
+      "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co https://site.example/cg/app/version.json",
+    )
+  })
+
   it("rejects a missing or invalid Supabase URL", () => {
     expect(() => contentSecurityPolicy("")).toThrow(/VITE_SUPABASE_URL/)
   })

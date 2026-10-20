@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Common Ground</string>
+    <string name="title_activity_main">Common Ground</string>
+    <string name="package_name">io.github.nkosinathihub.commonground</string>
+    <string name="custom_url_scheme">io.github.nkosinathihub.commonground</string>
+</resources>

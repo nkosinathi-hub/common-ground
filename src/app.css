@@ -43,8 +43,10 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* Edge to edge on Android 15+: keep content clear of the status bar and side cutouts. */
   body {
     @apply bg-background font-sans text-foreground antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   }
   :focus-visible {
     outline: 2px solid var(--ring);

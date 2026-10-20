@@ -31,3 +31,8 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `(space_id, parent_id)` key because ids are unique. Author links to `profiles` (`created_by`,
   `author_id` and similar, `on delete set null`) stay unindexed: they fire only on account deletion.
   Splinter's `unindexed_foreign_keys` (INFO) accepts exact matches only, so it still lists ~49.
+
+- v0.4 files are dated `20261021`: `000100-099999` push. `000100` push devices (tokens, RPCs),
+  `000200` delivery: an insert trigger on `notifications` queues a pg_net call to the `push` Edge
+  Function, configured in Vault by `configure_push` at deploy (docs/runbooks/push.md). Grants are
+  explicit in each file, so v0.4 needs no `990000` file.

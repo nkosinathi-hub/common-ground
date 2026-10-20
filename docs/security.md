@@ -65,6 +65,17 @@ says what they defend against.
   `space_media_cleanup_candidates()` and removed by the cleanup Edge Function.
 - **Exports** run as security definer, so `export_table_filter` repeats each table's select
   policy: private notes, their replies, other people's recommendations and reminders never leave.
+- **Push** (`runbooks/push.md`): a device token belongs to one user (re-registering moves it),
+  users see and remove only their own, at most ten each. The trigger reaches the `push` function
+  through pg_net with a secret from Vault, never the service-role key, and only the function's
+  service role reads tokens. A push carries the bell's wording and a route, never content; a
+  `hard_talk` push says only that something was shared. Moving a token to whoever presents it
+  is deliberate (a phone changes hands): tokens are unreadable through the API, so only the phone
+  that holds one can claim it. The app forgets its token whenever its session ends.
+- **Android app** (`runbooks/android.md`): App Links claim only `/common-ground/app-link/`, so the
+  website's own email links always finish in the browser that holds their PKCE verifier. Backup
+  is off, so the session in Preferences never leaves the phone. An offered update must come from
+  the site's `app/` folder, and Android installs it only over an APK signed with the same key.
 - **No user HTML.** ESLint forbids `{@html}` and `innerHTML`; research links accept http(s) only.
 - **Auth** uses PKCE; the callback scrubs `?code=` from the URL before the router runs.
 
@@ -81,7 +92,8 @@ South Africa's Protection of Personal Information Act applies to members' data.
   member can see under RLS.
 - Security safeguards: the controls above. Breach response: rotate secrets, assess, notify
   affected members and the Information Regulator without undue delay.
-- Processors: Supabase (hosting), Resend (email), TMDB (catalog lookups carry no personal data).
+- Processors: Supabase (hosting), Resend (email), TMDB (catalog lookups carry no personal data),
+  Google Firebase Cloud Messaging (device tokens, a display name and the push wording).
 
 ## Reporting
 

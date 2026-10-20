@@ -7,6 +7,8 @@ import { cspPlugin } from "./scripts/vite/csp"
 
 const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta.url))
 
+const env = (mode: string) => loadEnv(mode, process.cwd(), "VITE_")
+
 export default defineConfig(({ mode }) => ({
   base: process.env.PAGES_BASE_PATH ?? "/",
   plugins: [
@@ -14,7 +16,12 @@ export default defineConfig(({ mode }) => ({
     svelte(),
     ...(process.env.VITEST
       ? []
-      : [cspPlugin(loadEnv(mode, process.cwd(), "VITE_").VITE_SUPABASE_URL ?? "")]),
+      : [
+          cspPlugin(
+            env(mode).VITE_SUPABASE_URL ?? "",
+            mode === "app" ? (env(mode).VITE_PUBLIC_APP_URL ?? "") : "",
+          ),
+        ]),
   ],
   resolve: {
     ...(process.env.VITEST ? { conditions: ["browser"] } : {}),

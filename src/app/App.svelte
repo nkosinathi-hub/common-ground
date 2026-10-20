@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Capacitor } from "@capacitor/core"
   import { onMount } from "svelte"
   import { ModeWatcher } from "mode-watcher"
   import { Toaster } from "$lib/components/ui/sonner"
@@ -7,6 +8,7 @@
   import { compose, provideServices } from "./composition"
   import Page from "./Page.svelte"
   import { RouteGate } from "./routing/gate.svelte"
+  import { PushSession } from "./native/push-session"
   import { Router } from "./routing/router.svelte"
 
   const services = compose()
@@ -37,6 +39,15 @@
     return notifications.start()
   })
 
+  // The Android app registers for push once Firebase is in the build (docs/runbooks/android.md).
+  const phonePush =
+    Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
+      ? new PushSession(() =>
+          import("./native/push").then((m) => m.startPush(services.pushDevices)),
+        )
+      : null
+  $effect(() => void phonePush?.follow(userId))
+
   $effect(() => gate.rememberInvite())
 
   $effect(() => {
@@ -46,6 +57,7 @@
   })
 
   async function signOut(scope: "here" | "everywhere" = "here") {
+    await phonePush?.follow(null) // while the session still exists, so the server forgets too
     await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
     clearDeviceData()
     spacesStore.clear()

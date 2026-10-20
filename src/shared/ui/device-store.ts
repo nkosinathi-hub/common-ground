@@ -27,10 +27,14 @@ export function deviceStore(where: Area = "local"): DeviceStore {
   }
 }
 
+// Links the Android app already opened (src/app/native/launch.ts): not personal data, and
+// forgetting them would replay the link that launched the app on its next reload.
+const KEEP = new Set([`${PREFIX}opened-links`])
+
 function forget(storage: Storage): void {
   const keys = Array.from({ length: storage.length }, (_, i) => storage.key(i) ?? "")
-  for (const key of keys.filter((k) => k.startsWith(PREFIX) || k.startsWith(LEGACY)))
-    storage.removeItem(key)
+  const mine = (k: string) => (k.startsWith(PREFIX) || k.startsWith(LEGACY)) && !KEEP.has(k)
+  for (const key of keys.filter(mine)) storage.removeItem(key)
 }
 
 /** Sign-out: remove everything this app stored on the device, except the light or dark choice. */

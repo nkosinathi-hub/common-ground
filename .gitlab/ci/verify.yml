@@ -55,7 +55,9 @@ functions:
   image: denoland/deno:2.1.4
   before_script: []
   cache: []
-  script: [cd supabase/functions && deno check --frozen catalog/index.ts attachments/index.ts]
+  script:
+    - cd supabase/functions
+    - deno check --frozen catalog/index.ts attachments/index.ts push/index.ts
 
 build:
   extends: .on-change

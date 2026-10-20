@@ -11,6 +11,7 @@ import {
   SupabaseActivity,
   SupabaseNotifications,
 } from "@/features/notifications/infrastructure/supabase-notifications"
+import { SupabasePushDevices } from "@/features/notifications/infrastructure/supabase-push-devices"
 import { CatalogService, provideCatalog } from "@/features/catalog"
 import { SupabaseCatalogGateway } from "@/features/catalog/infrastructure/supabase-catalog-gateway"
 import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
@@ -18,16 +19,18 @@ import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { deviceStore } from "@/shared/ui"
+import { appAddress } from "./app-address"
 
 const clock = () => new Date()
 
 export function composeCore(db: Db) {
-  const basePath = import.meta.env.BASE_URL
-  const appUrl = `${window.location.origin}${basePath}`
-  const auth = new AuthService(new SupabaseAuthGateway(db), {
-    origin: window.location.origin,
-    basePath,
-  })
+  const address = appAddress(
+    import.meta.env.VITE_PUBLIC_APP_URL as string | undefined,
+    window.location.origin,
+    import.meta.env.BASE_URL,
+  )
+  const appUrl = address.url
+  const auth = new AuthService(new SupabaseAuthGateway(db), address)
   const session = new SessionStore(auth)
   const spaces = new SpacesService({
     gateway: new SupabaseSpacesGateway(db),
@@ -45,7 +48,11 @@ export function composeCore(db: Db) {
   )
   const notifications = new NotificationsStore(inbox)
   const account = new AccountService(new SupabaseAccountRepository(db), auth)
-  return { db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications }
+  const pushDevices = new SupabasePushDevices(db)
+  return {
+    ...{ db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications },
+    pushDevices,
+  }
 }
 
 export function provideCore(services: ReturnType<typeof composeCore>): void {

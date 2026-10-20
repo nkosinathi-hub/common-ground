@@ -15,7 +15,14 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  # The signed Android APK, published with the site at app/ (docs/runbooks/android.md).
+  apk:
+    uses: ./.github/workflows/apk.yml
+    secrets: inherit
+
+  build: # the site ships even when the APK fails; app/ is then absent until a good run
+    needs: apk
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
@@ -37,6 +44,11 @@ jobs:
       - run: pnpm build
       - run: pnpm exec tsx scripts/guard/bundle-scan.ts
       - run: cp dist/index.html dist/404.html
+      - uses: actions/download-artifact@v4
+        if: needs.apk.result == 'success'
+        with:
+          name: apk
+          path: dist/app
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

@@ -451,6 +451,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"push_devices": {
+                  Row: {
+                    "created_at": string,"id": string,"last_seen_at": string,"platform": string,"token": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"platform": string,"token": string,"user_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"last_seen_at"?: string,"platform"?: string,"token"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "push_devices_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"rate_limits": {
                   Row: {
                     "bucket": string,"count": number,"user_id": string,"window_start": string
@@ -978,6 +998,9 @@ isOneToOne: false
               "attachment_id": string,"object_path": string
             }[]
                            },
+"configure_push":
+{ Args: { "function_url": string,"secret": string }; Returns: undefined
+                           },
 "consume_rate_limit":
 { Args: { "bucket_name": string,"max_requests": number,"target_user": string,"window_seconds": number }; Returns: boolean
                            },
@@ -1146,6 +1169,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"push_targets":
+{ Args: { "target_notification": string }; Returns: {
+              "actor_name": string,"space_id": string,"subject_id": string,"subject_type": string,"token": string,"type": string
+            }[]
+                           },
 "recommend":
 { Args: { "item": string,"note": string,"recipient_ids": (string)[] }; Returns: (string)[]
                            },
@@ -1157,6 +1185,9 @@ isOneToOne: false
                            },
 "redeem_invite":
 { Args: { "token": string }; Returns: string
+                           },
+"register_push_device":
+{ Args: { "platform": string,"token": string }; Returns: undefined
                            },
 "remove_idea_collaborator":
 { Args: { "idea": string,"member": string }; Returns: undefined
@@ -1259,6 +1290,9 @@ isOneToOne: false
                            },
 "transfer_ownership":
 { Args: { "new_owner": string,"target_space": string }; Returns: undefined
+                           },
+"unregister_push_device":
+{ Args: { "token": string }; Returns: undefined
                            },
 "update_idea_brief":
 { Args: { "brief": Json,"expected_updated_at": string,"idea": string }; Returns: string
