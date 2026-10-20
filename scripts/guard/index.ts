@@ -8,7 +8,7 @@ const DOCKER = host ? { DOCKER_HOST: host } : {}
 
 // Edge Functions type-check under the edge runtime's Deno, against the committed deno.lock.
 const DENO = "docker.io/denoland/deno:2.1.4"
-const DENO_CHECK = "deno check --frozen catalog/index.ts attachments/index.ts"
+const DENO_CHECK = "deno check --frozen catalog/index.ts attachments/index.ts push/index.ts"
 
 const steps: [string, string][] = [
   ["format", "pnpm -s format:check"],

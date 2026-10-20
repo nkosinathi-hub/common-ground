@@ -23,6 +23,7 @@
    5. [Quotas](runbooks/quotas.md): Supabase free tier limits and keep-alive
    6. [Backup](runbooks/backup.md): database dump, restore drill, member export
    7. [Rollback](runbooks/rollback.md): Pages, migrations, functions
+   8. [Push](runbooks/push.md): FCM delivery path, its secrets and deploy steps
 
 ## CI and deployment
 

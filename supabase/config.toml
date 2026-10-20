@@ -389,13 +389,19 @@ deno_version = 2
 # The scheduled cleanup calls attachments with only its secret (.gitlab/ci/deploy.yml), so the
 # gateway must not demand a JWT. The handler verifies the caller JWT for every user action and
 # the cleanup secret for cleanup (supabase/functions/_shared/attachments/handler.ts).
-# Both functions share one import map, so every remote dependency has one exact version, locked
+# Every function shares one import map, so every remote dependency has one exact version, locked
 # in supabase/functions/deno.lock (scripts/guard/pinned-imports-rule.ts).
 [functions.attachments]
 verify_jwt = false
 import_map = "./functions/deno.json"
 
 [functions.catalog]
+import_map = "./functions/deno.json"
+
+# Only the notifications trigger calls push, through pg_net with the push secret and no JWT
+# (supabase/migrations/20261021000200_push_delivery.sql). The handler checks that secret.
+[functions.push]
+verify_jwt = false
 import_map = "./functions/deno.json"
 
 [analytics]
