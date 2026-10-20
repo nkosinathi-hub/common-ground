@@ -15,8 +15,9 @@ Common Ground on Android is the same web app inside a Capacitor 8 WebView (`andr
 - `pnpm android:smoke` installs a debug build on a headless emulator (needs `/dev/kvm` and the
   local stack), signs in as the demo user and expects the home page; `smoke.sh stop` ends it.
   `CG_LOCAL_STACK=1` (smoke only) allows http to the local stack and bridge logging.
-- GitLab CI builds a debug APK on every change (`.gitlab/ci/android.yml`). The GitHub Pages
-  workflow builds the signed release on every push to `main` and publishes it with the site.
+- GitLab CI builds a debug APK on every change (`.gitlab/ci/android.yml`). On every push to
+  `main` the GitHub Pages workflow calls `.github/workflows/apk.yml` for the signed release and
+  publishes it with the site; a failed APK never blocks the site, which then ships without `app/`.
 
 ## Releases and updates
 
@@ -39,18 +40,26 @@ Common Ground on Android is the same web app inside a Capacitor 8 WebView (`andr
 
 ## Links
 
-- Email links (sign-up, password reset) and invite links name the website
-  (`src/app/composition/app-address.ts`), so they work with or without the app.
-- Android App Links open them in the app: the manifest's `autoVerify` filter for
-  `/common-ground`, verified by `https://nkosinathi-hub.github.io/.well-known/assetlinks.json`
+- PKCE keeps each email link's verifier where it was requested, so links go back there
+  (`src/app/composition/app-address.ts`): the website's email links to the website, the app's
+  to `https://nkosinathi-hub.github.io/common-ground/app-link/`. Invites carry no verifier and
+  always use the app-link page.
+- Android App Links claim only that page: the manifest's `autoVerify` filter for
+  `/common-ground/app-link/`, verified by `https://nkosinathi-hub.github.io/.well-known/assetlinks.json`
   (repo `nkosinathi-hub/nkosinathi-hub.github.io`, release key fingerprint above). A new signing
   key means a new fingerprint there.
+- Without the app, `public/app-link/` forwards to the website root with the query and hash, so
+  an invite still opens on the website. An app's email link opened elsewhere reports an expired
+  link, as PKCE intends.
+- The production Supabase redirect allow-list must accept
+  `https://nkosinathi-hub.github.io/common-ground/app-link/**` next to the website.
 - `src/app/native/` maps a link to the in-app path; each link opens once per app session.
 
 ## Push
 
 - FCM delivery: [push.md](push.md). The app asks for permission after sign-in, registers its
-  token (`register_push_device`), and removes it on sign-out before the session ends.
+  token (`register_push_device`), retries on resume if saving it failed, and forgets it whenever
+  the session ends (`src/app/native/push-session.ts`); on sign-out before the session ends.
 - Channel `updates`, white status icon `drawable/ic_stat_notify.xml`. Tapping a push opens the
   route in its `data.route`, only when it is one of the app's routes.
 
