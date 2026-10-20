@@ -12,8 +12,9 @@
   // Vendored shadcn-svelte barrels and generated database types.
   "ignore": ["src/lib/components/ui/**", "src/shared/infrastructure/database.types.ts"],
   // tw-animate-css is imported from src/app.css, which knip does not read; jscpd is run by
-  // scripts/guard/duplication.ts as a child process.
-  "ignoreDependencies": ["tw-animate-css", "jscpd"],
+  // scripts/guard/duplication.ts as a child process; @capacitor/keyboard works from
+  // capacitor.config.ts alone.
+  "ignoreDependencies": ["tw-animate-css", "jscpd", "@capacitor/keyboard"],
   // Types and interfaces are public shapes even when only their own file uses them yet.
   "ignoreExportsUsedInFile": { "interface": true, "type": true },
 }

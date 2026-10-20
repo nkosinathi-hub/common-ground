@@ -8,6 +8,7 @@ export default ts.config(
   {
     ignores: [
       ".claude/**",
+      "android",
       "dist",
       "coverage",
       "src/lib/components/ui",

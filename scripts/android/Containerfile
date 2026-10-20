@@ -1,0 +1,14 @@
+# Android build image: JDK 21 and the SDK packages Capacitor 8 needs.
+FROM docker.io/library/eclipse-temurin:21-jdk-noble
+ARG TOOLS=commandlinetools-linux-15859902_latest.zip
+ENV ANDROID_HOME=/opt/android-sdk
+ENV PATH=$PATH:/opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools
+RUN apt-get update && apt-get install -y --no-install-recommends unzip \
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir -p $ANDROID_HOME/cmdline-tools \
+ && curl -fsSL -o /tmp/tools.zip https://dl.google.com/android/repository/$TOOLS \
+ && unzip -q /tmp/tools.zip -d /tmp/tools && rm /tmp/tools.zip \
+ && mv /tmp/tools/cmdline-tools $ANDROID_HOME/cmdline-tools/latest \
+ && yes | sdkmanager --licenses > /dev/null \
+ && sdkmanager "platform-tools" "platforms;android-36" "build-tools;35.0.0" "build-tools;36.0.0"
+WORKDIR /app
