@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import Provided from "@/shared/ui/testing/Provided.svelte"
+import type { PlayTarget } from "../application/ports"
 import type { PlayableSource } from "../domain/source.types"
 import { fileSource, playerFakes } from "../testing/render-player"
 import { providePlayback } from "./context"
@@ -15,7 +16,7 @@ const embed: PlayableSource = {
   sandbox: ["allow-scripts", "allow-same-origin"],
 }
 
-function setup(sources: PlayableSource[], target = movie) {
+function setup(sources: PlayableSource[], target: PlayTarget = movie) {
   const fakes = playerFakes(sources)
   const provide = () => providePlayback(fakes)
   render(Provided, { props: { provide, component: PlayButton, props: { target, title: "Film" } } })
