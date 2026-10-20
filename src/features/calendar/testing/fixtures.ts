@@ -4,12 +4,12 @@ import { CalendarService } from "../application/calendar-service"
 import type { EventDraft } from "../domain"
 import { InMemoryCalendar } from "./in-memory-calendar"
 
-export const MEMBERS = [
+const MEMBERS = [
   { id: "ana", displayName: "Ana" },
   { id: "ben", displayName: "Ben" },
 ]
 
-export const members: MemberDirectory = { members: async () => ok(MEMBERS) }
+const members: MemberDirectory = { members: async () => ok(MEMBERS) }
 
 const OPTIONS: LinkOption[] = [
   { kind: "watch_item", id: "w1", label: "Dune" },
@@ -17,7 +17,7 @@ const OPTIONS: LinkOption[] = [
   { kind: "task", id: "t1", label: "Book the stall" },
 ]
 
-export class FakeLinks implements LinkSearch {
+class FakeLinks implements LinkSearch {
   async search(_spaceId: string, kind: LinkOption["kind"], query: string) {
     const q = query.toLowerCase()
     return ok(OPTIONS.filter((o) => o.kind === kind && o.label.toLowerCase().includes(q)))

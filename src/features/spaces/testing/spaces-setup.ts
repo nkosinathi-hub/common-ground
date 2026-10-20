@@ -2,7 +2,7 @@ import { appError, err, ok } from "@/shared/domain"
 import { SpacesService } from "../application/spaces-service"
 import { FakeSpacesGateway, MemoryActiveSpace } from "./fake-spaces"
 
-export const NOW = new Date("2026-10-15T12:00:00Z")
+const NOW = new Date("2026-10-15T12:00:00Z")
 export const PASSWORD = "right password"
 
 /** A SpacesService over in-memory fakes, a fixed clock and one accepted password. */

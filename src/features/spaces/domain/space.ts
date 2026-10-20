@@ -46,7 +46,7 @@ export interface InvitePreview {
   readonly status: InvitePreviewStatus
 }
 
-export const SPACE_NAME_MAX = 80
+const SPACE_NAME_MAX = 80
 
 export function validateSpaceName(name: string): Result<string> {
   const trimmed = name.trim()

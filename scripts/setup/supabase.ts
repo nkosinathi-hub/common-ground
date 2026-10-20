@@ -24,7 +24,7 @@ export function parseArgs(argv: readonly string[]): SetupOptions {
 }
 
 /** Services the local stack does not need day to day; they cost memory and disk. */
-export const HEAVY = ["studio", "imgproxy", "vector", "logflare"]
+const HEAVY = ["studio", "imgproxy", "vector", "logflare"]
 
 export function startArgs(options: SetupOptions): string[] {
   if (options.full) return ["start"]

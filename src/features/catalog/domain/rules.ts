@@ -9,10 +9,10 @@ export interface SplitAvailability {
   readonly fallback: boolean
 }
 
-export const HOME_REGION = "ZA"
-export const QUERY_MIN = 2
+const HOME_REGION = "ZA"
+const QUERY_MIN = 2
 export const QUERY_MAX = 160
-export const PAGE_MAX = 20
+const PAGE_MAX = 20
 
 const POSTER_PATH = /^\/[A-Za-z0-9_-][A-Za-z0-9_.-]*$/
 

@@ -5,7 +5,7 @@ import { NotesService } from "../application/notes-service"
 import { InMemoryDrafts, InMemoryHardTalk } from "./in-memory-hard-talk"
 import { InMemoryNotes } from "./in-memory-notes"
 
-export const MEMBERS: MemberRef[] = [
+const MEMBERS: MemberRef[] = [
   { id: "ana", displayName: "Ana" },
   { id: "ben", displayName: "Ben" },
   { id: "cy", displayName: "Cy" },

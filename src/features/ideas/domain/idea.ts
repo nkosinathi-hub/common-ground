@@ -43,7 +43,7 @@ export interface Idea {
 export const IN_PROGRESS_STAGES = ["exploring", "planning", "building"] as const
 export const IN_PROGRESS_LIMIT = 5
 
-export const TAGS_MAX = 20
+const TAGS_MAX = 20
 /** Longest tag, in characters. */
 export const TAG_MAX = 40
 

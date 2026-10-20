@@ -13,9 +13,9 @@ import { isTimeZone, toInstant } from "./zone"
 
 export type * from "./types"
 
-export const LOCATION_MAX = 300
-export const DESCRIPTION_MAX = 4000
-export const ALL_DAY_SPAN_MAX = 30
+const LOCATION_MAX = 300
+const DESCRIPTION_MAX = 4000
+const ALL_DAY_SPAN_MAX = 30
 const TIMED_MS_MAX = 14 * 86_400_000
 /** Minutes before the start a reminder may be set; the database allows these only. */
 export const REMINDER_MINUTES = [0, 5, 10, 15, 30, 60, 120, 1440, 2880, 10080] as const

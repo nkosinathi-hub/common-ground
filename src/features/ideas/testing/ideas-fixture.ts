@@ -3,7 +3,7 @@ import { IdeasService } from "../application/ideas-service"
 import { InMemoryCollaborators } from "./in-memory-collaborators"
 import { InMemoryIdeas } from "./in-memory-ideas"
 
-export const MEMBERS: MemberRef[] = [
+const MEMBERS: MemberRef[] = [
   { id: "ana", displayName: "Ana" },
   { id: "ben", displayName: "Ben" },
   { id: "cy", displayName: "Cy" },

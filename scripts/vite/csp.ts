@@ -3,7 +3,7 @@
  * from the configured Supabase origin. frame-ancestors is header-only, so src/app/framing.ts
  * refuses to render inside a frame instead (docs/security.md).
  */
-export const ORIGIN_ONLY =
+const ORIGIN_ONLY =
   "VITE_SUPABASE_URL must be the project origin, e.g. https://<ref>.supabase.co, without a path such as /rest/v1/"
 
 /** Parses the Supabase URL and insists on a bare http(s) origin. */

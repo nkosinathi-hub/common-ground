@@ -22,7 +22,7 @@ import {
 import type { CalendarRepository, CalendarWindow, LinkSearch } from "./ports"
 
 /** The widest window list_calendar answers: to_date - from_date. */
-export const WINDOW_DAYS_MAX = 92
+const WINDOW_DAYS_MAX = 92
 
 /** Events, attendance and reminders; drafts are validated before they reach storage. */
 export class CalendarService {

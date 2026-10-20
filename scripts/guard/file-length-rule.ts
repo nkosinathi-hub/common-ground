@@ -7,7 +7,7 @@ const EXEMPT = [
   /\.(svg|png|jpg|jpeg|webp|ico|pdf|woff2?)$/,
 ]
 
-export const isExempt = (path: string): boolean => EXEMPT.some((rule) => rule.test(path))
+const isExempt = (path: string): boolean => EXEMPT.some((rule) => rule.test(path))
 
 export function countLines(text: string): number {
   if (text.length === 0) return 0

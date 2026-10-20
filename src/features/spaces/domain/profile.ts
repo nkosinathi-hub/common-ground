@@ -1,8 +1,8 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import { normaliseHex } from "./color"
 
-export const TAGLINE_MAX = 120
-export const PROFILE_DESCRIPTION_MAX = 1000
+const TAGLINE_MAX = 120
+const PROFILE_DESCRIPTION_MAX = 1000
 
 /** Lucide icon keys a space may use; ui/icons.ts maps each to its component. */
 export const SPACE_ICONS = [
