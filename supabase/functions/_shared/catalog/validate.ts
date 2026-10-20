@@ -14,12 +14,19 @@ export type CatalogRequest =
       readonly type: CatalogType
       readonly id: number
     }
+  | {
+      readonly action: "season"
+      readonly spaceId: string
+      readonly id: number
+      readonly season: number
+    }
 
 type Parsed = { ok: true; value: CatalogRequest } | { ok: false; message: string }
 
 const MAX_ID = 2147483647
 const QUERY = { min: 2, max: 160 }
 const PAGES = { min: 1, max: 20 }
+const MAX_SEASON = 200
 
 const fail = (message: string): Parsed => ({ ok: false, message })
 
@@ -45,12 +52,22 @@ function parseSearch(body: Record<string, unknown>, spaceId: string): Parsed {
   return { ok: true, value: { action: "search", spaceId, query, page } }
 }
 
+function parseSeason(body: Record<string, unknown>, spaceId: string): Parsed {
+  const id = parseId(body.id)
+  const season = body.season
+  const valid = typeof season === "number" && Number.isInteger(season) && season >= 0
+  if (body.type !== "tv" || id === null || !valid || season > MAX_SEASON)
+    return fail("Choose a valid season of a series")
+  return { ok: true, value: { action: "season", spaceId, id, season } }
+}
+
 export function parseRequest(raw: unknown): Parsed {
   if (typeof raw !== "object" || raw === null) return fail("Invalid request")
   const body = raw as Record<string, unknown>
   if (!isUuid(body.spaceId)) return fail("Choose a space first")
   const spaceId = body.spaceId
   if (body.action === "search") return parseSearch(body, spaceId)
+  if (body.action === "season") return parseSeason(body, spaceId)
   if (body.action !== "details" && body.action !== "refresh") return fail("Unknown catalog action")
   const id = parseId(body.id)
   if ((body.type !== "movie" && body.type !== "tv") || id === null)

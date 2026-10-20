@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest"
 import { detailsPath, mapDetails } from "./details.ts"
 
 describe("detailsPath", () => {
-  it("asks for details and watch providers in one request", () => {
+  it("asks for details, providers, trailers and recommendations in one request", () => {
     expect(detailsPath("tv", 1429)).toBe(
-      "tv/1429?language=en-US&append_to_response=watch/providers",
+      "tv/1429?language=en-US&append_to_response=watch/providers,videos,recommendations",
     )
   })
 })
@@ -24,6 +24,26 @@ describe("mapDetails", () => {
     expect(details.title).toMatchObject({ id: 1429, mediaKind: "anime" })
     expect(details.availability.fallback).toBe(false)
     expect(details.availability.regions[0]?.categories[0]?.providers).toEqual(["Crunchyroll"])
+  })
+
+  it("carries the trailer, recommendations, seasons and the next episode", () => {
+    const details = mapDetails(
+      {
+        id: 1,
+        name: "S",
+        videos: { results: [{ site: "YouTube", type: "Trailer", key: "dQw4w9WgXcQ" }] },
+        recommendations: { results: [{ id: 2, name: "T" }] },
+        seasons: [{ season_number: 1, name: "Season 1", episode_count: 8 }],
+        next_episode_to_air: { season_number: 1, episode_number: 9 },
+      },
+      "tv",
+    )
+    expect(details).toMatchObject({
+      trailerKey: "dQw4w9WgXcQ",
+      recommendations: [{ id: 2, type: "tv" }],
+      seasons: [{ number: 1, episodeCount: 8 }],
+      nextEpisode: { season: 1, episode: 9 },
+    })
   })
 
   it("treats missing providers as no availability anywhere", () => {

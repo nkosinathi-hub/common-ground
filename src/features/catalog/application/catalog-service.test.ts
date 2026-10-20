@@ -25,6 +25,17 @@ describe("CatalogService", () => {
     expect(gateway.calls).toEqual([])
   })
 
+  it("loads one season of a series", async () => {
+    const { gateway, service } = setup()
+    gateway.seasons.set("1399:2", { number: 2, episodes: [], checkedAt: "x", stale: false })
+    expect((await service.season(SPACE_ID, 1399, 2)).ok).toBe(true)
+    expect(gateway.calls.at(-1)).toEqual({
+      method: "season",
+      request: { spaceId: SPACE_ID, id: 1399, season: 2 },
+    })
+    expect((await service.season(SPACE_ID, 1399, 9)).ok).toBe(false)
+  })
+
   it("loads and refreshes availability for a title", async () => {
     const { gateway, service } = setup()
     gateway.listings.set("movie:1", listing([region("ZA", "South Africa", "Showmax")], false))

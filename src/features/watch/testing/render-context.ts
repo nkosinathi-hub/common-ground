@@ -21,4 +21,5 @@ export const emptyCatalogGateway = {
     ok({ results: [], page: 1, totalPages: 0, checkedAt: "2026-10-15T10:00:00Z", stale: false }),
   details: async () => err(appError("not_found", "No listings for this title")),
   refresh: async () => err(appError("not_found", "No listings for this title")),
+  season: async () => err(appError("not_found", "No such season")),
 }

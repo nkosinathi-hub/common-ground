@@ -1,18 +1,25 @@
 import { appError, err, ok, type AppError, type Result } from "@/shared/domain"
-import type { CatalogGateway, SearchRequest, TitleRequest } from "../application/ports"
-import type { CatalogTitle, SearchPage, TitleDetails } from "../domain/types"
+import type {
+  CatalogGateway,
+  SearchRequest,
+  SeasonRequest,
+  TitleRequest,
+} from "../application/ports"
+import type { CatalogTitle, SearchPage, SeasonPage, TitleDetails } from "../domain/types"
 
 export const CHECKED_AT = "2026-10-15T10:00:00.000Z"
 
 type Call = {
-  readonly method: "search" | "details" | "refresh"
-  readonly request: SearchRequest | TitleRequest
+  readonly method: "search" | "details" | "refresh" | "season"
+  readonly request: SearchRequest | TitleRequest | SeasonRequest
 }
 
 /** In-memory catalog. Set failWith to simulate errors and hold to keep calls pending. */
 export class FakeCatalogGateway implements CatalogGateway {
   titles: CatalogTitle[] = []
   readonly listings = new Map<string, TitleDetails>()
+  /** Keyed "<series id>:<season>". */
+  readonly seasons = new Map<string, SeasonPage>()
   readonly calls: Call[] = []
   readonly aborted: Call[] = []
   failWith: AppError | null = null
@@ -59,6 +66,13 @@ export class FakeCatalogGateway implements CatalogGateway {
 
   refresh(request: TitleRequest, signal?: AbortSignal): Promise<Result<TitleDetails>> {
     return this.answer({ method: "refresh", request }, signal, () => this.find(request))
+  }
+
+  season(request: SeasonRequest, signal?: AbortSignal): Promise<Result<SeasonPage>> {
+    return this.answer({ method: "season", request }, signal, () => {
+      const page = this.seasons.get(`${request.id}:${request.season}`)
+      return page ? ok(page) : err(appError("not_found", "Not found"))
+    })
   }
 
   private find(request: TitleRequest): Result<TitleDetails> {

@@ -26,7 +26,9 @@ describe("catalog details", () => {
     const { cache, get, service, advance } = setup({ ok: true, body: body("Netflix") })
     const result = await service.details("movie", 7)
     expect(result).toMatchObject({ ok: true, body: { title: { id: 7 }, stale: false } })
-    expect(get.mock.calls[0]?.[0]).toBe("movie/7?language=en-US&append_to_response=watch/providers")
+    expect(get.mock.calls[0]?.[0]).toBe(
+      "movie/7?language=en-US&append_to_response=watch/providers,videos,recommendations",
+    )
     expect(cache.entries.get(detailsKey("movie", 7))?.expiresAt).toBe("2026-10-16T10:00:00.000Z")
     advance(23 * 60 * 60 * 1000)
     await service.details("movie", 7)

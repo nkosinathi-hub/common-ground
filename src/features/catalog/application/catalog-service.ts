@@ -29,6 +29,10 @@ export class CatalogService {
     return this.gateway.details({ spaceId, type: ref.type, id: ref.id }, signal)
   }
 
+  season(spaceId: string, id: number, season: number, signal?: AbortSignal) {
+    return this.gateway.season({ spaceId, id, season }, signal)
+  }
+
   /** Expires the cached listing for this title and asks TMDB again. */
   refresh(spaceId: string, ref: TitleRef, signal?: AbortSignal): Promise<Result<TitleDetails>> {
     return this.gateway.refresh({ spaceId, type: ref.type, id: ref.id }, signal)

@@ -1,11 +1,25 @@
-import type { Result } from "@/shared/domain"
 import { invokeFunction } from "@/shared/infrastructure/functions"
 import type { Db } from "@/shared/infrastructure/supabase"
-import type { CatalogGateway, SearchRequest, TitleRequest } from "../application/ports"
-import type { SearchPage, TitleDetails } from "../domain/types"
+import { map, type Result } from "@/shared/domain"
+import type {
+  CatalogGateway,
+  SearchRequest,
+  SeasonRequest,
+  TitleRequest,
+} from "../application/ports"
+import type { SearchPage, SeasonPage, TitleDetails } from "../domain/types"
 import { CATALOG_COPY } from "./catalog-errors"
 
 type Functions = Pick<Db, "functions">
+
+/** Details cached before v0.5 lack the extras for up to a day; they read as none. */
+const complete = (details: TitleDetails): TitleDetails => ({
+  ...details,
+  trailerKey: details.trailerKey ?? null,
+  recommendations: details.recommendations ?? [],
+  seasons: details.seasons ?? [],
+  nextEpisode: details.nextEpisode ?? null,
+})
 
 /** Calls the catalog Edge Function; the user's JWT is attached by the Supabase client. */
 export class SupabaseCatalogGateway implements CatalogGateway {
@@ -19,11 +33,17 @@ export class SupabaseCatalogGateway implements CatalogGateway {
     return this.invoke<SearchPage>({ action: "search", spaceId, q: query, page }, signal)
   }
 
-  details({ spaceId, type, id }: TitleRequest, signal?: AbortSignal) {
-    return this.invoke<TitleDetails>({ action: "details", spaceId, type, id }, signal)
+  async details({ spaceId, type, id }: TitleRequest, signal?: AbortSignal) {
+    const reply = await this.invoke<TitleDetails>({ action: "details", spaceId, type, id }, signal)
+    return map(reply, complete)
   }
 
-  refresh({ spaceId, type, id }: TitleRequest, signal?: AbortSignal) {
-    return this.invoke<TitleDetails>({ action: "refresh", spaceId, type, id }, signal)
+  async refresh({ spaceId, type, id }: TitleRequest, signal?: AbortSignal) {
+    const reply = await this.invoke<TitleDetails>({ action: "refresh", spaceId, type, id }, signal)
+    return map(reply, complete)
+  }
+
+  season({ spaceId, id, season }: SeasonRequest, signal?: AbortSignal) {
+    return this.invoke<SeasonPage>({ action: "season", spaceId, type: "tv", id, season }, signal)
   }
 }
