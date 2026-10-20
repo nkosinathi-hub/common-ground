@@ -6,7 +6,9 @@
   import { toast } from "@/shared/ui"
   import type { ExportFile, SpaceRef } from "../application/account-service"
   import { useAccount } from "./context"
+  import { Capacitor } from "@capacitor/core"
   import { downloadFile } from "./download"
+  import { shareFile } from "./share-file"
 
   interface Props {
     spaces: readonly SpaceRef[]
@@ -21,7 +23,8 @@
     try {
       const file = await load()
       if (!file.ok) return toast.error(file.error.message)
-      downloadFile(file.value)
+      if (Capacitor.isNativePlatform()) await shareFile(file.value)
+      else downloadFile(file.value)
     } finally {
       busy = null
     }
