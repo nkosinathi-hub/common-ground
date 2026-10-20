@@ -30,6 +30,10 @@ says what they defend against.
   `auth.uid()` check and explicit grants.
 - **One API.** Only `public` is exposed through PostgREST; `pg_graphql` is dropped, so the
   platform's GraphQL endpoint answers "not enabled" (`20261020000100_api_no_graphql.sql`).
+- **Dependency advisories** at high and above fail guard and CI (`pnpm audit --audit-level high`).
+  One is ignored in `package.json` (`pnpm.auditConfig.ignoreGhsas`): GHSA-vfj7-8cjw-p6xm, `braces`
+  stack exhaustion on deeply nested patterns, which has no patched release. It reaches only knip's
+  dev-time globbing of our own patterns, never the bundle. Remove the ignore once braces ships a fix.
 - **Pinned Edge Function dependencies.** Functions import remote code by bare name only;
   `supabase/functions/deno.json` pins exact versions and `deno.lock` their content. The static
   checks refuse an `npm:`/`jsr:`/URL import elsewhere, and guard runs `deno check --frozen`.
