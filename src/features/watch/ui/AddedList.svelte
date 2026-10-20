@@ -1,8 +1,5 @@
 <script lang="ts">
-  export interface AddedTitle {
-    id: string
-    title: string
-  }
+  import type { AddedTitle } from "./add-title-state.svelte"
 
   interface Props {
     items: AddedTitle[]

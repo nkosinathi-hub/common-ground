@@ -3,7 +3,7 @@
   import { Clapperboard, LoaderCircle, Plus, RefreshCw, Search } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { QUERY_MAX } from "../domain/rules"
+  import { QUERY_MAX, type PickStatus } from "../domain/rules"
   import type { CatalogTitle } from "../domain/types"
   import Attribution from "./Attribution.svelte"
   import { useCatalog } from "./context"
@@ -15,9 +15,11 @@
     spaceId: string
     onPick: (title: CatalogTitle) => void
     onManual: () => void
+    /** Marks results the caller has added (or is adding), so the search can stay as it is. */
+    statusOf?: (title: CatalogTitle) => PickStatus
   }
 
-  let { spaceId, onPick, onManual }: Props = $props()
+  let { spaceId, onPick, onManual, statusOf }: Props = $props()
 
   const search = new SearchState(useCatalog().service, () => spaceId)
   onDestroy(() => search.dispose())
@@ -56,7 +58,7 @@
         Looking for a good story
       </p>
     {:else if search.result}
-      <SearchResults page={search.result} {onPick} />
+      <SearchResults page={search.result} {onPick} {statusOf} />
     {:else if !search.error}
       <div class="py-10 text-center">
         <Clapperboard

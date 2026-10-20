@@ -2,13 +2,13 @@
   import { tick, untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
-  import { CatalogSearch, type CatalogTitle } from "@/features/catalog"
+  import { CatalogSearch } from "@/features/catalog"
   import { buildHash, type Result } from "@/shared/domain"
   import { toast } from "@/shared/ui"
-  import { fromCatalog } from "../domain/catalog"
   import { INTENTS } from "../domain/labels"
   import type { SharedIntent, TitleDetailsInput } from "../domain/types"
-  import AddedList, { type AddedTitle } from "./AddedList.svelte"
+  import { AddTitleState } from "./add-title-state.svelte"
+  import AddedList from "./AddedList.svelte"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import ManualTitleForm from "./ManualTitleForm.svelte"
@@ -27,43 +27,34 @@
     onAdded,
     defaultIntent = "want_to_watch",
   }: Props = $props()
-  const { service } = useWatch()
   let mode = $state<"search" | "manual">("search")
   let intent = $state<SharedIntent>(untrack(() => defaultIntent))
-  let busy = $state(false)
-  let addedTitles = $state<AddedTitle[]>([])
-  // Bumped after each add to remount the search, which clears it.
-  let round = $state(0)
+  const adds = new AddTitleState(
+    useWatch().service,
+    () => spaceId,
+    () => intent,
+  )
   let body = $state<HTMLElement>()
   const href = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
 
   $effect(() => {
-    if (!open) untrack(() => ((addedTitles = []), (mode = "search"), (intent = defaultIntent)))
+    if (!open) untrack(() => (adds.reset(), (mode = "search"), (intent = defaultIntent)))
   })
 
-  async function added(title: string, result: Result<string>) {
-    if (!result.ok) {
-      toast.error(result.error.message)
-      return
-    }
-    addedTitles = [...addedTitles, { id: result.value, title }]
+  /** After an add: back on the search as it was, with focus in it to keep going. */
+  async function settle(result: Result<string> | null) {
+    if (!result) return
+    if (!result.ok && result.error.kind === "conflict") return toast(result.error.message)
+    if (!result.ok) return toast.error(result.error.message)
     mode = "search"
-    round += 1
     onAdded(result.value)
     await tick()
     body?.querySelector<HTMLInputElement>('input[type="search"]')?.focus()
   }
 
-  async function pick(title: CatalogTitle) {
-    if (busy) return
-    busy = true
-    await added(title.title, await service.addCatalog(spaceId, fromCatalog(title), intent))
-    busy = false
-  }
-
   async function addManual(input: TitleDetailsInput): Promise<Result<string>> {
-    const result = await service.addManual(spaceId, { ...input, intent })
-    if (result.ok) await added(input.title.trim(), result)
+    const result = await adds.addManual(input)
+    if (result.ok) await settle(result)
     return result
   }
 </script>
@@ -84,15 +75,20 @@
       onchange={(value) => (intent = value || "want_to_watch")}
     />
     <div bind:this={body}>
-      {#if mode === "search"}
-        {#key round}
-          <CatalogSearch {spaceId} onPick={pick} onManual={() => (mode = "manual")} />
-        {/key}
-      {:else}
+      <!-- Hidden, not unmounted, while adding by hand, so the search is still there after. -->
+      <div class={mode === "search" ? "" : "hidden"}>
+        <CatalogSearch
+          {spaceId}
+          onPick={async (title) => settle(await adds.pick(title))}
+          onManual={() => (mode = "manual")}
+          statusOf={(title) => adds.statusOf(title)}
+        />
+      </div>
+      {#if mode === "manual"}
         <ManualTitleForm onSubmit={addManual} onBack={() => (mode = "search")} />
       {/if}
     </div>
-    <AddedList items={addedTitles} {href} />
+    <AddedList items={adds.added} {href} />
     <Dialog.Footer>
       <Button onclick={() => (open = false)}>Done</Button>
     </Dialog.Footer>
