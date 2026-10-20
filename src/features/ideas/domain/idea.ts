@@ -1,6 +1,5 @@
 import { appError, err, ok, type Result, TITLE_MAX } from "@/shared/domain"
 import type { Brief } from "./brief"
-import type { Collaborator } from "./collaborators"
 
 export const IDEA_STAGES = [
   "inbox",
@@ -14,6 +13,14 @@ export const IDEA_STAGES = [
 export type IdeaStage = (typeof IDEA_STAGES)[number]
 
 export type IdeaTemplate = "blank" | "business" | "creative"
+
+/** Someone invited onto an idea. acceptedAt null means the invite is still pending. */
+export interface Collaborator {
+  readonly userId: string
+  readonly invitedBy: string | null
+  readonly invitedAt: string
+  readonly acceptedAt: string | null
+}
 
 export interface Idea {
   readonly id: string

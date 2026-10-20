@@ -1,5 +1,6 @@
 import type { DateOnly } from "@/shared/domain"
-import type { ProgressStatus } from "./types"
+
+export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
 
 export interface ProgressInput {
   readonly status: ProgressStatus
