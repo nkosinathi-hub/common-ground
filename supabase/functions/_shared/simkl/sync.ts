@@ -1,8 +1,9 @@
 import { success, type Outcome } from "../http/outcome.ts"
+import type { SimklDeps } from "./deps.ts"
 import { moviesWatched, showsWatched, type Watch } from "./history.ts"
-import { failure, simklFailure } from "./outcome.ts"
-import type { SimklStore } from "./ports.ts"
-import type { ItemKind, SimklClient, SimklResult } from "./simkl-client.ts"
+import { failure, isInvalidClient, simklFailure } from "./outcome.ts"
+import type { ItemKind, SimklResult } from "./simkl-client.ts"
+import { accessToken } from "./tokens.ts"
 
 export interface SyncResult {
   readonly added: number
@@ -32,30 +33,41 @@ function moved(activities: Loose, bucket: string, cursor: number): boolean {
 
 /**
  * One import: read activities first (Simkl's sync rule), then only the kinds that moved since
- * the cursor. The cursor advances to the activities time only once every read succeeded.
+ * the cursor. A 401 refreshes the token once and retries once. The cursor advances to the
+ * activities time only once every read succeeded.
  */
-export async function syncUser(
-  deps: { client: SimklClient; store: SimklStore; clock: () => Date },
-  userId: string,
-): Promise<Outcome<SyncResult>> {
+export async function syncUser(deps: SimklDeps, userId: string): Promise<Outcome<SyncResult>> {
   const { client, store, clock } = deps
   const link = await store.link(userId)
-  if (!link) return failure("not_found")
-  const refused = async (result: SimklResult & { ok: false }) => {
-    if (result.failure !== "unauthorized") return simklFailure(result.failure)
+  if (!link?.accessToken) return failure("not_found")
+  const first = await accessToken(deps, userId, { ...link, accessToken: link.accessToken }, false)
+  if (!first.ok) return first
+  let { token, refreshed } = first.body
+  /** One read; a 401 refreshes once and retries once, a second 401 ends the link. */
+  async function call(read: (token: string) => Promise<SimklResult>): Promise<Outcome<unknown>> {
+    let reply = await read(token)
+    if (!reply.ok && reply.failure === "unauthorized" && !refreshed) {
+      refreshed = true
+      const fresh = await accessToken(deps, userId, { ...link!, accessToken: token }, true)
+      if (!fresh.ok) return fresh
+      token = fresh.body.token
+      reply = await read(token)
+    }
+    if (reply.ok) return success(reply.body)
+    if (reply.failure !== "unauthorized" || isInvalidClient(reply)) return simklFailure(reply)
     await store.remove(userId)
     return failure("denied")
   }
-  const activities = await client.activities(link.token)
-  if (!activities.ok) return refused(activities)
+  const activities = await call((t) => client.activities(t))
+  if (!activities.ok) return activities
   const body = asObject(activities.body)
   const latest = typeof body.all === "string" ? body.all : null
   const cursor = timeOf(link.cursor)
   const watches: Watch[] = []
   for (const [kind, bucket, read] of KINDS) {
     if (!moved(body, bucket, cursor)) continue
-    const items = await client.allItems(link.token, kind, simklTime(link.cursor))
-    if (!items.ok) return refused(items)
+    const items = await call((t) => client.allItems(t, kind, simklTime(link.cursor)))
+    if (!items.ok) return items
     watches.push(...read(items.body))
   }
   const added = await store.importWatches(userId, watches, latest)

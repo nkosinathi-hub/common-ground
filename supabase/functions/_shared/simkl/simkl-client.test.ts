@@ -1,73 +1,89 @@
 import { describe, expect, it, vi } from "vitest"
-import { DEFAULT_SIMKL_BASE_URL, createSimklClient } from "./simkl-client.ts"
+import pkg from "../../../../package.json"
+import { APP, DEFAULT_SIMKL_BASE_URL, createSimklClient } from "./simkl-client.ts"
+import { STUB_BASE_URL, StubSimkl } from "./stub-simkl.ts"
 
-const respond = (status: number, body: unknown = {}) =>
-  vi.fn(async (_url: string, _init?: RequestInit) => new Response(JSON.stringify(body), { status }))
-
-const client = (fetch: ReturnType<typeof respond>) =>
-  createSimklClient({ clientId: "cid", baseUrl: "http://simkl.test/", fetch })
-
-const sent = (fetch: ReturnType<typeof respond>) => {
-  const [url = "", init = {}] = fetch.mock.calls[0] ?? []
-  return { url: new URL(url), headers: new Headers(init.headers), init }
+function setup() {
+  const stub = new StubSimkl()
+  const client = createSimklClient({ clientId: "cid", baseUrl: STUB_BASE_URL, fetch: stub.fetch })
+  return { stub, client }
 }
 
 describe("createSimklClient", () => {
-  it("starts a PIN with the client id and the app's name", async () => {
-    const fetch = respond(200, { result: "OK", user_code: "ABCDE" })
-    expect(await client(fetch).startPin()).toEqual({
-      ok: true,
-      body: { result: "OK", user_code: "ABCDE" },
+  it("names the app on every request, as Simkl requires", async () => {
+    const { stub, client } = setup()
+    await client.startDevice()
+    await client.activities("at")
+    for (const request of stub.requests) {
+      expect(request.query.get("client_id")).toBe("cid")
+      expect(request.query.get("app-name")).toBe("common-ground")
+      expect(request.query.get("app-version")).toBe(pkg.version)
+      expect(request.headers.get("user-agent")).toBe(`common-ground/${pkg.version}`)
+    }
+    expect(APP.version).toBe(pkg.version)
+  })
+
+  it("starts the device flow with a form body asking for read access only", async () => {
+    const { stub, client } = setup()
+    expect(await client.startDevice()).toMatchObject({ ok: true })
+    const [request] = stub.sent("POST /oauth2/device")
+    expect(request?.headers.get("content-type")).toBe("application/x-www-form-urlencoded")
+    expect(Object.fromEntries(request?.form ?? [])).toEqual({
+      client_id: "cid",
+      scope: "media:read",
     })
-    const { url, headers, init } = sent(fetch)
-    expect(url.origin + url.pathname).toBe("http://simkl.test/oauth/pin")
-    expect(url.searchParams.get("client_id")).toBe("cid")
-    expect(url.searchParams.get("app-name")).toBe("common-ground")
-    expect(headers.get("simkl-api-key")).toBe("cid")
-    expect(headers.get("authorization")).toBeNull()
-    expect(init.signal).toBeInstanceOf(AbortSignal)
+    expect(request?.headers.get("authorization")).toBeNull()
   })
 
-  it("polls the PIN by its user code, escaped", async () => {
-    const fetch = respond(200, { result: "KO" })
-    await client(fetch).pollPin("AB/CD")
-    expect(sent(fetch).url.pathname).toBe("/oauth/pin/AB%2FCD")
+  it("posts token grants and revocations as forms with the client id", async () => {
+    const { stub, client } = setup()
+    await client.token({ grant_type: "refresh_token", refresh_token: "rt" })
+    await client.revoke("rt")
+    expect(Object.fromEntries(stub.sent("POST /oauth2/token")[0]?.form ?? [])).toEqual({
+      client_id: "cid",
+      grant_type: "refresh_token",
+      refresh_token: "rt",
+    })
+    expect(Object.fromEntries(stub.sent("POST /oauth2/revoke")[0]?.form ?? [])).toEqual({
+      client_id: "cid",
+      token: "rt",
+    })
   })
 
-  it("reads activities and items with the user's token", async () => {
-    const fetch = respond(200, { all: "2026-01-01T00:00:00Z" })
-    await client(fetch).activities("tok")
-    expect(sent(fetch).url.pathname).toBe("/sync/activities")
-    expect(sent(fetch).headers.get("authorization")).toBe("Bearer tok")
+  it("reads OAuth errors by their error field", async () => {
+    const { stub, client } = setup()
+    stub.reply("POST /oauth2/token", { status: 400, body: { error: "slow_down" } })
+    expect(await client.token({})).toEqual({ ok: false, failure: "rejected", error: "slow_down" })
+    stub.reply("POST /oauth2/token", { status: 401, body: { error: "invalid_client" } })
+    expect(await client.token({})).toEqual({
+      ok: false,
+      failure: "unauthorized",
+      error: "invalid_client",
+    })
   })
 
-  it("asks for every item since the cursor with episode watch dates", async () => {
-    const fetch = respond(200, { shows: [] })
-    await client(fetch).allItems("tok", "shows", "2026-01-01T00:00:00Z")
-    const { url } = sent(fetch)
-    expect(url.pathname).toBe("/sync/all-items/shows")
-    expect(url.searchParams.get("date_from")).toBe("2026-01-01T00:00:00Z")
-    expect(url.searchParams.get("extended")).toBe("full")
-    expect(url.searchParams.get("episode_watched_at")).toBe("yes")
-    const first = respond(200, null)
-    await client(first).allItems("tok", "movies", null)
-    expect(sent(first).url.searchParams.has("date_from")).toBe(false)
-  })
-
-  it("defaults to the public Simkl API", async () => {
-    const fetch = respond(200)
-    await createSimklClient({ clientId: "c", fetch }).startPin()
-    expect(sent(fetch).url.origin).toBe(DEFAULT_SIMKL_BASE_URL)
+  it("reads activities and items with the bearer token and the cursor", async () => {
+    const { stub, client } = setup()
+    await client.allItems("at", "shows", "2026-01-01T00:00:00Z")
+    const [request] = stub.sent("GET /sync/all-items/shows")
+    expect(request?.headers.get("authorization")).toBe("Bearer at")
+    expect(request?.query.get("date_from")).toBe("2026-01-01T00:00:00Z")
+    expect(request?.query.get("extended")).toBe("full")
+    expect(request?.query.get("episode_watched_at")).toBe("yes")
+    await client.allItems("at", "movies", null)
+    expect(stub.sent("GET /sync/all-items/movies")[0]?.query.has("date_from")).toBe(false)
   })
 
   it.each([
     [401, "unauthorized"],
     [403, "unauthorized"],
     [429, "rate_limited"],
+    [400, "rejected"],
     [500, "unavailable"],
-    [400, "unavailable"],
   ])("maps HTTP %i to %s", async (status, failure) => {
-    expect(await client(respond(status)).activities("t")).toEqual({ ok: false, failure })
+    const { stub, client } = setup()
+    stub.reply("GET /sync/activities", { status, body: "<html>" })
+    expect(await client.activities("t")).toEqual({ ok: false, failure, error: null })
   })
 
   it("treats network errors and unreadable replies as unavailable", async () => {
@@ -76,7 +92,8 @@ describe("createSimklClient", () => {
     })
     const junk = vi.fn(async () => new Response("<html>", { status: 200 }))
     const make = (fetch: typeof down | typeof junk) => createSimklClient({ clientId: "c", fetch })
-    expect(await make(down).startPin()).toEqual({ ok: false, failure: "unavailable" })
-    expect(await make(junk).startPin()).toEqual({ ok: false, failure: "unavailable" })
+    expect(await make(down).startDevice()).toMatchObject({ ok: false, failure: "unavailable" })
+    expect(await make(junk).activities("t")).toMatchObject({ ok: false, failure: "unavailable" })
+    expect(DEFAULT_SIMKL_BASE_URL).toBe("https://api.simkl.com")
   })
 })
