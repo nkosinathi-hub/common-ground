@@ -5,18 +5,39 @@
  */
 import { bareOrigin } from "../../src/shared/domain/origin"
 
-/** `siteUrl` is set for the Android app, which checks the website for a newer APK. */
-export function contentSecurityPolicy(supabaseUrl: string, siteUrl = ""): string {
+/** Origins the compiled-in playback plugins declared (docs/playback-plugins.md). */
+export interface PlaybackOrigins {
+  readonly connect: readonly string[]
+  readonly media: readonly string[]
+  readonly frames: readonly string[]
+}
+
+const NO_PLAYBACK: PlaybackOrigins = { connect: [], media: [], frames: [] }
+const list = (origins: readonly string[]) => origins.map((o) => ` ${o}`).join("")
+
+/**
+ * `siteUrl` is set for the Android app, which checks the website for a newer APK. Playback
+ * origins widen only connect-src, media-src and frame-src; script-src stays 'self'. Media
+ * Source Extensions play from blob: URLs, so media-src always allows blob:.
+ */
+export function contentSecurityPolicy(
+  supabaseUrl: string,
+  siteUrl = "",
+  playback: PlaybackOrigins = NO_PLAYBACK,
+): string {
   const origin = bareOrigin(supabaseUrl)
   const release = siteUrl ? ` ${new URL("app/version.json", siteUrl).href}` : ""
   const http = origin.origin
   const socket = `${origin.protocol === "https:" ? "wss:" : "ws:"}//${origin.host}`
+  const frames = playback.frames.length ? playback.frames.join(" ") : "'none'"
   return [
     "default-src 'self'",
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: https://image.tmdb.org ${http}`,
-    `connect-src 'self' ${http} ${socket}${release}`,
+    `connect-src 'self' ${http} ${socket}${release}${list(playback.connect)}`,
+    `media-src 'self' blob:${list(playback.media)}`,
+    `frame-src ${frames}`,
     "font-src 'self'",
     // Realtime runs its heartbeat in a worker made from a blob (the party channel's keepalive).
     "worker-src 'self' blob:",
@@ -27,8 +48,8 @@ export function contentSecurityPolicy(supabaseUrl: string, siteUrl = ""): string
   ].join("; ")
 }
 
-export function cspPlugin(supabaseUrl: string, siteUrl = "") {
-  const policy = contentSecurityPolicy(supabaseUrl, siteUrl)
+export function cspPlugin(supabaseUrl: string, siteUrl = "", playback = NO_PLAYBACK) {
+  const policy = contentSecurityPolicy(supabaseUrl, siteUrl, playback)
   return {
     name: "common-ground-csp",
     transformIndexHtml(html: string): string {

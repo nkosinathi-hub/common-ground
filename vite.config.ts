@@ -4,10 +4,16 @@ import { fileURLToPath } from "node:url"
 import { loadEnv } from "vite"
 import { defineConfig } from "vitest/config"
 import { cspPlugin } from "./scripts/vite/csp"
+import { playbackPlugins } from "./src/app/composition/playback"
+import { cspOrigins } from "./src/features/playback/domain/csp-origins"
 
 const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta.url))
 
 const env = (mode: string) => loadEnv(mode, process.cwd(), "VITE_")
+
+/** Playback origins come only from the compiled-in plugins (docs/playback-plugins.md). */
+const playback = (mode: string) =>
+  cspOrigins(playbackPlugins({ jellyfinOrigin: env(mode).VITE_JELLYFIN_ORIGIN || undefined }))
 
 export default defineConfig(({ mode }) => ({
   base: process.env.PAGES_BASE_PATH ?? "/",
@@ -20,6 +26,7 @@ export default defineConfig(({ mode }) => ({
           cspPlugin(
             env(mode).VITE_SUPABASE_URL ?? "",
             mode === "app" ? (env(mode).VITE_PUBLIC_APP_URL ?? "") : "",
+            playback(mode),
           ),
         ]),
   ],

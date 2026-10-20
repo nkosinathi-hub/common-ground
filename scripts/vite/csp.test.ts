@@ -45,6 +45,37 @@ describe("contentSecurityPolicy", () => {
   })
 })
 
+describe("contentSecurityPolicy with playback origins", () => {
+  const playback = {
+    connect: ["https://jf.example.org", "https://query.wikidata.org"],
+    media: ["https://jf.example.org", "https://*.us.archive.org"],
+    frames: ["https://www.youtube-nocookie.com"],
+  }
+  const policy = contentSecurityPolicy("https://abc.supabase.co", "", playback)
+
+  it("adds the plugins' origins to connect-src, media-src (with blob: for MSE) and frame-src", () => {
+    expect(policy).toContain(
+      "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co https://jf.example.org https://query.wikidata.org",
+    )
+    expect(policy).toContain(
+      "media-src 'self' blob: https://jf.example.org https://*.us.archive.org",
+    )
+    expect(policy).toContain("frame-src https://www.youtube-nocookie.com")
+  })
+
+  it("never widens script-src or the rest of the app", () => {
+    expect(policy).toContain("script-src 'self';")
+    expect(policy).toContain("default-src 'self';")
+    expect(policy).not.toMatch(/script-src[^;]*(youtube|jf\.example|archive)/)
+  })
+
+  it("frames nothing and plays only own and blob media without playback plugins", () => {
+    const bare = contentSecurityPolicy("https://abc.supabase.co")
+    expect(bare).toContain("media-src 'self' blob:;")
+    expect(bare).toContain("frame-src 'none'")
+  })
+})
+
 describe("cspPlugin", () => {
   it("fails at creation, not at page transform", () => {
     expect(() => cspPlugin("https://abc.supabase.co/rest/v1/")).toThrow(
