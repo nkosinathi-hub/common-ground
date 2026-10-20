@@ -15,6 +15,9 @@ Common Ground on Android is the same web app inside a Capacitor 8 WebView (`andr
 - `pnpm android:smoke` installs a debug build on a headless emulator (needs `/dev/kvm` and the
   local stack), signs in as the demo user and expects the home page; `smoke.sh stop` ends it.
   `CG_LOCAL_STACK=1` (smoke only) allows http to the local stack and bridge logging.
+- `pnpm android:show` opens a visible emulator on this desktop (X11 or XWayland) with the live
+  release APK installed; `show.sh stop` closes it. It shares the host's IPC and turns off Qt's
+  MIT-SHM, or the window stays grey.
 - GitLab CI builds a debug APK on every change (`.gitlab/ci/android.yml`). On every push to
   `main` the GitHub Pages workflow calls `.github/workflows/apk.yml` for the signed release and
   publishes it with the site; a failed APK never blocks the site, which then ships without `app/`.

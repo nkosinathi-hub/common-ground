@@ -29,7 +29,8 @@
     "db:types": "supabase gen types typescript --local --schema public > src/shared/infrastructure/database.types.ts",
     "secrets:tmdb": "bash scripts/load-tmdb-secrets.sh",
     "android:apk": "bash scripts/android/build.sh",
-    "android:smoke": "bash scripts/android/smoke.sh"
+    "android:smoke": "bash scripts/android/smoke.sh",
+    "android:show": "bash scripts/android/show.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
