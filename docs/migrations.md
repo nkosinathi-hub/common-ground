@@ -23,3 +23,6 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   by default, so a new table needs no `revoke all`; grant exactly the columns and verbs the app
   uses. Functions get an explicit `grant execute ... to authenticated` for client
   RPCs and `revoke execute ... from public, anon, authenticated` for triggers and helpers.
+
+- v0.3 files are dated `20261020`: `000100-099999` platform (API exposure, foreign-key indexes).
+  `000100` drops `pg_graphql`; the API is PostgREST only (`api_exposure.test.sql`).
