@@ -5,7 +5,7 @@
   import { remembered } from "./remembered"
 
   interface Props {
-    /** localStorage key that remembers the tip was dismissed on this device. */
+    /** Device-store key that remembers the tip was dismissed on this device. */
     storageKey: string
     text: string
   }

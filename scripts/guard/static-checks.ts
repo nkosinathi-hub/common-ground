@@ -5,6 +5,7 @@ import { findLengthViolations } from "./file-length-rule"
 import { checkFile } from "./layers-rule"
 import { checkDenoImportMap, checkFunctionImports, IMPORT_MAP } from "./pinned-imports-rule"
 import { checkPurity } from "./purity-rule"
+import { checkStorage } from "./storage-rule"
 import { trackedFiles } from "./tracked-files"
 
 // Every tracked text file, including dot files and extensionless scripts. Binaries hold NUL bytes.
@@ -24,6 +25,7 @@ const problems = [
     .map((v) => `${v.path}: layer violation importing "${v.specifier}"`),
   ...code.flatMap((f) => checkPurity(f.path, f.text)).map((v) => `${v.path}: ${v.reason}`),
   ...code.flatMap((f) => checkFunctionImports(f.path, f.text)).map((v) => `${v.path}: ${v.reason}`),
+  ...code.flatMap((f) => checkStorage(f.path, f.text)).map((v) => `${v.path}: ${v.reason}`),
   ...files
     .filter((f) => f.path === IMPORT_MAP)
     .flatMap((f) => checkDenoImportMap(f.text))

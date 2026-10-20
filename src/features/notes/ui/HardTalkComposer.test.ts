@@ -73,6 +73,6 @@ describe("one composer for both kinds of note", () => {
     )
     await fireEvent.click(dialog.getByRole("button", { name: "Got it" }))
     expect(dialog.queryByRole("complementary", { name: "Tip" })).toBeNull()
-    expect(localStorage.getItem("cg.notes.iTip")).toBe("1")
+    expect(localStorage.getItem("common-ground:notes.iTip")).toBe("1")
   })
 })

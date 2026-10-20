@@ -24,9 +24,13 @@ test("sign up, verify by email, sign out and back in", async ({ page }) => {
 
   await page.getByRole("button", { name: "Create space" }).click()
   await page.waitForURL(/#\/s\/.+\/home/)
+  const appKeys = () =>
+    page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith("common-ground:")))
+  expect(await appKeys()).toContain("common-ground:active-space")
   await page.getByRole("button", { name: "Account" }).first().click()
   await page.getByRole("menuitem", { name: "Sign out" }).click()
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible()
+  expect(await appKeys()).toEqual([])
 
   await page.getByLabel("Email").fill(email)
   await page.getByLabel("Password").fill("a long enough password")

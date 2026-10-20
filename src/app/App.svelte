@@ -2,7 +2,7 @@
   import { onMount } from "svelte"
   import { ModeWatcher } from "mode-watcher"
   import { Toaster } from "$lib/components/ui/sonner"
-  import { ErrorState, Loading } from "@/shared/ui"
+  import { clearDeviceData, ErrorState, Loading } from "@/shared/ui"
   import { boot } from "./boot"
   import { compose, provideServices } from "./composition"
   import Page from "./Page.svelte"
@@ -47,6 +47,7 @@
 
   async function signOut() {
     await auth.signOut()
+    clearDeviceData()
     spacesStore.clear()
     router.go({ name: "sign-in" }, true)
   }

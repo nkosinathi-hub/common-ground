@@ -8,7 +8,7 @@ afterEach(() => {
 
 describe("remembered", () => {
   it("keeps a yes per device, and forgets it", () => {
-    const tip = remembered("cg.test")
+    const tip = remembered("notes.test")
     expect(tip.get()).toBe(false)
     tip.set(true)
     expect(tip.get()).toBe(true)
@@ -23,7 +23,7 @@ describe("remembered", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("blocked")
     })
-    const tip = remembered("cg.test")
+    const tip = remembered("notes.test")
     expect(tip.get()).toBe(false)
     expect(() => tip.set(true)).not.toThrow()
   })

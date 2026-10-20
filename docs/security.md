@@ -33,6 +33,9 @@ says what they defend against.
 - **Pinned Edge Function dependencies.** Functions import remote code by bare name only;
   `supabase/functions/deno.json` pins exact versions and `deno.lock` their content. The static
   checks refuse an `npm:`/`jsr:`/URL import elsewhere, and guard runs `deno check --frozen`.
+- **Nothing left on a shared device.** Web storage goes through `src/shared/ui/device-store.ts`,
+  which prefixes every key `common-ground:`; sign-out removes them all (drafts, the active space,
+  a pending invite) and keeps only the light or dark choice. A static rule forbids other access.
 - **Supabase advisors** (`supabase db advisors --local --fail-on warn`) run in guard and in the
   `database` CI job, so any splinter WARN or ERROR fails the change. The CLI's splinter has no
   security-definer execute lints, so `function_grants.test.sql` keeps an exact allow-list instead.

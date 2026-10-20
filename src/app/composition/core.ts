@@ -17,6 +17,7 @@ import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
 import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-space"
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
 import type { Db } from "@/shared/infrastructure/supabase"
+import { deviceStore } from "@/shared/ui"
 
 const clock = () => new Date()
 
@@ -30,7 +31,7 @@ export function composeCore(db: Db) {
   const session = new SessionStore(auth)
   const spaces = new SpacesService({
     gateway: new SupabaseSpacesGateway(db),
-    active: new LocalActiveSpace(),
+    active: new LocalActiveSpace(deviceStore()),
     auth,
     appUrl,
     clock,
