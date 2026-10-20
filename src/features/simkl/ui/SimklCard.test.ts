@@ -17,13 +17,15 @@ function setup(link: SimklLink | null) {
 }
 
 describe("SimklCard", () => {
-  it("connects by showing the code and the page to enter it on", async () => {
+  it("connects through Simkl's approval link, with the code as a fallback", async () => {
     setup(null)
     await fireEvent.click(await screen.findByRole("button", { name: "Connect Simkl" }))
-    expect(await screen.findByText("ABCDE")).toBeInTheDocument()
-    const link = screen.getByRole("link", { name: /simkl\.com\/pin/ })
-    expect(link).toHaveAttribute("href", "https://simkl.com/pin")
+    const link = await screen.findByRole("link", { name: "Open Simkl to approve" })
+    expect(link).toHaveAttribute("href", "https://simkl.com/pin?user_code=ABCD-EFGH")
     expect(link).toHaveAttribute("rel", "noopener noreferrer")
+    expect(screen.getByText("ABCD-EFGH")).toBeInTheDocument()
+    const fallback = screen.getByRole("link", { name: "simkl.com/pin" })
+    expect(fallback).toHaveAttribute("href", "https://simkl.com/pin")
     await fireEvent.click(screen.getByRole("button", { name: "Cancel" }))
     expect(await screen.findByRole("button", { name: "Connect Simkl" })).toBeInTheDocument()
   })

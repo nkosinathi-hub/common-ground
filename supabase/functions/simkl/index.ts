@@ -1,4 +1,4 @@
-// Simkl Edge Function: links a user's Simkl account by PIN and imports their watch history.
+// Simkl Edge Function: links a user's Simkl account (AUTH V2 device flow) and imports history.
 // Thin entry: wiring only. Behaviour lives in ../_shared/simkl and is unit-tested by Vitest.
 // Never log tokens, request bodies or Simkl responses here. See docs/runbooks/simkl.md.
 import { adminClient, createGate } from "../_deno/supabase-gate.ts"
@@ -26,6 +26,7 @@ const handler = createSimklHandler({
     }),
     store: createSimklStore(admin),
     clock: () => new Date(),
+    sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
   }),
 })
 

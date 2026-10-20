@@ -9,7 +9,7 @@ export class SimklService {
 
   status = () => this.gateway.status()
   startPin = () => this.gateway.startPin()
-  poll = (userCode: string) => this.gateway.poll(userCode)
+  poll = (interval: number) => this.gateway.poll(interval)
   sync = () => this.gateway.sync()
   disconnect = () => this.gateway.disconnect()
 

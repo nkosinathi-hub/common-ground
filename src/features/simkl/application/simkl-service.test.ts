@@ -9,20 +9,13 @@ describe("SimklService", () => {
     const gateway = new FakeSimklGateway()
     const service = new SimklService(gateway)
     expect(await service.status()).toEqual({ ok: true, value: null })
-    expect(await service.startPin()).toMatchObject({ ok: true, value: { userCode: "ABCDE" } })
-    expect(await service.poll("ABCDE")).toEqual({ ok: true, value: { connected: false } })
+    expect(await service.startPin()).toMatchObject({ ok: true, value: { userCode: "ABCD-EFGH" } })
+    expect(await service.poll(5)).toEqual({ ok: true, value: { status: "pending", interval: 5 } })
     gateway.approve(LINK)
-    expect(await service.poll("ABCDE")).toEqual({ ok: true, value: { connected: true } })
+    expect(await service.poll(5)).toEqual({ ok: true, value: { status: "connected" } })
     expect(await service.sync()).toMatchObject({ ok: true, value: { added: 0 } })
     expect(await service.disconnect()).toEqual({ ok: true, value: undefined })
-    expect(gateway.calls).toEqual([
-      "status",
-      "pin",
-      "poll:ABCDE",
-      "poll:ABCDE",
-      "sync",
-      "disconnect",
-    ])
+    expect(gateway.calls).toEqual(["status", "pin", "poll:5", "poll:5", "sync", "disconnect"])
   })
 
   it("syncs once per app open, and only when connected", async () => {

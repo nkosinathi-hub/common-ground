@@ -1,14 +1,18 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { SimklGateway } from "../application/ports"
-import type { SimklLink } from "../domain/types"
+import type { PollStatus, SimklLink } from "../domain/types"
 
 /** In-memory SimklGateway: a code is pending until approve(); calls are recorded by name. */
+type Next = "slow_down" | "expired" | null
+
 export class FakeSimklGateway implements SimklGateway {
   readonly calls: string[] = []
   readonly syncedAt = "2026-03-02T08:00:00.000Z"
   /** The next call fails with "Simkl is down". */
   failNext = false
   private approved: SimklLink | null = null
+  /** The next poll answers slow down (interval + 5) or expired instead of pending. */
+  nextPoll: Next = null
 
   constructor(public link: SimklLink | null = null) {}
 
@@ -29,16 +33,21 @@ export class FakeSimklGateway implements SimklGateway {
 
   startPin = () =>
     this.answer("pin", () => ({
-      userCode: "ABCDE",
-      verificationUrl: "https://simkl.com/pin",
+      userCode: "ABCD-EFGH",
+      verificationUri: "https://simkl.com/pin",
+      verificationUriComplete: "https://simkl.com/pin?user_code=ABCD-EFGH",
       expiresIn: 900,
       interval: 5,
     }))
 
-  poll = (userCode: string) =>
-    this.answer(`poll:${userCode}`, () => {
+  poll = (interval: number) =>
+    this.answer(`poll:${interval}`, (): PollStatus => {
+      const next = this.nextPoll
+      this.nextPoll = null
       if (this.approved) this.link = this.approved
-      return { connected: this.approved !== null }
+      if (this.approved) return { status: "connected" }
+      if (next === "expired") return { status: "expired" }
+      return { status: "pending", interval: next === "slow_down" ? interval + 5 : interval }
     })
 
   sync = () =>

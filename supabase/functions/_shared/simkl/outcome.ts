@@ -1,5 +1,5 @@
 import { failureWith } from "../http/outcome.ts"
-import type { SimklFailure } from "./simkl-client.ts"
+import type { SimklResult } from "./simkl-client.ts"
 
 export const failure = failureWith({
   validation: "Invalid request",
@@ -10,8 +10,14 @@ export const failure = failureWith({
   unavailable: "Simkl is unavailable right now. Try again later",
 })
 
+/** Unset SIMKL_CLIENT_ID, or one Simkl answers with 401 invalid_client (unknown, or AUTH V1). */
 export const NOT_CONFIGURED = "Simkl import is not set up on this server yet"
 
-/** The answer for a failed Simkl call; a refused token is handled by the caller. */
-export const simklFailure = (reason: SimklFailure) =>
-  reason === "rate_limited" ? failure("rate_limited") : failure("unavailable")
+export const isInvalidClient = (reply: SimklResult) =>
+  !reply.ok && reply.failure === "unauthorized" && reply.error === "invalid_client"
+
+/** The answer for a failed Simkl call that has no meaning of its own to the caller. */
+export function simklFailure(reply: SimklResult & { ok: false }) {
+  if (isInvalidClient(reply)) return failure("unavailable", NOT_CONFIGURED)
+  return reply.failure === "rate_limited" ? failure("rate_limited") : failure("unavailable")
+}

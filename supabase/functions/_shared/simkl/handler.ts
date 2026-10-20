@@ -13,27 +13,28 @@ export interface SimklHandlerDeps {
   readonly service: SimklService
 }
 
-/** A PIN poll every 5 seconds fits, with room for a sync and a retry. */
+/** A device poll every 5 seconds fits, with room for a sync and a retry. */
 export const RATE_LIMIT: RateLimit = { bucket: "simkl", max: 20, windowSeconds: 60 }
 
 type SimklRequest =
   | { readonly action: "pin" | "sync" | "disconnect" }
-  | { readonly action: "poll"; readonly userCode: string }
+  | { readonly action: "poll"; readonly interval: number }
 
-const USER_CODE = /^[A-Za-z0-9-]{4,16}$/
+const MAX_INTERVAL = 120
 
 function parse(raw: unknown): SimklRequest | null {
   const body = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>
-  const { action, userCode } = body
+  const { action, interval = 5 } = body
   if (action === "pin" || action === "sync" || action === "disconnect") return { action }
-  if (action === "poll" && typeof userCode === "string" && USER_CODE.test(userCode))
-    return { action, userCode }
+  const valid = typeof interval === "number" && Number.isInteger(interval)
+  if (action === "poll" && valid && interval > 0 && interval <= MAX_INTERVAL)
+    return { action, interval }
   return null
 }
 
 function dispatch(service: SimklService, userId: string, request: SimklRequest) {
-  if (request.action === "pin") return service.pin()
-  if (request.action === "poll") return service.poll(userId, request.userCode)
+  if (request.action === "pin") return service.pin(userId)
+  if (request.action === "poll") return service.poll(userId, request.interval)
   if (request.action === "sync") return service.sync(userId)
   return service.disconnect(userId)
 }

@@ -44,8 +44,9 @@ describe("simkl handler", () => {
     const { call, service } = setup()
     for (const action of ["pin", "sync", "disconnect"])
       expect((await call({ action })).status).toBe(200)
-    expect((await call({ action: "poll", userCode: "ABCD-1234" })).status).toBe(200)
-    expect(service.poll).toHaveBeenCalledWith("user-1", "ABCD-1234")
+    expect((await call({ action: "poll", interval: 10 })).status).toBe(200)
+    expect(service.poll).toHaveBeenCalledWith("user-1", 10)
+    expect(service.pin).toHaveBeenCalledWith("user-1")
     expect(service.sync).toHaveBeenCalledWith("user-1")
     expect(service.disconnect).toHaveBeenCalledWith("user-1")
   })
@@ -69,7 +70,8 @@ describe("simkl handler", () => {
   it("refuses unknown actions and malformed codes", async () => {
     const { call } = setup()
     expect((await call({ action: "drop" })).status).toBe(400)
-    expect((await call({ action: "poll", userCode: "../../x" })).status).toBe(400)
+    expect((await call({ action: "poll", interval: "5" })).status).toBe(400)
+    expect((await call({ action: "poll", interval: 0 })).status).toBe(400)
     expect((await call(null)).status).toBe(400)
   })
 

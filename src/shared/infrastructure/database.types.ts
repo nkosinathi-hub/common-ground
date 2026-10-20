@@ -589,14 +589,14 @@ isOneToOne: false
                   ]
                 },"simkl_links": {
                   Row: {
-                    "access_token": string,"connected_at": string,"cursor": string | null,"last_synced_at": string | null,"user_id": string
+                    "access_expires_at": string | null,"access_token": string | null,"connected_at": string | null,"cursor": string | null,"device_code": string | null,"device_expires_at": string | null,"last_synced_at": string | null,"refresh_lease_until": string | null,"refresh_token": string | null,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "access_token": string,"connected_at"?: string,"cursor"?: string | null,"last_synced_at"?: string | null,"user_id": string
+                    "access_expires_at"?: string | null,"access_token"?: string | null,"connected_at"?: string | null,"cursor"?: string | null,"device_code"?: string | null,"device_expires_at"?: string | null,"last_synced_at"?: string | null,"refresh_lease_until"?: string | null,"refresh_token"?: string | null,"user_id": string
                   }
                   Update: {
-                    "access_token"?: string,"connected_at"?: string,"cursor"?: string | null,"last_synced_at"?: string | null,"user_id"?: string
+                    "access_expires_at"?: string | null,"access_token"?: string | null,"connected_at"?: string | null,"cursor"?: string | null,"device_code"?: string | null,"device_expires_at"?: string | null,"last_synced_at"?: string | null,"refresh_lease_until"?: string | null,"refresh_token"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1122,6 +1122,9 @@ isOneToOne: false
                            },
 "check_party_range":
 { Args: { "counts": (number)[],"e1": number,"e2": number,"media": Database["public"]['Enums']["watch_media_type"],"s1": number,"s2": number }; Returns: undefined
+                           },
+"claim_simkl_refresh":
+{ Args: { "target_user": string }; Returns: boolean
                            },
 "cleanup_candidates":
 { Args: Record<PropertyKey, never>; Returns: {
