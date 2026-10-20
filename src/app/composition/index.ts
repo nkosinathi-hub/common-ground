@@ -7,6 +7,7 @@ import { composeCore, provideCore } from "./core"
 import { composeIdeas, provideIdeasFeatures } from "./ideas"
 import { authorDirectory, memberDirectory, provideMembers } from "./members"
 import { composeNotes, provideNotesFeature } from "./notes"
+import { composeParties, providePartiesFeature } from "./parties"
 import { composeWatch, provideWatchFeature } from "./watch"
 
 /** The Android app keeps its session in Preferences; the website in browser storage. */
@@ -31,6 +32,7 @@ export function compose(db: Db = createDb()) {
     collaboration: composeCollaboration(db),
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
+    parties: composeParties(db),
   }
 }
 
@@ -44,4 +46,5 @@ export function provideServices(services: Services): void {
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)
+  providePartiesFeature(services.parties, services.members)
 }

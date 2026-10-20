@@ -10,7 +10,7 @@ src/app/composition/        the only place adapters are built and provided as co
   index.ts                  compose() and provideServices(), wires the modules below
   core.ts                   auth, account, spaces, catalog, notifications
   members.ts                space membership as the shared MemberDirectory, provided to pages
-  watch.ts                  watch
+  watch.ts, parties.ts      watch; watch parties and co-watch sessions
   ideas.ts                  ideas, research, tasks, budget
   collaboration.ts          comments, recommendations, attachments
 src/shared/domain/          Result, Money, DateOnly, formatters, ids, errors (pure)

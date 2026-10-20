@@ -17,9 +17,11 @@
     comments?: Snippet
     /** "Recommend to a member" control, rendered with the title actions. */
     recommend?: Snippet
+    /** "Watch together" for this title; told whether it is a film (no episodes to pick). */
+    together?: Snippet<[boolean]>
   }
 
-  let { spaceId, itemId, backHref, comments, recommend }: Props = $props()
+  let { spaceId, itemId, backHref, comments, recommend, together }: Props = $props()
   const { service, members, authors } = useWatch()
   const view = new Resource(() => service.get(spaceId, itemId))
   const people = new Resource(() => members.members(spaceId))
@@ -45,6 +47,7 @@
   <AsyncView resource={view}>
     {#snippet children(current)}
       <ItemHeader view={current} {backHref} {recommend} onChanged={() => view.load()} />
+      {#if together}{@render together(current.item.mediaType === "movie")}{/if}
       <ItemAvailability {spaceId} item={current.item} />
       <div class="grid gap-6 lg:grid-cols-2">
         <ProgressPanel

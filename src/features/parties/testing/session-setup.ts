@@ -1,11 +1,13 @@
+import { afterEach, beforeEach, vi } from "vitest"
 import { ok } from "@/shared/domain"
 import { PartySession } from "../application/party-session"
+import { SYNC } from "../domain/sync-constants"
 import { FakePartyHub } from "./fake-party-hub"
 import { FakePlayer } from "./fake-player"
 import { partyOf } from "./fake-party-gateway"
 
 /** The RPCs a session calls, recorded as [name, partyId]. */
-export function sessionService() {
+function sessionService() {
   const calls: string[][] = []
   const record = (name: string) => (id: string) => {
     calls.push([name, id])
@@ -38,4 +40,21 @@ export function partyRoom(skews: Record<string, number> = { host: 0, guest: 700 
     return { session, player: player!, clock }
   }
   return { hub, service, member }
+}
+
+/** Fake timers from a fixed instant, for every test in the calling file. */
+export function useFakeClock(): void {
+  beforeEach(() => void vi.useFakeTimers().setSystemTime(1_000_000))
+  afterEach(() => vi.useRealTimers())
+}
+
+/** Host and guest connected, both Ready, and the guest synced to the host's clock. */
+export async function readyRoom(skews?: Record<string, number>, withPlayers = true) {
+  const room = partyRoom(skews)
+  const host = room.member("host", withPlayers)
+  const guest = room.member("guest", withPlayers)
+  await host.session.ready()
+  await guest.session.ready()
+  vi.advanceTimersByTime(3 * SYNC.stateIntervalMs)
+  return { ...room, host, guest }
 }

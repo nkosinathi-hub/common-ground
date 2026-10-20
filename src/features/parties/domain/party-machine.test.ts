@@ -17,6 +17,10 @@ describe("party lobby", () => {
     expect(canStart(initialParty("host"))).toBe(false)
   })
 
+  it("ignores a pause before the party has started", () => {
+    expect(reduce(lobby(), command("guest", "pause", 0, 500)).phase).toBe("lobby")
+  })
+
   it("lets only the host start, and only when everyone is ready", () => {
     expect(reduce(lobby(), play("guest", 0, 1000)).phase).toBe("lobby")
     expect(reduce(lobby(both({ ready: false })), play("host", 0, 1000)).phase).toBe("lobby")

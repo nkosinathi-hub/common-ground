@@ -1,7 +1,7 @@
 import { initialParty, reduce, type Presence } from "../domain/party-machine"
 
 /** A present member; the host joined first. */
-export const person = (userId: string, ready = true, buffering = false): Presence => ({
+const person = (userId: string, ready = true, buffering = false): Presence => ({
   userId,
   ready,
   buffering,

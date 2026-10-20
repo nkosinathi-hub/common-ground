@@ -1,23 +1,14 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { SYNC } from "../domain/sync-constants"
-import { partyRoom } from "../testing/session-setup"
+import { readyRoom, useFakeClock } from "../testing/session-setup"
 
-beforeEach(() => {
-  vi.useFakeTimers()
-  vi.setSystemTime(1_000_000)
-})
-afterEach(() => vi.useRealTimers())
+useFakeClock()
 
 async function playing() {
-  const room = partyRoom({ host: 0, guest: -400, late: 2500 })
-  const host = room.member("host")
-  const guest = room.member("guest")
-  await host.session.ready()
-  await guest.session.ready()
-  vi.advanceTimersByTime(3 * SYNC.stateIntervalMs)
-  host.session.play()
+  const room = await readyRoom({ host: 0, guest: -400, late: 2500 })
+  room.host.session.play()
   vi.advanceTimersByTime(5000)
-  return { ...room, host, guest }
+  return room
 }
 
 describe("PartySession buffering", () => {

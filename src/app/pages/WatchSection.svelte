@@ -2,6 +2,7 @@
   import { useMembers } from "../composition/members"
   import { spacePeople } from "../composition/people.svelte"
   import { CommentThread } from "@/features/comments"
+  import { WatchTogether } from "@/features/parties"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
@@ -26,6 +27,9 @@
       {itemId}
       backHref={buildHash({ name: "watch", spaceId: space.id })}
     >
+      {#snippet together(isFilm: boolean)}
+        <WatchTogether spaceId={space.id} {itemId} {isFilm} />
+      {/snippet}
       {#snippet recommend()}
         <RecommendButton spaceId={space.id} {itemId} members={people.members} {me} />
       {/snippet}

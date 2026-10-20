@@ -7,6 +7,7 @@
   import HomePage from "./pages/HomePage.svelte"
   import CalendarSection from "./pages/CalendarSection.svelte"
   import IdeasSection from "./pages/IdeasSection.svelte"
+  import PartySection from "./pages/PartySection.svelte"
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
   import QuickCapture from "./shell/QuickCapture.svelte"
@@ -55,6 +56,8 @@
           me={user.id}
           eventId={route.name === "event" ? route.eventId : null}
         />
+      {:else if route.name === "party"}
+        <PartySection spaceId={space.id} partyId={route.partyId} me={user.id} />
       {:else if route.name === "settings"}
         <SettingsPage {space} me={user.id} />
       {/if}

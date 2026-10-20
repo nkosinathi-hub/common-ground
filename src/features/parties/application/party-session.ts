@@ -1,4 +1,5 @@
 import type { Result } from "@/shared/domain"
+import { countdownStart } from "../domain/countdown"
 import { canStart } from "../domain/party-machine"
 import { SYNC } from "../domain/sync-constants"
 import { positionAt, scheduledStart } from "../domain/timeline"
@@ -48,11 +49,19 @@ export class PartySession extends SessionNetwork {
   }
 
   play(): void {
-    if (this.state.phase === "lobby" && (!this.isHost || !canStart(this.state))) return
+    if (!this.mayStart()) return
     const now = this.now()
     const start = scheduledStart(positionAt(this.state.timeline, now), now, this.sync.rttMs)
     this.command("play", start.position, start.at)
   }
+
+  /** Co-watch: a shared 3-2-1 to pressing play on the TV together. */
+  countdown(): void {
+    if (this.mayStart())
+      this.command("play", positionAt(this.state.timeline, this.now()), countdownStart(this.now()))
+  }
+
+  private mayStart = () => this.state.phase !== "lobby" || (this.isHost && canStart(this.state))
 
   pause = (): void => this.command("pause", positionAt(this.state.timeline, this.now()), this.now())
 

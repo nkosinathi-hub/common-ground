@@ -14,12 +14,10 @@ import type { Clock, PartyChannel, PartyConnection, PlayerControl } from "./port
 
 export interface SessionDeps {
   readonly me: string
-  /** When this member joined, from the party's members; host election orders by it. */
-  readonly joinedAt: string
+  readonly joinedAt: string // from the party's members; host election orders by it
   readonly party: Party
   readonly channel: PartyChannel
-  /** Null for a co-watch of playback outside the app. */
-  readonly player: PlayerControl | null
+  readonly player: PlayerControl | null // null for a co-watch of playback outside the app
   readonly clock: Clock
   readonly service: Pick<PartyService, "confirm" | "finish" | "handover">
 }
@@ -87,8 +85,10 @@ export class SessionCore {
 
   /** Applies this member's own command and sends it to everyone else. */
   protected command(action: PartyCommand, position: number, at: number): void {
-    this.lastCommandAt = Math.max(this.lastCommandAt, at)
+    const before = this.state
     this.apply({ type: "command", by: this.deps.me, action, position, at })
+    if (this.state === before) return
+    this.lastCommandAt = Math.max(this.lastCommandAt, at)
     this.conn?.send({ kind: "command", from: this.deps.me, action, position, at })
   }
 

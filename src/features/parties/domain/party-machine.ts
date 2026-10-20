@@ -62,6 +62,7 @@ function command(state: PartyState, e: Extract<PartyEvent, { type: "command" }>)
       : pausedAt(e.position, e.at)
     return { ...state, timeline }
   }
+  if (e.action === "pause" && state.phase === "lobby") return state
   if (e.action === "pause")
     return { ...state, phase: "paused", timeline: pausedAt(e.position, e.at) }
   if (state.phase === "lobby" && (e.by !== state.hostId || !canStart(state))) return state
