@@ -16,7 +16,11 @@ supabase-deploy:
       pnpm exec supabase secrets set --project-ref "$SUPABASE_PROJECT_REF"
       TMDB_ACCESS_TOKEN="$TMDB_ACCESS_TOKEN" CLEANUP_SECRET="$CLEANUP_SECRET"
       ALLOWED_ORIGINS="$ALLOWED_ORIGINS" PUSH_SECRET="$PUSH_SECRET"
-      FCM_SERVICE_ACCOUNT="$FCM_SERVICE_ACCOUNT" SIMKL_CLIENT_ID="$SIMKL_CLIENT_ID"
+      FCM_SERVICE_ACCOUNT="$FCM_SERVICE_ACCOUNT"
+    # Optional: an empty value would fail `secrets set`, so it is set only when present.
+    - >
+      [ -z "$SIMKL_CLIENT_ID" ] || pnpm exec supabase secrets set
+      --project-ref "$SUPABASE_PROJECT_REF" SIMKL_CLIENT_ID="$SIMKL_CLIENT_ID"
     # The notifications trigger reads the push URL and secret from Vault; this keeps them in step.
     - >
       [ -z "$PUSH_SECRET" ] || pnpm exec supabase db query --linked
