@@ -65,7 +65,8 @@ function command(state: PartyState, e: Extract<PartyEvent, { type: "command" }>)
   if (e.action === "pause")
     return { ...state, phase: "paused", timeline: pausedAt(e.position, e.at) }
   if (state.phase === "lobby" && (e.by !== state.hostId || !canStart(state))) return state
-  if (state.phase === "waiting" && anyoneBuffering(state)) return state
+  // The host resumes a wait when it sees nobody buffering; a guest's view may still lag.
+  if (state.phase === "waiting" && e.by !== state.hostId && anyoneBuffering(state)) return state
   return { ...state, phase: "playing", timeline: playingFrom(e.position, e.at) }
 }
 

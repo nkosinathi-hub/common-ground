@@ -44,7 +44,9 @@ describe("live party", () => {
     })
     expect(waiting).toMatchObject({ phase: "waiting", timeline: pausedAt(10, 11_000) })
     expect(shouldResume(waiting)).toBe(false)
-    expect(reduce(waiting, play("host", 10, 12_000)).phase).toBe("waiting")
+    expect(reduce(waiting, play("guest", 10, 12_000)).phase).toBe("waiting")
+    // The host resumes once it sees nobody buffering, maybe before a guest's presence catches up.
+    expect(reduce(waiting, play("host", 10, 12_000)).phase).toBe("playing")
   })
 
   it("is ready to resume once nobody buffers, and resumes on the next play", () => {
