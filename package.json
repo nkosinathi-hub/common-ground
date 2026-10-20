@@ -28,7 +28,8 @@
     "guard:e2e": "tsx scripts/guard/index.ts --e2e",
     "db:types": "supabase gen types typescript --local --schema public > src/shared/infrastructure/database.types.ts",
     "secrets:tmdb": "bash scripts/load-tmdb-secrets.sh",
-    "android:apk": "bash scripts/android/build.sh"
+    "android:apk": "bash scripts/android/build.sh",
+    "android:smoke": "bash scripts/android/smoke.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
