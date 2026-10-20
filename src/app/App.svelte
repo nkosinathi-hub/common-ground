@@ -36,6 +36,7 @@
   $effect(() => {
     if (!userId) return spacesStore.clear()
     void spacesStore.refresh()
+    void services.simkl.syncOnOpen(userId) // once per app open, never on a timer
     return notifications.start()
   })
 

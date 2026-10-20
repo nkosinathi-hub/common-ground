@@ -10,6 +10,7 @@
     SessionsCard,
   } from "@/features/account"
   import { useAuth } from "@/features/auth"
+  import { SimklCard } from "@/features/simkl"
   import { useSpaces } from "@/features/spaces"
   import { toast } from "@/shared/ui"
 
@@ -44,6 +45,7 @@
     <AppearanceCard />
     <PasswordCard />
     <SessionsCard onSignOutEverywhere={signOutEverywhere} />
+    <SimklCard />
     <DataExportCard {spaces} />
     <DeleteAccountCard onDeleted={deleted} />
   {/if}
