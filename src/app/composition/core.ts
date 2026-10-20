@@ -18,16 +18,18 @@ import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { deviceStore } from "@/shared/ui"
+import { appAddress } from "./app-address"
 
 const clock = () => new Date()
 
 export function composeCore(db: Db) {
-  const basePath = import.meta.env.BASE_URL
-  const appUrl = `${window.location.origin}${basePath}`
-  const auth = new AuthService(new SupabaseAuthGateway(db), {
-    origin: window.location.origin,
-    basePath,
-  })
+  const address = appAddress(
+    import.meta.env.VITE_PUBLIC_APP_URL as string | undefined,
+    window.location.origin,
+    import.meta.env.BASE_URL,
+  )
+  const appUrl = address.url
+  const auth = new AuthService(new SupabaseAuthGateway(db), address)
   const session = new SessionStore(auth)
   const spaces = new SpacesService({
     gateway: new SupabaseSpacesGateway(db),
