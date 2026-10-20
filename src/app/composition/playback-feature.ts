@@ -5,19 +5,24 @@ import { deviceStore } from "@/shared/ui"
 import { composePlayback } from "./playback"
 import { fixtureBuild } from "./playback-fixture"
 import type { ActivePlayer } from "./player-bridge"
-import { deviceKeyValue, pendingTmdb, playbackPorts } from "./playback-ports"
+import type { TmdbLookup } from "@/features/playback/domain/plugin.types"
+import { deviceKeyValue, playbackPorts } from "./playback-ports"
 
 const CHOICES = "playback-providers"
 
 /** Playback for the watch item page; the build's plugins and Jellyfin origin are fixed. */
-export function composePlaybackFeature(watch: WatchService, history: WatchHistory) {
+export function composePlaybackFeature(
+  watch: WatchService,
+  history: WatchHistory,
+  tmdb: TmdbLookup,
+) {
   const device = deviceStore()
   const jellyfinOrigin = (import.meta.env.VITE_JELLYFIN_ORIGIN as string | undefined) || undefined
   const fixture = fixtureBuild(import.meta.env.VITE_PLAYBACK_FIXTURE_ORIGIN as string | undefined)
   const playback = composePlayback({
     build: { ...(jellyfinOrigin ? { jellyfinOrigin } : {}), ...fixture },
     credentials: new DeviceCredentials(deviceKeyValue()),
-    tmdb: pendingTmdb,
+    tmdb,
     choices: device.read(CHOICES),
   })
   const service = new PlaybackService(

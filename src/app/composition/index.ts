@@ -9,6 +9,7 @@ import { authorDirectory, memberDirectory, provideMembers } from "./members"
 import { composeNotes, provideNotesFeature } from "./notes"
 import { composeParties, providePartiesFeature } from "./parties"
 import { composePlaybackFeature, providePlaybackFeature } from "./playback-feature"
+import { catalogTmdb } from "./catalog-tmdb"
 import { ActivePlayer } from "./player-bridge"
 import { composeWatch, composeWatchHistory, provideWatchFeature } from "./watch"
 
@@ -35,7 +36,11 @@ export function compose(db: Db = createDb()) {
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
     parties: composeParties(db),
-    playback: composePlaybackFeature(watch, composeWatchHistory(db)),
+    playback: composePlaybackFeature(
+      watch,
+      composeWatchHistory(db),
+      catalogTmdb(core.catalog, () => core.spacesStore.active?.id ?? null),
+    ),
     activePlayer: new ActivePlayer(),
   }
 }

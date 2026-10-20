@@ -6,7 +6,6 @@ import type { WatchHistory, WatchService } from "@/features/watch"
 import type { PlaybackPorts } from "@/features/playback"
 import type { KeyValue } from "@/features/playback/infrastructure/device-credentials"
 import type { JellyfinAccount } from "@/features/playback/infrastructure/jellyfin/account"
-import type { TmdbLookup } from "@/features/playback/domain/plugin.types"
 
 /** Tokens live in Preferences on Android and in the prefixed device store on the web. */
 export function deviceKeyValue(): KeyValue {
@@ -22,15 +21,6 @@ export function deviceKeyValue(): KeyValue {
     set: async (key, value) => store.write(key, value),
     remove: async (key) => store.write(key, null),
   }
-}
-
-/**
- * Interim: the catalog function has no TMDB videos or external ids yet (the v0.5 catalog
- * issue adds them). Until then trailers and Internet Archive matches find nothing.
- */
-export const pendingTmdb: TmdbLookup = {
-  imdbId: async () => ok(null),
-  videos: async () => ok([]),
 }
 
 /** Where this person is: Jellyfin NextUp when signed in, else their saved watch progress. */
