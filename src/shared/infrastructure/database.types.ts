@@ -587,6 +587,26 @@ isOneToOne: false
       referencedColumns: ["space_id","id"]
     }
                   ]
+                },"simkl_links": {
+                  Row: {
+                    "access_token": string,"connected_at": string,"cursor": string | null,"last_synced_at": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "access_token": string,"connected_at"?: string,"cursor"?: string | null,"last_synced_at"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "access_token"?: string,"connected_at"?: string,"cursor"?: string | null,"last_synced_at"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "simkl_links_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"space_invites": {
                   Row: {
                     "created_at": string,"created_by": string | null,"expires_at": string,"id": string,"redeemed_at": string | null,"redeemed_by": string | null,"revoked_at": string | null,"space_id": string,"token_hash": string
@@ -1192,6 +1212,9 @@ isOneToOne: false
                            },
 "idea_participants":
 { Args: { "target_idea": string }; Returns: string[]
+                           },
+"import_simkl_watches":
+{ Args: { "new_cursor": string,"target_user": string,"watches": Json }; Returns: number
                            },
 "invite_idea_collaborator":
 { Args: { "idea": string,"member": string }; Returns: undefined

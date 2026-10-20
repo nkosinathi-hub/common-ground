@@ -16,6 +16,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   | `change_idea_currency`                      | `20261015 200700`, `200900`                                       |
   | `tasks_notify_assignee`                     | `20261015 200600`, `200900`, `20261016 200400`                    |
   | `export_space`                              | `20261015 400200`, `20261016 400300`                              |
+  | `export_me`                                 | `20261015 400300`, `20261022 000420`                              |
   | `export_table_names`, `export_table_filter` | `20261015 400100`, `20261016 400100`, `400400`, `20261022 001700` |
   | `export_table_rows`                         | `20261015 400100`, `20261016 400200`, `400500`                    |
   | `list_watch_items`                          | `20261015 100600`, `20261022 000300` (adds places and together)   |
@@ -40,6 +41,9 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
 
 - v0.5 files are dated `20261022`: `000100-000999` episode history and personal progress
   (`000100` episode_watches and together_progress, `000200` the forward-only
-  `episode_watches_advance` trigger and `mark_episode_watched`), `001000-001999` watch parties:
+  `episode_watches_advance` trigger and `mark_episode_watched`), `000400-000499` Simkl import
+  (`000400` simkl_links, token readable by the service role only, `000410`
+  `import_simkl_watches`, service role only, `000420` export_me with the link),
+  `001000-001999` watch parties:
   `001100-001500` parties, RPCs and expiry,
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).
