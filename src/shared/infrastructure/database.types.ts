@@ -1244,6 +1244,9 @@ isOneToOne: false
 "log_watch_session":
 { Args: { "item": string,"member_ids": (string)[],"note"?: string,"watched_on": string }; Returns: string
                            },
+"mark_episode_watched":
+{ Args: { "item": string,"origin": string,"watched_episode": number,"watched_season": number }; Returns: undefined
+                           },
 "mark_note_read":
 { Args: { "note": string }; Returns: undefined
                            },
