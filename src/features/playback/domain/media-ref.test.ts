@@ -22,6 +22,17 @@ describe("episodeRef", () => {
     })
   })
 
+  it("keeps the episode's own TMDB id when known", () => {
+    expect(episodeRef(1399, 1, 2, 63056)).toMatchObject({
+      ok: true,
+      value: { episodeTmdbId: 63056 },
+    })
+    expect(episodeRef(1399, 1, 2, -4)).toMatchObject({
+      ok: false,
+      error: { field: "episodeTmdbId" },
+    })
+  })
+
   it("refuses season 0 (specials are never the next episode) and episode 0", () => {
     expect(episodeRef(1399, 0, 1)).toMatchObject({ ok: false, error: { field: "season" } })
     expect(episodeRef(1399, 1, 0)).toMatchObject({ ok: false, error: { field: "episode" } })

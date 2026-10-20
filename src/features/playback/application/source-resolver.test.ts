@@ -21,7 +21,7 @@ function setup(plugins: Record<string, FakeBehaviour>, configs: ProviderConfig[]
   const deps = fakeDeps()
   const { providers } = registry.fromConfig(configs, deps)
   const health = new HealthMonitor({ threshold: 1, cooldownMs: 60_000 }, () => 0)
-  const sleep = vi.fn(async () => {})
+  const sleep = vi.fn(async (_ms: number) => {})
   const resolver = new SourceResolver(providers, {
     ...{ health, log: deps.log, clock: () => 0, sleep, backoffMs: 10 },
     canPlay: () => true,
@@ -55,7 +55,7 @@ describe("SourceResolver", () => {
     ])
     expect((await resolver.resolve(movie)).ok).toBe(true)
     expect(calls).toBe(3)
-    expect(sleep.mock.calls.map((c) => c[0] as number)).toEqual([10, 20])
+    expect(sleep.mock.calls.map((c) => c[0])).toEqual([10, 20])
     expect(gone).toHaveBeenCalledTimes(1)
   })
 

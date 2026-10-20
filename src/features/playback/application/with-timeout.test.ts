@@ -11,7 +11,7 @@ describe("withTimeout", () => {
     let seen: AbortSignal | null = null
     const outcome = await withTimeout((signal) => {
       seen = signal
-      return new Promise(() => {})
+      return new Promise<never>(() => {})
     }, 20)
     expect(outcome.timedOut).toBe(true)
     expect(outcome.result).toMatchObject({ ok: false, error: { kind: "network" } })
@@ -20,7 +20,7 @@ describe("withTimeout", () => {
 
   it("follows the caller's abort", async () => {
     const parent = new AbortController()
-    const pending = withTimeout(() => new Promise(() => {}), 5_000, parent.signal)
+    const pending = withTimeout(() => new Promise<never>(() => {}), 5_000, parent.signal)
     parent.abort()
     expect((await pending).result).toMatchObject({ ok: false, error: { kind: "network" } })
   })

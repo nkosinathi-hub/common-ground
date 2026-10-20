@@ -34,4 +34,6 @@ export interface PlayableSource {
   readonly episodes?: { readonly from: number; readonly to: number }
   /** Sandbox tokens for an embed, copied from the provider's declared policy. */
   readonly sandbox?: readonly string[]
+  /** Opaque ids the provider needs back in its progress reports (item, session). */
+  readonly providerData?: Readonly<Record<string, string>>
 }
