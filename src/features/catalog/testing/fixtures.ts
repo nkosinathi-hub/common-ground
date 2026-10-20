@@ -32,6 +32,7 @@ export const listing = (regions: Region[], fallback: boolean, id = 1): TitleDeta
   recommendations: [],
   seasons: [],
   nextEpisode: null,
+  imdbId: null,
   checkedAt: CHECKED_AT,
   stale: false,
 })

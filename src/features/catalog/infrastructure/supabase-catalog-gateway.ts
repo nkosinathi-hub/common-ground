@@ -19,6 +19,7 @@ const complete = (details: TitleDetails): TitleDetails => ({
   recommendations: details.recommendations ?? [],
   seasons: details.seasons ?? [],
   nextEpisode: details.nextEpisode ?? null,
+  imdbId: details.imdbId ?? null,
 })
 
 /** Calls the catalog Edge Function; the user's JWT is attached by the Supabase client. */

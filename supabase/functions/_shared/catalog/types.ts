@@ -75,6 +75,8 @@ export interface TitleDetails {
   /** Series only; empty for a movie. */
   readonly seasons: Season[]
   readonly nextEpisode: NextEpisode | null
+  /** IMDb id, which matches public-domain films on the Internet Archive through Wikidata. */
+  readonly imdbId: string | null
 }
 
 /** Every successful response says when TMDB was asked and whether it is a stale copy. */

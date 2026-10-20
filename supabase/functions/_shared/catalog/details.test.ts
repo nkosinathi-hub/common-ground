@@ -4,7 +4,7 @@ import { detailsPath, mapDetails } from "./details.ts"
 describe("detailsPath", () => {
   it("asks for details, providers, trailers and recommendations in one request", () => {
     expect(detailsPath("tv", 1429)).toBe(
-      "tv/1429?language=en-US&append_to_response=watch/providers,videos,recommendations",
+      "tv/1429?language=en-US&append_to_response=watch/providers,videos,recommendations,external_ids",
     )
   })
 })
@@ -35,6 +35,7 @@ describe("mapDetails", () => {
         recommendations: { results: [{ id: 2, name: "T" }] },
         seasons: [{ season_number: 1, name: "Season 1", episode_count: 8 }],
         next_episode_to_air: { season_number: 1, episode_number: 9 },
+        external_ids: { imdb_id: "tt0944947" },
       },
       "tv",
     )
@@ -43,7 +44,11 @@ describe("mapDetails", () => {
       recommendations: [{ id: 2, type: "tv" }],
       seasons: [{ number: 1, episodeCount: 8 }],
       nextEpisode: { season: 1, episode: 9 },
+      imdbId: "tt0944947",
     })
+    expect(
+      mapDetails({ id: 2, title: "X", external_ids: { imdb_id: "nope" } }, "movie").imdbId,
+    ).toBeNull()
   })
 
   it("treats missing providers as no availability anywhere", () => {
