@@ -3,13 +3,17 @@ import type { Availability, ProviderCategory, ProviderCategoryKey, Region } from
 
 const HOME_REGION = "ZA"
 
+// Free options lead, for when neither of you has the subscription.
 const CATEGORIES: readonly { key: ProviderCategoryKey; label: string }[] = [
-  { key: "flatrate", label: "Subscription" },
   { key: "free", label: "Free" },
-  { key: "ads", label: "With ads" },
+  { key: "ads", label: "Free with ads" },
+  { key: "flatrate", label: "Subscription" },
   { key: "rent", label: "Rent" },
   { key: "buy", label: "Buy" },
 ]
+
+// Services that have shut down but may linger in TMDB's data (Showmax closed 30 April 2026).
+const CLOSED = /^Showmax\b/
 
 type RawRegion = Record<string, unknown>
 
@@ -20,6 +24,7 @@ function providerNames(entries: unknown): string[] {
   const names = entries
     .map((entry: { provider_name?: unknown } | null) => entry?.provider_name)
     .filter((name): name is string => typeof name === "string" && name.length > 0)
+    .filter((name) => !CLOSED.test(name))
   return [...new Set(names)]
 }
 

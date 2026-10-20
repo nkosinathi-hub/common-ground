@@ -53,7 +53,7 @@ describe("catalog details", () => {
   it("refresh expires the cached title and fetches it again", async () => {
     const { get, service } = setup(
       { ok: true, body: body("Netflix") },
-      { ok: true, body: body("Showmax") },
+      { ok: true, body: body("Prime Video") },
     )
     await service.details("movie", 7)
     const fresh = await service.refresh("movie", 7)
@@ -62,7 +62,7 @@ describe("catalog details", () => {
       fresh.ok &&
         "availability" in fresh.body &&
         fresh.body.availability.regions[0]?.categories[0]?.providers,
-    ).toEqual(["Showmax"])
+    ).toEqual(["Prime Video"])
   })
 
   it("refresh during an outage falls back to the previous copy flagged stale", async () => {
