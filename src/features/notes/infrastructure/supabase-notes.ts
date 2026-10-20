@@ -10,7 +10,7 @@ import type {
   ReplyRecord,
 } from "../application/ports"
 import { NOTES_PAGE_SIZE } from "../domain"
-import { homeFilter } from "./home-filter"
+import { homeFilter, newestEmbeds } from "./home-filter"
 import { HOME_COLUMNS, REPLY_COLUMNS, toPosted, toRecord, toReply, type HomeRow } from "./note-rows"
 
 /** The reply cap reply_to_note enforces, so one request reads a whole thread. */
@@ -37,15 +37,13 @@ export class SupabaseNotes implements NotesRepository {
     after: NoteCursor | null,
     now: string,
   ): Promise<Result<NotesPage<NoteRecord>>> {
-    const query = this.db
-      .from("space_notes")
-      .select(HOME_COLUMNS)
-      .eq("space_id", spaceId)
-      .or(homeFilter(now, after))
-      .order("created_at", { referencedTable: "latest", ascending: false })
-      .limit(1, { referencedTable: "latest" })
-      .order("created_at", { referencedTable: "responses", ascending: false })
-      .limit(1, { referencedTable: "responses" })
+    const query = newestEmbeds(
+      this.db
+        .from("space_notes")
+        .select(HOME_COLUMNS)
+        .eq("space_id", spaceId)
+        .or(homeFilter(now, after)),
+    )
       .order("pinned", { ascending: false })
       .order("created_at", { ascending: false })
       .order("id", { ascending: false })

@@ -1,17 +1,11 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { notesHarness } from "../testing/notes-harness"
-import Provided from "@/shared/ui/testing/Provided.svelte"
-import { provideNotes } from "./context"
-import NotesCard from "./NotesCard.svelte"
+import { openComposer } from "./testing/notes-card"
 
 async function open() {
   const { repo, services } = notesHarness("ana")
-  render(Provided, {
-    props: { provide: () => provideNotes(services), component: NotesCard, props: { spaceId: "s" } },
-  })
-  await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
-  return { repo, dialog: within(await screen.findByRole("dialog", { name: "Write a note" })) }
+  return { repo, dialog: await openComposer(services) }
 }
 
 afterEach(cleanup)

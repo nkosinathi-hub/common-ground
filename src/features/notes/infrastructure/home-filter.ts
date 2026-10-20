@@ -13,3 +13,17 @@ export function homeFilter(now: string, after: NoteCursor | null): string {
     : `and(pinned.eq.false,or(${older}))`
   return `and(${live},${later})`
 }
+
+/** The builder calls for ordering an embedded table, typed by the builder itself. */
+interface Embedding<Q> {
+  order(column: "created_at", options: { referencedTable: string; ascending: boolean }): Q
+  limit(count: number, options: { referencedTable: string }): Q
+}
+
+/** HOME_COLUMNS embeds `latest` replies and `responses`: keep only the newest of each. */
+export const newestEmbeds = <Q extends Embedding<Q>>(query: Q): Q =>
+  query
+    .order("created_at", { referencedTable: "latest", ascending: false })
+    .limit(1, { referencedTable: "latest" })
+    .order("created_at", { referencedTable: "responses", ascending: false })
+    .limit(1, { referencedTable: "responses" })

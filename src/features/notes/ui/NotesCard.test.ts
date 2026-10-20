@@ -1,10 +1,8 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte"
+import { cleanup, fireEvent, screen, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import type { NoteDraft } from "../application/notes-service"
 import { notesHarness } from "../testing/notes-harness"
-import Provided from "@/shared/ui/testing/Provided.svelte"
-import { provideNotes } from "./context"
-import NotesCard from "./NotesCard.svelte"
+import { renderNotesCard } from "./testing/notes-card"
 
 const draft = { recipientId: "ben", body: "Dinner at 7?", pinned: false, expiry: "never" } as const
 
@@ -14,9 +12,7 @@ async function setup(me = "ben", notes: NoteDraft[] = [draft]) {
   repo.me = "ana"
   for (const note of notes) await service.send("s", note)
   repo.me = me
-  render(Provided, {
-    props: { provide: () => provideNotes(services), component: NotesCard, props: { spaceId: "s" } },
-  })
+  renderNotesCard(services)
   return { repo, service, arrive }
 }
 
