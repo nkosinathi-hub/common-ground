@@ -43,7 +43,8 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   (`000100` episode_watches and together_progress, `000200` the forward-only
   `episode_watches_advance` trigger and `mark_episode_watched`), `000400-000499` Simkl import
   (`000400` simkl_links, token readable by the service role only, `000410`
-  `import_simkl_watches`, service role only, `000420` export_me with the link),
+  `import_simkl_watches`, service role only, `000420` export_me with the link), `000500`
+  Simkl AUTH V2: refresh token, device code, expiries and the `claim_simkl_refresh` lease,
   `001000-001999` watch parties:
   `001100-001500` parties, RPCs and expiry,
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).

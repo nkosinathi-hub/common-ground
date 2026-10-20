@@ -5,8 +5,9 @@ select plan(13);
 
 select tests.create_user('simkl_ana');
 select tests.create_user('simkl_ben');
-insert into public.simkl_links (user_id, access_token)
-  values (tests.user_id('simkl_ana'), 'token-ana'), (tests.user_id('simkl_ben'), 'token-ben');
+insert into public.simkl_links (user_id, access_token, connected_at)
+  values (tests.user_id('simkl_ana'), 'token-ana', now()),
+    (tests.user_id('simkl_ben'), 'token-ben', now());
 
 select ok((select relrowsecurity from pg_class where oid = 'public.simkl_links'::regclass),
   'simkl_links has RLS enabled');
