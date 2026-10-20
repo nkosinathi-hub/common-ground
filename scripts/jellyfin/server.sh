@@ -31,6 +31,13 @@ podman container exists "$name" || podman run -d --name "$name" --restart unless
   "$image" >/dev/null
 
 until curl -fsS -o /dev/null http://127.0.0.1:8096/health; do sleep 2; done
+# Without HTTPS certificates enabled for the tailnet, `tailscale serve` waits forever.
+certs=$(tailscale status --json | python3 -c 'import sys,json;print(len(json.load(sys.stdin).get("CertDomains") or []))')
+[ "$certs" -gt 0 ] || {
+  echo "jellyfin: running on http://127.0.0.1:8096; enable HTTPS Certificates at" \
+    "https://login.tailscale.com/admin/dns, then run this again" >&2
+  exit 1
+}
 tailscale "$mode" --bg --https=443 http://127.0.0.1:8096 >/dev/null
 host=$(tailscale status --json | python3 -c 'import sys,json;print(json.load(sys.stdin)["Self"]["DNSName"].rstrip("."))')
 echo "jellyfin: https://$host (finish setup there, then see docs/runbooks/jellyfin.md)"
