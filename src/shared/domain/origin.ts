@@ -1,5 +1,5 @@
 /** One rule for VITE_SUPABASE_URL, shared by the client and the build's Content Security Policy. */
-export const ORIGIN_ONLY =
+const ORIGIN_ONLY =
   "VITE_SUPABASE_URL must be the project origin, e.g. https://<ref>.supabase.co, without a path such as /rest/v1/"
 
 /** Parses the Supabase URL and insists on a bare http(s) origin. */

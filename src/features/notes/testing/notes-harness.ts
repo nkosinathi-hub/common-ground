@@ -22,7 +22,7 @@ export function notesHarness(me = "ana", members?: MemberRef[]) {
 }
 
 /** What Ana shares with Ben in the hard-talk tests. */
-export const SHARED_WITH_BEN = {
+const SHARED_WITH_BEN = {
   recipientId: "ben",
   sections: { happened: "Sunday dinner", help: "A walk" },
   responseWish: "talk",
