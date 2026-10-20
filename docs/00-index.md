@@ -25,6 +25,7 @@
    7. [Rollback](runbooks/rollback.md): Pages, migrations, functions
    8. [Push](runbooks/push.md): FCM delivery path, its secrets and deploy steps
    9. [Android](runbooks/android.md): the app build, signing, App Links, releases and updates
+   10. [Jellyfin](runbooks/jellyfin.md): your own media server for in-app playback, and its hardening
 
 ## CI and deployment
 
