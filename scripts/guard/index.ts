@@ -8,6 +8,7 @@ const DOCKER = host ? { DOCKER_HOST: host } : {}
 
 const steps: [string, string][] = [
   ["format", "pnpm -s format:check"],
+  ["audit", "pnpm -s audit --audit-level high"],
   ["static", "tsx scripts/guard/static-checks.ts"],
   ["lint", "pnpm -s lint"],
   ["check", "pnpm -s check"],

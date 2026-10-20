@@ -4,6 +4,11 @@ format:
   stage: static
   script: [pnpm format:check]
 
+audit:
+  extends: .on-change
+  stage: static
+  script: [pnpm audit --audit-level high]
+
 static:
   extends: .on-change
   stage: static
