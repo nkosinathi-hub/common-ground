@@ -26,14 +26,33 @@ describe("SimklConnection", () => {
     const { gateway, connection } = setup(null)
     await connection.load()
     await connection.connect()
-    expect(connection.state).toMatchObject({ kind: "pending", pin: { userCode: "ABCDE" } })
+    expect(connection.state).toMatchObject({ kind: "pending", pin: { userCode: "ABCD-EFGH" } })
     await vi.advanceTimersByTimeAsync(5000)
-    expect(gateway.calls.filter((c) => c.startsWith("poll"))).toHaveLength(1)
+    expect(gateway.calls.filter((c) => c.startsWith("poll"))).toEqual(["poll:5"])
     gateway.approve(LINK)
     await vi.advanceTimersByTimeAsync(5000)
     expect(connection.state).toEqual({ kind: "connected", link: LINK })
     await vi.advanceTimersByTimeAsync(60_000)
     expect(gateway.calls.filter((c) => c.startsWith("poll"))).toHaveLength(2)
+  })
+
+  it("honours slow down by polling five seconds later from then on", async () => {
+    const { gateway, connection } = setup(null)
+    await connection.connect()
+    gateway.nextPoll = "slow_down"
+    await vi.advanceTimersByTimeAsync(5000)
+    await vi.advanceTimersByTimeAsync(9000)
+    expect(gateway.calls.filter((c) => c.startsWith("poll"))).toEqual(["poll:5"])
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(gateway.calls.filter((c) => c.startsWith("poll"))).toEqual(["poll:5", "poll:10"])
+  })
+
+  it("stops when Simkl says the code expired", async () => {
+    const { gateway, connection } = setup(null)
+    await connection.connect()
+    gateway.nextPoll = "expired"
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(connection.state).toMatchObject({ kind: "disconnected", note: /expired/ })
   })
 
   it("stops polling when the code expires or the card goes away", async () => {

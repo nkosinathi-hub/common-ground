@@ -3,7 +3,7 @@ import { invokeFunction, type FunctionCopy } from "@/shared/infrastructure/funct
 import { settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { SimklGateway } from "../application/ports"
-import type { PinStart, SimklLink, SyncResult } from "../domain/types"
+import type { PinStart, PollStatus, SimklLink, SyncResult } from "../domain/types"
 
 /** The simkl function writes its own user copy, "not set up" included, for every kind. */
 const SIMKL_COPY: FunctionCopy = {
@@ -13,12 +13,13 @@ const SIMKL_COPY: FunctionCopy = {
 }
 
 interface LinkRow {
-  readonly connected_at: string
+  /** Null while a sign-in is pending; RLS hides those rows, so this is belt and braces. */
+  readonly connected_at: string | null
   readonly last_synced_at: string | null
 }
 
 const toLink = (row: LinkRow | null): SimklLink | null =>
-  row ? { connectedAt: row.connected_at, lastSyncedAt: row.last_synced_at } : null
+  row?.connected_at ? { connectedAt: row.connected_at, lastSyncedAt: row.last_synced_at } : null
 
 /** The caller's simkl_links row (never its token column) and the simkl Edge Function. */
 export class SupabaseSimklGateway implements SimklGateway {
@@ -33,7 +34,7 @@ export class SupabaseSimklGateway implements SimklGateway {
 
   startPin = () => this.invoke<PinStart>({ action: "pin" })
 
-  poll = (userCode: string) => this.invoke<{ connected: boolean }>({ action: "poll", userCode })
+  poll = (interval: number) => this.invoke<PollStatus>({ action: "poll", interval })
 
   sync = () => this.invoke<SyncResult>({ action: "sync" })
 

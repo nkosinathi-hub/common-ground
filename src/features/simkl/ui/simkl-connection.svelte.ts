@@ -68,11 +68,15 @@ export class SimklConnection {
   private async tick(pin: PinStart, deadline: number, attempt: number) {
     this.timer = null
     if (Date.now() >= deadline) return void (this.state = { kind: "disconnected", note: EXPIRED })
-    const reply = await this.service.poll(pin.userCode)
+    const reply = await this.service.poll(pin.interval)
     if (attempt !== this.attempt || this.state.kind !== "pending") return
-    if (reply.ok && reply.value.connected) return this.load()
-    this.state = { kind: "pending", pin, note: reply.ok ? undefined : reply.error.message }
-    this.schedule(pin, deadline)
+    const status = reply.ok ? reply.value : null
+    if (status?.status === "connected") return this.load()
+    if (status?.status === "expired")
+      return void (this.state = { kind: "disconnected", note: EXPIRED })
+    const next = status ? { ...pin, interval: status.interval } : pin
+    this.state = { kind: "pending", pin: next, note: reply.ok ? undefined : reply.error.message }
+    this.schedule(next, deadline)
   }
 
   private stop() {

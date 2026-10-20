@@ -38,17 +38,26 @@
         onclick={() => connection.connect()}>Connect Simkl</Button
       >
     {:else if state.kind === "pending"}
-      <p class="text-sm">Enter this code on Simkl, then come back here:</p>
-      <p class="font-mono text-2xl font-semibold tracking-widest">{state.pin.userCode}</p>
       <a
-        href={state.pin.verificationUrl}
+        href={state.pin.verificationUriComplete}
         target="_blank"
         rel="noopener noreferrer"
-        class="flex w-fit items-center gap-1 text-sm text-primary hover:underline"
+        class="flex w-fit items-center gap-1 font-medium text-primary hover:underline"
       >
-        <ExternalLink class="size-4" aria-hidden="true" />
-        {state.pin.verificationUrl.replace(/^https:\/\//, "")}
-      </a>
+        <ExternalLink class="size-4" aria-hidden="true" />Open Simkl to approve</a
+      >
+      <p class="text-sm text-muted-foreground">
+        Or go to
+        <a
+          href={state.pin.verificationUri}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-primary hover:underline"
+          >{state.pin.verificationUri.replace(/^https:\/\//, "")}</a
+        >
+        and enter
+        <span class="font-mono font-semibold tracking-widest">{state.pin.userCode}</span>
+      </p>
       <p class="text-sm text-muted-foreground">Waiting for you to approve it on Simkl.</p>
       <Button class="w-fit" variant="ghost" onclick={() => connection.cancel()}>Cancel</Button>
     {:else}

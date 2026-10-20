@@ -28,7 +28,12 @@ describe("SupabaseSimklGateway", () => {
     ])
   })
 
-  it("reads no row as not connected", async () => {
+  it("reads no row, or a pending sign-in, as not connected", async () => {
+    const pending = { connected_at: null, last_synced_at: null }
+    expect(await recordingDb({ data: pending, error: null }).gateway.status()).toEqual({
+      ok: true,
+      value: null,
+    })
     expect(await recordingDb({ data: null, error: null }).gateway.status()).toEqual({
       ok: true,
       value: null,
@@ -36,19 +41,21 @@ describe("SupabaseSimklGateway", () => {
   })
 
   it("calls the simkl function for each action", async () => {
-    const pin = { userCode: "ABCDE", verificationUrl: "https://simkl.com/pin" }
-    const replies = [pin, { connected: true }, { added: 2 }, { connected: false }].map((data) => ({
-      data,
-      error: null,
-    }))
+    const pin = { userCode: "ABCD-EFGH", verificationUri: "https://simkl.com/pin" }
+    const replies = [pin, { status: "connected" }, { added: 2 }, { connected: false }].map(
+      (data) => ({
+        data,
+        error: null,
+      }),
+    )
     const { calls, gateway } = recordingDb(replies)
     expect(await gateway.startPin()).toEqual({ ok: true, value: pin })
-    expect(await gateway.poll("ABCDE")).toEqual({ ok: true, value: { connected: true } })
+    expect(await gateway.poll(5)).toEqual({ ok: true, value: { status: "connected" } })
     expect(await gateway.sync()).toEqual({ ok: true, value: { added: 2 } })
     expect(await gateway.disconnect()).toEqual({ ok: true, value: undefined })
     expect(calls.map((call) => (call[2] as { body: unknown }).body)).toEqual([
       { action: "pin" },
-      { action: "poll", userCode: "ABCDE" },
+      { action: "poll", interval: 5 },
       { action: "sync" },
       { action: "disconnect" },
     ])

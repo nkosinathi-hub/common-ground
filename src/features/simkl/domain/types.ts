@@ -4,13 +4,23 @@ export interface SimklLink {
   readonly lastSyncedAt: string | null
 }
 
-/** A PIN sign-in in progress: the code to enter on Simkl, and how long and how often to poll. */
+/**
+ * A device sign-in in progress (Simkl AUTH V2): the page that approves it with the code filled
+ * in, the code and plain page as a fallback, and how long and how often to poll.
+ */
 export interface PinStart {
   readonly userCode: string
-  readonly verificationUrl: string
+  readonly verificationUri: string
+  readonly verificationUriComplete: string
   readonly expiresIn: number
   readonly interval: number
 }
+
+/** One poll: still pending (at this interval, grown on slow down), connected, or expired. */
+export type PollStatus =
+  | { readonly status: "pending"; readonly interval: number }
+  | { readonly status: "connected" }
+  | { readonly status: "expired" }
 
 export interface SyncResult {
   readonly added: number
