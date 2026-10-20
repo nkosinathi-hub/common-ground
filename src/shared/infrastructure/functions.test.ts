@@ -28,6 +28,15 @@ describe("toFunctionError", () => {
     })
   })
 
+  it("tells an origin refusal apart from a missing membership", async () => {
+    const origin = await toFunctionError(failing("denied", "Origin not allowed"), COPY)
+    expect(origin.kind).toBe("denied")
+    expect(origin.message).toMatch(/address is not allowed/)
+    expect((await toFunctionError(failing("denied", "Not a member"), COPY)).message).toBe(
+      "No access",
+    )
+  })
+
   it("reads unavailable and transport failures as the outage", async () => {
     const outage = { kind: "network", message: "Down. Try again" }
     expect(await toFunctionError(failing("unavailable"), COPY)).toEqual(outage)

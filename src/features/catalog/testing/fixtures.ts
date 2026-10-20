@@ -28,6 +28,11 @@ export const region = (code: string, name: string, provider: string): Region => 
 export const listing = (regions: Region[], fallback: boolean, id = 1): TitleDetails => ({
   title: title(id, "Dune"),
   availability: { regions, fallback },
+  trailerKey: null,
+  recommendations: [],
+  seasons: [],
+  nextEpisode: null,
+  imdbId: null,
   checkedAt: CHECKED_AT,
   stale: false,
 })

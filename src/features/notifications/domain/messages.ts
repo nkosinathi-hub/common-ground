@@ -23,6 +23,7 @@ export const MESSAGES: Record<string, (actor: string) => string> = {
   hard_talk: (actor) => `${actor} shared something with you`,
   note_response: (actor) => `${actor} responded to what you shared`,
   note_nudge: () => "A gentle reminder you asked for: a note is waiting when you're ready",
+  watch_party: (actor) => `${actor} started a watch party`,
 }
 
 /** Activity feed verbs by event type; the actor's name is prefixed. */

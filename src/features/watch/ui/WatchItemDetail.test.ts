@@ -11,6 +11,7 @@ import WatchItemDetail from "./WatchItemDetail.svelte"
 afterEach(cleanup)
 
 const html = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }))
+const film = createRawSnippet((f: () => boolean) => ({ render: () => `<p>Film ${f()}</p>` }))
 
 function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
   const provide = () => {
@@ -31,6 +32,7 @@ function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
     backHref: "#/back",
     comments: html("Comments go here"),
     recommend: html("Recommend goes here"),
+    together: film,
   }
   render(Provided, { props: { provide, component: WatchItemDetail, props } })
   return fakes
@@ -44,6 +46,7 @@ describe("WatchItemDetail", () => {
     expect(screen.getByText("Member-entered note. No verified provider data.")).toBeInTheDocument()
     expect(screen.getByText("Comments go here")).toBeInTheDocument()
     expect(screen.getByText("Recommend goes here")).toBeInTheDocument()
+    expect(screen.getByText("Film false")).toBeInTheDocument()
     expect(await screen.findByText("Watching, season 1 episode 4, 3/5")).toBeInTheDocument()
     expect(screen.getByText("Lindi")).toBeInTheDocument()
   })

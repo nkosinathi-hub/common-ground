@@ -18,6 +18,7 @@ const BUSY = `A little pause: you can make ${RATE_LIMIT.max} catalog requests pe
 function dispatch(service: CatalogService, request: CatalogRequest): Promise<Outcome<unknown>> {
   if (request.action === "search") return service.search(request.query, request.page)
   if (request.action === "refresh") return service.refresh(request.type, request.id)
+  if (request.action === "season") return service.season(request.id, request.season)
   return service.details(request.type, request.id)
 }
 

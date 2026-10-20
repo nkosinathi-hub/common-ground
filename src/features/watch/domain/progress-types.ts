@@ -18,6 +18,8 @@ export interface Progress extends ProgressInput {
 export interface MemberProgress {
   readonly me: string
   readonly entries: readonly Progress[]
+  /** Where the space is together; null (or absent) before a watch party finishes. */
+  readonly together?: Place | null
 }
 
 export interface SessionInput {
@@ -31,4 +33,15 @@ export interface WatchSession {
   readonly watchedOn: DateOnly
   readonly note: string | null
   readonly memberIds: readonly string[]
+}
+
+/** Where someone is in a series: the last episode watched. A film has no season or episode. */
+export interface Place {
+  readonly season: number | null
+  readonly episode: number | null
+}
+
+export interface MemberPlace extends Place {
+  readonly userId: string
+  readonly status: ProgressStatus
 }

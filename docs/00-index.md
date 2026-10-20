@@ -5,7 +5,10 @@
 3. [Conventions](CONVENTIONS.md): layout, layer table, database rules; [UI patterns](ui-patterns.md):
    lists, reloads, contexts, stores, navigation and naming people; [Migrations](migrations.md):
    redefined functions, grants and cleanup slots
-4. [Security](security.md): threat model, RLS isolation, secrets, POPIA
+4. [Security](security.md): threat model, RLS isolation, secrets, POPIA; [Watch parties](parties.md):
+   crediting rules, the private party channel (and its deploy setting), sync protocol, player port;
+   [Playback plugins](playback-plugins.md): the provider interface, origin policy and the CSP rule;
+   [PeerTube adapter](playback-peertube.md): its options, licence rule and live checks
 5. Architecture decisions (`adr/`)
    1. [0001 Svelte 5 SPA on Supabase; Figma export as reference](adr/0001-stack.md)
    2. [0002 Hash-routed SPA on GitHub Pages; GitLab primary, GitHub mirror](adr/0002-hosting-and-remotes.md)
@@ -25,6 +28,8 @@
    7. [Rollback](runbooks/rollback.md): Pages, migrations, functions
    8. [Push](runbooks/push.md): FCM delivery path, its secrets and deploy steps
    9. [Android](runbooks/android.md): the app build, signing, App Links, releases and updates
+   10. [Jellyfin](runbooks/jellyfin.md): your own media server for in-app playback, and its hardening
+   11. [Simkl](runbooks/simkl.md): the optional history import, its client id and data rules
 
 ## CI and deployment
 

@@ -21,5 +21,7 @@ export const item = (n: number, title: string, extra: Partial<WatchItem> = {}): 
   createdBy: ME,
   createdAt: new Date(Date.UTC(2026, 9, 1, 0, 0, n)).toISOString(),
   myStatus: "not_started",
+  places: [],
+  together: null,
   ...extra,
 })

@@ -1,4 +1,5 @@
-export type { CatalogTitle } from "./domain/types"
+export type { CatalogTitle, TitleDetails } from "./domain/types"
+export { catalogKey, type PickStatus } from "./domain/rules"
 export { CatalogService } from "./application/catalog-service"
 export { provideCatalog } from "./ui/context"
 export { default as CatalogSearch } from "./ui/CatalogSearch.svelte"

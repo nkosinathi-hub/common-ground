@@ -4,6 +4,7 @@
   import { AsyncView, EmptyState, Resource } from "@/shared/ui"
   import { DEFAULT_FILTERS } from "../domain/filters"
   import { useWatch } from "./context"
+  import { spaceNames } from "./space-names.svelte"
   import WatchCard from "./WatchCard.svelte"
 
   /** Home shows only the first few titles in progress. */
@@ -21,6 +22,7 @@
     service.list(spaceId, { ...DEFAULT_FILTERS, myStatus: "watching", sort: "recent" }),
   )
   $effect(() => void watching.load())
+  const names = spaceNames(() => spaceId)
 </script>
 
 <AsyncView resource={watching}>
@@ -36,7 +38,7 @@
     {:else}
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {#each page.items.slice(0, SHOWN) as item (item.id)}
-          <WatchCard {item} href={itemHref(item.id)} />
+          <WatchCard {item} href={itemHref(item.id)} names={names.value ?? []} />
         {/each}
       </div>
     {/if}

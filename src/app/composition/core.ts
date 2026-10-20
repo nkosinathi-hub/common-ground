@@ -14,6 +14,8 @@ import {
 import { SupabasePushDevices } from "@/features/notifications/infrastructure/supabase-push-devices"
 import { CatalogService, provideCatalog } from "@/features/catalog"
 import { SupabaseCatalogGateway } from "@/features/catalog/infrastructure/supabase-catalog-gateway"
+import { SimklService, provideSimkl } from "@/features/simkl"
+import { SupabaseSimklGateway } from "@/features/simkl/infrastructure/supabase-simkl-gateway"
 import { SpacesService, SpacesStore, provideSpaces } from "@/features/spaces"
 import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-space"
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
@@ -49,15 +51,17 @@ export function composeCore(db: Db) {
   const notifications = new NotificationsStore(inbox)
   const account = new AccountService(new SupabaseAccountRepository(db), auth)
   const pushDevices = new SupabasePushDevices(db)
+  const simkl = new SimklService(new SupabaseSimklGateway(db))
   return {
     ...{ db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications },
-    pushDevices,
+    ...{ pushDevices, simkl },
   }
 }
 
 export function provideCore(services: ReturnType<typeof composeCore>): void {
   provideAuth({ service: services.auth, session: services.session })
   provideAccount({ service: services.account })
+  provideSimkl({ service: services.simkl })
   provideSpaces({ service: services.spaces, store: services.spacesStore })
   provideCatalog({ service: services.catalog })
   provideNotifications({ service: services.inbox, store: services.notifications })

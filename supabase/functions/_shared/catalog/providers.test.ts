@@ -12,9 +12,9 @@ describe("groupProviders", () => {
         link: link("ZA"),
         buy: [provider("Apple TV")],
         rent: [provider("Apple TV")],
-        ads: [provider("Showmax Free")],
+        ads: [provider("SABC+")],
         free: [provider("Plex")],
-        flatrate: [provider("Netflix"), provider("Netflix"), provider("Showmax")],
+        flatrate: [provider("Netflix"), provider("Netflix"), provider("Prime Video")],
       },
       AU: { link: link("AU"), rent: [provider("Google Play Movies")] },
     })
@@ -23,9 +23,9 @@ describe("groupProviders", () => {
     const za = result.regions[0]
     expect(za?.name).toBe("South Africa")
     expect(za?.categories.map((c) => [c.key, c.label, c.providers])).toEqual([
-      ["flatrate", "Subscription", ["Netflix", "Showmax"]],
       ["free", "Free", ["Plex"]],
-      ["ads", "With ads", ["Showmax Free"]],
+      ["ads", "Free with ads", ["SABC+"]],
+      ["flatrate", "Subscription", ["Netflix", "Prime Video"]],
       ["rent", "Rent", ["Apple TV"]],
       ["buy", "Buy", ["Apple TV"]],
     ])

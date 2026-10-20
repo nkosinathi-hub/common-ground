@@ -26,7 +26,9 @@ describe("catalog details", () => {
     const { cache, get, service, advance } = setup({ ok: true, body: body("Netflix") })
     const result = await service.details("movie", 7)
     expect(result).toMatchObject({ ok: true, body: { title: { id: 7 }, stale: false } })
-    expect(get.mock.calls[0]?.[0]).toBe("movie/7?language=en-US&append_to_response=watch/providers")
+    expect(get.mock.calls[0]?.[0]).toBe(
+      "movie/7?language=en-US&append_to_response=watch/providers,videos,recommendations,external_ids",
+    )
     expect(cache.entries.get(detailsKey("movie", 7))?.expiresAt).toBe("2026-10-16T10:00:00.000Z")
     advance(23 * 60 * 60 * 1000)
     await service.details("movie", 7)
@@ -51,7 +53,7 @@ describe("catalog details", () => {
   it("refresh expires the cached title and fetches it again", async () => {
     const { get, service } = setup(
       { ok: true, body: body("Netflix") },
-      { ok: true, body: body("Showmax") },
+      { ok: true, body: body("Prime Video") },
     )
     await service.details("movie", 7)
     const fresh = await service.refresh("movie", 7)
@@ -60,7 +62,7 @@ describe("catalog details", () => {
       fresh.ok &&
         "availability" in fresh.body &&
         fresh.body.availability.regions[0]?.categories[0]?.providers,
-    ).toEqual(["Showmax"])
+    ).toEqual(["Prime Video"])
   })
 
   it("refresh during an outage falls back to the previous copy flagged stale", async () => {

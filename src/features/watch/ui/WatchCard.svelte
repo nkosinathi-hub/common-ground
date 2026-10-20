@@ -3,14 +3,18 @@
   import { Badge } from "$lib/components/ui/badge"
   import { Poster } from "@/features/catalog"
   import { intentLabel, mediaTypeLabel, statusLabel } from "../domain/labels"
+  import type { MemberRef } from "@/shared/domain"
   import type { WatchItem } from "../domain/types"
+  import PlaceBadges from "./PlaceBadges.svelte"
 
   interface Props {
     item: WatchItem
     href: string
+    /** Names for the place badges; without them the card shows only your own status. */
+    names?: readonly MemberRef[]
   }
 
-  let { item, href }: Props = $props()
+  let { item, href, names = [] }: Props = $props()
 </script>
 
 <a
@@ -35,6 +39,7 @@
         ? ` · ${statusLabel(item.myStatus)}`
         : ""}
     </span>
+    <PlaceBadges {item} {names} />
     <span class="mt-auto flex items-center justify-between pt-2 text-xs text-muted-foreground">
       {intentLabel(item.intent)}
       <ArrowRight class="size-3.5 transition group-hover:translate-x-0.5" aria-hidden="true" />

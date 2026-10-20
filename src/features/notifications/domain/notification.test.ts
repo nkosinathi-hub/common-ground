@@ -37,6 +37,7 @@ describe("notifications", () => {
     expect(subjectHref("s", "comment", "c")).toBe("#/s/s/home")
     expect(subjectHref("s", "space_note", "n")).toBe("#/s/s/home")
     expect(subjectHref("s", "calendar_event", "e")).toBe("#/s/s/calendar/e")
+    expect(subjectHref("s", "watch_party", "p", "watch_party")).toBe("#/s/s/party/p")
   })
 
   it("opens the idea tab where the notification's subject lives", () => {

@@ -35,3 +35,21 @@ export interface WatchGateway {
   sessions(itemId: string): Promise<Result<WatchSession[]>>
   logSession(itemId: string, input: SessionInput): Promise<Result<string>>
 }
+
+/** One episode someone watched, or null for a film. */
+export interface EpisodeTick {
+  readonly season: number
+  readonly episode: number
+}
+
+/** Who recorded it: the in-app player, or a tick by hand. Parties write their own history. */
+export type HistorySource = "player" | "manual"
+
+/** Episode history: moves the person's own place forward (episode_watches_advance). */
+export interface WatchHistoryGateway {
+  markWatched(
+    itemId: string,
+    tick: EpisodeTick | null,
+    source: HistorySource,
+  ): Promise<Result<void>>
+}

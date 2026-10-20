@@ -41,9 +41,42 @@ export interface Availability {
   readonly fallback: boolean
 }
 
+export interface Season {
+  readonly number: number
+  readonly name: string
+  readonly episodeCount: number
+  readonly airDate: string | null
+}
+
+export interface Episode {
+  readonly number: number
+  readonly name: string
+  readonly airDate: string | null
+  readonly runtimeMinutes: number | null
+}
+
+export interface SeasonDetails {
+  readonly number: number
+  readonly episodes: Episode[]
+}
+
+export interface NextEpisode {
+  readonly season: number
+  readonly episode: number
+  readonly airDate: string | null
+}
+
 export interface TitleDetails {
   readonly title: CatalogTitle
   readonly availability: Availability
+  /** YouTube key of the official trailer, embedded through youtube-nocookie. */
+  readonly trailerKey: string | null
+  readonly recommendations: CatalogTitle[]
+  /** Series only; empty for a movie. */
+  readonly seasons: Season[]
+  readonly nextEpisode: NextEpisode | null
+  /** IMDb id, which matches public-domain films on the Internet Archive through Wikidata. */
+  readonly imdbId: string | null
 }
 
 /** Every successful response says when TMDB was asked and whether it is a stale copy. */
@@ -54,3 +87,4 @@ export interface Freshness {
 
 export type SearchResponse = SearchPage & Freshness
 export type DetailsResponse = TitleDetails & Freshness
+export type SeasonResponse = SeasonDetails & Freshness

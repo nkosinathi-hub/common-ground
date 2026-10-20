@@ -2,6 +2,7 @@ import type { Result } from "@/shared/domain"
 import { done, same, settle, signedOut } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type * as T from "../domain/types"
+import { parseTogether } from "../domain/places"
 import { progressArgs } from "./watch-args"
 import { toProgress, toSession } from "./watch-rows"
 
@@ -26,7 +27,17 @@ export class SupabaseWatchProgress {
       .select("user_id, status, season, episode, rating, completed_on, updated_at")
       .eq("watch_item_id", itemId)
       .order("updated_at", { ascending: false })
-    return settle(query, (rows) => ({ me, entries: rows.map(toProgress) }))
+    const together = this.db
+      .from("together_progress")
+      .select("season, episode")
+      .eq("watch_item_id", itemId)
+      .maybeSingle()
+    const [rows, shared] = await Promise.all([query, together])
+    return settle(Promise.resolve(rows), (data) => ({
+      me,
+      entries: data.map(toProgress),
+      together: shared.data ? parseTogether(shared.data) : null,
+    }))
   }
 
   saveProgress = (itemId: string, input: T.ProgressInput) =>

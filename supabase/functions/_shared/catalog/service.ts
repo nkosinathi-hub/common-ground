@@ -1,23 +1,18 @@
-import {
-  detailsKey,
-  expiryFor,
-  isFresh,
-  searchKey,
-  type CacheEntry,
-  type CacheKind,
-  type CacheStore,
-} from "./cache.ts"
+import { detailsKey, expiryFor, isFresh, searchKey, seasonKey } from "./cache.ts"
+import type { CacheEntry, CacheKind, CacheStore } from "./cache.ts"
 import { detailsPath, mapDetails } from "./details.ts"
 import type { Outcome } from "../http/outcome.ts"
-import { failure } from "./outcome.ts"
+import { failure, kindFor } from "./outcome.ts"
 import { mapSearch, searchPath } from "./search.ts"
-import type { TmdbClient, TmdbFailure } from "./tmdb-client.ts"
-import type { CatalogType, DetailsResponse, SearchResponse } from "./types.ts"
+import { mapSeason, seasonPath } from "./season.ts"
+import type { TmdbClient } from "./tmdb-client.ts"
+import type { CatalogType, DetailsResponse, SearchResponse, SeasonResponse } from "./types.ts"
 
 export interface CatalogService {
   search(query: string, page: number): Promise<Outcome<SearchResponse>>
   details(type: CatalogType, id: number): Promise<Outcome<DetailsResponse>>
   refresh(type: CatalogType, id: number): Promise<Outcome<DetailsResponse>>
+  season(id: number, season: number): Promise<Outcome<SeasonResponse>>
 }
 
 export interface ServiceDeps {
@@ -33,10 +28,6 @@ interface Lookup<T> {
   readonly map: (body: unknown) => T
   readonly force?: boolean
 }
-
-const FAILURE_KIND = { rate_limited: "rate_limited", not_found: "not_found" } as const
-const kindFor = (reason: TmdbFailure) =>
-  reason in FAILURE_KIND ? FAILURE_KIND[reason as keyof typeof FAILURE_KIND] : "unavailable"
 
 export function createCatalogService({
   cache,
@@ -90,5 +81,12 @@ export function createCatalogService({
       }),
     details: (type, id) => titleLookup(type, id, false),
     refresh: (type, id) => titleLookup(type, id, true),
+    season: (id, season) =>
+      lookup({
+        key: seasonKey(id, season),
+        kind: "season",
+        path: seasonPath(id, season),
+        map: mapSeason,
+      }),
   }
 }

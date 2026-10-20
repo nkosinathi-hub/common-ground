@@ -7,3 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpulse0 libxk
  && sdkmanager "emulator" "system-images;android-36;google_apis;x86_64" > /dev/null \
  && echo no | avdmanager create avd -n smoke -k "system-images;android-36;google_apis;x86_64" \
     -d pixel_7 > /dev/null
+# X window libraries, for a visible emulator on the desktop (scripts/android/show.sh).
+RUN apt-get update && apt-get install -y --no-install-recommends libxcb-cursor0 \
+    libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libegl1 libfontconfig1 \
+    libdbus-1-3 libsm6 libice6 \
+ && rm -rf /var/lib/apt/lists/*

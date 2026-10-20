@@ -9,6 +9,7 @@ export type Route =
   | { name: "watch-item"; spaceId: string; itemId: string }
   | { name: "idea"; spaceId: string; ideaId: string; tab: IdeaTab }
   | { name: "event"; spaceId: string; eventId: string }
+  | { name: "party"; spaceId: string; partyId: string }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const TOKEN = /^[A-Za-z0-9_-]{8,128}$/
@@ -29,6 +30,10 @@ const isTab = (value: string): value is IdeaTab => (IDEA_TABS as readonly string
 
 function parseSpace(spaceId: string, rest: string[]): Route {
   const [page, subject, tab] = rest
+  if (page === "party")
+    return rest.length === 2 && UUID.test(subject!)
+      ? { name: "party", spaceId, partyId: subject! }
+      : notFound
   if (!page || !SPACE_PAGES.has(page)) return notFound
   if (subject === undefined) return { name: page as "home", spaceId }
   if (!UUID.test(subject)) return notFound
@@ -71,6 +76,8 @@ export function buildHash(route: Route): string {
       return `#/s/${route.spaceId}/ideas/${route.ideaId}/${route.tab}`
     case "event":
       return `#/s/${route.spaceId}/calendar/${route.eventId}`
+    case "party":
+      return `#/s/${route.spaceId}/party/${route.partyId}`
     default: {
       const entry = Object.entries(STATIC).find(([, r]) => r.name === route.name)
       return `#/${entry?.[0] ?? ""}`

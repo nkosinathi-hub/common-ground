@@ -7,7 +7,11 @@ import { composeCore, provideCore } from "./core"
 import { composeIdeas, provideIdeasFeatures } from "./ideas"
 import { authorDirectory, memberDirectory, provideMembers } from "./members"
 import { composeNotes, provideNotesFeature } from "./notes"
-import { composeWatch, provideWatchFeature } from "./watch"
+import { composeParties, providePartiesFeature } from "./parties"
+import { composePlaybackFeature, providePlaybackFeature } from "./playback-feature"
+import { catalogTmdb } from "./catalog-tmdb"
+import { ActivePlayer } from "./player-bridge"
+import { composeWatch, composeWatchHistory, provideWatchFeature } from "./watch"
 
 /** The Android app keeps its session in Preferences; the website in browser storage. */
 function createDb(): Db {
@@ -31,6 +35,13 @@ export function compose(db: Db = createDb()) {
     collaboration: composeCollaboration(db),
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
+    parties: composeParties(db),
+    playback: composePlaybackFeature(
+      watch,
+      composeWatchHistory(db),
+      catalogTmdb(core.catalog, () => core.spacesStore.active?.id ?? null),
+    ),
+    activePlayer: new ActivePlayer(),
   }
 }
 
@@ -44,4 +55,6 @@ export function provideServices(services: Services): void {
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)
+  providePartiesFeature(services.parties, services.members, services.activePlayer)
+  providePlaybackFeature(services.playback, services.activePlayer)
 }

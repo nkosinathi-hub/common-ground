@@ -11,6 +11,8 @@ export interface FunctionCopy {
   readonly ownCopy: readonly AppErrorKind[]
 }
 
+const ORIGIN = "This app address is not allowed to reach the server. Check its allowed origins."
+
 interface ErrorBody {
   readonly kind?: unknown
   readonly message?: unknown
@@ -47,6 +49,8 @@ export async function toFunctionError(error: unknown, words: FunctionCopy): Prom
   if (words.ownCopy.includes(kind) && typeof body.message === "string")
     return appError(kind, body.message)
   if (kind === "network") return appError(kind, words.outage)
+  // serve.ts refuses an origin outside ALLOWED_ORIGINS; that is setup, not a missing membership.
+  if (kind === "denied" && body.message === "Origin not allowed") return appError(kind, ORIGIN)
   return appError(kind, words.copy[kind] ?? "Something went wrong. Try again")
 }
 

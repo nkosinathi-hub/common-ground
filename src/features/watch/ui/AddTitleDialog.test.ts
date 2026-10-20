@@ -19,11 +19,12 @@ const dune = {
   posterPath: null,
   synopsis: "Sand",
 }
+const arrival = { ...dune, id: 2, title: "Arrival", year: 2016 }
 const catalog = {
   ...emptyCatalogGateway,
   search: async () =>
     ok({
-      results: [dune],
+      results: [dune, arrival],
       page: 1,
       totalPages: 1,
       checkedAt: "2026-10-15T10:00:00Z",
@@ -51,34 +52,39 @@ async function addManually(title: string) {
   await fireEvent.click(screen.getByRole("button", { name: "Add to your list" }))
 }
 
+/** Searches "dune" and adds the first result, waiting for it to be saved. */
+async function pickDune(items: readonly unknown[]) {
+  await fireEvent.input(search(), { target: { value: "dune" } })
+  await fireEvent.click(await screen.findByRole("button", { name: "Add Dune" }, { timeout: 2000 }))
+  await waitFor(() => expect(items).toHaveLength(1))
+}
+
 describe("AddTitleDialog", () => {
-  it("keeps the dialog open after a manual add, back on a cleared, focused search", async () => {
+  it("turns a picked result into a tick and keeps the search, so the next can be added", async () => {
     const { gateway, onAdded } = setup()
-    await addManually("Home video")
-    await waitFor(() => expect(gateway.items.map((i) => i.title)).toEqual(["Home video"]))
-    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    await pickDune(gateway.items)
+    expect(await screen.findByText("Added to your space")).toBeInTheDocument()
+    expect(screen.queryByRole("button", { name: "Add Dune" })).toBeNull()
+    expect(search().value).toBe("dune")
     await waitFor(() => expect(search()).toHaveFocus())
-    expect(search().value).toBe("")
-    expect(onAdded).toHaveBeenCalledWith(gateway.items[0]!.id)
+    await fireEvent.click(screen.getByRole("button", { name: "Add Arrival" }))
+    await waitFor(() => expect(gateway.items.map((i) => i.title)).toEqual(["Dune", "Arrival"]))
+    expect(screen.getAllByText("Added to your space")).toHaveLength(2)
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    expect(onAdded).toHaveBeenCalledTimes(2)
   })
 
-  it("keeps the dialog open after a catalog pick and lists every title added", async () => {
-    const { gateway, onAdded } = setup()
-    await fireEvent.input(search(), { target: { value: "dune" } })
-    await fireEvent.click(
-      await screen.findByRole("button", { name: "Add Dune" }, { timeout: 2000 }),
-    )
-    await waitFor(() => expect(gateway.items).toHaveLength(1))
+  it("comes back from a manual add to the same search, and lists every title added", async () => {
+    const { gateway } = setup()
+    await pickDune(gateway.items)
     await addManually("Home video")
+    await waitFor(() => expect(search()).toHaveFocus())
+    expect(search().value).toBe("dune")
+    expect(screen.getByRole("button", { name: "Add Arrival" })).toBeInTheDocument()
     const status = await screen.findByRole("status")
     await waitFor(() => expect(status).toHaveTextContent("Added: Dune, Home video"))
-    const idOf = (title: string) => gateway.items.find((i) => i.title === title)!.id
-    for (const title of ["Dune", "Home video"])
-      expect(within(status).getByRole("link", { name: title })).toHaveAttribute(
-        "href",
-        `#/s/${SPACE_ID}/watch/${idOf(title)}`,
-      )
-    expect(onAdded).toHaveBeenCalledTimes(2)
+    const link = within(status).getByRole("link", { name: "Home video" })
+    expect(link).toHaveAttribute("href", `#/s/${SPACE_ID}/watch/${gateway.items[1]!.id}`)
   })
 
   it("starts in the space's default list", async () => {

@@ -1,5 +1,5 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
-import type { Availability, MediaKind, Region } from "./types"
+import type { Availability, CatalogTitle, MediaKind, Region } from "./types"
 
 export type PosterSize = "w92" | "w185" | "w342"
 
@@ -42,3 +42,10 @@ export function validatePage(page: number): Result<number> {
 const LABELS: Record<MediaKind, string> = { movie: "Movie", series: "Series", anime: "Anime" }
 
 export const mediaKindLabel = (kind: MediaKind): string => LABELS[kind]
+
+/** A title's identity across searches: TMDB ids are only unique within movies or within TV. */
+export const catalogKey = (title: Pick<CatalogTitle, "type" | "id">): string =>
+  `${title.type}-${title.id}`
+
+/** Where a search result stands in the caller's flow: not added yet, being added, or added. */
+export type PickStatus = "idle" | "adding" | "added"

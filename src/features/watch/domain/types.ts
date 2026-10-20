@@ -1,3 +1,4 @@
+import type { MemberPlace, Place } from "./progress-types"
 import type { ProgressStatus } from "./progress-types"
 export type * from "./progress-types"
 
@@ -25,6 +26,10 @@ export interface WatchItem {
   readonly createdBy: string | null
   readonly createdAt: string
   readonly myStatus: ProgressStatus
+  /** Every member's place (from the list; empty for a single read). */
+  readonly places: readonly MemberPlace[]
+  /** Where the space is together; moves only when a watch party finishes. */
+  readonly together: Place | null
 }
 
 /** Item plus what the signed-in member may do with it. */

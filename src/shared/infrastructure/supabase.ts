@@ -20,5 +20,8 @@ export function createSupabase(
       autoRefreshToken: true,
       ...(storage ? { storage } : {}),
     },
+    // The heartbeat runs in a Web Worker where there is one, so a backgrounded tab or WebView
+    // keeps its channels (supabase-js refuses the option without Worker).
+    realtime: { worker: typeof Worker !== "undefined" },
   })
 }

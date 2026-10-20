@@ -26,7 +26,26 @@ describe("SupabaseWatchProgress", () => {
       value: { me: "u1", entries: [{ userId: "u1", status: "watching", episode: 3 }] },
     })
     expect(calls).toContainEqual(["eq", "watch_item_id", "i1"])
-    expect(calls.at(-1)).toEqual(["order", "updated_at", { ascending: false }])
+    expect(calls).toContainEqual(["order", "updated_at", { ascending: false }])
+  })
+
+  it("reads the together pointer alongside, none before a watch party", async () => {
+    const { progress } = progressFor([
+      { data: [PROGRESS], error: null },
+      { data: { season: 1, episode: 2 }, error: null },
+    ])
+    expect(await progress.progress("i1")).toMatchObject({
+      ok: true,
+      value: { together: { season: 1, episode: 2 } },
+    })
+    const none = progressFor([
+      { data: [], error: null },
+      { data: null, error: null },
+    ])
+    expect(await none.progress.progress("i1")).toMatchObject({
+      ok: true,
+      value: { together: null },
+    })
   })
 
   it("saves my progress through the RPC with nulls for empty fields", async () => {

@@ -9,7 +9,16 @@ import { PUSH_BODIES, pushCopy, pushRoute } from "./copy.ts"
 
 const SPACE = "0b9c2f6e-6a43-4c8e-9f0a-3d2b1c4e5f60"
 const SUBJECT = "1c9d2f6e-6a43-4c8e-9f0a-3d2b1c4e5f61"
-const SUBJECTS = ["watch_item", "idea", "task", "calendar_event", "profile", "space", "comment"]
+const SUBJECTS = [
+  "watch_item",
+  "idea",
+  "task",
+  "calendar_event",
+  "profile",
+  "space",
+  "comment",
+  "watch_party",
+]
 
 describe("pushCopy", () => {
   it("knows every kind the bell knows", () => {
@@ -24,6 +33,10 @@ describe("pushCopy", () => {
   it("titles by area and falls back for an unknown kind", () => {
     expect(pushCopy("event_reminder", null).title).toBe("Plans")
     expect(pushCopy("hard_talk", "Ana").title).toBe("Notes")
+    expect(pushCopy("watch_party", "Ben")).toEqual({
+      title: "Watch",
+      body: "Ben started a watch party",
+    })
     expect(pushCopy("brand_new_kind", "Ana")).toEqual({
       title: "Common Ground",
       body: describeNotification({ type: "brand_new_kind", actorName: "Ana" }),
