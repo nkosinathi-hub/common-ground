@@ -26,6 +26,14 @@ export interface NextUp extends EpisodeNumber {
   readonly title: string
 }
 
+/** A media server account kept on this device (Jellyfin): its token never leaves the device. */
+export interface ProviderAccount {
+  signedIn(): Promise<boolean>
+  signIn(username: string, password: string, deviceId: string): Promise<Result<void>>
+  /** Revokes the server session, then forgets the token. */
+  signOut(): Promise<void>
+}
+
 /**
  * What the player needs from the rest of the app. The episode-history data model is built by
  * another stream; until it lands, composition supplies interim implementations.

@@ -86,5 +86,15 @@ provider or change its options (`application/stored-configs.ts`).
 - **fixture** (tests only, never in a build): the committed samples in `tests/fixtures/playback`
   (`scripts/playback/fixtures.sh` regenerates them).
 
+## Player (`ui/`)
+
+shaka-player (pinned, Apache-2.0, its own lazy chunk) plays HLS, DASH and any file that needs
+headers; a plain `<video playsinline>` plays other files; embeds use the sandboxed iframe
+(`referrerpolicy="no-referrer"`). A playback error moves to the next ranked source. Skip
+buttons come from segments, the play-next countdown from `PlaybackPorts.nextUp`, and 90
+percent played calls `markWatched`. Keys: space or k, j, l, f, c, m. Theatre mode keeps the
+overlays visible where native fullscreen (iOS) would hide them; play starts from the player's
+own controls, a user gesture.
+
 Only lawful sources are built: the household's own media, public-domain and openly licensed
 films, and official trailers. Aggregators of unlicensed streams are out of scope for good.

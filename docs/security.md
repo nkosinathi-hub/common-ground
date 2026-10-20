@@ -51,8 +51,7 @@ says what they defend against.
 - **Invites** store only a token hash, expire after 7 days, are single use, and are revocable.
 - **Secrets never in the bundle.** The browser only receives the URL and publishable key.
   `scripts/guard/bundle-scan.ts` fails the guard and CI if `dist/` contains a service-role marker,
-  an `sb_secret_` key or any value from `supabase/functions/.env`. See
-  [secrets runbook](runbooks/secrets.md).
+  an `sb_secret_` key or any value from `supabase/functions/.env`. See [secrets](runbooks/secrets.md).
 - **Edge Functions** verify the caller's JWT and membership, check the `Origin` against
   `ALLOWED_ORIGINS`, and rate-limit through the service-only `rate_limits` table.
 - **Attachments** are in a private bucket, checked by magic bytes and size (10 MB), served only
@@ -76,6 +75,7 @@ says what they defend against.
   website's own email links always finish in the browser that holds their PKCE verifier. Backup
   is off, so the session in Preferences never leaves the phone. An offered update must come from
   the site's `app/` folder, and Android installs it only over an APK signed with the same key.
+- **Playback** ([plugins](playback-plugins.md)): per-plugin origins, build-time CSP, device-only tokens.
 - **No user HTML.** ESLint forbids `{@html}` and `innerHTML`; research links accept http(s) only.
 - **Auth** uses PKCE; the callback scrubs `?code=` from the URL before the router runs.
 

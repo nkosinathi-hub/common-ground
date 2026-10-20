@@ -59,6 +59,7 @@
   async function signOut(scope: "here" | "everywhere" = "here") {
     await phonePush?.follow(null) // while the session still exists, so the server forgets too
     await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
+    await services.playback.jellyfin?.signOut() // revokes the Jellyfin session, forgets the token
     clearDeviceData()
     spacesStore.clear()
     router.go({ name: "sign-in" }, true)

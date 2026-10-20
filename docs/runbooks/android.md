@@ -76,3 +76,6 @@ Common Ground on Android is the same web app inside a Capacitor 8 WebView (`andr
 - Back follows the app's history and leaves the app (minimises) from a root page.
 - Data exports open the share sheet; attachments open in a browser tab; the auth session is in
   Preferences, not WebView storage. Safe areas come from `viewport-fit=cover` and `env()`.
+- Fullscreen video (`PlayerChromeClient`) turns the phone to landscape and keeps the screen awake
+  until fullscreen ends; the web player also holds a screen wake lock while playing. The
+  emulator smoke should open a title, go fullscreen and check both (not automated yet).

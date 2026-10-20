@@ -1,7 +1,7 @@
 import type { Segment, SegmentKind } from "./source.types"
 
 /** The share of a title that counts as watched. */
-export const WATCHED_SHARE = 0.9
+const WATCHED_SHARE = 0.9
 
 export function hasWatchedEnough(positionSeconds: number, durationSeconds: number): boolean {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return false

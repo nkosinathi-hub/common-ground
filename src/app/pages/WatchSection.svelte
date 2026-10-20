@@ -3,6 +3,7 @@
   import { spacePeople } from "../composition/people.svelte"
   import { CommentThread } from "@/features/comments"
   import { WatchTogether } from "@/features/parties"
+  import { PlayButton } from "@/features/playback"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
@@ -29,6 +30,14 @@
     >
       {#snippet together(isFilm: boolean)}
         <WatchTogether spaceId={space.id} {itemId} {isFilm} />
+      {/snippet}
+      {#snippet play(item)}
+        {#if item.catalog}
+          <PlayButton
+            target={{ spaceId: space.id, itemId: item.id, catalog: item.catalog }}
+            title={item.title}
+          />
+        {/if}
       {/snippet}
       {#snippet recommend()}
         <RecommendButton spaceId={space.id} {itemId} members={people.members} {me} />

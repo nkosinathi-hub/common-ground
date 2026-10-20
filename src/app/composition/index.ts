@@ -8,6 +8,7 @@ import { composeIdeas, provideIdeasFeatures } from "./ideas"
 import { authorDirectory, memberDirectory, provideMembers } from "./members"
 import { composeNotes, provideNotesFeature } from "./notes"
 import { composeParties, providePartiesFeature } from "./parties"
+import { composePlaybackFeature, providePlaybackFeature } from "./playback-feature"
 import { composeWatch, provideWatchFeature } from "./watch"
 
 /** The Android app keeps its session in Preferences; the website in browser storage. */
@@ -33,6 +34,7 @@ export function compose(db: Db = createDb()) {
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
     parties: composeParties(db),
+    playback: composePlaybackFeature(watch),
   }
 }
 
@@ -47,4 +49,5 @@ export function provideServices(services: Services): void {
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)
   providePartiesFeature(services.parties, services.members)
+  providePlaybackFeature(services.playback)
 }
