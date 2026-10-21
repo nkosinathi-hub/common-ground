@@ -17,7 +17,7 @@
   src={source.url}
   {title}
   {sandbox}
-  referrerpolicy="no-referrer"
+  referrerpolicy="strict-origin"
   allow="fullscreen; picture-in-picture; encrypted-media"
   allowfullscreen
   loading="lazy"

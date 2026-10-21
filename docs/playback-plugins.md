@@ -90,7 +90,7 @@ provider or change its options (`application/stored-configs.ts`).
 
 shaka-player (pinned, Apache-2.0, its own lazy chunk) plays HLS, DASH and any file that needs
 headers; a plain `<video playsinline>` plays other files; embeds use the sandboxed iframe
-(`referrerpolicy="no-referrer"`). A playback error moves to the next ranked source. Skip
+(`referrerpolicy="strict-origin"`: the origin only, which YouTube requires, error 153 otherwise). A playback error moves to the next ranked source. Skip
 buttons come from segments, the play-next countdown from `PlaybackPorts.nextUp`, and 90
 percent played calls `markWatched`. Keys: space or k, j, l, f, c, m. Theatre mode keeps the
 overlays visible where native fullscreen (iOS) would hide them; play starts from the player's
