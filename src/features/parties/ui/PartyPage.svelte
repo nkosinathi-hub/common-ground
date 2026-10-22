@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { untrack } from "svelte"
+  import { untrack, type Snippet } from "svelte"
   import { ArrowLeft } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { ErrorState, FormError, FormState, Loading, Resource } from "@/shared/ui"
   import { describeRange } from "../domain/episode-range"
-  import { isOpen } from "../domain/party"
+  import { isOpen, type Party } from "../domain/party"
   import CoWatchPanel from "./CoWatchPanel.svelte"
   import { useParties } from "./context"
   import LiveControls from "./LiveControls.svelte"
@@ -18,9 +18,11 @@
     /** The signed-in member's id. */
     me: string
     itemHref: (itemId: string) => string
+    /** The in-app player for an in-app party; the party drives whatever video it shows. */
+    player?: Snippet<[Party]>
   }
 
-  let { spaceId, partyId, me, itemHref }: Props = $props()
+  let { spaceId, partyId, me, itemHref, player }: Props = $props()
   const context = useParties()
   const room = untrack(() => new PartyRoomState(context, partyId, me))
   const names = new Resource(() => context.members.members(spaceId))
@@ -51,6 +53,7 @@
       {#if party.range}<p class="text-muted-foreground">{describeRange(party.range)}</p>{/if}
     </header>
     {#if isOpen(party) && room.view}
+      {#if party.source === "jellyfin" && player}{@render player(party)}{/if}
       <PartyPeople {party} view={room.view} names={names.value ?? []} />
       {#if party.source === "external"}
         <CoWatchPanel {room} />

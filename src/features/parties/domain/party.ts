@@ -20,6 +20,8 @@ export interface Party {
   readonly watchItemId: string
   /** The title's name, for the Netflix search link (#66). */
   readonly title: string
+  /** The title's TMDB entry, so the in-app player can play it; null for a manual title. */
+  readonly catalog: { readonly type: "movie" | "tv"; readonly id: number } | null
   /** Null once the host's account is deleted. */
   readonly hostId: string | null
   readonly source: PartySource

@@ -19,7 +19,7 @@ const row = {
   ended_at: null,
   created_at: "2026-10-22T20:00:00Z",
   members: [{ user_id: "ana", confirmed: true, joined_at: "2026-10-22T20:00:00Z" }],
-  item: { title: "Severance" },
+  item: { title: "Severance", catalog_type: "tv", catalog_id: 95396 },
 }
 const gateway = (replies: Reply | Reply[]) => {
   const { client, calls } = recordingClient(replies)
@@ -34,6 +34,7 @@ describe("SupabasePartyGateway reads", () => {
       value: {
         id: "p1",
         title: "Severance",
+        catalog: { type: "tv", id: 95396 },
         hostId: "ana",
         status: "live",
         range: {

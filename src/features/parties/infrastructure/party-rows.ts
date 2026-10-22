@@ -9,7 +9,7 @@ type MemberRow = Pick<
 >
 
 export const PARTY_COLUMNS =
-  "id, space_id, watch_item_id, host_id, source, status, from_season, from_episode, to_season, to_episode, season_episode_counts, started_at, ended_at, created_at, item:watch_items(title), members:watch_party_members(user_id, confirmed, joined_at)"
+  "id, space_id, watch_item_id, host_id, source, status, from_season, from_episode, to_season, to_episode, season_episode_counts, started_at, ended_at, created_at, item:watch_items(title, catalog_type, catalog_id), members:watch_party_members(user_id, confirmed, joined_at)"
 
 /** The generated types mark RPC arguments required; a film party sends SQL nulls. */
 const sqlNull = <V>(value: V | null): V => value as V
@@ -35,11 +35,16 @@ function rangeOf(row: PartyRow): Party["range"] {
     : range
 }
 
-type Embedded = { members: MemberRow[]; item: { title: string } | null }
+type Item = { title: string; catalog_type: "movie" | "tv" | null; catalog_id: number | null }
+type Embedded = { members: MemberRow[]; item: Item | null }
+
+const catalogOf = (item: Item | null): Party["catalog"] =>
+  item?.catalog_type && item.catalog_id ? { type: item.catalog_type, id: item.catalog_id } : null
 
 export const toParty = (row: PartyRow & Embedded): Party => ({
   id: row.id,
   title: row.item?.title ?? "",
+  catalog: catalogOf(row.item),
   spaceId: row.space_id,
   watchItemId: row.watch_item_id,
   hostId: row.host_id,
