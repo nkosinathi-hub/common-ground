@@ -1,5 +1,5 @@
 import type { PlayableSource } from "../domain/source.types"
-import { headersFor } from "./player-logic"
+import { headersFor, segmentContentType } from "./player-logic"
 
 export interface EngineHandle {
   setCaptions(on: boolean, language: string | null): void
@@ -24,8 +24,13 @@ export async function attachShaka(
   }
   const player = new shaka.Player()
   await player.attach(video)
-  player.getNetworkingEngine()?.registerRequestFilter((_type, request) => {
+  const engine = player.getNetworkingEngine()
+  engine?.registerRequestFilter((_type, request) => {
     Object.assign(request.headers, headersFor(source, request.uris[0] ?? ""))
+  })
+  engine?.registerResponseFilter((type, response) => {
+    if (type !== shaka.net.NetworkingEngine.RequestType.SEGMENT) return
+    response.headers["content-type"] = segmentContentType(response.headers["content-type"])
   })
   player.addEventListener("error", onError)
   try {

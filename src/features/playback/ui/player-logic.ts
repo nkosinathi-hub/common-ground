@@ -22,6 +22,19 @@ export function headersFor(source: PlayableSource, uri: string): Record<string, 
   }
 }
 
+const MEDIA_TYPE =
+  /^(video|audio)\/|^application\/(mp4|octet-stream)|^binary\/octet-stream|^text\/vtt/i
+
+/**
+ * A segment's declared type is advisory: a host that hides media behind .html names answers
+ * text/html, which shaka would hand to Media Source Extensions as it is. Anything but a media
+ * type is taken as a transport stream, the HLS container when no init segment is declared;
+ * shaka's own byte probe cannot see through AES-128, so it is no use here.
+ */
+export function segmentContentType(declared: string | undefined): string {
+  return declared && MEDIA_TYPE.test(declared) ? declared : "video/mp2t"
+}
+
 export type KeyAction = "toggle" | "back" | "forward" | "fullscreen" | "captions" | "mute"
 
 const KEYS: Record<string, KeyAction> = {
