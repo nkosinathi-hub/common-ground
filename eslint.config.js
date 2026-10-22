@@ -11,6 +11,7 @@ export default ts.config(
       "android",
       "dist",
       "extension/dist",
+      "extension/dist-firefox",
       "coverage",
       "src/lib/components/ui",
       "**/database.types.ts",
