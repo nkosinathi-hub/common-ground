@@ -1,3 +1,4 @@
+import { containerMime } from "./container-mime"
 import type { PlayableSource, Subtitle } from "../../domain/source.types"
 import { withoutToken, type JellyfinSession } from "./client"
 
@@ -54,7 +55,7 @@ export function toSource(
   return {
     kind: direct ? "file" : "hls",
     url,
-    ...(direct ? { mime: `video/${media.Container ?? "mp4"}` } : {}),
+    ...(direct ? { mime: containerMime(media.Container) } : {}),
     ...(height ? { quality: height } : {}),
     subtitles: subtitlesOf(session, media),
     segments: [],
