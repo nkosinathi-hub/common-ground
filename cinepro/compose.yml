@@ -1,0 +1,29 @@
+# CinePro Core for Common Ground (docs/runbooks/cinepro.md). The image is pinned by tag and
+# digest; bump both together. Local use binds loopback only; scripts/cinepro/server.sh
+# publishes it over the tailnet and sets the two interpolated values below.
+services:
+  cinepro-core:
+    image: ghcr.io/cinepro-org/core:main-98ba005@sha256:47af79dc6a91e98221a4ac64914a2d4138e11a07a6bf23f577794d68e67ce381
+    container_name: common-ground-cinepro-core
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      NODE_ENV: production
+      CACHE_TYPE: memory
+      # The origin the app calls: Core builds the proxy links in its answers from it, and the
+      # adapter drops a link on any other origin (localhost included).
+      PUBLIC_URL: ${CINEPRO_PUBLIC_URL:-http://127.0.0.1:3000}
+      # One origin or "*": the dev server locally; "*" when published for the site and the app.
+      CORS_ORIGIN: ${CINEPRO_CORS_ORIGIN:-http://127.0.0.1:5173}
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      # Every answer waits for the slowest provider, and Videasy waits 60 to 100 s on a hanging
+      # upstream: an empty module in its place switches it off (podman logs shows each one's time).
+      - ./no-provider.js:/app/dist/providers/videasy/videasy.js:ro,z
+      # Core rewrites anything the upstream labels as text, which corrupts media disguised as
+      # .html; the pattern list below routes such hosts through its byte-safe streaming path.
+      - ./stream-patterns.js:/app/dist/streamPatterns.js:ro,z

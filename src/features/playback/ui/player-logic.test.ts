@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { fakeSource } from "../testing/fake-plugin"
-import { engineFor, headersFor, keyAction } from "./player-logic"
+import { engineFor, headersFor, keyAction, segmentContentType } from "./player-logic"
 
 describe("engineFor", () => {
   it("plays HLS and DASH with shaka, embeds in an iframe, and plain files natively", () => {
@@ -29,6 +29,16 @@ describe("headersFor", () => {
     expect(headersFor(source, "https://cdn.example.org/seg1.m4s")).toEqual({})
     expect(headersFor(source, "not a url")).toEqual({})
     expect(headersFor(fakeSource("a", "a"), "https://a.example.org/x")).toEqual({})
+  })
+})
+
+describe("segmentContentType", () => {
+  it("keeps media types and takes anything else for a transport stream", () => {
+    const kept = ["video/mp2t", "video/mp4", "audio/mp4", "application/mp4", "text/vtt"]
+    expect(kept.map(segmentContentType)).toEqual(kept)
+    expect(segmentContentType("application/octet-stream")).toBe("application/octet-stream")
+    const disguised = ["text/html; charset=UTF-8", "application/json", "", undefined]
+    expect(disguised.map(segmentContentType)).toEqual(Array(4).fill("video/mp2t"))
   })
 })
 

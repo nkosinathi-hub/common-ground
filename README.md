@@ -21,6 +21,10 @@ pnpm dev         # http://127.0.0.1:5173, sign in as ana@demo.local / demo-passw
 per-OS engine detection are in the [setup runbook](docs/runbooks/setup.md). Title search also
 needs TMDB credentials: `pnpm secrets:tmdb` ([secrets](docs/runbooks/secrets.md)).
 
+Optional playback backend: a self-hosted [CinePro Core](docs/runbooks/cinepro.md), compiled in
+only when `VITE_CINEPRO_CORE_ORIGIN` names one, and published over the tailnet for the site and
+the app.
+
 ## The one command
 
 `pnpm guard` runs everything a change must pass: format, a dependency audit (high and above),

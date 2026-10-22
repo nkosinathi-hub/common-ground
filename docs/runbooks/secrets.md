@@ -15,6 +15,7 @@ Rule: secrets live in exactly one store per environment and never in git, the bu
 | `PUSH_SECRET`               | push function and Vault | not set (push stays off)          | Supabase secret + GitLab CI var |
 | `FCM_SERVICE_ACCOUNT`       | push Edge Function      | not set (push stays off)          | Supabase secret + GitLab CI var |
 | `SIMKL_CLIENT_ID`           | simkl function, V2 id   | not set (Simkl import stays off)  | Supabase secret + GitLab CI var |
+| `TMDB_API_KEY` (v3)         | CinePro Core container  | `cinepro/.env`, gitignored        | the same file on the Core host  |
 | `PUBLIC_API_URL`            | attachments signed URLs | written by `pnpm secrets:tmdb`    | not set (hosted URL is public)  |
 | SMTP user and password      | Supabase Auth emails    | not needed (Mailpit catches mail) | Supabase dashboard, Auth > SMTP |
 | `SUPABASE_ACCESS_TOKEN`     | `supabase-deploy` job   | not needed                        | GitLab CI variable, masked      |
@@ -57,7 +58,9 @@ point the STAGING_ variables at the production project.
 ## GitHub repository variables
 
 Settings > Secrets and variables > Actions > Variables: `VITE_SUPABASE_URL` and
-`VITE_SUPABASE_ANON_KEY` (production project). Read by `.github/workflows/pages.yml`.
+`VITE_SUPABASE_ANON_KEY` (production project), `VITE_JELLYFIN_ORIGIN` and
+`VITE_CINEPRO_CORE_ORIGIN` (the published servers, [jellyfin](jellyfin.md), [cinepro](cinepro.md)).
+Read by `.github/workflows/pages.yml` and `apk.yml`.
 
 ## Rotation
 

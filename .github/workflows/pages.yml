@@ -32,6 +32,7 @@ jobs:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       VITE_JELLYFIN_ORIGIN: ${{ vars.VITE_JELLYFIN_ORIGIN }}
+      VITE_CINEPRO_CORE_ORIGIN: ${{ vars.VITE_CINEPRO_CORE_ORIGIN }}
       PAGES_BASE_PATH: /${{ github.event.repository.name }}/
     steps:
       - uses: actions/checkout@v4
