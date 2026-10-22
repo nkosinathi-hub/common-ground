@@ -1,5 +1,5 @@
-import type { Party } from "../domain/party"
 import {
+  hasPlayer,
   initialParty,
   reduce,
   type PartyCommand,
@@ -8,32 +8,11 @@ import {
   type Presence,
 } from "../domain/party-machine"
 import { ClockSync } from "./clock-sync"
-import type { PartyService } from "./party-service"
 import { PlayerSync } from "./player-sync"
-import type { Clock, PartyChannel, PartyConnection, PlayerControl } from "./ports"
+import type { PartyConnection } from "./ports"
+import { sameTimeline, type SessionDeps, type SessionView } from "./session-types"
 
-export interface SessionDeps {
-  readonly me: string
-  readonly joinedAt: string // from the party's members; host election orders by it
-  readonly party: Party
-  readonly channel: PartyChannel
-  readonly player: PlayerControl | null // null for a co-watch of playback outside the app
-  readonly clock: Clock
-  readonly service: Pick<PartyService, "confirm" | "finish" | "handover">
-}
-
-export interface SessionView {
-  readonly state: PartyState
-  readonly isHost: boolean
-  readonly connected: boolean
-  readonly ready: boolean
-}
-
-const sameTimeline = (a: PartyState, b: PartyState) =>
-  a.phase === b.phase &&
-  a.timeline.playing === b.timeline.playing &&
-  a.timeline.position === b.timeline.position &&
-  a.timeline.at === b.timeline.at
+export type { SessionDeps, SessionView } from "./session-types"
 
 /** State, clock and player plumbing shared by the session's handlers and actions. */
 export class SessionCore {
@@ -48,13 +27,29 @@ export class SessionCore {
 
   constructor(protected readonly deps: SessionDeps) {
     this.state = initialParty(deps.party.hostId ?? deps.me)
-    this.mine = { userId: deps.me, ready: false, buffering: false, joinedAt: deps.joinedAt }
-    this.sync = new ClockSync(deps.clock, () => this.isHost)
+    const role = deps.role ? { role: deps.role } : {}
+    this.mine = {
+      userId: deps.me,
+      ready: false,
+      buffering: false,
+      joinedAt: deps.joinedAt,
+      ...role,
+    }
+    this.sync = new ClockSync(deps.clock, () => this.isAuthority)
     this.playerSync = new PlayerSync(deps.player, () => this.sync.now())
   }
 
   get isHost(): boolean {
     return this.state.hostId === this.deps.me
+  }
+
+  /**
+   * Keeps the party clock and speaks for the host: the host's session, unless it is a remote
+   * beside the host's own player (#66), which then follows that player like any guest.
+   */
+  get isAuthority(): boolean {
+    if (!this.isHost || this.deps.role !== "remote") return this.isHost
+    return !hasPlayer(this.state.people, this.deps.me)
   }
 
   get view(): SessionView {
@@ -77,8 +72,9 @@ export class SessionCore {
 
   protected apply(event: PartyEvent): void {
     const before = this.state
+    const wasAuthority = this.isAuthority
     this.state = reduce(before, event)
-    if (before.hostId !== this.state.hostId) this.sync.reset()
+    if (before.hostId !== this.state.hostId || wasAuthority !== this.isAuthority) this.sync.reset()
     if (!sameTimeline(before, this.state)) this.playerSync.apply(this.state)
     this.emit()
   }
