@@ -20,8 +20,12 @@ jobs:
     uses: ./.github/workflows/apk.yml
     secrets: inherit
 
-  build: # the site ships even when the APK fails; app/ is then absent until a good run
-    needs: apk
+  # The Netflix watch party extension, published beside it (docs/runbooks/netflix-party.md).
+  extension:
+    uses: ./.github/workflows/extension.yml
+
+  build: # the site ships even when the APK or the extension fails; each is then absent
+    needs: [apk, extension]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     env:
@@ -48,6 +52,11 @@ jobs:
         if: needs.apk.result == 'success'
         with:
           name: apk
+          path: dist/app
+      - uses: actions/download-artifact@v4
+        if: needs.extension.result == 'success'
+        with:
+          name: extension
           path: dist/app
       - uses: actions/upload-pages-artifact@v3
         with:
