@@ -4,7 +4,11 @@ import { fileURLToPath } from "node:url"
 import { loadEnv } from "vite"
 import { defineConfig } from "vitest/config"
 import { cspPlugin } from "./scripts/vite/csp"
-import { playbackPlugins } from "./src/app/composition/playback"
+import {
+  loopbackAllowed,
+  playbackPlugins,
+  type PlaybackBuild,
+} from "./src/app/composition/playback"
 import { fixtureBuild } from "./src/app/composition/playback-fixture"
 import { cspOrigins } from "./src/features/playback/domain/csp-origins"
 
@@ -13,11 +17,17 @@ const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta
 const env = (mode: string) => loadEnv(mode, process.cwd(), "VITE_")
 
 /** Playback origins come only from the compiled-in plugins (docs/playback-plugins.md). */
-// The end-to-end build alone names a loopback media server, and only it may use http.
+// The end-to-end build's loopback media server, and a loopback CinePro Core in `pnpm dev` only,
+// are the only http origins a build accepts; every other build names https servers or fails.
 const playback = (mode: string) => {
-  const fixture = fixtureBuild(env(mode).VITE_PLAYBACK_FIXTURE_ORIGIN)
-  const build = { jellyfinOrigin: env(mode).VITE_JELLYFIN_ORIGIN || undefined, ...fixture }
-  return cspOrigins(playbackPlugins(build), { allowLoopback: !!fixture.fixtureOrigin })
+  const vars = env(mode)
+  const cineproOrigin = vars.VITE_CINEPRO_CORE_ORIGIN || undefined
+  const build: PlaybackBuild = {
+    jellyfinOrigin: vars.VITE_JELLYFIN_ORIGIN || undefined,
+    ...(cineproOrigin ? { cineproOrigin, allowCineproLoopback: mode === "development" } : {}),
+    ...fixtureBuild(vars.VITE_PLAYBACK_FIXTURE_ORIGIN),
+  }
+  return cspOrigins(playbackPlugins(build), { allowLoopback: loopbackAllowed(build) })
 }
 
 export default defineConfig(({ mode }) => ({

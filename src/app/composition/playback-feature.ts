@@ -18,9 +18,15 @@ export function composePlaybackFeature(
 ) {
   const device = deviceStore()
   const jellyfinOrigin = (import.meta.env.VITE_JELLYFIN_ORIGIN as string | undefined) || undefined
+  const cineproOrigin =
+    (import.meta.env.VITE_CINEPRO_CORE_ORIGIN as string | undefined) || undefined
   const fixture = fixtureBuild(import.meta.env.VITE_PLAYBACK_FIXTURE_ORIGIN as string | undefined)
   const playback = composePlayback({
-    build: { ...(jellyfinOrigin ? { jellyfinOrigin } : {}), ...fixture },
+    build: {
+      ...(jellyfinOrigin ? { jellyfinOrigin } : {}),
+      ...(cineproOrigin ? { cineproOrigin, allowCineproLoopback: import.meta.env.DEV } : {}),
+      ...fixture,
+    },
     credentials: new DeviceCredentials(deviceKeyValue()),
     tmdb,
     choices: device.read(CHOICES),

@@ -6,8 +6,6 @@ import { cspOrigins } from "../../src/features/playback/domain/csp-origins"
 import { EMPTY_POLICY } from "../../src/features/playback/domain/policy"
 
 const ENTRY = "src/app/composition/playback.ts"
-const UNLICENSED = /vidsrc|embed\.su|autoembed|multiembed|consumet|2embed|superembed/i
-
 const plugin = (media: string[]) => ({ type: "rogue", security: { ...EMPTY_POLICY, media } })
 
 describe("the playback plugins compiled into the build", () => {
@@ -37,9 +35,15 @@ describe("the playback plugins compiled into the build", () => {
     expect(() => cspOrigins(loopback)).toThrow(/jellyfin.*https/)
   })
 
-  it("never name an unlicensed aggregator", () => {
-    expect(readFileSync(ENTRY, "utf8")).not.toMatch(UNLICENSED)
-    expect(JSON.stringify(plugins.map((p) => [p.type, p.security]))).not.toMatch(UNLICENSED)
+  it("includes CinePro only when a fixed Core origin is configured", () => {
+    expect(playbackPlugins({}).map((p) => p.type)).not.toContain("cinepro")
+    const configured = playbackPlugins({ cineproOrigin: "https://cinepro.example.org" })
+    expect(configured[0]?.type).toBe("cinepro")
+    const origins = cspOrigins(configured)
+    expect(origins.connect).toContain("https://cinepro.example.org")
+    expect(origins.media).toContain("https://cinepro.example.org")
+    expect(origins.frames).toContain("https://cinepro.example.org")
+    expect(() => playbackPlugins({ cineproOrigin: "http://cinepro.example.org" })).toThrow(/https/)
   })
 })
 

@@ -11,6 +11,7 @@ import type {
 } from "../../features/playback/domain/plugin.types"
 import type { ProviderConfig } from "../../features/playback/domain/provider.types"
 import { browserCanPlay, browserProbe } from "../../features/playback/infrastructure/browser-media"
+import { cineproPlugin } from "../../features/playback/infrastructure/cinepro/plugin"
 import { internetArchivePlugin } from "../../features/playback/infrastructure/internet-archive/plugin"
 import { JellyfinAccount } from "../../features/playback/infrastructure/jellyfin/account"
 import { jellyfinPlugin } from "../../features/playback/infrastructure/jellyfin/plugin"
@@ -27,11 +28,21 @@ import { fixtureConfigs, fixturePlugins, type FixtureBuild } from "./playback-fi
 export interface PlaybackBuild extends FixtureBuild {
   /** VITE_JELLYFIN_ORIGIN: the household's own Jellyfin server, https only. */
   readonly jellyfinOrigin?: string
+  /** VITE_CINEPRO_CORE_ORIGIN: a self-hosted CinePro Core; http only on loopback, in dev. */
+  readonly cineproOrigin?: string
+  readonly allowCineproLoopback?: boolean
 }
+
+/** Only the end-to-end fixture server and a local CinePro Core in `pnpm dev` may use http. */
+export const loopbackAllowed = (build: PlaybackBuild): boolean =>
+  !!build.fixtureOrigin || !!build.allowCineproLoopback
 
 /** The only list of playback plugins. A new adapter is one file plus one line here. */
 export function playbackPlugins(build: PlaybackBuild): ProviderPlugin[] {
   return [
+    ...(build.cineproOrigin
+      ? [cineproPlugin(build.cineproOrigin, { allowLoopback: build.allowCineproLoopback })]
+      : []),
     ...(build.jellyfinOrigin ? [jellyfinPlugin(build.jellyfinOrigin, browserProbe)] : []),
     internetArchivePlugin(),
     peertubePlugin(BLENDER_INSTANCE),
@@ -45,6 +56,9 @@ function defaultConfigs(build: PlaybackBuild): ProviderConfig[] {
     ...{ type, id: type, enabled: true, priority, timeoutMs, retries, options: null },
   })
   return [
+    ...(build.cineproOrigin
+      ? [{ ...entry("cinepro", 0, 20_000, 0), options: { serverUrl: build.cineproOrigin } }]
+      : []),
     ...(build.jellyfinOrigin
       ? [{ ...entry("jellyfin", 1, 8_000, 1), options: { serverUrl: build.jellyfinOrigin } }]
       : []),
@@ -64,8 +78,7 @@ export interface PlaybackDeps {
 }
 
 export function composePlayback(deps: PlaybackDeps) {
-  // Only the end-to-end build's loopback media server may use http (playback-fixture.ts).
-  const registry = new PluginRegistry({ allowLoopback: !!deps.build.fixtureOrigin })
+  const registry = new PluginRegistry({ allowLoopback: loopbackAllowed(deps.build) })
   for (const plugin of playbackPlugins(deps.build)) {
     const registered = registry.register(plugin)
     if (!registered.ok) throw new Error(`${plugin.type}: ${registered.error.message}`)
@@ -81,13 +94,7 @@ export function composePlayback(deps: PlaybackDeps) {
   const health = new HealthMonitor({ threshold: 3, cooldownMs: 60_000 }, clock)
   const resolver = new SourceResolver(providers, { health, log, clock, canPlay: browserCanPlay })
   const origin = deps.build.jellyfinOrigin?.replace(/\/+$/, "")
-  const jellyfin = origin
-    ? new JellyfinAccount({
-        origin,
-        fetch: shared.fetch,
-        credentials: deps.credentials,
-        providerId: "jellyfin",
-      })
-    : null
+  const account = { fetch: shared.fetch, credentials: deps.credentials, providerId: "jellyfin" }
+  const jellyfin = origin ? new JellyfinAccount({ origin, ...account }) : null
   return { resolver, refused, jellyfin, log }
 }

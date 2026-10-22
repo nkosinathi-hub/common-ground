@@ -23,4 +23,13 @@ describe("composePlayback", () => {
     const result = await playback.resolver.resolve({ kind: "movie", tmdbId: 603 })
     expect(result).toMatchObject({ ok: false, error: { kind: "not_found" } })
   })
+
+  it("registers the optional CinePro Core provider without replacing existing providers", () => {
+    const playback = composePlayback({
+      ...deps(),
+      build: { cineproOrigin: "https://cinepro.example.org" },
+    })
+    expect(playback.refused).toEqual([])
+    expect(playback.resolver).toBeDefined()
+  })
 })
