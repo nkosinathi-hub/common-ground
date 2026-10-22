@@ -1,5 +1,6 @@
 node_modules/
 dist/
+extension/common-ground-extension.zip
 coverage/
 .env
 .env.*

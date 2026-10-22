@@ -30,6 +30,14 @@ describe("createSupabase", () => {
     expect(createSupabase("http://127.0.0.1:54321", "key").realtime.worker).toBeFalsy()
   })
 
+  it("keeps the heartbeat on the page for the extension, where a worker may be refused", () => {
+    vi.stubGlobal("Worker", class {})
+    expect(createSupabase("http://127.0.0.1:54321", "key", undefined, false).realtime.worker).toBe(
+      false,
+    )
+    vi.unstubAllGlobals()
+  })
+
   it("creates a client for a bare origin", () => {
     expect(typeof createSupabase("http://127.0.0.1:54321", "key").from).toBe("function")
   })

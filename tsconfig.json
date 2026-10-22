@@ -21,6 +21,7 @@
     "src/**/*.svelte",
     "tests/**/*.ts",
     "scripts/**/*.ts",
+    "extension/**/*.ts",
     "*.config.ts",
     "supabase/functions/_shared/**/*.ts"
   ]

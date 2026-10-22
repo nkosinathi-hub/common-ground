@@ -8,6 +8,8 @@ export function createSupabase(
   url = import.meta.env.VITE_SUPABASE_URL as string,
   key = import.meta.env.VITE_SUPABASE_ANON_KEY as string,
   storage?: SupportedStorage,
+  // The extension's content script runs on netflix.com, whose CSP may refuse a worker (#66).
+  worker = typeof Worker !== "undefined",
 ): Db {
   if (!url || !key)
     throw new Error("Supabase is not configured: set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY")
@@ -22,6 +24,6 @@ export function createSupabase(
     },
     // The heartbeat runs in a Web Worker where there is one, so a backgrounded tab or WebView
     // keeps its channels (supabase-js refuses the option without Worker).
-    realtime: { worker: typeof Worker !== "undefined" },
+    realtime: { worker },
   })
 }

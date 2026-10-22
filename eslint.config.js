@@ -10,6 +10,7 @@ export default ts.config(
       ".claude/**",
       "android",
       "dist",
+      "extension/dist",
       "coverage",
       "src/lib/components/ui",
       "**/database.types.ts",
