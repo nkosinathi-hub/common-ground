@@ -9,7 +9,7 @@ import {
 } from "../domain/party-machine"
 import { ClockSync } from "./clock-sync"
 import { PlayerSync } from "./player-sync"
-import type { PartyConnection } from "./ports"
+import type { PartyConnection, PlayerControl } from "./ports"
 import { sameTimeline, type SessionDeps, type SessionView } from "./session-types"
 
 export type { SessionDeps, SessionView } from "./session-types"
@@ -38,6 +38,10 @@ export class SessionCore {
     this.sync = new ClockSync(deps.clock, () => this.isAuthority)
     this.playerSync = new PlayerSync(deps.player, () => this.sync.now())
   }
+
+  /** The member's player now; the app may open it after the party page. */
+  protected currentPlayer = (): PlayerControl | null =>
+    typeof this.deps.player === "function" ? this.deps.player() : this.deps.player
 
   get isHost(): boolean {
     return this.state.hostId === this.deps.me

@@ -3,6 +3,7 @@ import { countdownStart } from "../domain/countdown"
 import { canStart } from "../domain/party-machine"
 import { SYNC } from "../domain/sync-constants"
 import { positionAt, scheduledStart } from "../domain/timeline"
+import type { PlayerControl } from "./ports"
 import { SessionNetwork } from "./session-network"
 
 export type { SessionDeps, SessionView } from "./session-core"
@@ -15,17 +16,30 @@ export type { SessionDeps, SessionView } from "./session-core"
 export class PartySession extends SessionNetwork {
   private interval: ReturnType<typeof setInterval> | null = null
   private unbuffer: (() => void) | null = null
+  private buffered: PlayerControl | null = null
 
   open(): void {
-    const { channel, party, player } = this.deps
+    const { channel, party } = this.deps
     this.conn = channel.connect(party.id, {
       onMessage: (m) => this.onMessage(m),
       onPresence: (people) => this.onPresence(people),
       onStatus: (status) => this.onStatus(status),
     })
     this.onJoined()
+    this.watchBuffering()
+    this.interval = setInterval(() => {
+      this.watchBuffering()
+      this.tick()
+    }, SYNC.stateIntervalMs)
+  }
+
+  /** Follows the current player's buffering, re-subscribing when the player changes. */
+  private watchBuffering(): void {
+    const player = this.currentPlayer()
+    if (player === this.buffered) return
+    this.unbuffer?.()
+    this.buffered = player
     this.unbuffer = player?.onBuffering((buffering) => this.setPresence({ buffering })) ?? null
-    this.interval = setInterval(() => this.tick(), SYNC.stateIntervalMs)
   }
 
   close(): void {
@@ -38,7 +52,7 @@ export class PartySession extends SessionNetwork {
 
   /** The Ready tap: unlocks playback inside the gesture, confirms, then shows ready. */
   async ready(): Promise<Result<void>> {
-    const player = this.deps.player
+    const player = this.currentPlayer()
     if (player) {
       void player.play().catch(() => undefined)
       player.pause()
