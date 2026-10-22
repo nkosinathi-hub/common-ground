@@ -1,7 +1,10 @@
 import type { EpisodeRange, EpisodeRef } from "./episode-range"
 
-/** jellyfin plays in the app in sync; external is a co-watch of playback elsewhere (#58). */
-export type PartySource = "jellyfin" | "external"
+/**
+ * jellyfin plays in the app in sync; external is a co-watch of playback elsewhere (#58); netflix
+ * plays on netflix.com, each member on their own account, driven by the extension (#66).
+ */
+export type PartySource = "jellyfin" | "external" | "netflix"
 export type PartyStatus = "planned" | "live" | "ended" | "cancelled"
 
 export interface PartyMember {
