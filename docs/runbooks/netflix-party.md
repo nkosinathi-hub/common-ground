@@ -5,7 +5,7 @@ own Netflix account; the Common Ground extension only reads and drives your own 
 (play, pause, seek, playback rate), as Teleparty does. It never downloads, captures, records,
 re-streams or proxies anything, and never touches Netflix's media requests or decryption.
 
-Code: `extension/` (MV3, Chrome and Edge 111+). It bundles the app's own
+Code: `extension/` (MV3: Chrome and Edge 111+, Firefox 140+). It bundles the app's own
 `src/features/parties` sync engine and party channel; nothing is copied.
 
 ## Install (each of you, on a desktop)
@@ -14,8 +14,13 @@ Code: `extension/` (MV3, Chrome and Edge 111+). It bundles the app's own
    build it: `pnpm extension:build` writes `extension/dist` and
    `extension/common-ground-extension.zip` (it needs `VITE_SUPABASE_URL` and
    `VITE_SUPABASE_ANON_KEY`, as the app build does).
-2. Open `chrome://extensions` (Edge: `edge://extensions`), turn on Developer mode, choose
-   Load unpacked and pick the unzipped folder (or `extension/dist`).
+2. Chrome or Edge: open `chrome://extensions` (`edge://extensions`), turn on Developer mode,
+   choose Load unpacked and pick the unzipped folder (or `extension/dist`).
+   Firefox: install the signed `app/common-ground-extension.xpi` from the site. Unsigned
+   (`common-ground-extension-firefox.zip`), load it in `about:debugging#/runtime/this-firefox`
+   with Load Temporary Add-on; it lasts until Firefox restarts. Signing: `web-ext sign
+--channel=unlisted` with an addons.mozilla.org API key; the add-on id is fixed in
+   `extension/manifest.ts`, so each signed version updates the last.
 3. Click the Common Ground icon and sign in with your Common Ground email and password.
 
 ## Watch
@@ -43,7 +48,7 @@ history. The extension pages keep the MV3 CSP (`script-src 'self'`): no remote c
 
 ## Limits
 
-- Desktop Chrome and Edge only. Phones are remotes: Netflix's own apps (phone, TV) cannot be
+- Desktop Chrome, Edge and Firefox only (`web-ext lint` is clean). Phones are remotes: Netflix's own apps (phone, TV) cannot be
   controlled.
 - Pausing or seeking with Netflix's own controls is not shared; use the panel or the app.
 - Netflix may change its page player API; then seeking fails and the panel says to reload. The

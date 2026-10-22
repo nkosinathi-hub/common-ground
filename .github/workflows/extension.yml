@@ -19,7 +19,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm extension:build
-      - run: mkdir -p release && cp extension/common-ground-extension.zip release/
+      - run: mkdir -p release && cp extension/common-ground-extension*.zip release/
       - uses: actions/upload-artifact@v4
         with:
           name: extension
