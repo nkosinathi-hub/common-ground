@@ -84,6 +84,9 @@ provider or change its options (`application/stored-configs.ts`).
 - **peertube** (id `blender`): Blender's open movies on `video.blender.org`, from a curated TMDB
   list; options and how to add titles in [playback-peertube.md](playback-peertube.md).
 - **youtube-trailer**: official TMDB trailers as `youtube-nocookie.com` embeds.
+- **cinepro** (optional, ranked first): a self-hosted CinePro Core named at build time by
+  `VITE_CINEPRO_CORE_ORIGIN`; movies and episodes by TMDB id through its OMSS routes, keeping
+  only sources and subtitles on that origin, which the CSP names ([runbook](runbooks/cinepro.md)).
 - **fixture** (tests only, never in a build): `tests/fixtures/playback` (`scripts/playback/fixtures.sh`).
 
 ## Player (`ui/`)
@@ -95,6 +98,3 @@ buttons come from segments, the play-next countdown from `PlaybackPorts.nextUp`,
 percent played calls `markWatched`. Keys: space or k, j, l, f, c, m. Theatre mode keeps the
 overlays visible where native fullscreen (iOS) would hide them; play starts from the player's
 own controls, a user gesture.
-
-Only lawful sources are built: the household's own media, public-domain and openly licensed
-films, and official trailers. Aggregators of unlicensed streams are out of scope for good.

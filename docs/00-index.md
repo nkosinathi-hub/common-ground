@@ -32,6 +32,8 @@
    11. [Simkl](runbooks/simkl.md): the optional history import, its client id and data rules
    12. [Netflix party](runbooks/netflix-party.md): the browser extension, installing it, watching
        in sync on netflix.com, its permissions and limits
+   13. [CinePro Core](runbooks/cinepro.md): the optional playback backend, running it locally,
+       publishing it over the tailnet for the site and the app, its CORS and the live test
 
 ## CI and deployment
 
