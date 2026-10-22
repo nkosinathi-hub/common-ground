@@ -19,6 +19,7 @@ const row = {
   ended_at: null,
   created_at: "2026-10-22T20:00:00Z",
   members: [{ user_id: "ana", confirmed: true, joined_at: "2026-10-22T20:00:00Z" }],
+  item: { title: "Severance" },
 }
 const gateway = (replies: Reply | Reply[]) => {
   const { client, calls } = recordingClient(replies)
@@ -32,6 +33,7 @@ describe("SupabasePartyGateway reads", () => {
       ok: true,
       value: {
         id: "p1",
+        title: "Severance",
         hostId: "ana",
         status: "live",
         range: {
@@ -66,6 +68,16 @@ describe("SupabasePartyGateway reads", () => {
     expect(await parties.openFor("w1")).toMatchObject({ ok: true, value: { range: null } })
     expect(calls).toContainEqual(["in", "status", ["planned", "live"]])
     expect(await parties.openFor("w1")).toEqual({ ok: true, value: null })
+  })
+
+  it("lists the open parties on one source, in every space the member is in (#66)", async () => {
+    const { calls, parties } = gateway({ data: [{ ...row, source: "netflix" }], error: null })
+    expect(await parties.openOn("netflix")).toMatchObject({
+      ok: true,
+      value: [{ id: "p1", source: "netflix", title: "Severance" }],
+    })
+    expect(calls).toContainEqual(["eq", "source", "netflix"])
+    expect(calls).toContainEqual(["in", "status", ["planned", "live"]])
   })
 
   it("reads together progress: an episode, a film watched, or nothing yet", async () => {

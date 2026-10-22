@@ -13,7 +13,11 @@
   let { party, view, names }: Props = $props()
 
   function status(userId: string): string {
-    const here = view.state.people.find((p) => p.userId === userId)
+    const mine = view.state.people.filter((p) => p.userId === userId)
+    const player = mine.find((p) => p.role === "player")
+    if (player?.buffering) return "Loading on Netflix"
+    if (player) return player.ready ? "Ready on Netflix" : "On Netflix, not ready"
+    const here = mine[0]
     if (!here) return "Not here"
     if (here.buffering) return "Loading"
     return here.ready ? "Ready" : "Not ready yet"

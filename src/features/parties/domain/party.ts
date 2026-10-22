@@ -18,6 +18,8 @@ export interface Party {
   readonly id: string
   readonly spaceId: string
   readonly watchItemId: string
+  /** The title's name, for the Netflix search link (#66). */
+  readonly title: string
   /** Null once the host's account is deleted. */
   readonly hostId: string | null
   readonly source: PartySource

@@ -8,6 +8,7 @@
   import CoWatchPanel from "./CoWatchPanel.svelte"
   import { useParties } from "./context"
   import LiveControls from "./LiveControls.svelte"
+  import NetflixPanel from "./NetflixPanel.svelte"
   import { PartyRoomState } from "./party-room-state.svelte"
   import PartyPeople from "./PartyPeople.svelte"
 
@@ -53,11 +54,13 @@
       <PartyPeople {party} view={room.view} names={names.value ?? []} />
       {#if party.source === "external"}
         <CoWatchPanel {room} />
+      {:else if party.source === "netflix"}
+        <NetflixPanel {room} title={party.title} />
       {:else}
         <LiveControls {room} view={room.view} />
       {/if}
       <div class="flex flex-wrap gap-2">
-        {#if room.view.ready}
+        {#if room.view.ready || (party.source === "netflix" && room.view.state.phase !== "lobby")}
           <Button onclick={() => action.run(() => room.finish())}>We finished</Button>
         {/if}
         {#if room.view.isHost}

@@ -10,6 +10,7 @@ export const partyOf = (id: string, host: string, extra: Partial<Party> = {}): P
   id,
   spaceId: SPACE,
   watchItemId: ITEM,
+  title: "Severance",
   hostId: host,
   source: "jellyfin",
   status: "planned",
