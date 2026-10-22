@@ -1,5 +1,8 @@
 node_modules/
 dist/
+extension/common-ground-extension.zip
+extension/common-ground-extension-firefox.zip
+extension/dist-firefox/
 coverage/
 .env
 .env.*

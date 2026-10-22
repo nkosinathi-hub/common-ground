@@ -2,7 +2,7 @@ import { appError, err, ok, type Result } from "@/shared/domain"
 import { done, same, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { PartyGateway } from "../application/ports"
-import type { Party, StartParty } from "../domain/party"
+import type { Party, PartySource, StartParty } from "../domain/party"
 import { PARTY_COLUMNS, startArgs, toParty, toTogether } from "./party-rows"
 
 const GONE = appError("not_found", "That watch party is no longer available")
@@ -32,6 +32,17 @@ export class SupabasePartyGateway implements PartyGateway {
       .eq("watch_item_id", watchItemId)
       .in("status", ["planned", "live"])
     return settle(query, (rows) => (rows[0] ? toParty(rows[0]) : null))
+  }
+
+  /** Open parties on one source in the member's spaces (RLS); the extension lists netflix ones. */
+  openOn(source: PartySource): Promise<Result<Party[]>> {
+    const query = this.db
+      .from("watch_parties")
+      .select(PARTY_COLUMNS)
+      .eq("source", source)
+      .in("status", ["planned", "live"])
+      .order("created_at", { ascending: false })
+    return settle(query, (rows) => rows.map(toParty))
   }
 
   together = (watchItemId: string) =>

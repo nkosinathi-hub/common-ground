@@ -1,0 +1,26 @@
+# Builds the Netflix watch party extension zip for the site's app/ folder (pages.yml).
+name: Browser extension
+
+on:
+  workflow_call:
+
+jobs:
+  extension:
+    runs-on: ubuntu-latest
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm extension:build
+      - run: mkdir -p release && cp extension/common-ground-extension*.zip release/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: extension
+          path: release

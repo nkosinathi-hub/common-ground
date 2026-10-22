@@ -20,6 +20,7 @@
   const SOURCES = [
     { value: "jellyfin", label: "In the app" },
     { value: "external", label: "Somewhere else (a TV, another app)" },
+    { value: "netflix", label: "On Netflix (with the Common Ground extension)" },
   ] as const
 
   $effect(() => {

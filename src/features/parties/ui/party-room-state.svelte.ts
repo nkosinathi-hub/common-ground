@@ -26,16 +26,12 @@ export class PartyRoomState {
     const party = this.party
     const joinedAt = memberOf(party, this.me)?.joinedAt ?? "1970-01-01T00:00:00Z"
     const { channel, clock } = this.context
-    const player = party.source === "jellyfin" ? this.context.player() : null
-    this.session = new PartySession({
-      me: this.me,
-      joinedAt,
-      party,
-      channel,
-      player,
-      clock,
-      service,
-    })
+    // Asked for each time: the player is usually opened after the party page (player-bridge.ts).
+    const player = party.source === "jellyfin" ? () => this.context.player() : null
+    // On Netflix the extension plays; this page is the remote beside it (#66).
+    const role = party.source === "netflix" ? ("remote" as const) : undefined
+    const me = this.me
+    this.session = new PartySession({ me, joinedAt, party, channel, player, clock, service, role })
     this.session.subscribe((view) => (this.view = view))
     this.session.open()
   }

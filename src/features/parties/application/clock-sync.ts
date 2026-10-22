@@ -13,6 +13,8 @@ type Pong = Extract<PartyMessage, { kind: "pong" }>
 export class ClockSync {
   private samples: PingSample[] = []
   private counter = 0
+  /** Tells this device's pings from those of the member's other device (#66). */
+  private readonly prefix = Math.random().toString(36).slice(2, 10)
   estimate: ClockEstimate | null = null
 
   constructor(
@@ -35,7 +37,7 @@ export class ClockSync {
 
   ping(from: string): Ping {
     this.counter += 1
-    return { kind: "ping", from, id: `${from}-${this.counter}`, sentAt: this.clock.now() }
+    return { kind: "ping", from, id: `${this.prefix}-${this.counter}`, sentAt: this.clock.now() }
   }
 
   answer(ping: Ping, me: string): Pong {
@@ -52,6 +54,7 @@ export class ClockSync {
   }
 
   record(pong: Pong): void {
+    if (!pong.id.startsWith(`${this.prefix}-`)) return
     const { sentAt, peerReceivedAt, peerSentAt } = pong
     this.samples = [
       ...this.samples,

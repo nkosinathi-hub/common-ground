@@ -1,7 +1,10 @@
 import type { EpisodeRange, EpisodeRef } from "./episode-range"
 
-/** jellyfin plays in the app in sync; external is a co-watch of playback elsewhere (#58). */
-export type PartySource = "jellyfin" | "external"
+/**
+ * jellyfin plays in the app in sync; external is a co-watch of playback elsewhere (#58); netflix
+ * plays on netflix.com, each member on their own account, driven by the extension (#66).
+ */
+export type PartySource = "jellyfin" | "external" | "netflix"
 export type PartyStatus = "planned" | "live" | "ended" | "cancelled"
 
 export interface PartyMember {
@@ -15,6 +18,10 @@ export interface Party {
   readonly id: string
   readonly spaceId: string
   readonly watchItemId: string
+  /** The title's name, for the Netflix search link (#66). */
+  readonly title: string
+  /** The title's TMDB entry, so the in-app player can play it; null for a manual title. */
+  readonly catalog: { readonly type: "movie" | "tv"; readonly id: number } | null
   /** Null once the host's account is deleted. */
   readonly hostId: string | null
   readonly source: PartySource

@@ -1,6 +1,7 @@
 # Watch parties
 
-Watching a title together, in the app in sync (#57) or on a TV elsewhere as a co-watch (#58).
+Watching a title together, in the app in sync (#57), on a TV elsewhere as a co-watch (#58), or on
+netflix.com with the browser extension (#66, `docs/runbooks/netflix-party.md`).
 Code: `src/features/parties`. Data: `supabase/migrations/20261022000100` (history and together) and `20261022001100-001900`.
 
 ## Server: who is in, and what gets credited
@@ -52,6 +53,12 @@ Every member runs the same state machine (`domain/party-machine.ts`) on the same
 - Co-watch: the same session with no player. "We are on S2E3" confirms, the host's 3-2-1 is a
   play scheduled 3 s ahead, pause and resume show on both screens, "We finished" finishes.
 
+- Netflix (#66): the extension is a `player` in presence and the app beside it a `remote`
+  (`domain/presence.ts`). A start waits only for the players while any are connected. The
+  host's remote follows the host's player (which keeps the clock and sends the state); with no
+  player of the host's, the host's remote keeps the clock. A member's two devices tell their
+  pongs apart by ping id. With no player at all, the page is the co-watch's 3-2-1.
+
 Constants live in `domain/sync-constants.ts`.
 
 Host-only rules (seeks, starting) are enforced client-side over broadcast. That is enough for
@@ -63,4 +70,6 @@ The player feature implements `PlayerControl` (`application/ports.ts`): `play()`
 need a gesture the first time), `pause()`, `seek(seconds)`, `setRate(rate)`, `currentTime()` in
 seconds, and `onBuffering(listener)` reporting stalls and recovery. It is provided through
 `providePartiesFeature` in `src/app/composition/parties.ts`; until then a jellyfin party runs its
-controls without a picture.
+controls without a picture. The extension implements it over netflix.com
+(`extension/src/netflix-player.ts`): the page's video for play, pause, position, rate and
+buffering, and Netflix's page player API for seeks, through a MAIN-world script.

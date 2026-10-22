@@ -1,9 +1,10 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   // Entries knip's plugins cannot see: the theme script index.html loads, the Deno functions,
-  // and the script CI runs (.gitlab/ci/database.yml).
+  // the script CI runs (.gitlab/ci/database.yml), and the Netflix extension's entries and build.
   "entry": [
     "public/mode-init.js",
+    "extension/src/{content,page,popup}.ts",
     "public/app-link/forward.js",
     "supabase/functions/*/index.ts",
     "scripts/e2e/env.ts",
@@ -13,6 +14,7 @@
     "scripts/**/*.ts",
     "supabase/functions/**/*.ts",
     "tests/**/*.ts",
+    "extension/**/*.ts",
   ],
   // Vendored shadcn-svelte barrels and generated database types.
   "ignore": ["src/lib/components/ui/**", "src/shared/infrastructure/database.types.ts"],

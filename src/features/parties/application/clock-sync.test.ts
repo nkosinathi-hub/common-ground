@@ -53,6 +53,16 @@ describe("ClockSync", () => {
     expect(sync.rttMs).toBe(0)
   })
 
+  it("ignores a pong answering another device of the same member (#66)", () => {
+    const host = new ClockSync(clockAt(0).clock, () => true)
+    const phone = new ClockSync(clockAt(0).clock, () => false)
+    const laptop = new ClockSync(clockAt(0).clock, () => false)
+    phone.record(host.answer(laptop.ping("ana"), "host"))
+    expect(phone.sampleCount).toBe(0)
+    phone.record(host.answer(phone.ping("ana"), "host"))
+    expect(phone.sampleCount).toBe(1)
+  })
+
   it("numbers its pings", () => {
     const sync = new ClockSync(clockAt(0).clock, () => false)
     expect(sync.ping("guest").id).not.toBe(sync.ping("guest").id)

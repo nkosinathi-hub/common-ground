@@ -10,6 +10,8 @@ export default ts.config(
       ".claude/**",
       "android",
       "dist",
+      "extension/dist",
+      "extension/dist-firefox",
       "coverage",
       "src/lib/components/ui",
       "**/database.types.ts",

@@ -1,6 +1,6 @@
 import { electHost } from "../domain/host-election"
 import type { PartyMessage } from "../domain/messages"
-import { shouldResume, type Presence } from "../domain/party-machine"
+import { shouldResume, type PartyPhase, type Presence } from "../domain/party-machine"
 import type { ChannelStatus } from "./ports"
 import { SessionCore } from "./session-core"
 
@@ -12,7 +12,7 @@ export abstract class SessionNetwork extends SessionCore {
 
   protected onMessage(m: PartyMessage): void {
     const me = this.deps.me
-    if (m.kind === "ping" && this.isHost) this.conn?.send(this.sync.answer(m, me))
+    if (m.kind === "ping" && this.isAuthority) this.conn?.send(this.sync.answer(m, me))
     else if (m.kind === "pong" && m.to === me) {
       const first = this.sync.estimate === null
       this.sync.record(m)
@@ -22,7 +22,7 @@ export abstract class SessionNetwork extends SessionCore {
       this.apply({ type: "command", by: m.from, action: m.action, position: m.position, at: m.at })
     } else if (m.kind === "state" && m.from === m.hostId) {
       this.hostSeenAt = this.deps.clock.now()
-      if (!this.isHost && m.timeline.at >= this.lastCommandAt)
+      if (this.follows(m.phase) && m.timeline.at >= this.lastCommandAt)
         this.apply({ type: "snapshot", phase: m.phase, timeline: m.timeline, hostId: m.hostId })
     } else if (m.kind === "snapshot-request" && this.isHost) this.sendState()
     else if (m.kind === "finished") this.apply({ type: "finish" })
@@ -31,7 +31,7 @@ export abstract class SessionNetwork extends SessionCore {
   protected onPresence(people: readonly Presence[]): void {
     if (people.some((p) => p.userId === this.state.hostId)) this.hostSeenAt = this.deps.clock.now()
     this.apply({ type: "presence", people, at: this.now() })
-    if (this.isHost && shouldResume(this.state)) this.play()
+    if (this.isAuthority && shouldResume(this.state)) this.play()
   }
 
   protected onStatus(status: ChannelStatus): void {
@@ -47,6 +47,10 @@ export abstract class SessionNetwork extends SessionCore {
     this.conn.send({ kind: "snapshot-request", from: this.deps.me })
   }
 
+  /** Guests follow the host's state; a host just in from the lobby takes over the party's. */
+  private follows = (phase: PartyPhase) =>
+    !this.isAuthority || (this.state.phase === "lobby" && phase !== "lobby")
+
   private sendState(): void {
     const { phase, hostId, timeline } = this.state
     this.conn?.send({ kind: "state", from: this.deps.me, phase, hostId, timeline })
@@ -54,7 +58,7 @@ export abstract class SessionNetwork extends SessionCore {
 
   protected tick(): void {
     this.elect()
-    if (this.isHost) this.sendState()
+    if (this.isAuthority) this.sendState()
     else this.conn?.send(this.sync.ping(this.deps.me))
     this.playerSync.tick(this.state)
   }

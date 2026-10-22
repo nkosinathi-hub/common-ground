@@ -30,10 +30,13 @@
    9. [Android](runbooks/android.md): the app build, signing, App Links, releases and updates
    10. [Jellyfin](runbooks/jellyfin.md): your own media server for in-app playback, and its hardening
    11. [Simkl](runbooks/simkl.md): the optional history import, its client id and data rules
+   12. [Netflix party](runbooks/netflix-party.md): the browser extension, installing it, watching
+       in sync on netflix.com, its permissions and limits
 
 ## CI and deployment
 
 - GitLab CI: `.gitlab-ci.yml` with `.gitlab/ci/{verify,database,deploy,android}.yml`. Jobs mirror
   `pnpm guard`; `e2e` is manual; `supabase-deploy` is manual on `main`; `keep-alive` runs on a
   daily schedule.
-- GitHub Pages: `.github/workflows/pages.yml` on push to `main` of the GitHub mirror.
+- GitHub Pages: `.github/workflows/pages.yml` on push to `main` of the GitHub mirror; it
+  publishes the APK (`apk.yml`) and the extension zip (`extension.yml`) under `app/`.

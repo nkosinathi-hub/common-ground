@@ -1,4 +1,5 @@
 import type { PartyCommand, PartyPhase, Presence } from "./party-machine"
+import type { PresenceRole } from "./presence"
 import type { Timeline } from "./timeline"
 
 /**
@@ -35,6 +36,7 @@ export type PartyMessage =
 type Raw = Record<string, unknown>
 const PHASES: readonly string[] = ["lobby", "playing", "paused", "waiting", "ended"]
 const ACTIONS: readonly string[] = ["play", "pause", "seek"]
+const ROLES: readonly string[] = ["player", "remote"]
 
 const isRaw = (v: unknown): v is Raw => typeof v === "object" && v !== null
 const id = (v: unknown): v is string => typeof v === "string" && v.length > 0 && v.length <= 64
@@ -84,5 +86,8 @@ export function parseMessage(raw: unknown): PartyMessage | null {
 export function parsePresence(raw: unknown): Presence | null {
   if (!isRaw(raw) || !id(raw.userId) || typeof raw.joinedAt !== "string") return null
   if (typeof raw.ready !== "boolean" || typeof raw.buffering !== "boolean") return null
-  return { userId: raw.userId, ready: raw.ready, buffering: raw.buffering, joinedAt: raw.joinedAt }
+  if (raw.role !== undefined && !ROLES.includes(raw.role as string)) return null
+  const { userId, ready, buffering, joinedAt } = raw
+  const role = raw.role as PresenceRole | undefined
+  return { userId, ready, buffering, joinedAt, ...(role ? { role } : {}) }
 }

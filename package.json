@@ -1,7 +1,7 @@
 {
   "name": "common-ground",
   "private": true,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "packageManager": "pnpm@10.34.3",
   "engines": {
@@ -21,7 +21,7 @@
     "test:e2e": "playwright test",
     "lines": "tsx scripts/guard/static-checks.ts",
     "duplication": "tsx scripts/guard/duplication.ts",
-    "cycles": "madge --circular --extensions ts --ts-config tsconfig.json src scripts supabase/functions",
+    "cycles": "madge --circular --extensions ts --ts-config tsconfig.json src scripts supabase/functions extension",
     "setup": "tsx scripts/setup/index.ts",
     "deadcode": "knip --no-progress",
     "guard": "tsx scripts/guard/index.ts",
@@ -30,7 +30,8 @@
     "secrets:tmdb": "bash scripts/load-tmdb-secrets.sh",
     "android:apk": "bash scripts/android/build.sh",
     "android:smoke": "bash scripts/android/smoke.sh",
-    "android:show": "bash scripts/android/show.sh"
+    "android:show": "bash scripts/android/show.sh",
+    "extension:build": "tsx extension/build.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

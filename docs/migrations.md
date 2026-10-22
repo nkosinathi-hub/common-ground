@@ -48,3 +48,5 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `001000-001999` watch parties:
   `001100-001500` parties, RPCs and expiry,
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).
+  `002000-002099` Netflix parties (#66): `002000` adds the `netflix` party source and lets
+  `start_party` accept any `party_source`.

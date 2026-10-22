@@ -49,7 +49,8 @@ describe("PlayButton and the player", () => {
     await fireEvent.error(video())
     const frame = await screen.findByTitle("Film")
     expect(frame.getAttribute("sandbox")).toBe("allow-scripts allow-same-origin")
-    expect(frame.getAttribute("referrerpolicy")).toBe("no-referrer")
+    // Origin only: YouTube refuses an embed with no referrer at all (player error 153).
+    expect(frame.getAttribute("referrerpolicy")).toBe("strict-origin")
     expect(frame.getAttribute("sandbox")).not.toContain("top-navigation")
   })
 

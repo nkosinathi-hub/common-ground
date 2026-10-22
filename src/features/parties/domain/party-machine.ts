@@ -1,14 +1,9 @@
+import { awaited, type Presence } from "./presence"
 import { pausedAt, playingFrom, positionAt, type Timeline } from "./timeline"
 
 export type PartyPhase = "lobby" | "playing" | "paused" | "waiting" | "ended"
 
-/** What each member shows in presence. Ready needs a tap, so a browser lets the start play. */
-export interface Presence {
-  readonly userId: string
-  readonly ready: boolean
-  readonly buffering: boolean
-  readonly joinedAt: string
-}
+export { hasPlayer, type Presence, type PresenceRole } from "./presence"
 
 export interface PartyState {
   readonly phase: PartyPhase
@@ -46,9 +41,9 @@ export const initialParty = (hostId: string): PartyState => ({
 
 const anyoneBuffering = (state: PartyState) => state.people.some((p) => p.buffering)
 
-/** Everyone present tapped Ready and nobody is still loading. */
+/** Everyone the start waits for tapped Ready and nobody is still loading. */
 export const canStart = (state: PartyState): boolean =>
-  state.people.length > 0 && state.people.every((p) => p.ready) && !anyoneBuffering(state)
+  state.people.length > 0 && awaited(state.people).every((p) => p.ready) && !anyoneBuffering(state)
 
 /** The group waited for someone buffering, and nobody is any more: the host plays again. */
 export const shouldResume = (state: PartyState): boolean =>

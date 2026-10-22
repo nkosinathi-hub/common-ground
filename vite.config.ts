@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => ({
       "src/**/*.test.ts",
       "supabase/functions/_shared/**/*.test.ts",
       "scripts/**/*.test.ts",
+      "extension/**/*.test.ts",
     ],
     setupFiles: ["src/test-setup.ts"],
     coverage: {
