@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
+import { createRawSnippet } from "svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import type { Party } from "../domain/party"
@@ -9,11 +10,17 @@ import PartyPage from "./PartyPage.svelte"
 
 afterEach(cleanup)
 
+// Found with two real browsers: an in-app party had controls but no video for them to drive.
+const player = createRawSnippet((party: () => Party) => ({
+  render: () => `<p>Player for ${party().title}</p>`,
+}))
+
 function setup(party: Partial<Party> = {}, me = "me") {
   const fakes = partiesFakes(me)
   fakes.gateway.parties.set("p1", partyOf("p1", "me", party))
   const provide = () => provideParties(fakes.context)
-  const props = { spaceId: SPACE, partyId: "p1", me, itemHref: (id: string) => `#/item/${id}` }
+  const itemHref = (id: string) => `#/item/${id}`
+  const props = { spaceId: SPACE, partyId: "p1", me, itemHref, player }
   render(Provided, { props: { provide, component: PartyPage, props } })
   return fakes
 }
@@ -73,5 +80,21 @@ describe("PartyPage, in the app (#57)", () => {
       },
     })
     expect(await screen.findByText("This is not available")).toBeInTheDocument()
+  })
+})
+
+describe("PartyPage player", () => {
+  it("shows the in-app player for an in-app party, so the party has a video to drive", async () => {
+    setup({ source: "jellyfin" })
+    expect(await screen.findByText("Player for Severance")).toBeInTheDocument()
+  })
+
+  it("shows no player when you watch on Netflix or somewhere else", async () => {
+    for (const source of ["netflix", "external"] as const) {
+      setup({ source })
+      await screen.findByRole("heading", { name: "Watch party" })
+      expect(screen.queryByText(/Player for/)).toBeNull()
+      cleanup()
+    }
   })
 })
