@@ -27,6 +27,7 @@ src/features/<name>/
   ui/              Svelte components and rune stores (*.svelte.ts)
   testing/         in-memory fakes of the ports, used by tests
   index.ts         public surface; other features and src/app import only this
+extension/                  Netflix party extension (MV3); bundles src/features/parties, never copies
 supabase/migrations/        one concern per file, timestamped
 supabase/tests/database/<feature>/*.test.sql   pgTAP
 supabase/functions/<name>/index.ts             thin Deno entry (Deno adapters beside it)
@@ -91,8 +92,7 @@ UI receives use cases through Svelte context set in `src/app/composition/` (one 
 ## Tests first
 
 1. Write the failing pgTAP / Vitest / Playwright test for the acceptance criterion.
-2. Make it pass with the smallest change.
-3. Refactor to the line limit. Run `pnpm guard`.
+2. Make it pass with the smallest change, then refactor to the line limit. Run `pnpm guard`.
 
 ## Commits
 
