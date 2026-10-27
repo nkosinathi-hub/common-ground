@@ -8,6 +8,8 @@
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
   import { buildHash } from "@/shared/domain"
+  import { useCatalog } from "@/features/catalog/ui/context"
+  import { playbackCatalog } from "../composition/playback-catalog"
 
   interface Props {
     space: Space
@@ -18,6 +20,7 @@
 
   let { space, me, itemId }: Props = $props()
   const people = spacePeople(useMembers(), () => space.id)
+  const catalog = playbackCatalog(useCatalog().service)
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
 </script>
 
@@ -31,11 +34,13 @@
       {#snippet together(isFilm: boolean)}
         <WatchTogether spaceId={space.id} {itemId} {isFilm} />
       {/snippet}
-      {#snippet play(item)}
+      {#snippet play(item, onwatched)}
         {#if item.catalog}
           <PlayButton
             target={{ spaceId: space.id, itemId: item.id, catalog: item.catalog }}
             title={item.title}
+            {catalog}
+            {onwatched}
           />
         {/if}
       {/snippet}

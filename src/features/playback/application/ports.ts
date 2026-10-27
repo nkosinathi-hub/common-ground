@@ -26,6 +26,36 @@ export interface NextUp extends EpisodeNumber {
   readonly title: string
 }
 
+export interface PlaybackEpisode {
+  readonly number: number
+  readonly name: string
+}
+
+export interface PlaybackSeason {
+  readonly number: number
+  readonly name: string
+  readonly episodeCount: number
+}
+
+export interface PlaybackCatalogDetails {
+  readonly trailerAvailable: boolean
+  readonly seasons: readonly PlaybackSeason[]
+}
+
+/** App-provided catalog access used by the episode picker; playback stays in its own feature. */
+export interface PlaybackCatalog {
+  details(
+    spaceId: string,
+    type: "movie" | "tv",
+    id: number,
+  ): Promise<Result<PlaybackCatalogDetails>>
+  season(
+    spaceId: string,
+    id: number,
+    season: number,
+  ): Promise<Result<{ readonly episodes: readonly PlaybackEpisode[] }>>
+}
+
 /** A media server account kept on this device (Jellyfin): its token never leaves the device. */
 export interface ProviderAccount {
   signedIn(): Promise<boolean>

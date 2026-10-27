@@ -15,9 +15,10 @@
     title: string
     onclose: () => void
     onnext: (episode: EpisodeNumber) => void
+    onwatched?: () => void
   }
 
-  let { playing, target, title, onclose, onnext }: Props = $props()
+  let { playing, target, title, onclose, onnext, onwatched }: Props = $props()
   const { service, device, attachVideo } = usePlayback()
   const prefs = captionPreference(device)
   let captions = $state(prefs.read())
@@ -35,7 +36,7 @@
   $effect(() => {
     if (!video || !source) return
     const element = video
-    const reporter = untrack(() => service.reporter(source, target, playing.ref))
+    const reporter = untrack(() => service.reporter(source, target, playing.ref, onwatched))
     const update = () => {
       time = element.currentTime
       ended = element.ended
@@ -49,7 +50,6 @@
       detach()
     }
   })
-  // A watch party drives this video while it plays (src/app/composition/player-bridge.ts).
   $effect(() => (video && attachVideo ? untrack(() => attachVideo(video!)) : undefined))
 
   $effect(() => {

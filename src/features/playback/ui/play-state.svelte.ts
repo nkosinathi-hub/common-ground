@@ -1,5 +1,5 @@
 import type { AppError } from "@/shared/domain"
-import type { Playing, PlaybackService } from "../application/playback-service"
+import type { Playing, PlaybackService, ProviderSelection } from "../application/playback-service"
 import type { EpisodeNumber, PlayTarget } from "../application/ports"
 import type { PlaybackPrefs } from "../domain/provider.types"
 
@@ -17,13 +17,23 @@ export class PlayState {
     private readonly target: () => PlayTarget,
   ) {}
 
-  async open(episode?: EpisodeNumber, prefs?: PlaybackPrefs): Promise<void> {
+  async open(
+    episode?: EpisodeNumber,
+    prefs?: PlaybackPrefs,
+    selection?: ProviderSelection,
+  ): Promise<void> {
     this.controller?.abort()
     const controller = new AbortController()
     this.controller = controller
     this.status = "loading"
     this.error = null
-    const result = await this.service.play(this.target(), episode, prefs, controller.signal)
+    const result = await this.service.play(
+      this.target(),
+      episode,
+      prefs,
+      controller.signal,
+      selection,
+    )
     if (this.controller !== controller) return
     if (result.ok) {
       this.playing = result.value

@@ -9,8 +9,8 @@ third-party origin from an answer. That origin is fixed at build time and writte
 Without `VITE_CINEPRO_CORE_ORIGIN` no CinePro provider is built; with it, CinePro ranks first.
 
 Core is a scraper of third-party streaming sites. The person running it is responsible for what
-it reaches and for the laws and terms that apply. Keep it on loopback or the tailnet, never on
-the public internet: it has no authentication of its own.
+it reaches and for the laws and terms that apply. It has no authentication of its own. Keep it on
+loopback or the tailnet unless you intentionally choose the public Funnel deployment below.
 
 ## Run it locally
 
@@ -47,27 +47,36 @@ list, routes such hosts through the proxy's byte-safe streaming path instead; ad
 when a provider's segments arrive corrupted. The player, for its part, takes a segment served
 with a non-media type for a transport stream (`segmentContentType` in the playback UI).
 
-## Publish it for the site and the app
+## Publish it for all Common Ground users
 
 The deployed site and the Android app are HTTPS origins, so they need an HTTPS Core that every
-phone and browser can reach. The same recipe as Jellyfin, on the next port:
+phone and browser can reach. Workspace members do not need to join your tailnet. Publish Core
+with Tailscale Funnel on the next port:
 
-1. `scripts/cinepro/server.sh start` runs Core from the compose file and publishes it with
-   `tailscale serve` on `https://<host>.ts.net:8443`, tailnet only. It sets `PUBLIC_URL` to that
-   origin and `CORS_ORIGIN` to `*`: the site (`https://<owner>.github.io`) and the app
-   (`https://localhost` inside the WebView) are two origins and Core's CORS setting takes one.
-   The tailnet is what keeps strangers out, as it does for Jellyfin's token-less streams.
-2. Set the GitHub repository variable `VITE_CINEPRO_CORE_ORIGIN` to that origin (Settings,
-   Secrets and variables, Actions, Variables, or `gh variable set`). The Pages and APK workflows
-   pass it to the build.
-3. Bump the version in `package.json` and merge: the site redeploys and the APK's update check
-   offers the new build. Her phone needs Tailscale, as for Jellyfin.
-4. On the machine that runs Core, point `pnpm dev` at the published origin too (an https origin
+1. On the Core host, run `scripts/cinepro/server.sh install funnel`. It runs Core from the compose
+   file and publishes it at `https://<host>.ts.net:8443` through Tailscale Funnel, then installs a
+   systemd user service to repeat this at boot. It sets `PUBLIC_URL` to that origin and
+   `CORS_ORIGIN` to `*`: the site (`https://<owner>.github.io`) and the app (`https://localhost`
+   inside the WebView) are two origins and Core's CORS setting takes one. The command enables
+   lingering for your user so the service starts before you log in after a reboot.
+2. Funnel makes Core reachable from the public internet. Core has no authentication, so anyone
+   can call its source-discovery and proxy routes. Do not use this deployment for private media
+   or expose Jellyfin through the same Funnel. To keep Core private, use
+   `scripts/cinepro/server.sh start serve`; every viewer then needs to be on your tailnet.
+3. Set `VITE_CINEPRO_CORE_ORIGIN` in the GitHub repository's Actions variables (or run
+   `gh variable set`). The Pages and APK workflows pass it to the build.
+4. Bump the version in `package.json` and merge: the site redeploys and the APK's update check
+   offers the new build. Viewers do not need Tailscale installed.
+5. On the machine that runs Core, point `pnpm dev` at the published origin too (an https origin
    is allowed in every mode): the local container and the published one share a name and a port.
 
-`scripts/cinepro/server.sh stop` removes the Tailscale route and the container. After a reboot,
-rootless podman restarts the container only when `podman-restart.service` is enabled for the
-user (`systemctl --user enable --now podman-restart.service`); run `start` again otherwise.
+The app still requires sign-in and space membership to open a title. Those checks protect the
+workspace data; they do not authenticate requests made directly to the public CinePro endpoint.
+
+`scripts/cinepro/server.sh stop` disables the installed user service, removes the Tailscale route,
+and stops the container. `scripts/cinepro/server.sh install serve` installs the same boot startup
+using tailnet-only Tailscale Serve instead of public Funnel. To start it only for the current
+session, use `scripts/cinepro/server.sh start funnel`.
 
 ## Troubleshooting
 

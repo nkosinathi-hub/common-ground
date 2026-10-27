@@ -53,6 +53,19 @@ describe("ProgressReporter", () => {
     expect(markWatched).toHaveBeenCalledTimes(1)
   })
 
+  it("updates the owning view after the watched mark succeeds", async () => {
+    const marked = vi.fn()
+    const reporter = new ProgressReporter({
+      source: fakeSource("a", "a"),
+      watched: async () => ok(undefined),
+      onWatched: marked,
+      clock: () => 0,
+    })
+    await reporter.tick(90, 100, false)
+    await reporter.tick(95, 100, false)
+    expect(marked).toHaveBeenCalledTimes(1)
+  })
+
   it("never lets a failing report stop playback", async () => {
     const { reporter, report } = setup()
     report.mockRejectedValue(new Error("offline"))

@@ -3,6 +3,7 @@ import { ok } from "@/shared/domain"
 import { preferencesStorage } from "@/shared/infrastructure/preferences-storage"
 import { deviceStore } from "@/shared/ui"
 import type { WatchHistory, WatchService } from "@/features/watch"
+import type { CatalogService } from "@/features/catalog"
 import type { PlaybackPorts } from "@/features/playback"
 import type { KeyValue } from "@/features/playback/infrastructure/device-credentials"
 import type { JellyfinAccount } from "@/features/playback/infrastructure/jellyfin/account"
@@ -28,6 +29,7 @@ export function playbackPorts(
   watch: WatchService,
   jellyfin: JellyfinAccount | null,
   history: WatchHistory,
+  catalog: CatalogService,
 ): PlaybackPorts {
   const fromJellyfin = async (tmdbId: number) =>
     jellyfin && (await jellyfin.signedIn()) ? jellyfin.nextUp(tmdbId) : ok(null)
@@ -38,9 +40,18 @@ export function playbackPorts(
       const progress = await watch.progress(target.itemId)
       if (!progress.ok) return progress
       const mine = progress.value.entries.find((e) => e.userId === progress.value.me)
-      return ok(
-        mine?.season && mine.episode ? { season: mine.season, episode: mine.episode } : null,
+      if (!mine?.season || !mine.episode) return ok(null)
+      const currentSeasonNumber = mine.season
+      const details = await catalog.details(target.spaceId, { type: "tv", id: target.catalog.id })
+      if (!details.ok) return ok({ season: currentSeasonNumber, episode: mine.episode + 1 })
+      const seasons = details.value.seasons.filter((season) => season.number > 0)
+      const current = seasons.find((season) => season.number === currentSeasonNumber)
+      if (!current || mine.episode < current.episodeCount)
+        return ok({ season: currentSeasonNumber, episode: mine.episode + 1 })
+      const nextSeason = seasons.find(
+        (season) => season.number > currentSeasonNumber && season.episodeCount > 0,
       )
+      return ok(nextSeason ? { season: nextSeason.number, episode: 1 } : null)
     },
     nextUp: async (target, current) => {
       const next = await fromJellyfin(target.catalog.id)
