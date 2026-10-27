@@ -24,9 +24,22 @@ jobs:
   extension:
     uses: ./.github/workflows/extension.yml
 
+  # Run outside the tailnet so an endpoint that only works from the developer desktop cannot ship.
+  public-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      VITE_CINEPRO_CORE_ORIGIN: ${{ vars.VITE_CINEPRO_CORE_ORIGIN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/cinepro/public-smoke.mjs
+
   build: # the site ships even when the APK or the extension fails; each is then absent
-    needs: [apk, extension]
-    if: ${{ !cancelled() }}
+    needs: [apk, extension, public-smoke]
+    if: ${{ !cancelled() && needs.public-smoke.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}

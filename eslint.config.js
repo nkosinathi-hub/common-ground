@@ -77,7 +77,7 @@ export default ts.config(
   // Config files, plain JS and the Deno-only Edge Function files are outside tsconfig: lint them
   // without type information.
   {
-    files: ["**/*.js", "supabase/functions/*/*.ts"],
+    files: ["**/*.js", "**/*.mjs", "supabase/functions/*/*.ts"],
     ...ts.configs.disableTypeChecked,
   },
 )

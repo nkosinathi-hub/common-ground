@@ -1,0 +1,22 @@
+name: Public playback check
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      VITE_CINEPRO_CORE_ORIGIN: ${{ vars.VITE_CINEPRO_CORE_ORIGIN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/cinepro/public-smoke.mjs
