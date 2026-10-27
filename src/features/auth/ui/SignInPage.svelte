@@ -60,5 +60,8 @@
         href={buildHash({ name: "sign-up" })}>Create an account</a
       ></span
     >
+    <a class="text-primary underline underline-offset-4" href={buildHash({ name: "demo" })}
+      >Explore the sample demo</a
+    >
   {/snippet}
 </AuthCard>

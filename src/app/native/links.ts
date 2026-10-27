@@ -18,7 +18,7 @@ export function inAppPath(link: string, siteUrl: string): string | null {
   return `/${url.search}${url.hash}`
 }
 
-const ROOTS = new Set(["entry", "home", "sign-in", "not-found"])
+const ROOTS = new Set(["demo", "entry", "home", "sign-in", "not-found"])
 
 /** Android back: follow the app's history, and leave from a root page instead of blanking. */
 export function backAction(hash: string, canGoBack: boolean): "back" | "leave" {

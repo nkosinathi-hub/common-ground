@@ -5,6 +5,7 @@ const id = "8f9c2d1e-0b5a-4c3f-9e7d-112233445566"
 const other = "0a1b2c3d-4e5f-4a6b-8c7d-998877665544"
 
 const cases: [string, Route][] = [
+  ["#/demo", { name: "demo" }],
   ["#/auth/sign-in", { name: "sign-in" }],
   ["#/auth/sign-up", { name: "sign-up" }],
   ["#/auth/reset", { name: "reset" }],
