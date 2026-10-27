@@ -30,7 +30,7 @@ loopback or the tailnet unless you intentionally choose the public Funnel deploy
    exactly as they refuse an http Jellyfin.
 
 6. Restart Vite: the variable is compiled in, not read at runtime. Open a film or an episode and
-   press Play. The resolver's timeout (20 s), source validation, health and fallback apply.
+   press Play. CinePro gets a 60 s timeout; source validation, health and fallback still apply.
 
 `PUBLIC_URL` in the compose file must be the origin the app calls: Core builds the proxy links in
 its answers from it, and the adapter drops a link on any other origin. The default matches step 5.
