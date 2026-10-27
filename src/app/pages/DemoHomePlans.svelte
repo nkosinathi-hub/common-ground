@@ -38,7 +38,7 @@
       type="button"
       class="flex w-full justify-between gap-3 py-2 text-left"
       onclick={() => onGo("ideas")}
-      ><span class="font-medium">{idea.emoji} {idea.title}</span><span
+      ><span class="font-medium">{idea.title}</span><span
         class="rounded-full bg-muted px-2 py-1 text-xs">{idea.stage}</span
       ></button
     >{/each}
