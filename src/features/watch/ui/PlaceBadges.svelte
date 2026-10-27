@@ -20,7 +20,7 @@
         >Together {summary.together}</span
       >
     {/if}
-    {#each summary.people as person (person.name)}
+    {#each summary.people as person (person)}
       <span
         class="rounded-full border px-1.5 text-muted-foreground"
         class:border-primary={person.ahead}
