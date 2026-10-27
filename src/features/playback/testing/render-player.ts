@@ -1,4 +1,4 @@
-import { ok, type DeviceStore } from "../../../shared/domain"
+import { appError, err, ok, type DeviceStore } from "../../../shared/domain"
 import { PlaybackService } from "../application/playback-service"
 import type { PlaybackPorts, ProviderAccount } from "../application/ports"
 import type { MediaRef } from "../domain/media-ref"
@@ -18,9 +18,18 @@ function memoryDevice(): DeviceStore & { data: Map<string, string> } {
 export function playerFakes(sources: PlayableSource[], ports: Partial<PlaybackPorts> = {}) {
   const asked: MediaRef[] = []
   const resolver = {
-    resolve: async (ref: MediaRef) => {
+    resolve: async (
+      ref: MediaRef,
+      options?: { providerIds?: readonly string[]; excludeProviderIds?: readonly string[] },
+    ) => {
       asked.push(ref)
-      const [best, ...fallbacks] = sources
+      const eligible = sources.filter(
+        (source) =>
+          (!options?.providerIds || options.providerIds.includes(source.providerId)) &&
+          !options?.excludeProviderIds?.includes(source.providerId),
+      )
+      const [best, ...fallbacks] = eligible
+      if (!best) return err(appError("not_found", "Nothing can play this title right now"))
       return ok({ best: best ?? fakeSource("a", "a"), fallbacks })
     },
     providerFor: () => undefined,

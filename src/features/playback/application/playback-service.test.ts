@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { appError, err, ok } from "../../../shared/domain/result"
 import type { MediaRef } from "../domain/media-ref"
+import type { ResolveOptions } from "./source-resolver"
 import { fakeSource } from "../testing/fake-plugin"
 import { PlaybackService } from "./playback-service"
 import type { PlaybackPorts, PlayTarget } from "./ports"
@@ -9,7 +10,7 @@ const movie: PlayTarget = { spaceId: "s", itemId: "i", catalog: { type: "movie",
 const show: PlayTarget = { ...movie, catalog: { type: "tv", id: 1399 } }
 
 function setup(next: { season: number; episode: number } | null = null) {
-  const resolve = vi.fn(async (ref: MediaRef) => {
+  const resolve = vi.fn(async (ref: MediaRef, _options?: ResolveOptions) => {
     void ref
     return ok({ best: fakeSource("a", "a"), fallbacks: [] })
   })
@@ -45,6 +46,12 @@ describe("PlaybackService", () => {
       { kind: "episode", tmdbId: 1399, season: 3, episode: 2 },
       { prefs: { audioIndex: 1 } },
     ])
+  })
+
+  it("restricts a trailer request to its explicit provider", async () => {
+    const { service, resolve } = setup()
+    await service.play(movie, undefined, undefined, undefined, { providerIds: ["youtube-trailer"] })
+    expect(resolve.mock.calls[0]?.[1]).toEqual({ providerIds: ["youtube-trailer"] })
   })
 
   it("passes port and validation failures through", async () => {

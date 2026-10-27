@@ -39,6 +39,7 @@ export function compose(db: Db = createDb()) {
     playback: composePlaybackFeature(
       watch,
       composeWatchHistory(db),
+      core.catalog,
       catalogTmdb(core.catalog, () => core.spacesStore.active?.id ?? null),
     ),
     activePlayer: new ActivePlayer(),

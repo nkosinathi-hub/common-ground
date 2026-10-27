@@ -21,7 +21,7 @@
     /** "Watch together" for this title; told whether it is a film (no episodes to pick). */
     together?: Snippet<[boolean]>
     /** Watch-here player for the title, rendered under the header. */
-    play?: Snippet<[WatchItem]>
+    play?: Snippet<[WatchItem, () => void]>
   }
 
   let { spaceId, itemId, backHref, comments, recommend, together, play }: Props = $props()
@@ -50,7 +50,10 @@
   <AsyncView resource={view}>
     {#snippet children(current)}
       <ItemHeader view={current} {backHref} {recommend} onChanged={() => view.load()} />
-      {@render play?.(current.item)}
+      {@render play?.(current.item, () => {
+        progressVersion++
+        void view.load()
+      })}
       {#if together}{@render together(current.item.mediaType === "movie")}{/if}
       <ItemAvailability {spaceId} item={current.item} />
       <div class="grid gap-6 lg:grid-cols-2">
@@ -58,7 +61,10 @@
           item={current.item}
           authors={names.value ?? people.value ?? []}
           version={progressVersion}
-          onSaved={() => view.load()}
+          onSaved={() => {
+            progressVersion++
+            void view.load()
+          }}
         />
         <SessionsPanel
           item={current.item}

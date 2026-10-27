@@ -2,6 +2,8 @@
   import { PartyPage } from "@/features/parties"
   import { PlayButton } from "@/features/playback"
   import { buildHash } from "@/shared/domain"
+  import { useCatalog } from "@/features/catalog/ui/context"
+  import { playbackCatalog } from "../composition/playback-catalog"
 
   interface Props {
     spaceId: string
@@ -11,6 +13,7 @@
   }
 
   let { spaceId, partyId, me }: Props = $props()
+  const catalog = playbackCatalog(useCatalog().service)
   const itemHref = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
 </script>
 
@@ -22,6 +25,7 @@
         <PlayButton
           target={{ spaceId, itemId: party.watchItemId, catalog: party.catalog }}
           title={party.title}
+          {catalog}
         />
       {:else}
         <p class="rounded-xl border p-4 text-sm text-muted-foreground">

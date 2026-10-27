@@ -31,7 +31,7 @@ async function openFilm(page: Page, sources: CatalogEntry[]) {
     .single()
   if (error) throw error
   await page.goto(`./#/s/${spaceId}/watch/${String(data.id)}`)
-  await page.getByRole("button", { name: "Play", exact: true }).click()
+  await page.getByRole("button", { name: "Watch movie", exact: true }).click()
 }
 
 /** Starts playback with the player's own shortcut, then waits for the one-second clip to end. */

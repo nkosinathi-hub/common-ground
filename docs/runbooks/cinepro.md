@@ -63,9 +63,8 @@ with Tailscale Funnel on the next port:
    can call its source-discovery and proxy routes. Do not use this deployment for private media
    or expose Jellyfin through the same Funnel. To keep Core private, use
    `scripts/cinepro/server.sh start serve`; every viewer then needs to be on your tailnet.
-3. Set the GitHub repository variable `VITE_CINEPRO_CORE_ORIGIN` to that origin (Settings,
-   Secrets and variables, Actions, Variables, or `gh variable set`). The Pages and APK workflows
-   pass it to the build.
+3. Set `VITE_CINEPRO_CORE_ORIGIN` in the GitHub repository's Actions variables (or run
+   `gh variable set`). The Pages and APK workflows pass it to the build.
 4. Bump the version in `package.json` and merge: the site redeploys and the APK's update check
    offers the new build. Viewers do not need Tailscale installed.
 5. On the machine that runs Core, point `pnpm dev` at the published origin too (an https origin

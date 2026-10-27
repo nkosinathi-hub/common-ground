@@ -8,6 +8,7 @@ export interface ProgressDeps {
   readonly provider?: Provider
   /** Called once, when 90 percent has played; the watch data model decides what it records. */
   readonly watched: () => Promise<Result<void>>
+  readonly onWatched?: () => void
   readonly clock: () => number
   readonly intervalMs?: number
 }
@@ -41,7 +42,8 @@ export class ProgressReporter {
   async tick(position: number, duration: number, paused: boolean): Promise<void> {
     if (!this.marked && hasWatchedEnough(position, duration)) {
       this.marked = true
-      await this.deps.watched()
+      const result = await this.deps.watched()
+      if (result.ok) this.deps.onWatched?.()
     }
     const now = this.deps.clock()
     if (now - this.last < (this.deps.intervalMs ?? 10_000)) return

@@ -1,6 +1,7 @@
 import { PlaybackService, providePlayback } from "@/features/playback"
 import { DeviceCredentials } from "@/features/playback/infrastructure/device-credentials"
 import type { WatchHistory, WatchService } from "@/features/watch"
+import type { CatalogService } from "@/features/catalog"
 import { deviceStore } from "@/shared/ui"
 import { composePlayback } from "./playback"
 import { fixtureBuild } from "./playback-fixture"
@@ -14,6 +15,7 @@ const CHOICES = "playback-providers"
 export function composePlaybackFeature(
   watch: WatchService,
   history: WatchHistory,
+  catalog: CatalogService,
   tmdb: TmdbLookup,
 ) {
   const device = deviceStore()
@@ -33,7 +35,7 @@ export function composePlaybackFeature(
   })
   const service = new PlaybackService(
     playback.resolver,
-    playbackPorts(watch, playback.jellyfin, history),
+    playbackPorts(watch, playback.jellyfin, history, catalog),
   )
   return { service, device, jellyfin: playback.jellyfin, log: playback.log }
 }

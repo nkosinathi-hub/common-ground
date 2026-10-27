@@ -27,6 +27,10 @@ export interface ResolverDeps {
 export interface ResolveOptions {
   readonly signal?: AbortSignal
   readonly prefs?: PlaybackPrefs
+  /** Restrict a resolution to one or more explicit providers, for example the trailer action. */
+  readonly providerIds?: readonly string[]
+  /** Keep implicit fallbacks, such as a trailer, out of the main title action. */
+  readonly excludeProviderIds?: readonly string[]
 }
 
 /** Asks every capable provider at once; one provider failing never fails the whole resolve. */
@@ -45,7 +49,11 @@ export class SourceResolver {
       backoffMs: this.deps.backoffMs ?? 250,
     }
     const capable = this.providers.filter(
-      (e) => e.plugin.capabilities.media.includes(ref.kind) && e.provider.supports(ref),
+      (e) =>
+        (!options.providerIds || options.providerIds.includes(e.config.id)) &&
+        !options.excludeProviderIds?.includes(e.config.id) &&
+        e.plugin.capabilities.media.includes(ref.kind) &&
+        e.provider.supports(ref),
     )
     const found = await Promise.all(
       capable.map(async (entry) => {
