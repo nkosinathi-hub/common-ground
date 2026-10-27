@@ -1,6 +1,8 @@
 name: Public playback check
 
 on:
+  push:
+    branches: ["codex/**"]
   pull_request:
     branches: [main]
   workflow_dispatch:
