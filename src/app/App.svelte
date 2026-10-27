@@ -10,28 +10,34 @@
   import { RouteGate } from "./routing/gate.svelte"
   import { PushSession } from "./native/push-session"
   import { Router } from "./routing/router.svelte"
+  import DemoPage from "./pages/DemoPage.svelte"
 
   const services = compose()
   provideServices(services)
   const { session, spacesStore, notifications, auth } = services
   const router = new Router()
   const gate = new RouteGate(router, session, spacesStore)
-  let booted = $state(false)
-  let linkExpired = $state(false)
+  let booted = $state(false),
+    linkExpired = $state(false)
+  let bootStarted = false
 
   onMount(() => {
     const stopRouter = router.start()
-    void boot(services, router).then((result) => {
-      linkExpired = result.linkExpired
-      booted = true
-    })
     return () => {
       stopRouter()
       session.dispose()
     }
   })
 
-  // Keyed on the id only: token refreshes replace the user object but must not reload data.
+  $effect(() => {
+    if (router.route.name === "demo" || bootStarted) return
+    bootStarted = true
+    void boot(services, router).then((result) => {
+      linkExpired = result.linkExpired
+      booted = true
+    })
+  })
+
   const userId = $derived(session.user?.id ?? null)
   $effect(() => {
     if (!userId) return spacesStore.clear()
@@ -40,7 +46,6 @@
     return notifications.start()
   })
 
-  // The Android app registers for push once Firebase is in the build (docs/runbooks/android.md).
   const phonePush =
     Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
       ? new PushSession(() =>
@@ -53,7 +58,13 @@
 
   $effect(() => {
     const decision = gate.decision
-    if (booted && gate.ready && !gate.failed && decision.kind === "redirect")
+    if (
+      router.route.name !== "demo" &&
+      booted &&
+      gate.ready &&
+      !gate.failed &&
+      decision.kind === "redirect"
+    )
       router.go(decision.route, true)
   })
 
@@ -70,7 +81,9 @@
 <!-- The CSP forbids inline scripts; mode changes apply synchronously so AppShell reads them. -->
 <ModeWatcher disableHeadScriptInjection synchronousModeChanges />
 <Toaster richColors position="top-center" />
-{#if !booted || !gate.ready}
+{#if router.route.name === "demo"}
+  <DemoPage />
+{:else if !booted || !gate.ready}
   <div class="mx-auto max-w-md p-8"><Loading label="Opening Common Ground" /></div>
 {:else if gate.failed && spacesStore.error}
   <div class="mx-auto max-w-md p-8">

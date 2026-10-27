@@ -16,6 +16,10 @@ describe("resolveRoute", () => {
       route: { name: "sign-in" },
     })
     expect(resolveRoute({ name: "privacy" }, signedOut).kind).toBe("render")
+    expect(resolveRoute({ name: "demo" }, signedOut)).toEqual({
+      kind: "render",
+      route: { name: "demo" },
+    })
     expect(resolveRoute({ name: "invite", token: "t" }, signedOut).kind).toBe("render")
   })
 

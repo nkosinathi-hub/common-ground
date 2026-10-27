@@ -9,7 +9,14 @@ export interface Gate {
 
 export type Decision = { kind: "render"; route: Route } | { kind: "redirect"; route: Route }
 
-const PUBLIC = new Set<Route["name"]>(["sign-in", "sign-up", "reset", "privacy", "not-found"])
+const PUBLIC = new Set<Route["name"]>([
+  "demo",
+  "sign-in",
+  "sign-up",
+  "reset",
+  "privacy",
+  "not-found",
+])
 const AUTH_ONLY = new Set<Route["name"]>(["sign-in", "sign-up"])
 
 const render = (route: Route): Decision => ({ kind: "render", route })

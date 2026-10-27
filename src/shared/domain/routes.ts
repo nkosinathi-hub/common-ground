@@ -2,7 +2,7 @@ export const IDEA_TABS = ["overview", "research", "tasks", "milestones", "discus
 export type IdeaTab = (typeof IDEA_TABS)[number]
 
 export type Route =
-  | { name: "entry" | "not-found" | "sign-in" | "sign-up" | "reset" | "new-password" }
+  | { name: "entry" | "not-found" | "demo" | "sign-in" | "sign-up" | "reset" | "new-password" }
   | { name: "new-space" | "account" | "privacy" }
   | { name: "invite"; token: string }
   | { name: "home" | "watch" | "ideas" | "calendar" | "settings"; spaceId: string }
@@ -19,6 +19,7 @@ const STATIC: Record<string, Route> = {
   "auth/sign-up": { name: "sign-up" },
   "auth/reset": { name: "reset" },
   "auth/new-password": { name: "new-password" },
+  demo: { name: "demo" },
   "spaces/new": { name: "new-space" },
   account: { name: "account" },
   privacy: { name: "privacy" },
