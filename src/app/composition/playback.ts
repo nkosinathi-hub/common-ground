@@ -57,7 +57,7 @@ function defaultConfigs(build: PlaybackBuild): ProviderConfig[] {
   })
   return [
     ...(build.cineproOrigin
-      ? [{ ...entry("cinepro", 0, 20_000, 0), options: { serverUrl: build.cineproOrigin } }]
+      ? [{ ...entry("cinepro", 0, 60_000, 0), options: { serverUrl: build.cineproOrigin } }]
       : []),
     ...(build.jellyfinOrigin
       ? [{ ...entry("jellyfin", 1, 8_000, 1), options: { serverUrl: build.jellyfinOrigin } }]
