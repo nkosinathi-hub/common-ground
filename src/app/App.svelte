@@ -10,9 +10,11 @@
   import { RouteGate } from "./routing/gate.svelte"
   import { PushSession } from "./native/push-session"
   import { Router } from "./routing/router.svelte"
+  import DemoNotice from "./demo/DemoNotice.svelte"
   import DemoPage from "./pages/DemoPage.svelte"
-
-  const services = compose()
+  import { composeDemo } from "./demo/services"
+  const demo = new URLSearchParams(location.search).get("demo") === "1"
+  const services = demo ? composeDemo() : compose()
   provideServices(services)
   const { session, spacesStore, notifications, auth } = services
   const router = new Router()
@@ -20,7 +22,6 @@
   let booted = $state(false),
     linkExpired = $state(false)
   let bootStarted = false
-
   onMount(() => {
     const stopRouter = router.start()
     return () => {
@@ -28,7 +29,6 @@
       session.dispose()
     }
   })
-
   $effect(() => {
     if (router.route.name === "demo" || bootStarted) return
     bootStarted = true
@@ -37,17 +37,15 @@
       booted = true
     })
   })
-
   const userId = $derived(session.user?.id ?? null)
   $effect(() => {
     if (!userId) return spacesStore.clear()
     void spacesStore.refresh()
-    void services.simkl.syncOnOpen(userId) // once per app open, never on a timer
+    if (!demo) void services.simkl.syncOnOpen(userId) // once per app open, never on a timer
     return notifications.start()
   })
-
   const phonePush =
-    Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
+    !demo && Capacitor.isNativePlatform() && import.meta.env.VITE_PUSH === "on"
       ? new PushSession(() =>
           import("./native/push").then((m) => m.startPush(services.pushDevices)),
         )
@@ -69,6 +67,7 @@
   })
 
   async function signOut(scope: "here" | "everywhere" = "here") {
+    if (demo) return location.reload() // reset the sample without touching a real session
     await phonePush?.follow(null) // while the session still exists, so the server forgets too
     await (scope === "everywhere" ? auth.signOutEverywhere() : auth.signOut())
     await services.playback.jellyfin?.signOut() // revokes the Jellyfin session, forgets the token
@@ -81,6 +80,7 @@
 <!-- The CSP forbids inline scripts; mode changes apply synchronously so AppShell reads them. -->
 <ModeWatcher disableHeadScriptInjection synchronousModeChanges />
 <Toaster richColors position="top-center" />
+{#if demo}<DemoNotice />{/if}
 {#if router.route.name === "demo"}
   <DemoPage />
 {:else if !booted || !gate.ready}
