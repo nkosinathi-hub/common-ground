@@ -42,6 +42,7 @@ describe("SettingsPage for the owner", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Save layout" }))
     await waitFor(() =>
       expect(gateway.spaces[0]?.homeCards).toEqual([
+        "on_your_mind",
         "calendar",
         "continue_watching",
         "coming_up",
