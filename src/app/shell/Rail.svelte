@@ -18,7 +18,7 @@
 
 <!-- Figma Rail / Desktop (208:3788): 224 wide, filled with the space's button colour. -->
 <aside
-  class="sticky top-(--chrome-top,0px) hidden h-[calc(100dvh-var(--chrome-top,0px))] w-56 shrink-0 flex-col gap-section bg-sidebar px-inset py-card text-sidebar-foreground md:flex"
+  class="sticky top-(--chrome-top) hidden h-[calc(100dvh-var(--chrome-top))] w-56 shrink-0 flex-col gap-section bg-sidebar px-inset py-card text-sidebar-foreground md:flex"
 >
   <div class="flex items-center gap-related">
     <Logo size={32} />

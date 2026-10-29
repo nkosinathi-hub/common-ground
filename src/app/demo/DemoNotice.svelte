@@ -2,12 +2,18 @@
   const exit = location.pathname + "#/auth/sign-in"
 </script>
 
-<!-- Sticky, and it sets --chrome-top so the shell's rail sits below it. -->
+<!--
+  The app's only bar above the shell. It is one line at every width and exactly --chrome-top
+  tall (app.css), so every sticky bar below it (rail, top bar, phone app bar) sits at that offset.
+-->
 <div
   data-demo-notice
-  class="z-50 border-b bg-muted px-3 py-2 text-center text-sm md:sticky md:top-0 md:h-9"
+  class="sticky top-0 z-50 flex h-(--chrome-top) items-center justify-center gap-related overflow-hidden border-b bg-muted px-3 type-sm whitespace-nowrap"
 >
-  <strong>Sample demo</strong> · The real app with sample data. Changes are not saved.
-  <a class="ml-2 underline" href={exit}>Exit demo</a>
-  <button type="button" class="ml-2 underline" onclick={() => location.reload()}>Reset demo</button>
+  <strong>Sample demo</strong>
+  <span class="hidden truncate sm:inline"
+    >· The real app with sample data. Changes are not saved.</span
+  >
+  <a class="underline" href={exit}>Exit demo</a>
+  <button type="button" class="underline" onclick={() => location.reload()}>Reset demo</button>
 </div>

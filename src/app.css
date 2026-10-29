@@ -7,7 +7,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Fixed chrome above the app, such as the demo notice: the rail sits below it. */
+/* The height of any bar above the shell (only the demo notice today); 0 when there is none.
+   Every sticky bar in the shell offsets by it, so they stack instead of sliding under. */
+:root {
+  --chrome-top: 0px;
+}
 :root:has([data-demo-notice]) {
   --chrome-top: 2.25rem;
 }

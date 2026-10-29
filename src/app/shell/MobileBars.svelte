@@ -19,7 +19,9 @@
 </script>
 
 <!-- Figma Mobile app bar (200:2546) above the page and Mobile tab bar (200:2748) below it. -->
-<header class="flex h-14 items-center gap-related px-gutter md:hidden">
+<header
+  class="sticky top-(--chrome-top) z-30 flex h-14 items-center gap-related bg-background/95 px-gutter backdrop-blur md:hidden"
+>
   <div class="min-w-0 flex-1"><SpaceSwitcher variant="bar" /></div>
   {@render bell?.()}
   <AccountMenu variant="bar" {onSignOut} />

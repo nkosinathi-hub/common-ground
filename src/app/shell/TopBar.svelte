@@ -13,7 +13,10 @@
 </script>
 
 <!-- Figma Top bar / Desktop (185:779). -->
-<header class="hidden h-16 items-center gap-related border-b border-border px-gutter md:flex">
+<!-- Sticky under the demo notice, if any (--chrome-top), so it never half-scrolls away. -->
+<header
+  class="sticky top-(--chrome-top) z-30 hidden h-16 items-center gap-related border-b border-border bg-background/95 px-gutter backdrop-blur md:flex"
+>
   <nav aria-label="Breadcrumb" class="min-w-0 flex-1">
     <ol class="flex items-center gap-related">
       {#each crumbs as crumb, index (index)}
