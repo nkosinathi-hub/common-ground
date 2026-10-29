@@ -37,6 +37,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await page.getByRole("button", { name: "Switch space", exact: true }).click()
   await page.getByRole("menuitem", { name: /Space settings/ }).click()
   await expect(page.getByRole("heading", { name: "Space settings", exact: true })).toBeVisible()
+  await page.getByRole("tab", { name: "Members & safety" }).click()
   await expect(page.getByText("Ben", { exact: true })).toBeVisible()
   expect(errors).toEqual([])
 })
