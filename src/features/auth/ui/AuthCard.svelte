@@ -12,7 +12,7 @@
   let { title, description, children, footer }: Props = $props()
 </script>
 
-<main class="flex min-h-dvh items-center justify-center bg-banner/40 px-4 py-10">
+<main class="flex min-h-dvh items-center justify-center bg-secondary px-4 py-10">
   <Card.Root class="w-full max-w-md">
     <Card.Header>
       <p class="font-serif text-sm tracking-wide text-primary">Common Ground</p>

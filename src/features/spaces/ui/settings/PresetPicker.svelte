@@ -22,7 +22,7 @@
       data-space-theme={preset ?? template}
       onclick={() => (value = preset)}
       class={cn(
-        "flex items-center gap-2 rounded-lg border bg-banner/60 p-2 text-left text-sm",
+        "flex items-center gap-2 rounded-lg border bg-secondary p-2 text-left text-sm",
         value === preset ? "border-primary ring-2 ring-primary" : "hover:border-primary/50",
       )}
     >

@@ -29,7 +29,7 @@
 {:else}
   <li
     class="flex flex-col gap-2 rounded-lg border p-3 {unread
-      ? 'border-primary/40 bg-highlight'
+      ? 'border-primary/40 bg-secondary'
       : ''}"
     data-testid="home-note"
   >

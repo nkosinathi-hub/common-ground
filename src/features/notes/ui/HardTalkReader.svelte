@@ -74,7 +74,7 @@
           onResponded={(k) => (latest = k)}
         />
       {/if}
-      {#if latest === "talk"}<p class="rounded-lg bg-highlight p-3 text-sm">{TALK_TIP}</p>{/if}
+      {#if latest === "talk"}<p class="rounded-lg bg-secondary p-3 text-sm">{TALK_TIP}</p>{/if}
       <HardTalkThread {note} {notes} {mine} />
     </div>
   </Dialog.Content>

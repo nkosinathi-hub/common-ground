@@ -24,7 +24,7 @@
       data-space-theme={template.id}
       onclick={() => choose(template.id)}
       class={cn(
-        "rounded-xl border bg-banner/60 p-4 text-left transition-shadow",
+        "rounded-xl border bg-secondary p-4 text-left transition-shadow",
         value === template.id ? "border-primary ring-2 ring-primary" : "hover:border-primary/50",
       )}
     >

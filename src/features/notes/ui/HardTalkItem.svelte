@@ -37,7 +37,7 @@
 
 <!-- An envelope: who and how it stands, never a word of what it says. -->
 <li
-  class="flex flex-col gap-2 rounded-lg border p-3 {unread ? 'border-primary/40 bg-highlight' : ''}"
+  class="flex flex-col gap-2 rounded-lg border p-3 {unread ? 'border-primary/40 bg-secondary' : ''}"
   data-testid="home-note"
 >
   <div class="flex flex-wrap items-center gap-2 text-sm">

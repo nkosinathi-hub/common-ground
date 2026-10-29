@@ -1,0 +1,179 @@
+{
+  "collections": [
+    {
+      "name": "Layout",
+      "modes": ["Comfortable", "Compact", "Spacious"],
+      "variables": [
+        { "name": "spacing/related", "values": [8, 7, 10] },
+        { "name": "spacing/item", "values": [12, 10, 14] },
+        { "name": "spacing/inset", "values": [16, 14, 19] },
+        { "name": "spacing/card", "values": [20, 17, 24] },
+        { "name": "spacing/card-auth", "values": [32, 27, 38] },
+        { "name": "spacing/stack", "values": [16, 14, 19] },
+        { "name": "spacing/columns", "values": [24, 20, 29] },
+        { "name": "spacing/section", "values": [32, 27, 38] },
+        { "name": "spacing/gutter-1440", "values": [40, 40, 40] },
+        { "name": "spacing/gutter-1024", "values": [32, 32, 32] },
+        { "name": "spacing/gutter-768", "values": [24, 24, 24] },
+        { "name": "spacing/gutter-390", "values": [16, 16, 16] },
+        { "name": "container/content", "values": [1136, 1136, 1136] },
+        { "name": "container/aside", "values": [340, 340, 340] },
+        { "name": "container/prose", "values": [640, 640, 640] },
+        { "name": "container/form", "values": [560, 560, 560] },
+        { "name": "container/auth", "values": [480, 480, 480] },
+        { "name": "container/dialog", "values": [560, 560, 560] },
+        { "name": "container/dialog-wide", "values": [720, 720, 720] },
+        { "name": "container/public", "values": [1200, 1200, 1200] },
+        { "name": "container/auth-field", "values": [416, 416, 416] },
+        { "name": "field/date", "values": [180, 180, 180] },
+        { "name": "field/time", "values": [120, 120, 120] },
+        { "name": "field/select", "values": [200, 200, 200] },
+        { "name": "field/number", "values": [160, 160, 160] },
+        { "name": "field/hex", "values": [140, 140, 140] },
+        { "name": "field/search", "values": [360, 360, 360] },
+        { "name": "control/inline", "values": [32, 32, 32] },
+        { "name": "control/default", "values": [40, 40, 40] },
+        { "name": "control/touch", "values": [44, 44, 44] },
+        { "name": "control/padding-sm", "values": [12, 12, 12] },
+        { "name": "control/padding-default", "values": [16, 16, 16] },
+        { "name": "control/padding-lg", "values": [20, 20, 20] },
+        { "name": "spacing/hairline", "values": [4, 3, 5] }
+      ]
+    },
+    {
+      "name": "Radius",
+      "modes": ["Soft", "Square", "Rounded"],
+      "variables": [
+        { "name": "radius/sm", "values": [6, 2, 8] },
+        { "name": "radius/md", "values": [8, 4, 12] },
+        { "name": "radius/lg", "values": [12, 6, 16] },
+        { "name": "radius/xl", "values": [16, 8, 24] },
+        { "name": "radius/full", "values": [9999, 9999, 9999] }
+      ]
+    },
+    {
+      "name": "Color",
+      "modes": ["Light", "Dark"],
+      "variables": [
+        { "name": "color/background", "values": ["#f7f5ef", "#181525"] },
+        { "name": "color/card", "values": ["#fffefa", "#252134"] },
+        { "name": "color/foreground", "values": ["#26223a", "#f5f0e8"] },
+        { "name": "color/muted-foreground", "values": ["#6b6677", "#b9b2c9"] },
+        { "name": "color/muted", "values": ["#f0ede6", "#302849"] },
+        { "name": "color/border", "values": ["#e1dde6", "#3c354c"] },
+        { "name": "color/primary", "values": ["#3225a8", "#d5cef7"] },
+        { "name": "color/primary-foreground", "values": ["#fffefa", "#181525"] },
+        { "name": "color/secondary", "values": ["#ede9fa", "#433b56"] },
+        { "name": "color/secondary-foreground", "values": ["#3225a8", "#d5cef7"] },
+        { "name": "color/destructive", "values": ["#a73c45", "#e07a83"] },
+        { "name": "color/destructive-foreground", "values": ["#fffefa", "#181525"] },
+        { "name": "color/brand", "values": ["#c7f268", "#c7f268"] },
+        { "name": "color/ring", "values": ["#3225a8", "#d5cef7"] },
+        {
+          "name": "color/sidebar",
+          "values": [{ "alias": "color/primary" }, { "alias": "color/primary" }]
+        },
+        {
+          "name": "color/sidebar-foreground",
+          "values": [
+            { "alias": "color/primary-foreground" },
+            { "alias": "color/primary-foreground" }
+          ]
+        },
+        { "name": "color/on-brand", "values": ["#3225a8", "#3225a8"] }
+      ]
+    }
+  ],
+  "text": [
+    {
+      "name": "display",
+      "family": "Lora",
+      "style": "Regular",
+      "size": 48,
+      "lineHeight": 56,
+      "tracking": "0em"
+    },
+    {
+      "name": "heading/h1",
+      "family": "Lora",
+      "style": "Regular",
+      "size": 36,
+      "lineHeight": 44,
+      "tracking": "0em"
+    },
+    {
+      "name": "heading/h2",
+      "family": "Lora",
+      "style": "Regular",
+      "size": 24,
+      "lineHeight": 32,
+      "tracking": "0em"
+    },
+    {
+      "name": "heading/h3",
+      "family": "Lora",
+      "style": "Regular",
+      "size": 20,
+      "lineHeight": 28,
+      "tracking": "0em"
+    },
+    {
+      "name": "body/default",
+      "family": "Inter",
+      "style": "Regular",
+      "size": 16,
+      "lineHeight": 24,
+      "tracking": "0em"
+    },
+    {
+      "name": "body/sm",
+      "family": "Inter",
+      "style": "Regular",
+      "size": 14,
+      "lineHeight": 20,
+      "tracking": "0em"
+    },
+    {
+      "name": "body/xs",
+      "family": "Inter",
+      "style": "Regular",
+      "size": 12,
+      "lineHeight": 16,
+      "tracking": "0em"
+    },
+    {
+      "name": "label/default",
+      "family": "Inter",
+      "style": "Semi Bold",
+      "size": 14,
+      "lineHeight": 20,
+      "tracking": "0em"
+    },
+    {
+      "name": "label/sm",
+      "family": "Inter",
+      "style": "Semi Bold",
+      "size": 12,
+      "lineHeight": 16,
+      "tracking": "0em"
+    },
+    {
+      "name": "overline",
+      "family": "Inter",
+      "style": "Semi Bold",
+      "size": 12,
+      "lineHeight": 16,
+      "tracking": "0.06em"
+    }
+  ],
+  "effects": [
+    {
+      "name": "elevation/fab",
+      "shadows": [{ "x": 0, "y": 4, "blur": 12, "spread": 0, "color": "#0000002e" }]
+    },
+    {
+      "name": "elevation/xs",
+      "shadows": [{ "x": 0, "y": 1, "blur": 2, "spread": 0, "color": "#00000014" }]
+    }
+  ]
+}

@@ -30,7 +30,7 @@
 {#if invite}
   <section
     aria-label="Invitation"
-    class="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-highlight p-3"
+    class="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-secondary p-3"
   >
     <p class="text-sm">
       {memberName(authors, invite.invitedBy)} invited you to work on this idea. Joining makes it our idea;

@@ -47,7 +47,7 @@
         data-testid="look-preview"
         data-space-theme={preview.preset}
         style={previewStyle}
-        class="flex items-center gap-3 rounded-lg bg-banner p-3"
+        class="flex items-center gap-3 rounded-lg bg-secondary p-3"
       >
         <span class="rounded-md bg-primary px-3 py-1 text-sm text-primary-foreground">Preview</span>
         <span class="text-sm font-medium text-primary">How links and buttons look</span>

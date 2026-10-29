@@ -41,7 +41,7 @@
 <div bind:this={region} tabindex="-1" class="grid gap-3 outline-none empty:hidden">
   {#each waiting.value ?? [] as note (note.id)}
     <section
-      class="flex flex-col gap-2 rounded-xl border border-primary/40 bg-highlight p-4 sm:flex-row sm:items-center"
+      class="flex flex-col gap-2 rounded-xl border border-primary/40 bg-secondary p-4 sm:flex-row sm:items-center"
       aria-labelledby="shared-{note.id}"
       data-testid="shared-with-you"
     >

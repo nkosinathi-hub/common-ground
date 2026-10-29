@@ -20,7 +20,7 @@
   class={cn("h-24 w-auto", className)}
   xmlns="http://www.w3.org/2000/svg"
 >
-  <circle cx="128" cy="24" r="11" class="fill-clay/25" />
+  <circle cx="128" cy="24" r="11" class="fill-primary/25" />
   <path d="M0 92 Q80 60 160 92 V100 H0 Z" class="fill-primary/15" />
   <path
     d="M52 34 Q80 6 108 34"
@@ -30,8 +30,8 @@
     class="stroke-primary"
   />
   <path d="M46 84 Q46 58 60 58 Q74 58 74 84 Z" class="fill-primary" />
-  <circle cx="60" cy="47" r="8" class="fill-clay" />
-  <path d="M86 84 Q86 58 100 58 Q114 58 114 84 Z" class="fill-clay" />
+  <circle cx="60" cy="47" r="8" class="fill-primary" />
+  <path d="M86 84 Q86 58 100 58 Q114 58 114 84 Z" class="fill-primary" />
   <circle cx="100" cy="47" r="8" class="fill-primary" />
-  <circle cx="80" cy="66" r="3" class="fill-highlight stroke-clay" stroke-width="1.5" />
+  <circle cx="80" cy="66" r="3" class="fill-brand stroke-primary" stroke-width="1.5" />
 </svg>

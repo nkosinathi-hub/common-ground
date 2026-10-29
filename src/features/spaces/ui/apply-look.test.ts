@@ -31,7 +31,7 @@ describe("applySpaceLook", () => {
     expect(root.dataset.spaceTheme).toBe("ocean")
     const primary = root.style.getPropertyValue("--primary")
     expect(primary).toMatch(/^#[0-9a-f]{6}$/)
-    expect(root.style.getPropertyValue("--banner")).not.toBe("")
+    expect(root.style.getPropertyValue("--secondary")).not.toBe("")
     expect(meta().getAttribute("content")).toBe(primary)
     undo()
     expect(root.getAttribute("style") ?? "").not.toContain("--primary")

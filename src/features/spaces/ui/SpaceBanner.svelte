@@ -19,7 +19,7 @@
 
 <section
   data-testid="space-banner"
-  class="relative overflow-hidden rounded-2xl bg-banner bg-cover bg-center"
+  class="relative overflow-hidden rounded-2xl bg-secondary bg-cover bg-center"
   style:background-image={cover ? `url("${cover}")` : undefined}
 >
   <div

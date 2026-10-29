@@ -12,7 +12,7 @@
   <legend class="mb-1.5 text-sm font-medium">How I'd like you to respond</legend>
   {#each RESPONSE_WISHES as wish (wish.value)}
     <label
-      class="flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm has-checked:border-primary has-checked:bg-highlight"
+      class="flex min-h-11 items-center gap-2 rounded-lg border px-3 text-sm has-checked:border-primary has-checked:bg-secondary"
     >
       <input
         type="radio"

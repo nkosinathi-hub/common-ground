@@ -21,7 +21,7 @@
 </script>
 
 {#if shown}
-  <aside class="flex items-start gap-2 rounded-lg bg-highlight p-3 text-sm" aria-label="Tip">
+  <aside class="flex items-start gap-2 rounded-lg bg-secondary p-3 text-sm" aria-label="Tip">
     <Lightbulb class="mt-0.5 size-4 shrink-0" aria-hidden="true" />
     <p class="flex-1">{text}</p>
     <Button size="sm" variant="ghost" class="min-h-11" onclick={dismiss}>Got it</Button>

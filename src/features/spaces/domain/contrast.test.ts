@@ -24,19 +24,19 @@ describe("accentTokens", () => {
         const primary = vars["--primary"]
         expect(contrastRatio(primary, surfaces.background)).toBeGreaterThanOrEqual(AA)
         expect(contrastRatio(primary, surfaces.card)).toBeGreaterThanOrEqual(AA)
-        expect(contrastRatio(primary, vars["--banner"])).toBeGreaterThanOrEqual(AA)
+        expect(contrastRatio(primary, vars["--secondary"])).toBeGreaterThanOrEqual(AA)
         expect(contrastRatio(vars["--primary-foreground"], primary)).toBeGreaterThanOrEqual(AA)
-        for (const tint of ["--accent", "--sidebar-accent", "--banner"] as const)
-          expect(contrastRatio(surfaces.foreground, vars[tint])).toBeGreaterThanOrEqual(AA)
+        expect(contrastRatio(surfaces.foreground, vars["--secondary"])).toBeGreaterThanOrEqual(AA)
+        expect(vars["--secondary-foreground"]).toBe(primary)
         expect(vars["--ring"]).toBe(primary)
       })
     }
   }
 
   it("leaves an accent that already passes alone and says so", () => {
-    expect(accentTokens("#526B4A", "light")).toMatchObject({
+    expect(accentTokens("#3225A8", "light")).toMatchObject({
       adjusted: false,
-      vars: { "--primary": "#526b4a", "--primary-foreground": "#ffffff" },
+      vars: { "--primary": "#3225a8", "--primary-foreground": SURFACES.light.card },
     })
   })
 
@@ -51,7 +51,7 @@ describe("accentTokens", () => {
 
   it("tints the accent surfaces lightly toward the primary", () => {
     const { vars } = accentTokens("#8a4f5d", "light")
-    expect(vars["--accent"]).not.toBe(SURFACES.light.background)
-    expect(contrastRatio(vars["--accent"], SURFACES.light.background)).toBeLessThan(1.3)
+    expect(vars["--secondary"]).not.toBe(SURFACES.light.background)
+    expect(contrastRatio(vars["--secondary"], SURFACES.light.background)).toBeLessThan(1.3)
   })
 })

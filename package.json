@@ -31,7 +31,8 @@
     "android:apk": "bash scripts/android/build.sh",
     "android:smoke": "bash scripts/android/smoke.sh",
     "android:show": "bash scripts/android/show.sh",
-    "extension:build": "tsx extension/build.ts"
+    "extension:build": "tsx extension/build.ts",
+    "design:tokens": "tsx scripts/design/tokens.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",
@@ -43,6 +44,8 @@
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/push-notifications": "^8.1.3",
     "@capacitor/share": "^8.0.3",
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/lora": "5.3.0",
     "@lucide/svelte": "^1.57.0",
     "@supabase/supabase-js": "^2.117.3",
     "bits-ui": "^2.19.5",
@@ -87,12 +90,5 @@
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.4"
-  },
-  "pnpm": {
-    "auditConfig": {
-      "ignoreGhsas": [
-        "GHSA-vfj7-8cjw-p6xm"
-      ]
-    }
   }
 }
