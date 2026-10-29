@@ -23,9 +23,11 @@
     notes: NotesState
     /** A draft to carry on with; it opens as "Something on my mind". */
     draft?: Draft | null
+    /** Open straight on "Something on my mind", as the Home card of that name does. */
+    hardTalk?: boolean
   }
 
-  let { open = $bindable(), spaceId, me, notes, draft = null }: Props = $props()
+  let { open = $bindable(), spaceId, me, notes, draft = null, hardTalk = false }: Props = $props()
   const { service, drafts, changes } = useNotes()
   const recipients = new Resource(() => service.recipients(spaceId, me))
   $effect(() => void recipients.load())
@@ -35,6 +37,11 @@
     untrack(() => draft),
   )
   const hard = $derived(composer.mode === "hard_talk")
+  // Once the people load, so the partner is chosen when there are two of you.
+  $effect(() => {
+    if (hardTalk && recipients.value)
+      untrack(() => composer.switchTo("hard_talk", recipients.value ?? []))
+  })
   const name = $derived(recipients.value?.find((m) => m.id === composer.to)?.displayName ?? "")
 
   // Closing saves what is left; the drafts list then shows it.

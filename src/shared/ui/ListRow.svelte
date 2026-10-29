@@ -14,6 +14,8 @@
     trailing?: Snippet
     /** The whole row links here, with a chevron unless `trailing` is given. */
     href?: string
+    /** Or the whole row is a button, such as one that opens a composer. */
+    onclick?: () => void
     class?: string
   }
 
@@ -25,12 +27,13 @@
     leading,
     trailing,
     href,
+    onclick,
     class: className,
   }: Props = $props()
   const classes = $derived(
     cn(
       "flex min-h-16 items-center gap-item py-item text-left",
-      href &&
+      (href || onclick) &&
         "rounded-md outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/20",
       className,
     ),
@@ -48,11 +51,15 @@
     {#if meta}<span class="truncate type-xs text-muted-foreground">{meta}</span>{/if}
     {#if detail}<span class="truncate type-xs text-primary">{detail}</span>{/if}
   </span>
-  {#if trailing}{@render trailing()}{:else if href}
+  {#if trailing}{@render trailing()}{:else if href || onclick}
     <ChevronRight class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
   {/if}
 {/snippet}
 
-{#if href}<a {href} class={classes}>{@render body()}</a>{:else}<div class={classes}>
+{#if href}<a {href} class={classes}>{@render body()}</a>{:else if onclick}<button
+    type="button"
+    class="w-full {classes}"
+    {onclick}>{@render body()}</button
+  >{:else}<div class={classes}>
     {@render body()}
   </div>{/if}

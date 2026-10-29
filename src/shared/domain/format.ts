@@ -21,6 +21,12 @@ const clock = () => new Intl.DateTimeFormat(LOCALE, { hour: "2-digit", minute: "
 /** An instant as the viewer's clock time: "14:32". */
 export const formatTime = (iso: string): string => clock().format(new Date(iso))
 
+const longDay = () =>
+  new Intl.DateTimeFormat(LOCALE, { weekday: "long", day: "numeric", month: "long" })
+
+/** A date as Home's welcome writes it: "Tuesday 27 October". */
+export const formatLongDay = (date: Date): string => longDay().format(date).replace(",", "")
+
 /** An instant as the day it falls on in the viewer's time zone: "15 Oct 2026". */
 export const formatDay = (iso: string): string => day().format(new Date(iso))
 

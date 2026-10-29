@@ -1,6 +1,7 @@
 /** Cards a space's Home can show; must match public.is_valid_home_cards in the database. */
 export const HOME_CARDS = [
   "notes",
+  "on_your_mind",
   "continue_watching",
   "coming_up",
   "calendar",
@@ -13,6 +14,7 @@ export type HomeCardId = (typeof HOME_CARDS)[number]
 /** The database default for spaces.home_cards: what a new space shows, in order. */
 export const DEFAULT_HOME_CARDS: readonly HomeCardId[] = [
   "notes",
+  "on_your_mind",
   "calendar",
   "continue_watching",
   "coming_up",
@@ -23,12 +25,25 @@ export const DEFAULT_HOME_CARDS: readonly HomeCardId[] = [
 /** How each card is named in Home layout settings. */
 export const HOME_CARD_LABELS: Record<HomeCardId, string> = {
   notes: "Notes for you",
+  on_your_mind: "Something on your mind?",
   continue_watching: "Continue watching",
   coming_up: "Coming up",
-  calendar: "This week",
+  calendar: "Today, together",
   recommended: "Recommended for you",
   activity: "Recent activity",
   ideas: "Ideas in progress",
+}
+
+/** Where each card sits on wide screens (D01): the shared life, or the glance beside it. */
+export const HOME_CARD_COLUMN: Record<HomeCardId, "main" | "aside"> = {
+  notes: "main",
+  on_your_mind: "main",
+  ideas: "main",
+  activity: "main",
+  continue_watching: "aside",
+  calendar: "aside",
+  coming_up: "aside",
+  recommended: "aside",
 }
 
 /** The owner's order, limited to cards this build can render, without repeats. */

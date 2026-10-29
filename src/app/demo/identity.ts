@@ -35,6 +35,7 @@ export const demoSpace = {
   background_path: null,
   home_cards: [
     "notes",
+    "on_your_mind",
     "continue_watching",
     "ideas",
     "calendar",
