@@ -26,6 +26,7 @@ describe("space rules", () => {
       createdAt: "2026-10-14T00:00:00Z",
       redeemedAt: null,
       revokedAt: null,
+      createdBy: "ana",
       expiresAt: "2026-10-20T00:00:00Z",
     }
     expect(inviteStatus(base, now)).toBe("open")

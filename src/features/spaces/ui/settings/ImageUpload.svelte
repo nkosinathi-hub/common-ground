@@ -1,22 +1,32 @@
 <script lang="ts">
-  import { ImagePlus, Trash2 } from "@lucide/svelte"
+  import { Image as ImageIcon, ImagePlus } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { cn } from "$lib/utils"
+  import { Dropzone } from "@/shared/ui"
   import type { MediaSlot } from "../../domain/media"
+  import { iconFor } from "../icons"
+
+  const ACCEPT = "image/jpeg,image/png,image/webp"
+  const COPY = {
+    avatar: { title: "Space picture", where: "Shown in the space switcher and on Home." },
+    cover: { title: "Cover", where: "Shown at the top of Home." },
+  }
 
   interface Props {
     kind: MediaSlot
-    label: string
     /** The current picture's signed URL, if any. */
     url: string | null
     busy: boolean
     onPick: (file: File) => void
     onRemove: () => void
+    /** The space's icon, shown while there is no picture. */
+    icon?: string | null
   }
 
-  let { kind, label, url, busy, onPick, onRemove }: Props = $props()
+  let { kind, url, busy, onPick, onRemove, icon = null }: Props = $props()
+  const Fallback = $derived(iconFor(icon) ?? ImagePlus)
+  const copy = $derived(COPY[kind as keyof typeof COPY])
+  const noun = $derived(kind === "avatar" ? "picture" : "cover")
   let input = $state<HTMLInputElement>()
-  const id = $derived(`space-${kind}-file`)
 
   function picked(event: Event & { currentTarget: HTMLInputElement }) {
     const file = event.currentTarget.files?.[0]
@@ -25,44 +35,54 @@
   }
 </script>
 
-<div class="grid gap-2">
-  <span class="text-sm font-medium">{label}</span>
-  <div
-    class={cn(
-      "grid place-items-center overflow-hidden rounded-lg border bg-muted",
-      kind === "avatar" ? "size-24" : "aspect-[3/1] w-full max-w-md",
-    )}
-  >
-    {#if url}
-      <img src={url} alt={`Current ${label.toLowerCase()}`} class="size-full object-cover" />
-    {:else}
-      <ImagePlus class="size-6 text-muted-foreground" aria-hidden="true" />
-    {/if}
-  </div>
-  <div class="flex flex-wrap gap-2">
+<!-- Figma D15a Pictures row: the picture, what it is for, then Replace and Remove; an empty
+     cover is a drop zone (D15a), an empty picture an Add button. -->
+{#if kind === "cover" && !url}
+  <Dropzone
+    icon={ImageIcon}
+    title="No cover added"
+    description="A wide image works best."
+    actionLabel="Add cover"
+    accept={ACCEPT}
+    disabled={busy}
+    inputLabel="Choose a cover"
+    onfiles={([file]) => file && onPick(file)}
+  />
+{:else}
+  <div class="flex flex-wrap items-center gap-item">
+    <div
+      class="grid shrink-0 place-items-center overflow-hidden bg-muted {kind === 'avatar'
+        ? 'size-10 rounded-full'
+        : 'h-10 w-18 rounded-md'}"
+    >
+      {#if url}<img src={url} alt="Current {noun}" class="size-full object-cover" />
+      {:else}<Fallback class="size-4 text-muted-foreground" aria-hidden="true" />{/if}
+    </div>
+    <div class="flex min-w-0 flex-1 flex-col">
+      <span class="type-label text-foreground">{copy.title}</span>
+      <span class="type-xs text-muted-foreground">{copy.where}</span>
+    </div>
     <input
       bind:this={input}
-      {id}
       type="file"
-      accept="image/jpeg,image/png,image/webp"
+      accept={ACCEPT}
       class="sr-only"
-      aria-label={`Choose a ${label.toLowerCase()}`}
+      aria-label="Choose a {noun}"
       onchange={picked}
       disabled={busy}
     />
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      disabled={busy}
-      onclick={() => input?.click()}
-    >
-      {url ? `Change ${label.toLowerCase()}` : `Add ${label.toLowerCase()}`}
+    <Button variant="outline" size="sm" disabled={busy} onclick={() => input?.click()}>
+      {url ? "Replace" : `Add ${noun}`}
     </Button>
     {#if url}
-      <Button type="button" variant="ghost" size="sm" disabled={busy} onclick={onRemove}>
-        <Trash2 class="size-4" aria-hidden="true" />Remove {label.toLowerCase()}
-      </Button>
+      <Button
+        variant="link"
+        size="sm"
+        class="px-0"
+        aria-label="Remove {noun}"
+        disabled={busy}
+        onclick={onRemove}>Remove</Button
+      >
     {/if}
   </div>
-</div>
+{/if}

@@ -1,23 +1,15 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
-  import * as Card from "$lib/components/ui/card"
-  import { Input } from "$lib/components/ui/input"
-  import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { FormError, FormField, FormState } from "@/shared/ui"
+  import { FormError, FormField, FormState, SelectField, SettingsSection } from "@/shared/ui"
+  import { SPACE_ICONS } from "../../domain/profile"
   import type { Space } from "../../domain/space"
-  import type { SpaceTemplateId } from "../../domain/templates"
+  import { SPACE_TEMPLATES, type SpaceTemplateId } from "../../domain/templates"
   import { useSpaces } from "../context"
-  import TemplatePicker from "../TemplatePicker.svelte"
-  import IconPicker from "./IconPicker.svelte"
   import { saveAndRefresh } from "./save"
 
-  interface Props {
-    space: Space
-  }
-
-  let { space }: Props = $props()
+  let { space }: { space: Space } = $props()
   const { service, store } = useSpaces()
   const form = new FormState()
   // Seeded once; the fields are the owner's draft from then on.
@@ -25,52 +17,75 @@
   let template = $state<SpaceTemplateId>(untrack(() => space.template))
   let tagline = $state(untrack(() => space.tagline))
   let description = $state(untrack(() => space.description))
-  let icon = $state<string | null>(untrack(() => space.icon))
+  let icon = $state<string>(untrack(() => space.icon ?? ""))
+  const types = SPACE_TEMPLATES.map((t) => ({ value: t.id, label: t.label }))
+  const word = (key: string) => key.replace(/-\d+$/, "").replace("-", " ")
+  const icons = [
+    { value: "", label: "Initial letter" },
+    ...SPACE_ICONS.map((key) => ({
+      value: key,
+      label: word(key)[0]!.toUpperCase() + word(key).slice(1),
+    })),
+  ]
 
-  async function save(event: SubmitEvent) {
-    event.preventDefault()
-    const fields = { name, template, tagline, description, icon }
+  async function save() {
+    const fields = { name, template, tagline, description, icon: icon || null }
     await saveAndRefresh(form, store, () => service.profile.saveGeneral(space.id, fields))
   }
 </script>
 
-<Card.Root id="settings-general" tabindex={-1}>
-  <Card.Header><Card.Title>Name and feel</Card.Title></Card.Header>
-  <Card.Content>
-    <form class="grid gap-4" onsubmit={save} novalidate>
-      <FormField id="space-name" label="Name" bind:value={name} error={form.fieldError("name")} />
-      <div class="grid gap-1.5">
-        <Label for="space-tagline">Tagline</Label>
-        <Input
-          id="space-tagline"
-          bind:value={tagline}
-          maxlength={120}
-          aria-invalid={form.fieldError("tagline") ? true : undefined}
-          aria-describedby="space-tagline-hint"
-        />
-        <p id="space-tagline-hint" class="text-xs text-muted-foreground">
-          {form.fieldError("tagline") ?? "One short line under the greeting on Home."}
-        </p>
-      </div>
-      <div class="grid gap-1.5">
-        <Label for="space-description">Description</Label>
+<!-- Figma D15a Identity: name and tagline, the description, then type and icon side by side. -->
+<SettingsSection
+  id="settings-general"
+  title="Identity"
+  description="The name and details every member sees."
+>
+  <form class="flex flex-col gap-stack" novalidate onsubmit={(e) => (e.preventDefault(), save())}>
+    <div class="grid gap-stack sm:grid-cols-2">
+      <FormField
+        id="space-name"
+        label="Space name"
+        bind:value={name}
+        error={form.fieldError("name")}
+      />
+      <FormField
+        id="space-tagline"
+        label="Tagline"
+        maxlength={120}
+        bind:value={tagline}
+        error={form.fieldError("tagline")}
+      />
+    </div>
+    <FormField id="space-description" label="Description" error={form.fieldError("description")}>
+      {#snippet control({ id, describedby, invalid })}
         <Textarea
-          id="space-description"
-          bind:value={description}
+          {id}
           rows={3}
-          aria-invalid={form.fieldError("description") ? true : undefined}
-          aria-describedby={form.fieldError("description") ? "space-description-error" : undefined}
+          aria-describedby={describedby}
+          aria-invalid={invalid || undefined}
+          bind:value={description}
         />
-        {#if form.fieldError("description")}
-          <p id="space-description-error" class="text-sm text-destructive">
-            {form.fieldError("description")}
-          </p>
-        {/if}
-      </div>
-      <IconPicker bind:value={icon} />
-      <TemplatePicker bind:value={template} />
-      <FormError message={form.formError} />
-      <Button type="submit" class="w-fit" disabled={form.pending}>Save</Button>
-    </form>
-  </Card.Content>
-</Card.Root>
+      {/snippet}
+    </FormField>
+    <div class="grid gap-stack sm:grid-cols-2">
+      <SelectField
+        id="space-type"
+        label="Space type"
+        value={template}
+        options={types}
+        onchange={(v) => (template = v)}
+      />
+      <SelectField
+        id="space-icon"
+        label="Space icon"
+        value={icon}
+        options={icons}
+        onchange={(v) => (icon = v)}
+      />
+    </div>
+    <FormError message={form.formError} />
+    <div class="flex justify-end border-t border-border pt-stack">
+      <Button type="submit" disabled={form.pending}>Save changes</Button>
+    </div>
+  </form>
+</SettingsSection>

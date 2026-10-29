@@ -31,9 +31,10 @@ export async function expectReadablePrimary(page: Page) {
   return primary
 }
 
-/** Saves one settings form and waits for the confirmation. */
-export async function saveSettings(page: Page, button: string) {
-  await page.getByRole("button", { name: button, exact: true }).click()
+/** Saves one settings form (in a section, when the tab has several) and waits for the toast. */
+export async function saveSettings(page: Page, button: string, section?: string) {
+  const scope = section ? page.getByRole("region", { name: section }) : page
+  await scope.getByRole("button", { name: button, exact: true }).click()
   await expect(
     page.locator("[data-sonner-toast]").getByText("Saved", { exact: true }).last(),
   ).toBeVisible()

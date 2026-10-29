@@ -7,6 +7,7 @@ const record = (id: string, extra: object = {}) => ({
   expiresAt: "2026-10-17T00:00:00Z",
   redeemedAt: null,
   revokedAt: null,
+  createdBy: "ana",
   ...extra,
 })
 

@@ -36,7 +36,7 @@ test("the owner customises a space and a member sees the same look", async ({ pa
 
   await page.getByRole("tab", { name: "Identity" }).click()
   await page.getByLabel("Tagline").fill("Sunday dinners and slow films")
-  await saveSettings(page, "Save")
+  await saveSettings(page, "Save changes")
   await page.getByLabel("Choose a picture").setInputFiles(PICTURE)
   await expect(page.getByText("Picture saved")).toBeVisible()
   await expect(await spacePicture(page, "Our corner")).toHaveAttribute("src", SIGNED)
@@ -48,7 +48,7 @@ test("the owner customises a space and a member sees the same look", async ({ pa
   await expect(activity).toHaveAttribute("aria-checked", "false")
   // The switch must look different off than on, not only report it to assistive tech.
   await expect(activity).not.toHaveCSS("background-color", shownColour)
-  await saveSettings(page, "Save layout")
+  await saveSettings(page, "Save changes", "Home modules")
 
   await page.goto(`./#/s/${spaceId}/home`)
   await page.reload()

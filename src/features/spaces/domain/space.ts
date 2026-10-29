@@ -28,6 +28,8 @@ export interface InviteRecord {
   readonly expiresAt: string
   readonly redeemedAt: string | null
   readonly revokedAt: string | null
+  /** Who made the link; null once they deleted their account. */
+  readonly createdBy: string | null
 }
 
 export interface Invite {
@@ -35,6 +37,7 @@ export interface Invite {
   readonly createdAt: string
   readonly expiresAt: string
   readonly status: InviteStatus
+  readonly createdBy: string | null
 }
 
 const PREVIEW_STATUSES = ["valid", "invalid", "used", "revoked", "expired", "member"] as const
@@ -61,12 +64,13 @@ export function inviteStatus(record: InviteRecord, now: Date): InviteStatus {
   return new Date(record.expiresAt) <= now ? "expired" : "open"
 }
 
-/** The invite as the owner sees it at `now`. */
+/** The invite as a member sees it at `now`. */
 export const inviteAt = (record: InviteRecord, now: Date): Invite => ({
   id: record.id,
   createdAt: record.createdAt,
   expiresAt: record.expiresAt,
   status: inviteStatus(record, now),
+  createdBy: record.createdBy,
 })
 
 /** Anything the preview RPC answers that this client does not know reads as invalid. */

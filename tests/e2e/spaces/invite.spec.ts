@@ -15,7 +15,7 @@ test("owner invites a member who joins once; strangers see nothing", async ({ pa
   const spaceId = await createSpace(page, "Ana and Ben")
 
   await page.goto(`./#/s/${spaceId}/settings/members`)
-  await page.getByRole("button", { name: "Create invite link" }).click()
+  await page.getByRole("button", { name: "Create link" }).click()
   const link = (await page.locator("code").textContent())!.trim()
   const token = link.split("#/invite/")[1]!
 
@@ -32,15 +32,8 @@ test("owner invites a member who joins once; strangers see nothing", async ({ pa
   await expect(evePage.getByRole("heading", { name: "This page is not available" })).toBeVisible()
 
   await page.reload()
-  // hasText is a case-insensitive substring: "ben" also matches the "Ana and Ben" space in the
-  // switcher. Only member rows carry a Remove button, so require one.
-  const remove = page.getByRole("button", { name: "Remove", exact: true })
-  await page
-    .getByRole("listitem")
-    .filter({ hasText: "ben" })
-    .filter({ has: remove })
-    .getByRole("button", { name: "Remove", exact: true })
-    .click()
+  await page.getByRole("button", { name: "More for ben", exact: true }).click()
+  await page.getByRole("menuitem", { name: "Remove" }).click()
   await page.getByRole("alertdialog").getByRole("button", { name: "Remove" }).click()
   await expect(page.getByText("ben was removed")).toBeVisible()
   await benPage.goto(`./#/s/${spaceId}/home`)

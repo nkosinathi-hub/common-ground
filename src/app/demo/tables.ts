@@ -1,4 +1,14 @@
-import { ANA, BEN, CLUB_PEOPLE, clubSpace, demoSpace, members, now } from "./identity"
+import {
+  ANA,
+  BEN,
+  CLUB_PEOPLE,
+  SPACE,
+  clubSpace,
+  demoId,
+  demoSpace,
+  members,
+  now,
+} from "./identity"
 import { watchRows, progressRows } from "./watch-data"
 import { ideaTables } from "./idea-data"
 import { events } from "./calendar-data"
@@ -33,10 +43,22 @@ export const tables: Record<string, DemoRow[]> = {
   calendar_events: events,
   ...ideaTables,
   ...socialTables,
-  space_invites: [],
+  space_invites: [ANA, BEN].map((by, i) => ({
+    id: demoId(60 + i),
+    space_id: SPACE,
+    created_by: by,
+    created_at: days(-2 - 4 * i),
+    expires_at: days(5 - 4 * i),
+    redeemed_at: null,
+    revoked_at: null,
+  })),
   space_note_drafts: [],
   recommendations: [],
   attachments: [],
   watch_parties: [],
   simkl_links: [],
+}
+
+function days(offset: number): string {
+  return new Date(Date.parse(now) + offset * 86_400_000).toISOString()
 }

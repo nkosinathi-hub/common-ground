@@ -51,7 +51,7 @@ export async function addTitle(page: Page, spaceId: string, title: string): Prom
 /** Creates a single-use invite link in settings and returns its token. */
 export async function inviteToken(page: Page, spaceId: string): Promise<string> {
   await page.goto(`./#/s/${spaceId}/settings/members`)
-  await page.getByRole("button", { name: "Create invite link" }).click()
+  await page.getByRole("button", { name: "Create link" }).click()
   const code = page.locator("code").last()
   await expect(code).toContainText("#/invite/")
   return (await code.textContent())!.trim().split("#/invite/")[1]!
@@ -79,11 +79,8 @@ export async function inviteMember(
 /** The owner removes a member, by display name, from the settings page. */
 export async function removeMember(owner: Page, spaceId: string, name: string) {
   await owner.goto(`./#/s/${spaceId}/settings/members`)
-  await owner
-    .getByRole("listitem")
-    .filter({ has: owner.getByText(name, { exact: true }) })
-    .getByRole("button", { name: "Remove", exact: true })
-    .click()
+  await owner.getByRole("button", { name: `More for ${name}`, exact: true }).click()
+  await owner.getByRole("menuitem", { name: "Remove" }).click()
   await owner.getByRole("alertdialog").getByRole("button", { name: "Remove" }).click()
   await expect(owner.getByText(`${name} was removed`)).toBeVisible()
 }

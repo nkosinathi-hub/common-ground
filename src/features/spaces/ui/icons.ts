@@ -25,7 +25,7 @@ import {
 import type { SpaceIcon } from "../domain/profile"
 
 /** The component for each allowed space icon key. */
-export const SPACE_ICON_COMPONENTS: Readonly<Record<SpaceIcon, typeof Heart>> = {
+const SPACE_ICON_COMPONENTS: Readonly<Record<SpaceIcon, typeof Heart>> = {
   heart: Heart,
   users: Users,
   house: House,

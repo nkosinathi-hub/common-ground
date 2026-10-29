@@ -9,9 +9,11 @@
     id?: string
     /** Intro above the card at every width, for wide content such as the Look and feel rows. */
     stacked?: boolean
+    /** A destructive outline, for the danger zone and leaving. */
+    danger?: boolean
   }
 
-  let { title, description, children, id, stacked = false }: Props = $props()
+  let { title, description, children, id, stacked = false, danger = false }: Props = $props()
   const headingId = $derived(id ? `${id}-title` : undefined)
 </script>
 
@@ -30,7 +32,9 @@
     {#if description}<p class="type-sm text-muted-foreground">{description}</p>{/if}
   </div>
   <div
-    class="flex min-w-0 flex-1 flex-col gap-stack rounded-lg border border-border bg-card p-card"
+    class="flex min-w-0 flex-1 flex-col gap-stack rounded-lg border bg-card p-card {danger
+      ? 'border-destructive'
+      : 'border-border'}"
   >
     {@render children()}
   </div>

@@ -5,10 +5,8 @@
   import { navigate } from "@/shared/ui"
   import { SETTINGS_TAB_LABELS, settingsTabOf, settingsTabsFor } from "../domain/settings-tabs"
   import type { Space } from "../domain/space"
-  import DangerZone from "./DangerZone.svelte"
-  import InvitesCard from "./InvitesCard.svelte"
   import LookSettings from "./look/LookSettings.svelte"
-  import MembersCard from "./MembersCard.svelte"
+  import MembersTab from "./members/MembersTab.svelte"
   import GeneralCard from "./settings/GeneralCard.svelte"
   import HomeLayoutCard from "./settings/HomeLayoutCard.svelte"
   import MediaCard from "./settings/MediaCard.svelte"
@@ -54,9 +52,7 @@
       <AppearanceCard />
     </Tabs.Content>
     <Tabs.Content value="members" class="flex flex-col gap-section">
-      {#if owner}<InvitesCard {space} />{/if}
-      <MembersCard {space} {me} />
-      <DangerZone {space} />
+      <MembersTab {space} {me} />
     </Tabs.Content>
   </Tabs.Root>
 </div>

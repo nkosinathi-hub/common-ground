@@ -1,11 +1,9 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
-  import * as Card from "$lib/components/ui/card"
-  import { FormError, FormState } from "@/shared/ui"
+  import { FormError, FormState, SelectField, SettingsSection } from "@/shared/ui"
   import type { Space } from "../../domain/space"
   import { useSpaces } from "../context"
-  import ChoiceGroup from "./ChoiceGroup.svelte"
   import { saveAndRefresh } from "./save"
 
   interface Props {
@@ -18,13 +16,13 @@
   let intent = $state<string>(untrack(() => space.defaultWatchIntent))
   let weekStart = $state<string>(untrack(() => String(space.weekStartsOn)))
   const INTENTS = [
-    ["want_to_watch", "Want to watch"],
-    ["watch_together", "Watch together"],
-  ] as const
+    { value: "want_to_watch", label: "Want to watch" },
+    { value: "watch_together", label: "Watch together" },
+  ]
   const WEEK_STARTS = [
-    ["1", "Monday"],
-    ["0", "Sunday"],
-  ] as const
+    { value: "1", label: "Monday" },
+    { value: "0", label: "Sunday" },
+  ]
 
   async function save(event: SubmitEvent) {
     event.preventDefault()
@@ -36,24 +34,32 @@
   }
 </script>
 
-<Card.Root id="settings-preferences" tabindex={-1}>
-  <Card.Header><Card.Title>Preferences</Card.Title></Card.Header>
-  <Card.Content>
-    <form class="grid gap-4" onsubmit={save} novalidate>
-      <ChoiceGroup
+<!-- Figma D16b Space preferences: the default Watch list and the first day of the week. -->
+<SettingsSection
+  id="settings-preferences"
+  title="Space preferences"
+  description="These apply to everyone in {space.name}."
+>
+  <form class="flex flex-col gap-stack" onsubmit={save} novalidate>
+    <div class="grid gap-stack sm:grid-cols-2">
+      <SelectField
         id="pref-intent"
-        label="New watchlist titles start in"
+        label="Default Watch list"
+        value={intent}
         options={INTENTS}
-        bind:value={intent}
+        onchange={(v) => (intent = v)}
       />
-      <ChoiceGroup
+      <SelectField
         id="pref-week"
-        label="Weeks start on"
+        label="Week starts on"
+        value={weekStart}
         options={WEEK_STARTS}
-        bind:value={weekStart}
+        onchange={(v) => (weekStart = v)}
       />
-      <FormError message={form.formError} />
-      <Button type="submit" class="w-fit" disabled={form.pending}>Save preferences</Button>
-    </form>
-  </Card.Content>
-</Card.Root>
+    </div>
+    <FormError message={form.formError} />
+    <div class="flex justify-end border-t border-border pt-stack">
+      <Button type="submit" disabled={form.pending}>Save changes</Button>
+    </div>
+  </form>
+</SettingsSection>
