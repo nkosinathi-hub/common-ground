@@ -45,6 +45,6 @@ test("private routes redirect to sign in when signed out", async ({ page }) => {
 
 test("an expired or reused link offers a fresh one", async ({ page }) => {
   await page.goto("./?error=access_denied&error_code=otp_expired#/")
-  await expect(page.getByRole("heading", { name: "That link has expired" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "This link has expired" })).toBeVisible()
   expect(page.url()).not.toContain("error=")
 })

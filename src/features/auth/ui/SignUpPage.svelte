@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { MailCheck } from "@lucide/svelte"
+  import { AtSign, Lock, Mail } from "@lucide/svelte"
+  import * as Alert from "$lib/components/ui/alert"
   import { Button } from "$lib/components/ui/button"
-  import { FormError, FormField, FormState } from "@/shared/ui"
   import { MIN_PASSWORD, buildHash } from "@/shared/domain"
+  import { FormError, FormField, FormState, TextLink, toast } from "@/shared/ui"
   import AuthCard from "./AuthCard.svelte"
   import { useAuth } from "./context"
 
@@ -15,31 +16,40 @@
 
   async function submit(event: SubmitEvent) {
     event.preventDefault()
-    const result = await form.run(() => service.signUp({ email, password, displayName }))
-    sent = result.ok
+    sent = (await form.run(() => service.signUp({ email, password, displayName }))).ok
+  }
+  async function resend() {
+    if ((await form.run(() => service.resendVerification(email))).ok) toast.success("Email sent")
   }
 </script>
 
+<!-- Figma D22 (the form) and D22b (the link is on its way). -->
 {#if sent}
-  <AuthCard title="Check your email" description={`We sent a verification link to ${email}.`}>
-    <div class="flex items-start gap-3 text-sm">
-      <MailCheck class="size-5 shrink-0 text-primary" aria-hidden="true" />
-      <p>Open the link on this device to finish creating your account. It expires in an hour.</p>
-    </div>
-    {#snippet footer()}<a class="hover:underline" href={buildHash({ name: "sign-in" })}
-        >Back to sign in</a
-      >{/snippet}
+  <AuthCard
+    title="Check your email"
+    description="We sent a link to {email}. Open it to finish creating your account."
+  >
+    <Button variant="outline" disabled={form.pending} onclick={resend}
+      ><Mail aria-hidden="true" />Resend email</Button
+    >
+    <FormError message={form.formError} />
+    {#snippet footer()}
+      Wrong address? <Button variant="link" class="h-auto p-0" onclick={() => (sent = false)}
+        >Use a different email</Button
+      >
+    {/snippet}
   </AuthCard>
 {:else}
   <AuthCard
     title="Create your account"
     description="A private place for what you watch and what you dream up."
   >
-    <form class="grid gap-4" onsubmit={submit} novalidate>
+    <form class="flex flex-col gap-stack" onsubmit={submit} novalidate>
       <FormField
         id="name"
         label="Your name"
         autocomplete="name"
+        placeholder="What should we call you?"
         bind:value={displayName}
         error={form.fieldError("displayName")}
         hint="Only people in your spaces see this."
@@ -49,6 +59,8 @@
         label="Email"
         type="email"
         autocomplete="email"
+        icon={AtSign}
+        placeholder="you@example.com"
         bind:value={email}
         error={form.fieldError("email")}
       />
@@ -57,23 +69,22 @@
         label="Password"
         type="password"
         autocomplete="new-password"
+        placeholder="Create a password"
         bind:value={password}
         error={form.fieldError("password")}
         hint={`At least ${MIN_PASSWORD} characters.`}
       />
+      <Alert.Root role="note">
+        <Lock aria-hidden="true" />
+        <Alert.Description>Your email is never shown to other members.</Alert.Description>
+      </Alert.Root>
       <FormError message={form.formError} />
       <Button type="submit" disabled={form.pending}
         >{form.pending ? "Creating" : "Create account"}</Button
       >
     </form>
     {#snippet footer()}
-      <span
-        >Already have an account? <a
-          class="text-primary underline underline-offset-4"
-          href={buildHash({ name: "sign-in" })}>Sign in</a
-        ></span
-      >
-      <a class="hover:underline" href={buildHash({ name: "privacy" })}>How we handle your data</a>
+      Already have an account? <TextLink href={buildHash({ name: "sign-in" })}>Sign in</TextLink>
     {/snippet}
   </AuthCard>
 {/if}
