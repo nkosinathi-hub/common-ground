@@ -4,6 +4,18 @@ import { COUPLE_TITLES, type Place } from "./watch-titles"
 
 const TITLES = [...COUPLE_TITLES, ...CLUB_TITLES]
 
+/** Canonical genres, as the catalog Edge Function would store them, so For you has a reason. */
+const GENRES: Record<string, string[]> = {
+  "Ted Lasso": ["comedy", "drama"],
+  "The Bear": ["comedy", "drama"],
+  Severance: ["drama", "mystery", "scifi"],
+  Shōgun: ["drama", "history", "war"],
+  Arrival: ["drama", "mystery", "scifi"],
+  Andor: ["action", "adventure", "scifi"],
+  Chernobyl: ["drama", "history"],
+  "The Last of Us": ["action", "adventure", "drama"],
+}
+
 const status = (places: readonly Place[] | undefined, user: string) =>
   places?.some(([who]) => who === user) ? "watching" : "not_started"
 
@@ -18,6 +30,8 @@ export const watchRows = TITLES.map(({ space, places = [], together, ...title },
   created_at: now,
   my_progress: status(places, ANA),
   sort_key: now,
+  genres: GENRES[title.title] ?? [],
+  streamable: true,
   together: together ?? null,
   places: places.map(([user_id, season, episode]) => ({
     user_id,

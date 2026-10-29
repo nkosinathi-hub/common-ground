@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { Poster } from "@/features/catalog"
+  import { genreName, Poster } from "@/features/catalog"
   import type { MemberRef } from "@/shared/domain"
-  import { statusLabel } from "../domain/labels"
+  import { cardMeta } from "../domain/labels"
   import type { WatchItem } from "../domain/types"
   import WhoIsWhere from "./WhoIsWhere.svelte"
 
@@ -14,11 +14,7 @@
   }
 
   let { item, href, names = [], me }: Props = $props()
-  const meta = $derived(
-    [item.myStatus !== "not_started" && statusLabel(item.myStatus), item.releaseYear].filter(
-      Boolean,
-    ),
-  )
+  const meta = $derived(cardMeta(item, genreName))
 </script>
 
 <!-- Figma Watch title card (211:4823): the poster fills the top; the whole card opens the title. -->

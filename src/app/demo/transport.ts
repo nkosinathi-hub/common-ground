@@ -3,6 +3,7 @@ import { demoCatalog } from "./catalog"
 import { calendarRows } from "./calendar-data"
 import { demoEpisodeStatuses } from "./episode-data"
 import { watchRows } from "./watch-data"
+import { demoForYou, sortForYou } from "./for-you-rows"
 import { selectRows } from "./query"
 import { tables } from "./tables"
 
@@ -32,6 +33,15 @@ export const demoFetch: typeof fetch = async (input, init) => {
     if (name === "mark_note_read") return json(null)
     if (name === "list_calendar") return json(calendarRows)
     if (name === "episode_statuses") return json(demoEpisodeStatuses(args.target_item))
+    if (name === "watch_for_you")
+      return json(
+        demoForYou(args.target_space).map((s) => ({
+          item_id: s.itemId,
+          score: s.score,
+          reason: s.reason,
+          opinion: s.opinion,
+        })),
+      )
     if (name === "list_watch_items") {
       const rows = watchRows.filter(
         (row) =>
@@ -43,6 +53,7 @@ export const demoFetch: typeof fetch = async (input, init) => {
             .toLowerCase()
             .includes((typeof args.search === "string" ? args.search : "").toLowerCase()),
       )
+      if (args.sort_by === "for_you") return json(sortForYou(rows, args.target_space))
       return json(
         args.sort_by === "title" ? [...rows].sort((a, b) => a.title.localeCompare(b.title)) : rows,
       )

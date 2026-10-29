@@ -971,14 +971,14 @@ isOneToOne: false
                   ]
                 },"watch_items": {
                   Row: {
-                    "catalog_id": number | null,"catalog_type": Database["public"]['Enums']["watch_catalog_type"] | null,"created_at": string,"created_by": string | null,"id": string,"manual_availability_note": string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path": string | null,"release_year": number | null,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string | null,"space_id": string,"synopsis": string,"title": string,"updated_at": string
+                    "catalog_id": number | null,"catalog_type": Database["public"]['Enums']["watch_catalog_type"] | null,"created_at": string,"created_by": string | null,"genres": (string)[],"id": string,"manual_availability_note": string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path": string | null,"release_year": number | null,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string | null,"space_id": string,"streamable": boolean,"synopsis": string,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"manual_availability_note"?: string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id": string,"synopsis"?: string,"title": string,"updated_at"?: string
+                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"genres"?: (string)[],"id"?: string,"manual_availability_note"?: string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id": string,"streamable"?: boolean,"synopsis"?: string,"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"manual_availability_note"?: string | null,"media_type"?: Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id"?: string,"synopsis"?: string,"title"?: string,"updated_at"?: string
+                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"genres"?: (string)[],"id"?: string,"manual_availability_note"?: string | null,"media_type"?: Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id"?: string,"streamable"?: boolean,"synopsis"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1339,7 +1339,7 @@ isOneToOne: false
                            },
 "list_watch_items":
 { Args: { "after_id"?: string,"after_key"?: string,"intent"?: Database["public"]['Enums']["watch_intent"],"media"?: Database["public"]['Enums']["watch_media_type"],"my_status"?: string,"page_size"?: number,"search"?: string,"sort_by"?: string,"target_space": string }; Returns: {
-              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"places": Json,"poster_path": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"together": Json,"updated_at": string
+              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"places": Json,"poster_path": string,"reason": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"together": Json,"updated_at": string
             }[]
                            },
 "log_watch_session":
@@ -1560,6 +1560,9 @@ isOneToOne: false
 "set_space_media":
 { Args: { "object_path": string,"slot": string,"target_space": string }; Returns: string
                            },
+"set_watch_features":
+{ Args: { "kind": Database["public"]['Enums']["watch_catalog_type"],"new_genres": (string)[],"new_streamable": boolean,"target_space": string,"tmdb_id": number }; Returns: undefined
+                           },
 "shares_space_with":
 { Args: { "other_user": string }; Returns: boolean
                            },
@@ -1607,7 +1610,12 @@ isOneToOne: false
         to: "space_notes"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"watch_for_you":
+{ Args: { "target_space": string }; Returns: {
+              "item_id": string,"opinion": Database["public"]['Enums']["watch_opinion"],"reason": string,"score": number
+            }[]
+                           }
           }
           Enums: {
             "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","note_kind": "note"|"hard_talk","note_response_kind": "here"|"time"|"talk"|"thanks","note_response_wish": "talk"|"write"|"read"|"any","note_support_wish": "listen"|"solve","party_source": "jellyfin"|"external"|"netflix","party_status": "planned"|"live"|"ended"|"cancelled","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_opinion": "liked"|"disliked","watch_status": "not_started"|"watching"|"completed"|"dropped"

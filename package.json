@@ -32,7 +32,8 @@
     "android:smoke": "bash scripts/android/smoke.sh",
     "android:show": "bash scripts/android/show.sh",
     "extension:build": "tsx extension/build.ts",
-    "design:tokens": "tsx scripts/design/tokens.ts"
+    "design:tokens": "tsx scripts/design/tokens.ts",
+    "catalog:backfill": "tsx scripts/catalog/backfill-features.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.3",

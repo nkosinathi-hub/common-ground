@@ -29,6 +29,8 @@ export type WatchItemRow = Pick<
   /** list_watch_items only: every member's place and the together pointer (jsonb). */
   readonly places?: unknown
   readonly together?: unknown
+  /** list_watch_items sorted For you: the genre key that lifted the title. */
+  readonly reason?: string | null
 }
 
 export type ProgressRow = Omit<Tables<"watch_progress">, "space_id" | "watch_item_id">
@@ -55,6 +57,7 @@ export const toItem = (row: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchI
   myStatus: myStatus ?? progressStatusOf(row.my_progress),
   places: parsePlaces(row.places),
   together: parseTogether(row.together),
+  reason: row.reason ?? null,
 })
 
 // Postgres renders date columns as YYYY-MM-DD, which is exactly a DateOnly.

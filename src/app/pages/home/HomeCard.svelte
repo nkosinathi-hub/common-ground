@@ -10,7 +10,7 @@
   import { RecommendationsInbox } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { UpcomingTasks } from "@/features/tasks"
-  import { ContinueWatching } from "@/features/watch"
+  import { ContinueWatching, ForYouPicks, useForYou } from "@/features/watch"
   import { buildHash, HOME_CARD_LABELS, type HomeCardId } from "@/shared/domain"
   import { TextLink } from "@/shared/ui"
 
@@ -24,6 +24,9 @@
   let { id, space, class: className }: Props = $props()
   let writing = $state(false)
   const { session } = useAuth()
+  // Orders the Recommended inbox by your For you score; loaded only for that card.
+  const forYou = useForYou(() => space.id)
+  $effect(() => void (id === "recommended" && forYou.scores.load()))
   const spaceId = $derived(space.id)
   const title = $derived(id === "activity" ? `Recently in ${space.name}` : HOME_CARD_LABELS[id])
   const itemHref = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
@@ -73,7 +76,10 @@
           {spaceId}
           {itemHref}
           libraryHref={buildHash({ name: "watch", spaceId })}
-        />
+          rank={forYou.rank}
+        >
+          {#snippet empty()}<ForYouPicks {spaceId} {itemHref} />{/snippet}
+        </RecommendationsInbox>
       {:else if id === "ideas"}
         <IdeasInProgress {spaceId} {ideaHref} />
       {:else if id === "activity"}

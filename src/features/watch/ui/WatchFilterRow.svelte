@@ -6,6 +6,7 @@
 
   const SORTS: readonly { value: WatchSort; label: string }[] = [
     { value: "recent", label: "Recently added" },
+    { value: "for_you", label: "For you" },
     { value: "title", label: "Title A to Z" },
   ]
 

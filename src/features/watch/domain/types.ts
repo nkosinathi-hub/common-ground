@@ -5,7 +5,7 @@ export type * from "./progress-types"
 export type CatalogType = "movie" | "tv"
 export type MediaType = "movie" | "series" | "anime"
 export type SharedIntent = "want_to_watch" | "watch_together" | "archived"
-export type WatchSort = "recent" | "title"
+export type WatchSort = "recent" | "title" | "for_you"
 
 export interface CatalogRef {
   readonly type: CatalogType
@@ -30,6 +30,8 @@ export interface WatchItem {
   readonly places: readonly MemberPlace[]
   /** Where the space is together; moves only when a watch party finishes. */
   readonly together: Place | null
+  /** Sorted For you: the genre that lifted it, e.g. "drama". */
+  readonly reason?: string | null
 }
 
 /** Item plus what the signed-in member may do with it. */

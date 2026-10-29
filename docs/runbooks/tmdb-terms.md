@@ -27,3 +27,11 @@ title page carries one quiet line instead: "Listings from TMDB and JustWatch, ch
 ## Before a public release
 
 Re-read the current TMDB API terms and logo guidelines and update this page if they changed.
+
+## For you features
+
+The catalog Edge Function stores each catalog title's canonical genres and whether it streams in
+South Africa (`set_watch_features`, service role only) whenever it serves the title's details.
+Titles saved before v0.6 fill on their next visit, or all at once with
+`pnpm catalog:backfill` (needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and
+`TMDB_ACCESS_TOKEN`; idempotent, so it is safe to run again).

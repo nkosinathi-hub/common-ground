@@ -34,7 +34,7 @@ select is(
     'respond_to_note', 'revoke_invite', 'rsvp_event', 'save_watch_progress', 'send_note_draft',
     'set_event_attendees', 'set_my_event_reminders', 'set_space_media', 'transfer_ownership',
     'unregister_push_device', 'update_idea_brief',
-    'start_party', 'episode_statuses', 'join_party', 'confirm_party', 'finish_party', 'cancel_party', 'handover_party',
+    'start_party', 'episode_statuses', 'watch_for_you', 'join_party', 'confirm_party', 'finish_party', 'cancel_party', 'handover_party',
     -- called by policies, checks, triggers running as the caller, or invoker RPCs
     'can_read_attachment_object', 'is_iana_time_zone', 'is_member_of', 'is_space_member',
     'is_space_owner', 'is_valid_home_cards', 'is_valid_idea_brief', 'is_valid_note_sections',

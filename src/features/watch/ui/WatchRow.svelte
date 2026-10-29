@@ -1,19 +1,15 @@
 <script lang="ts">
   import { ChevronRight } from "@lucide/svelte"
-  import { Poster } from "@/features/catalog"
+  import { genreName, Poster } from "@/features/catalog"
   import type { MemberRef } from "@/shared/domain"
   import { describePlaces } from "../domain/places-summary"
-  import { statusLabel } from "../domain/labels"
+  import { cardMeta } from "../domain/labels"
   import type { WatchItem } from "../domain/types"
 
   let { item, href, names }: { item: WatchItem; href: string; names: readonly MemberRef[] } =
     $props()
   const together = $derived(describePlaces(item.places, item.together, names).together)
-  const meta = $derived(
-    [item.myStatus !== "not_started" && statusLabel(item.myStatus), item.releaseYear].filter(
-      Boolean,
-    ),
-  )
+  const meta = $derived(cardMeta(item, genreName))
 </script>
 
 <!-- M02: a list row on phones, artwork beside the words, the whole row a link. -->

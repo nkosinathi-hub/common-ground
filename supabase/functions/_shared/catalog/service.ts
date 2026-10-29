@@ -1,25 +1,15 @@
 import { detailsKey, expiryFor, isFresh, searchKey, seasonKey } from "./cache.ts"
-import type { CacheEntry, CacheKind, CacheStore } from "./cache.ts"
+import type { CacheEntry, CacheKind } from "./cache.ts"
 import { detailsPath, mapDetails } from "./details.ts"
+import { discoverLookups, discoverTitles } from "./discover.ts"
 import type { Outcome } from "../http/outcome.ts"
 import { failure, kindFor } from "./outcome.ts"
 import { mapSearch, searchPath } from "./search.ts"
 import { mapSeason, seasonPath } from "./season.ts"
-import type { TmdbClient } from "./tmdb-client.ts"
-import type { CatalogType, DetailsResponse, SearchResponse, SeasonResponse } from "./types.ts"
+import type { CatalogService, ServiceDeps } from "./service-types.ts"
+import type { CatalogType } from "./types.ts"
 
-export interface CatalogService {
-  search(query: string, page: number): Promise<Outcome<SearchResponse>>
-  details(type: CatalogType, id: number): Promise<Outcome<DetailsResponse>>
-  refresh(type: CatalogType, id: number): Promise<Outcome<DetailsResponse>>
-  season(id: number, season: number): Promise<Outcome<SeasonResponse>>
-}
-
-export interface ServiceDeps {
-  readonly cache: CacheStore
-  readonly tmdb: TmdbClient
-  readonly now?: () => Date
-}
+export type { CatalogService, ServiceDeps } from "./service-types.ts"
 
 interface Lookup<T> {
   readonly key: string
@@ -80,6 +70,14 @@ export function createCatalogService({
         map: (b) => mapSearch(b, page),
       }),
     details: (type, id) => titleLookup(type, id, false),
+    discover: (request) =>
+      discoverTitles(
+        request,
+        discoverLookups(
+          (type, id) => titleLookup(type, id, false),
+          (key, path, map) => lookup({ key, kind: "search", path, map }),
+        ),
+      ),
     refresh: (type, id) => titleLookup(type, id, true),
     season: (id, season) =>
       lookup({

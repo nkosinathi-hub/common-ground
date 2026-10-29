@@ -1,5 +1,6 @@
 import type { Result } from "@/shared/domain"
 import type { EpisodeStatus } from "../domain/episodes"
+import type { ForYouScore } from "../domain/for-you"
 import type { Opinion } from "../domain/progress-types"
 import type {
   CatalogPick,
@@ -65,4 +66,6 @@ export interface WatchHistoryGateway {
 export interface WatchOpinionGateway {
   opinion(itemId: string): Promise<Result<Opinion | null>>
   setOpinion(spaceId: string, itemId: string, opinion: Opinion | null): Promise<Result<void>>
+  /** Every title in the space with your personal score (watch_for_you). */
+  forYou(spaceId: string): Promise<Result<ForYouScore[]>>
 }

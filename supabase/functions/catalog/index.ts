@@ -16,6 +16,16 @@ const admin = adminClient(supabaseUrl, env("SUPABASE_SERVICE_ROLE_KEY"))
 const handler = createCatalogHandler({
   allowedOrigins: parseOrigins(env("ALLOWED_ORIGINS")),
   gate: createGate(supabaseUrl, env("SUPABASE_ANON_KEY"), admin),
+  // Only the service role may write For you features; members cannot set them.
+  features: async (f) => {
+    await admin.rpc("set_watch_features", {
+      target_space: f.spaceId,
+      kind: f.type,
+      tmdb_id: f.id,
+      new_genres: [...f.genres],
+      new_streamable: f.streamable,
+    })
+  },
   service: createCatalogService({
     cache: createCacheStore(admin),
     tmdb: createTmdbClient({

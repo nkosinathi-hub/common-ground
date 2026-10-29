@@ -1,3 +1,4 @@
+import { canonicalGenres } from "./genres.ts"
 import type { CatalogTitle, CatalogType, MediaKind } from "./types.ts"
 
 /** The subset of a TMDB movie/tv object (search item or details) the catalog reads. */
@@ -20,14 +21,14 @@ const POSTER_PATH = /^\/[A-Za-z0-9_.-]+$/
 
 const text = (value: unknown): string => (typeof value === "string" ? value : "")
 
-function isAnimated(raw: RawTitle): boolean {
-  const ids = Array.isArray(raw.genre_ids) ? raw.genre_ids : []
+/** Search items carry genre_ids; details carry genres as objects. */
+function genreIds(raw: RawTitle): unknown[] {
+  if (Array.isArray(raw.genre_ids)) return raw.genre_ids
   const genres = Array.isArray(raw.genres) ? raw.genres : []
-  return (
-    ids.includes(ANIMATION_GENRE) ||
-    genres.some((genre: { id?: unknown } | null) => genre?.id === ANIMATION_GENRE)
-  )
+  return genres.map((genre: { id?: unknown } | null) => genre?.id)
 }
+
+const isAnimated = (raw: RawTitle): boolean => genreIds(raw).includes(ANIMATION_GENRE)
 
 function yearOf(raw: RawTitle): number | null {
   const year = Number((text(raw.release_date) || text(raw.first_air_date)).slice(0, 4))
@@ -49,5 +50,6 @@ export function mapTitle(raw: RawTitle, type: CatalogType): CatalogTitle {
     mediaKind: kindOf(raw, type),
     posterPath: POSTER_PATH.test(poster) ? poster : null,
     synopsis: text(raw.overview).slice(0, 5000),
+    genres: canonicalGenres(genreIds(raw)),
   }
 }
