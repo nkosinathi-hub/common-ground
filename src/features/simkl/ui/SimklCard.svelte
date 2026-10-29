@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte"
   import { ExternalLink, RefreshCw } from "@lucide/svelte"
+  import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import { formatDateTime } from "@/shared/domain"
@@ -19,10 +20,14 @@
 
 <Card.Root>
   <Card.Header>
-    <Card.Title>Watch history from Simkl</Card.Title>
+    <Card.Title>Simkl</Card.Title>
+    <Card.Action
+      ><Badge variant="outline">{state.kind === "connected" ? "Connected" : "Not connected"}</Badge
+      ></Card.Action
+    >
     <Card.Description>
-      Optional. Bring in what you have watched on Simkl: episodes and films already on your lists
-      are ticked as yours in every space. Simkl never sees your spaces.
+      Tick titles you have already watched. Reads your history; never sends Simkl your activity.
+      Keys are deleted when you disconnect.
     </Card.Description>
   </Card.Header>
   <Card.Content class="grid gap-3">

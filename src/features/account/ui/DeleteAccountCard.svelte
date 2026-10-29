@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { TriangleAlert } from "@lucide/svelte"
+  import { Lock } from "@lucide/svelte"
+  import * as Alert from "$lib/components/ui/alert"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import { FormError, FormField, FormState } from "@/shared/ui"
@@ -8,9 +9,11 @@
 
   interface Props {
     onDeleted: () => void
+    /** Spaces this person owns with other members: the server refuses until they are handed on. */
+    blockers?: readonly string[]
   }
 
-  let { onDeleted }: Props = $props()
+  let { onDeleted, blockers = [] }: Props = $props()
   const { service } = useAccount()
   const form = new FormState()
   let password = $state("")
@@ -22,24 +25,34 @@
   }
 </script>
 
-<Card.Root class="border-destructive/40">
+<!-- Figma D18b Delete account: what goes and what stays, a callout for spaces still owned with
+     others, then the password and the word. -->
+<Card.Root class="border-destructive">
   <Card.Header>
-    <Card.Title class="flex items-center gap-2">
-      <TriangleAlert class="size-4 text-destructive" aria-hidden="true" /> Delete account
-    </Card.Title>
+    <Card.Title>Delete account</Card.Title>
     <Card.Description>
-      Your profile, sign-in and memberships are removed, and spaces only you belong to are deleted.
-      What you added to shared spaces stays there, shown as from a former member. Hand over or
-      delete spaces you own with others first.
+      Your profile, sign-in details and memberships are removed. What you shared stays, credited to
+      "Former member".
     </Card.Description>
   </Card.Header>
   <Card.Content>
-    <form class="grid max-w-sm gap-3" onsubmit={submit} novalidate>
+    <form class="flex flex-col gap-stack" onsubmit={submit} novalidate>
+      {#if blockers.length}
+        <Alert.Root role="note">
+          <Lock aria-hidden="true" />
+          <Alert.Description>
+            You own {blockers.join(", ")}. Transfer ownership or delete {blockers.length === 1
+              ? "that space"
+              : "those spaces"} first.
+          </Alert.Description>
+        </Alert.Root>
+      {/if}
       <FormField
         id="delete-password"
         label="Your password"
         type="password"
         autocomplete="current-password"
+        placeholder="Enter your password"
         bind:value={password}
         error={form.fieldError("password")}
       />
@@ -47,6 +60,7 @@
         id="delete-confirmation"
         label={`Type ${CONFIRM_WORD} to confirm`}
         autocomplete="off"
+        placeholder={CONFIRM_WORD}
         bind:value={confirmation}
         error={form.fieldError("confirmation")}
       />
@@ -54,10 +68,10 @@
       <Button
         type="submit"
         variant="destructive"
-        class="w-fit"
+        class="w-full"
         disabled={form.pending || confirmation !== CONFIRM_WORD || password.length === 0}
       >
-        Delete my account
+        Delete account…
       </Button>
     </form>
   </Card.Content>

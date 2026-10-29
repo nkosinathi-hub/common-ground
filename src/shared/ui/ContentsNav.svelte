@@ -4,11 +4,13 @@
   interface Item {
     readonly href: string
     readonly label: string
+    /** Tells apart parts that share a link; defaults to the href. */
+    readonly id?: string
   }
 
   interface Props {
     items: readonly Item[]
-    /** The href of the part on screen. */
+    /** The id (or href) of the part on screen. */
     current: string
     label?: string
     class?: string
@@ -19,8 +21,8 @@
 
 <!-- Figma Contents link (211:9107): a left rule that turns primary on the current part. -->
 <nav aria-label={label} class={cn("flex flex-col", className)}>
-  {#each items as item (item.href)}
-    {@const active = item.href === current}
+  {#each items as item (item.id ?? item.href)}
+    {@const active = (item.id ?? item.href) === current}
     <a
       href={item.href}
       aria-current={active ? "location" : undefined}

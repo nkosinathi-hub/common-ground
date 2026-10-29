@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from "svelte"
   import { Download } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
@@ -12,9 +13,11 @@
 
   interface Props {
     spaces: readonly SpaceRef[]
+    /** Below the rows, e.g. where catalog listings come from. */
+    footer?: Snippet
   }
 
-  let { spaces }: Props = $props()
+  let { spaces, footer }: Props = $props()
   const { service } = useAccount()
   let busy = $state<string | null>(null)
 
@@ -31,31 +34,47 @@
   }
 </script>
 
+{#snippet row(title: string, description: string, action: string, label: string, run: () => void)}
+  <div class="flex items-center justify-between gap-item">
+    <div class="flex min-w-0 flex-col gap-hairline">
+      <p class="type-label text-foreground">{title}</p>
+      <p class="type-sm text-muted-foreground">{description}</p>
+    </div>
+    <Button variant="outline" size="sm" aria-label={label} disabled={busy !== null} onclick={run}>
+      <Download aria-hidden="true" />{action}
+    </Button>
+  </div>
+{/snippet}
+
+<!-- Figma D18b Your data: one row per download, then what exports never hold. -->
 <Card.Root>
   <Card.Header>
     <Card.Title>Your data</Card.Title>
     <Card.Description>
-      Download a JSON copy. A space export includes everything its members added.
+      Download a POPIA copy. A space export includes everything its members added.
     </Card.Description>
   </Card.Header>
-  <Card.Content class="grid gap-2">
-    <Button
-      variant="outline"
-      class="w-fit"
-      disabled={busy !== null}
-      onclick={() => save("me", service.exportMe)}
-    >
-      <Download aria-hidden="true" /> Download my data
-    </Button>
+  <Card.Content class="flex flex-col gap-stack">
+    {@render row(
+      "Download my data",
+      "Your profile, email, spaces and contribution counts, as JSON.",
+      "Download",
+      "Download my data",
+      () => void save("me", service.exportMe),
+    )}
     {#each spaces as space (space.id)}
-      <Button
-        variant="outline"
-        class="w-fit"
-        disabled={busy !== null}
-        onclick={() => save(space.id, () => service.exportSpace(space))}
-      >
-        <Download aria-hidden="true" /> Export {space.name}
-      </Button>
+      {@render row(
+        `Export ${space.name}`,
+        "Space details, members' display names and shared content.",
+        "Export",
+        `Export ${space.name}`,
+        () => void save(space.id, () => service.exportSpace(space)),
+      )}
     {/each}
+    <p class="type-xs text-muted-foreground">
+      Exports never include invite links, notifications, file download links or other members' email
+      addresses.
+    </p>
+    {@render footer?.()}
   </Card.Content>
 </Card.Root>

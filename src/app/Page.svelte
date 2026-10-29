@@ -35,14 +35,19 @@
   <NewSpacePage />
 {:else if route.name === "account"}
   <AccountFrame {route} {signOut}>
-    {#snippet children(framed)}<AccountPage {signOut} {signOutEverywhere} {framed} />{/snippet}
+    {#snippet children(framed)}<AccountPage
+        {signOut}
+        {signOutEverywhere}
+        tab={route.tab}
+        {framed}
+      />{/snippet}
   </AccountFrame>
 {:else if route.name === "privacy"}
   {#if session.user}
     <AccountFrame {route} {signOut}>
-      {#snippet children(framed)}<PrivacyPage {framed} />{/snippet}
+      {#snippet children(framed)}<PrivacyPage {framed} part={route.part} />{/snippet}
     </AccountFrame>
-  {:else}<PrivacyPage />{/if}
+  {:else}<PrivacyPage part={route.part} />{/if}
 {:else if route.name === "not-found" || route.name === "entry"}
   <NotFound />
 {:else if "spaceId" in route}

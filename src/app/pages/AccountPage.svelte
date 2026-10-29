@@ -1,56 +1,55 @@
 <script lang="ts">
-  import { buildHash } from "@/shared/domain"
-  import { Shield } from "@lucide/svelte"
-  import {
-    AppearanceCard,
-    DataExportCard,
-    DeleteAccountCard,
-    PasswordCard,
-    ProfileCard,
-    SessionsCard,
-  } from "@/features/account"
+  import * as Tabs from "$lib/components/ui/tabs"
   import { useAuth } from "@/features/auth"
-  import { SimklCard } from "@/features/simkl"
-  import { useSpaces } from "@/features/spaces"
-  import { toast } from "@/shared/ui"
+  import type { AccountTab } from "@/shared/domain"
+  import { navigate, toast } from "@/shared/ui"
+  import DataTab from "./account/DataTab.svelte"
+  import ProfileTab from "./account/ProfileTab.svelte"
 
   interface Props {
     signOut: () => void
     signOutEverywhere: () => void
+    /** From the link; a bare /account opens Profile and sign-in. */
+    tab?: AccountTab
     /** Inside the app shell, which owns the page's main landmark. */
     framed?: boolean
   }
 
-  let { signOut, signOutEverywhere, framed = false }: Props = $props()
+  let { signOut, signOutEverywhere, tab = "profile", framed = false }: Props = $props()
   const { session } = useAuth()
-  const { store } = useSpaces()
-  const spaces = $derived(store.spaces.map((s) => ({ id: s.id, name: s.name })))
+  const open = (next: string) => navigate({ name: "account", tab: next as AccountTab })
 
   function deleted() {
     toast.success("Your account was deleted")
     signOut()
   }
-  import CatalogCredits from "./account/CatalogCredits.svelte"
 </script>
 
-<svelte:element this={framed ? "div" : "main"} class="mx-auto grid max-w-2xl gap-6 px-4 py-10">
-  <div class="grid gap-1">
-    <h1 class="text-2xl font-semibold">Account and data</h1>
-    <a
-      href={buildHash({ name: "privacy" })}
-      class="flex w-fit items-center gap-1 text-sm text-primary hover:underline"
-    >
-      <Shield class="size-4" aria-hidden="true" /> How we handle your data
-    </a>
+<!-- Figma D18a and D18b: the header, then two tabs, each a link of its own. -->
+<svelte:element
+  this={framed ? "div" : "main"}
+  class="flex flex-col gap-section {framed ? '' : 'mx-auto max-w-content px-gutter py-section'}"
+>
+  <div class="flex flex-col gap-related">
+    <h1 class="type-h1 text-foreground">Account and data</h1>
+    <p class="type-body text-muted-foreground">
+      Your profile, sign-in, devices and the information we keep.
+    </p>
   </div>
   {#if session.user}
-    <ProfileCard userId={session.user.id} displayName={session.user.displayName} />
-    <AppearanceCard />
-    <PasswordCard />
-    <SessionsCard onSignOutEverywhere={signOutEverywhere} />
-    <SimklCard />
-    <DataExportCard {spaces} />
-    <CatalogCredits />
-    <DeleteAccountCard onDeleted={deleted} />
+    <Tabs.Root value={tab} onValueChange={open} class="flex flex-col gap-section">
+      <Tabs.List variant="line" aria-label="Account" class="w-full justify-start">
+        <Tabs.Trigger value="profile">Profile and sign-in</Tabs.Trigger>
+        <Tabs.Trigger value="data">Data and privacy</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="profile">
+        <ProfileTab
+          userId={session.user.id}
+          displayName={session.user.displayName}
+          {signOutEverywhere}
+        />
+      </Tabs.Content>
+      <Tabs.Content value="data"><DataTab onDeleted={deleted} /></Tabs.Content>
+    </Tabs.Root>
   {/if}
 </svelte:element>
