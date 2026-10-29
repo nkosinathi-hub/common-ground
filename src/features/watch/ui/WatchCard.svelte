@@ -1,8 +1,6 @@
 <script lang="ts">
-  import { ArrowRight } from "@lucide/svelte"
-  import { Badge } from "$lib/components/ui/badge"
   import { Poster } from "@/features/catalog"
-  import { intentLabel, mediaTypeLabel, statusLabel } from "../domain/labels"
+  import { statusLabel } from "../domain/labels"
   import type { MemberRef } from "@/shared/domain"
   import type { WatchItem } from "../domain/types"
   import PlaceBadges from "./PlaceBadges.svelte"
@@ -28,9 +26,6 @@
       size="w342"
       class="aspect-[2/3] h-auto w-full rounded-none"
     />
-    <Badge variant="secondary" class="absolute bottom-2 left-2"
-      >{mediaTypeLabel(item.mediaType)}</Badge
-    >
   </span>
   <span class="flex flex-1 flex-col gap-1 p-3">
     <span class="line-clamp-2 text-sm font-medium">{item.title}</span>
@@ -40,9 +35,5 @@
         : ""}
     </span>
     <PlaceBadges {item} {names} />
-    <span class="mt-auto flex items-center justify-between pt-2 text-xs text-muted-foreground">
-      {intentLabel(item.intent)}
-      <ArrowRight class="size-3.5 transition group-hover:translate-x-0.5" aria-hidden="true" />
-    </span>
   </span>
 </a>

@@ -5,7 +5,7 @@
   import { DEFAULT_FILTERS } from "../domain/filters"
   import { useWatch } from "./context"
   import { spaceNames } from "./space-names.svelte"
-  import WatchCard from "./WatchCard.svelte"
+  import ContinueCard from "./ContinueCard.svelte"
 
   /** Home shows only the first few titles in progress. */
   const SHOWN = 8
@@ -36,11 +36,16 @@
         <Button variant="outline" href={listHref}>Open your list</Button>
       </EmptyState>
     {:else}
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <!-- Wide cards in columns on larger screens; a swipeable row on phones. -->
+      <ul
+        class="-mx-card flex snap-x snap-mandatory gap-item overflow-x-auto px-card pb-1 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] sm:overflow-visible sm:px-0"
+      >
         {#each page.items.slice(0, SHOWN) as item (item.id)}
-          <WatchCard {item} href={itemHref(item.id)} names={names.value ?? []} />
+          <li class="w-[85%] shrink-0 snap-start sm:w-auto">
+            <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} />
+          </li>
         {/each}
-      </div>
+      </ul>
     {/if}
   {/snippet}
 </AsyncView>
