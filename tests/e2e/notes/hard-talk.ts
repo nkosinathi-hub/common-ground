@@ -37,14 +37,14 @@ export async function startSharing(page: Page, to: string): Promise<Locator> {
 
 /** The Home activity card. */
 /** Recent activity: a Home card on wide screens, inside the folded group on phones. */
-export const feed = (page: Page): Locator =>
+const feed = (page: Page): Locator =>
   page
     .locator('[data-slot="card"], section')
     .filter({ has: page.getByRole("heading", { name: /^Recently in/ }) })
 
 /** The calm card at the top of Home for an unopened note. */
 /** Opens the folded activity group on phones; wide screens show the feed as a card. */
-export async function showFeed(page: Page): Promise<Locator> {
+async function showFeed(page: Page): Promise<Locator> {
   const fold = page.getByRole("button", { name: /Activity and recommendations/ })
   await expect(fold.or(feed(page)).first()).toBeVisible()
   if (await fold.isVisible()) await fold.click()

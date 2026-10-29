@@ -20,13 +20,21 @@
 
 <!-- D02 cards in columns on wide screens; M02 rows on phones. -->
 {#if wide.current}
-  <ul class="grid grid-cols-2 gap-columns lg:grid-cols-3" aria-busy={list.status === "loading"}>
+  <ul
+    aria-label="Titles"
+    class="grid grid-cols-2 gap-columns lg:grid-cols-3"
+    aria-busy={list.status === "loading"}
+  >
     {#each list.items as item (item.id)}
       <li><WatchCard {item} href={itemHref(item.id)} names={names.value ?? []} {me} /></li>
     {/each}
   </ul>
 {:else}
-  <ul class="flex flex-col divide-y divide-border" aria-busy={list.status === "loading"}>
+  <ul
+    aria-label="Titles"
+    class="flex flex-col divide-y divide-border"
+    aria-busy={list.status === "loading"}
+  >
     {#each list.items as item (item.id)}
       <li><WatchRow {item} href={itemHref(item.id)} names={names.value ?? []} /></li>
     {/each}

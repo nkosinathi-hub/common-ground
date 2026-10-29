@@ -8,7 +8,7 @@ import { provideWatch } from "./context"
 import WatchPage from "./WatchPage.svelte"
 
 afterEach(cleanup)
-const cards = () => within(screen.getByRole("list")).getAllByRole("link")
+const cards = () => within(screen.getByRole("list", { name: "Titles" })).getAllByRole("link")
 
 function setup(count = 0) {
   const fakes = watchFakes()

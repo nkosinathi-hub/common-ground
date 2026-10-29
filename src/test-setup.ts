@@ -1,13 +1,13 @@
 import "@testing-library/jest-dom/vitest"
 
-// jsdom has no matchMedia; svelte/reactivity's MediaQuery reads it. Tests see a narrow screen
-// unless one replaces this.
-if (typeof window.matchMedia !== "function")
+// jsdom has no matchMedia; svelte/reactivity's MediaQuery reads it. Tests see a wide screen
+// (every min-width query matches), as components assumed before; a test can replace it.
+if (typeof window !== "undefined" && typeof window.matchMedia !== "function")
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: (media: string): MediaQueryList =>
       ({
-        matches: false,
+        matches: media.includes("min-width"),
         media,
         onchange: null,
         addEventListener: () => {},
