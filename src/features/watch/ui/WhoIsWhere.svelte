@@ -10,12 +10,14 @@
     item: WatchItem
     /** Names for everyone with progress, including people who have since left. */
     names: readonly MemberRef[]
+    /** The signed-in person, drawn in the brand tone. */
+    me?: string
   }
 
   /** Three lines at most, so a card is the same height for two people or ten. */
   const LINES = 3
 
-  let { item, names }: Props = $props()
+  let { item, names, me }: Props = $props()
   const summary = $derived(describePlaces(item.places, item.together, names))
   const rows = $derived(placeRows(summary, summary.together ? LINES - 1 : LINES))
   const lead = "flex w-10 shrink-0 items-center"
@@ -32,14 +34,17 @@
           ><Users class="size-4" aria-hidden="true" /></span
         ></span
       >
-      <span class="flex-1 type-label-sm">Together</span>
+      <span class="flex-1 type-label-sm whitespace-nowrap">Together</span>
       <span class="type-label-sm tabular-nums">{summary.together}</span>
     </li>
   {/if}
   {#each rows as row (row.names.join())}
     <li class="flex h-7 items-center gap-related">
       <span class={lead}
-        ><AvatarStack people={row.names.slice(0, 2).map((name) => ({ name }))} size="sm" /></span
+        ><AvatarStack
+          people={row.names.slice(0, 2).map((name, i) => ({ name, me: row.ids[i] === me }))}
+          size="sm"
+        /></span
       >
       <span class="min-w-0 flex-1 truncate type-xs text-foreground">
         {row.label ? row.names.join(", ") : `${row.names.length} more`}

@@ -2,6 +2,7 @@
   import { PenLine } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
+  import { useAuth } from "@/features/auth"
   import { UpcomingEvents } from "@/features/calendar"
   import { IdeasInProgress } from "@/features/ideas"
   import { NotesCard } from "@/features/notes"
@@ -21,6 +22,7 @@
 
   let { id, space, class: className }: Props = $props()
   let writing = $state(false)
+  const { session } = useAuth()
   const spaceId = $derived(space.id)
   const title = $derived(id === "activity" ? `Recently in ${space.name}` : HOME_CARD_LABELS[id])
   const itemHref = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
@@ -44,7 +46,12 @@
     {#if id === "notes"}
       <NotesCard {spaceId} bind:writing />
     {:else if id === "continue_watching"}
-      <ContinueWatching {spaceId} listHref={buildHash({ name: "watch", spaceId })} {itemHref} />
+      <ContinueWatching
+        {spaceId}
+        listHref={buildHash({ name: "watch", spaceId })}
+        {itemHref}
+        me={session.user?.id}
+      />
     {:else if id === "coming_up"}
       <UpcomingTasks {spaceId} {taskHref} />
     {:else if id === "calendar"}

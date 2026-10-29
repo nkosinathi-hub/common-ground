@@ -14,9 +14,11 @@
     spaceId: string
     itemHref: (id: string) => string
     listHref: string
+    /** The signed-in person, drawn in the brand tone on each card. */
+    me?: string
   }
 
-  let { spaceId, itemHref, listHref }: Props = $props()
+  let { spaceId, itemHref, listHref, me }: Props = $props()
   const { service } = useWatch()
   const watching = new Resource(() =>
     service.list(spaceId, { ...DEFAULT_FILTERS, myStatus: "watching", sort: "recent" }),
@@ -38,8 +40,8 @@
     {:else}
       <ScrollRow label="Titles in progress">
         {#each page.items.slice(0, SHOWN) as item (item.id)}
-          <li class="w-[85%] max-w-72 shrink-0 snap-start">
-            <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} />
+          <li class="w-[85%] max-w-72 shrink-0 snap-start sm:w-72">
+            <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} {me} />
           </li>
         {/each}
       </ScrollRow>

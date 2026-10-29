@@ -8,9 +8,10 @@
     item: WatchItem
     href: string
     names: readonly MemberRef[]
+    me?: string
   }
 
-  let { item, href, names }: Props = $props()
+  let { item, href, names, me }: Props = $props()
 </script>
 
 <!-- A landscape card: the whole card opens the title, so it carries no extra link. -->
@@ -26,6 +27,6 @@
   />
   <span class="flex min-w-0 flex-1 flex-col gap-related">
     <span class="line-clamp-2 type-label text-foreground">{item.title}</span>
-    <WhoIsWhere {item} {names} />
+    <WhoIsWhere {item} {names} {me} />
   </span>
 </a>

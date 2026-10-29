@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { placeRows } from "./place-rows"
 
-const person = (name: string, label: string, ahead = false) => ({ name, label, ahead })
+const person = (name: string, label: string, ahead = false) => ({
+  userId: name.toLowerCase(),
+  name,
+  label,
+  ahead,
+})
 
 describe("placeRows", () => {
   it("puts people at the same episode on one line", () => {
@@ -9,7 +14,9 @@ describe("placeRows", () => {
       { together: "S1E2", people: [person("Ana", "S1E2"), person("Ben", "S1E2")] },
       2,
     )
-    expect(rows).toEqual([{ names: ["Ana", "Ben"], label: "S1E2", ahead: false }])
+    expect(rows).toEqual([
+      { names: ["Ana", "Ben"], ids: ["ana", "ben"], label: "S1E2", ahead: false },
+    ])
   })
 
   it("never shows more lines than asked, folding the rest into the last", () => {
@@ -22,8 +29,8 @@ describe("placeRows", () => {
     ]
     const rows = placeRows({ together: "S1E3", people }, 2)
     expect(rows).toEqual([
-      { names: ["Ana", "Dee"], label: "S1E3", ahead: false },
-      { names: ["Cy", "Eve", "Fin"], label: null, ahead: false },
+      { names: ["Ana", "Dee"], ids: ["ana", "dee"], label: "S1E3", ahead: false },
+      { names: ["Cy", "Eve", "Fin"], ids: ["cy", "eve", "fin"], label: null, ahead: false },
     ])
   })
 
