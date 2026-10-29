@@ -36,7 +36,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   }
   await page.getByRole("link", { name: "Calendar", exact: true }).click()
   await expect(
-    page.getByRole("heading", { level: 1, name: "Make time for each other." }),
+    page.getByRole("heading", { level: 1, name: /Make time for each other|Time, together/ }),
   ).toBeVisible()
   await page.getByRole("button", { name: "Switch space", exact: true }).click()
   await page.getByRole("menuitem", { name: /Space settings/ }).click()

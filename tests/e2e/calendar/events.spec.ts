@@ -54,7 +54,7 @@ test("events are planned, edited, answered and exported", async ({ page, browser
     /\/ideas\/.+\/overview$/,
   )
 
-  await page.getByRole("button", { name: "Edit" }).click()
+  await page.getByRole("button", { name: "Edit", exact: true }).click()
   const edit = page.getByRole("dialog", { name: "Edit event" })
   await edit.getByLabel("Title").fill("Market dinner and drinks")
   await edit.getByLabel("Place").fill("The night market; stall 4")

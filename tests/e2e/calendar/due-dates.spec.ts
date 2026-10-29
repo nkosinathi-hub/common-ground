@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test"
+import { expect, test, type Page } from "@playwright/test"
 import { daysFromNow } from "../support/dates"
 import { captureIdea, openIdeaTab } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
@@ -29,6 +29,8 @@ test("task due dates and milestones are on the calendar and link to the idea", a
 
   await page.goto(`./#/s/${spaceId}/calendar`)
   await page.getByRole("radio", { name: "Agenda" }).click()
+  // The agenda shows this month first; dates in the next one are a "Show <month>" away.
+  await showMonthOf(page, target.iso)
   const agenda = page.getByTestId("agenda")
   const dueDay = agenda
     .getByRole("listitem")
@@ -38,6 +40,7 @@ test("task due dates and milestones are on the calendar and link to the idea", a
   await page.waitForURL(new RegExp(`/ideas/${ideaId}/tasks$`))
 
   await page.goto(`./#/s/${spaceId}/calendar`)
+  await showMonthOf(page, target.iso)
   const milestone = page.getByTestId("agenda").getByRole("link", { name: "Milestone: Planted" })
   await expect(milestone).toBeVisible()
   await milestone.click()
@@ -55,4 +58,13 @@ function dayName(iso: string): string {
   const parts = format.formatToParts(new Date(`${iso}T12:00:00Z`))
   const part = (type: string) => parts.find((p) => p.type === type)!.value
   return `${part("weekday")} ${part("day")} ${part("month")}`
+}
+
+/** Pages the agenda on until it covers the month of an ISO day. */
+async function showMonthOf(page: Page, iso: string) {
+  const month = new Date(`${iso}T12:00:00Z`).toLocaleString("en-GB", { month: "long" })
+  const end = page.getByTestId("agenda-end")
+  await expect(end).toBeVisible()
+  const show = end.getByRole("button", { name: `Show ${month}` })
+  if (await show.isVisible()) await show.click()
 }
