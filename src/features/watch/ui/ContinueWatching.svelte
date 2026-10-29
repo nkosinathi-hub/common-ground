@@ -36,12 +36,10 @@
         <Button variant="outline" href={listHref}>Open your list</Button>
       </EmptyState>
     {:else}
-      <!-- Wide cards in columns on larger screens; a swipeable row on phones. -->
-      <ul
-        class="-mx-card flex snap-x snap-mandatory gap-item overflow-x-auto px-card pb-1 sm:mx-0 sm:grid sm:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))] sm:overflow-visible sm:px-0"
-      >
+      <!-- Fixed-width cards in one row that scrolls: a single title stays compact, more scroll. -->
+      <ul class="-mx-card flex snap-x snap-mandatory gap-item overflow-x-auto px-card pb-1">
         {#each page.items.slice(0, SHOWN) as item (item.id)}
-          <li class="w-[85%] shrink-0 snap-start sm:w-auto">
+          <li class="w-[85%] max-w-72 shrink-0 snap-start">
             <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} />
           </li>
         {/each}
