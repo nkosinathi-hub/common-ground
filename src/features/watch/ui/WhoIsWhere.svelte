@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Users } from "@lucide/svelte"
   import type { MemberRef } from "@/shared/domain"
-  import { InitialAvatar } from "@/shared/ui"
+  import { AvatarStack } from "@/shared/ui"
+  import { placeRows } from "../domain/place-rows"
   import { describePlaces } from "../domain/places-summary"
   import type { WatchItem } from "../domain/types"
 
@@ -11,32 +12,43 @@
     names: readonly MemberRef[]
   }
 
+  /** Three lines at most, so a card is the same height for two people or ten. */
+  const LINES = 3
+
   let { item, names }: Props = $props()
   const summary = $derived(describePlaces(item.places, item.together, names))
+  const rows = $derived(placeRows(summary, summary.together ? LINES - 1 : LINES))
+  const lead = "flex w-10 shrink-0 items-center"
 </script>
 
-<!-- Where the space is together, then each person on their own row: who is where at a glance. -->
-{#if summary.together || summary.people.length > 0}
-  <ul class="flex flex-col gap-hairline">
-    {#if summary.together}
-      <li
-        class="flex items-center gap-related rounded-md bg-secondary px-related py-1 text-secondary-foreground"
+<!-- Together first, then people grouped by episode. Every line shares one leading column. -->
+<ul class="flex flex-col gap-hairline">
+  {#if summary.together}
+    <li
+      class="-mx-related flex h-7 items-center gap-related rounded-md bg-secondary px-related text-secondary-foreground"
+    >
+      <span class={lead}
+        ><span class="flex size-6 items-center justify-center"
+          ><Users class="size-4" aria-hidden="true" /></span
+        ></span
       >
-        <Users class="size-4 shrink-0" aria-hidden="true" />
-        <span class="flex-1 type-label-sm">Together</span>
-        <span class="type-label-sm tabular-nums">{summary.together}</span>
-      </li>
-    {/if}
-    {#each summary.people as person (person.name)}
-      <li class="flex items-center gap-related px-related py-0.5">
-        <InitialAvatar name={person.name} size="sm" decorative />
-        <span class="min-w-0 flex-1 truncate type-xs text-foreground">{person.name}</span>
-        <span
-          class="type-xs tabular-nums {person.ahead ? 'text-primary' : 'text-muted-foreground'}"
-        >
-          {person.label}{#if person.ahead}<span class="sr-only">, ahead of together</span>{/if}
+      <span class="flex-1 type-label-sm">Together</span>
+      <span class="type-label-sm tabular-nums">{summary.together}</span>
+    </li>
+  {/if}
+  {#each rows as row (row.names.join())}
+    <li class="flex h-7 items-center gap-related">
+      <span class={lead}
+        ><AvatarStack people={row.names.slice(0, 2).map((name) => ({ name }))} size="sm" /></span
+      >
+      <span class="min-w-0 flex-1 truncate type-xs text-foreground">
+        {row.label ? row.names.join(", ") : `${row.names.length} more`}
+      </span>
+      {#if row.label}
+        <span class="type-xs tabular-nums {row.ahead ? 'text-primary' : 'text-muted-foreground'}">
+          {row.label}{#if row.ahead}<span class="sr-only">, ahead of together</span>{/if}
         </span>
-      </li>
-    {/each}
-  </ul>
-{/if}
+      {/if}
+    </li>
+  {/each}
+</ul>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Clapperboard } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { AsyncView, EmptyState, Resource } from "@/shared/ui"
+  import { AsyncView, EmptyState, Resource, ScrollRow } from "@/shared/ui"
   import { DEFAULT_FILTERS } from "../domain/filters"
   import { useWatch } from "./context"
   import { spaceNames } from "./space-names.svelte"
@@ -36,14 +36,13 @@
         <Button variant="outline" href={listHref}>Open your list</Button>
       </EmptyState>
     {:else}
-      <!-- Fixed-width cards in one row that scrolls: a single title stays compact, more scroll. -->
-      <ul class="-mx-card flex snap-x snap-mandatory gap-item overflow-x-auto px-card pb-1">
+      <ScrollRow label="Titles in progress">
         {#each page.items.slice(0, SHOWN) as item (item.id)}
           <li class="w-[85%] max-w-72 shrink-0 snap-start">
             <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} />
           </li>
         {/each}
-      </ul>
+      </ScrollRow>
     {/if}
   {/snippet}
 </AsyncView>

@@ -11,8 +11,8 @@
 
   interface Props {
     people: readonly Person[]
-    /** Read as one image, e.g. "On this idea: Ana, Ben". */
-    label: string
+    /** Read as one image, e.g. "On this idea: Ana, Ben"; leave out when the names are written beside it. */
+    label?: string
     max?: number
     size?: "sm" | "default" | "lg"
   }
@@ -22,7 +22,11 @@
 </script>
 
 {#if people.length > 0}
-  <AvatarGroup role="img" aria-label={label}>
+  <AvatarGroup
+    role={label ? "img" : undefined}
+    aria-label={label}
+    aria-hidden={label ? undefined : "true"}
+  >
     {#each people.slice(0, max) as person, index (index)}
       <InitialAvatar
         name={person.name}

@@ -33,6 +33,7 @@ export const demoFetch: typeof fetch = async (input, init) => {
     if (name === "list_watch_items") {
       const rows = watchRows.filter(
         (row) =>
+          row.space_id === args.target_space &&
           (!args.media || row.media_type === args.media) &&
           (!args.intent || row.shared_intent === args.intent) &&
           (!args.my_status || row.my_progress === args.my_status) &&
