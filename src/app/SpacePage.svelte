@@ -11,7 +11,6 @@
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
   import QuickCapture from "./shell/QuickCapture.svelte"
-  import { sectionOf } from "./shell/nav"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
   interface Props {
@@ -28,13 +27,13 @@
   // before the route moves on: show Loading for that moment instead of asserting it exists.
   const space = $derived(store.spaces.find((s) => s.id === route.spaceId))
   const user = $derived(session.user)
-  const section = $derived(sectionOf(route.name))
 </script>
 
 {#if space && user}
   {#key space.id}
-    <AppShell {space} current={section} onSignOut={signOut}>
+    <AppShell {space} {route} onSignOut={signOut}>
       {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
+      {#snippet bell()}<QuickCapture spaceId={space.id} compact /><NotificationsBell />{/snippet}
       {#if route.name === "home"}
         <HomePage {space} displayName={user.displayName} />
       {:else if route.name === "watch" || route.name === "watch-item"}

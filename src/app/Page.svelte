@@ -2,6 +2,7 @@
   import { NewPasswordPage, ResetPage, SignInPage, SignUpPage, useAuth } from "@/features/auth"
   import { InvitePage, NewSpacePage } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
+  import AccountFrame from "./AccountFrame.svelte"
   import AccountPage from "./pages/AccountPage.svelte"
   import InviteSignedOut from "./pages/InviteSignedOut.svelte"
   import NotFound from "./pages/NotFound.svelte"
@@ -33,9 +34,15 @@
 {:else if route.name === "new-space"}
   <NewSpacePage />
 {:else if route.name === "account"}
-  <AccountPage {signOut} {signOutEverywhere} />
+  <AccountFrame {route} {signOut}>
+    {#snippet children(framed)}<AccountPage {signOut} {signOutEverywhere} {framed} />{/snippet}
+  </AccountFrame>
 {:else if route.name === "privacy"}
-  <PrivacyPage />
+  {#if session.user}
+    <AccountFrame {route} {signOut}>
+      {#snippet children(framed)}<PrivacyPage {framed} />{/snippet}
+    </AccountFrame>
+  {:else}<PrivacyPage />{/if}
 {:else if route.name === "not-found" || route.name === "entry"}
   <NotFound />
 {:else if "spaceId" in route}

@@ -17,9 +17,11 @@
   interface Props {
     signOut: () => void
     signOutEverywhere: () => void
+    /** Inside the app shell, which owns the page's main landmark. */
+    framed?: boolean
   }
 
-  let { signOut, signOutEverywhere }: Props = $props()
+  let { signOut, signOutEverywhere, framed = false }: Props = $props()
   const { session } = useAuth()
   const { store } = useSpaces()
   const spaces = $derived(store.spaces.map((s) => ({ id: s.id, name: s.name })))
@@ -30,7 +32,7 @@
   }
 </script>
 
-<main class="mx-auto grid max-w-2xl gap-6 px-4 py-10">
+<svelte:element this={framed ? "div" : "main"} class="mx-auto grid max-w-2xl gap-6 px-4 py-10">
   <div class="grid gap-1">
     <h1 class="text-2xl font-semibold">Account and data</h1>
     <a
@@ -49,4 +51,4 @@
     <DataExportCard {spaces} />
     <DeleteAccountCard onDeleted={deleted} />
   {/if}
-</main>
+</svelte:element>

@@ -7,6 +7,11 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Fixed chrome above the app, such as the demo notice: the rail sits below it. */
+:root:has([data-demo-notice]) {
+  --chrome-top: 2.25rem;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

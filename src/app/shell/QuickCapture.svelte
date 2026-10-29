@@ -1,25 +1,25 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Lightbulb } from "@lucide/svelte"
+  import { Lightbulb, Plus } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import * as Dialog from "$lib/components/ui/dialog"
   import { useIdeas } from "@/features/ideas"
-  import { FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
+  import { DialogShell, FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
   interface Props {
     spaceId: string
+    /** Icon only, for the mobile app bar. */
+    compact?: boolean
   }
 
-  let { spaceId }: Props = $props()
+  let { spaceId, compact = false }: Props = $props()
   const ideas = useIdeas().service
   const form = new FormState()
   let open = $state(false)
   let title = $state(untrack(() => captureDraft.read(spaceId)))
   $effect(() => captureDraft.write(spaceId, title))
 
-  async function submit(event: SubmitEvent) {
-    event.preventDefault()
+  async function submit() {
     const made = await form.run(() => ideas.capture({ spaceId, title }))
     if (!made.ok) return
     title = ""
@@ -33,25 +33,24 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Trigger>
-    {#snippet child({ props })}
-      <Button {...props} variant="outline" size="sm" aria-label="Capture an idea from anywhere">
-        <Lightbulb class="size-4" aria-hidden="true" /><span class="hidden sm:inline"
-          >Capture idea</span
-        >
-      </Button>
-    {/snippet}
-  </Dialog.Trigger>
-  <Dialog.Content>
-    <Dialog.Header>
-      <Dialog.Title>Catch it before it goes</Dialog.Title>
-      <Dialog.Description>Just a title is enough. It lands in your Ideas inbox.</Dialog.Description>
-    </Dialog.Header>
-    <form class="grid gap-4" onsubmit={submit} novalidate>
-      <FormField id="quick-idea" label="Idea" bind:value={title} error={form.fieldError("title")} />
-      <FormError message={form.formError} />
-      <Button type="submit" disabled={form.pending || !title.trim()}>Save idea</Button>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
+<Button
+  variant={compact ? "ghost" : "outline"}
+  size={compact ? "icon" : "sm"}
+  class={compact ? "size-11" : undefined}
+  aria-label="Capture an idea from anywhere"
+  onclick={() => (open = true)}
+>
+  {#if compact}<Lightbulb aria-hidden="true" />{:else}<Plus aria-hidden="true" />Capture idea{/if}
+</Button>
+<DialogShell
+  bind:open
+  title="Catch it before it goes"
+  description="Just a title is enough. It lands in your Ideas inbox."
+  primary="Save idea"
+  busy={form.pending}
+  disabled={!title.trim()}
+  onsubmit={submit}
+>
+  <FormField id="quick-idea" label="Idea" bind:value={title} error={form.fieldError("title")} />
+  <FormError message={form.formError} />
+</DialogShell>

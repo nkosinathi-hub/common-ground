@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { X } from "@lucide/svelte"
   import type { Snippet } from "svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { cn } from "$lib/utils"
+  import DialogShellHeader from "./DialogShellHeader.svelte"
+  import { focusFirstField } from "./focus"
 
   interface Props {
     open: boolean
@@ -41,6 +42,9 @@
     cancelLabel = "Cancel",
   }: Props = $props()
 
+  // Opens on the first field, so typing starts at once; Close is only the fallback.
+  let body = $state<HTMLElement>()
+
   function submit(event: SubmitEvent) {
     event.preventDefault()
     if (!busy && !disabled) void onsubmit?.()
@@ -51,32 +55,16 @@
 <Dialog.Root bind:open>
   <Dialog.Content
     showCloseButton={false}
+    onOpenAutoFocus={(event) => focusFirstField(body, event)}
     class={cn(
       "flex max-h-[min(90dvh,56rem)] w-full flex-col gap-0 overflow-hidden rounded-xl border-border bg-card p-0",
       wide ? "sm:max-w-dialog-wide" : "sm:max-w-dialog",
       "max-sm:top-auto max-sm:bottom-0 max-sm:max-w-full max-sm:translate-y-0 max-sm:rounded-b-none",
     )}
   >
-    <div class="flex flex-col gap-stack px-6 pt-6">
-      <div class="flex items-start gap-inset">
-        <div class="flex min-w-0 flex-1 flex-col gap-related">
-          <Dialog.Title class="type-h2 text-foreground">{title}</Dialog.Title>
-          {#if description}
-            <Dialog.Description class="type-sm text-muted-foreground"
-              >{description}</Dialog.Description
-            >
-          {/if}
-        </div>
-        <Dialog.Close>
-          {#snippet child({ props })}
-            <Button {...props} variant="ghost" size="icon-sm" aria-label="Close"><X /></Button>
-          {/snippet}
-        </Dialog.Close>
-      </div>
-      {@render header?.()}
-    </div>
+    <DialogShellHeader {title} {description} {header} />
     <form class="flex min-h-0 flex-1 flex-col" onsubmit={submit}>
-      <div class="flex min-h-0 flex-1 flex-col gap-card overflow-y-auto p-6">
+      <div bind:this={body} class="flex min-h-0 flex-1 flex-col gap-card overflow-y-auto p-6">
         {@render children()}
       </div>
       <div

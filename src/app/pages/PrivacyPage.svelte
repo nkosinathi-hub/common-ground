@@ -1,9 +1,17 @@
 <script lang="ts">
-  // svelte-check types a component through its script block; this static notice needs no logic.
+  interface Props {
+    /** Inside the app shell, which owns the page's main landmark. */
+    framed?: boolean
+  }
+
+  let { framed = false }: Props = $props()
 </script>
 
-<main class="prose-sm mx-auto grid max-w-2xl gap-4 px-4 py-10">
-  <a href="#/" class="text-sm text-primary hover:underline">Back</a>
+<svelte:element
+  this={framed ? "div" : "main"}
+  class="prose-sm mx-auto grid max-w-2xl gap-4 px-4 py-10"
+>
+  {#if !framed}<a href="#/" class="text-sm text-primary hover:underline">Back</a>{/if}
   <h1 class="text-2xl font-semibold">Privacy</h1>
   <p>
     Common Ground is a private space for you and the people you invite. This notice explains what we
@@ -60,4 +68,4 @@
       shared spaces stays for the other members, without your name.
     </li>
   </ul>
-</main>
+</svelte:element>

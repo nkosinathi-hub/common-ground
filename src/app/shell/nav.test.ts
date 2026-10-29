@@ -2,14 +2,15 @@ import { describe, expect, it } from "vitest"
 import { sectionOf } from "./nav"
 
 describe("sectionOf", () => {
-  it("maps every space route to its primary destination", () => {
+  it("maps every route to its place in the shell", () => {
     expect(sectionOf("home")).toBe("home")
-    expect(sectionOf("watch")).toBe("watch")
+    expect(sectionOf("note")).toBe("home")
     expect(sectionOf("watch-item")).toBe("watch")
-    expect(sectionOf("ideas")).toBe("ideas")
+    expect(sectionOf("party")).toBe("watch")
     expect(sectionOf("idea")).toBe("ideas")
-    expect(sectionOf("calendar")).toBe("calendar")
     expect(sectionOf("event")).toBe("calendar")
-    expect(sectionOf("settings")).toBeNull()
+    expect(sectionOf("settings")).toBe("settings")
+    expect(sectionOf("privacy")).toBe("account")
+    expect(sectionOf("sign-in")).toBeNull()
   })
 })

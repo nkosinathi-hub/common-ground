@@ -1,26 +1,46 @@
 <script lang="ts">
-  import { navigate } from "@/shared/ui"
-  import { Check, ChevronsUpDown, Plus, Settings } from "@lucide/svelte"
+  import { Check, ChevronDown, Plus, Settings } from "@lucide/svelte"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { SpaceAvatar, templateFor, useSpaces } from "@/features/spaces"
+  import { Logo, navigate } from "@/shared/ui"
 
+  interface Props {
+    /** Rail: name and kind on the indigo rail. Bar: the logo and name in the mobile app bar. */
+    variant: "rail" | "bar"
+  }
+
+  let { variant }: Props = $props()
   const { store } = useSpaces()
   const active = $derived(store.active)
 </script>
 
 <DropdownMenu.Root>
-  <DropdownMenu.Trigger
-    class="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left hover:bg-sidebar-accent"
-    aria-label="Switch space"
-  >
-    <SpaceAvatar space={active} />
-    <span class="min-w-0 flex-1">
-      <span class="block truncate text-sm font-semibold">{active?.name ?? "No space"}</span>
-      <span class="block truncate text-xs text-muted-foreground"
-        >{templateFor(active?.template).label}</span
-      >
-    </span>
-    <ChevronsUpDown class="size-4 text-muted-foreground" aria-hidden="true" />
+  <DropdownMenu.Trigger aria-label="Switch space">
+    {#snippet child({ props })}
+      {#if variant === "rail"}
+        <button
+          {...props}
+          class="flex w-full items-center gap-item rounded-md px-item py-related text-left outline-none hover:bg-sidebar-accent focus-visible:ring-3 focus-visible:ring-sidebar-foreground/40"
+        >
+          <span class="flex min-w-0 flex-1 flex-col">
+            <span class="truncate type-label">{active?.name ?? "No space"}</span>
+            <span class="truncate type-xs opacity-72"
+              >{templateFor(active?.template).label} · Private space</span
+            >
+          </span>
+          <ChevronDown class="size-4 shrink-0" aria-hidden="true" />
+        </button>
+      {:else}
+        <button
+          {...props}
+          class="flex h-11 max-w-full min-w-0 items-center gap-related rounded-md text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/20"
+        >
+          <Logo size={32} />
+          <span class="truncate type-label text-foreground">{active?.name ?? "No space"}</span>
+          <ChevronDown class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        </button>
+      {/if}
+    {/snippet}
   </DropdownMenu.Trigger>
   <DropdownMenu.Content class="w-60" align="start">
     <DropdownMenu.Label>Your spaces</DropdownMenu.Label>

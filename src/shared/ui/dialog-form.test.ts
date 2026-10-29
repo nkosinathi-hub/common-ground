@@ -35,6 +35,11 @@ describe("DialogShell", () => {
     expect(onsubmit).not.toHaveBeenCalled()
   })
 
+  it("opens on its first field rather than the close button", async () => {
+    dialog({ primary: "Leave note" })
+    await waitFor(() => expect(screen.getByLabelText("Your note")).toHaveFocus())
+  })
+
   it("has a close button and a destructive primary when asked", () => {
     dialog({ primary: "Delete space", destructive: true })
     expect(screen.getByRole("button", { name: "Close" })).toBeInTheDocument()

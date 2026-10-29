@@ -1,27 +1,18 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import * as Card from "$lib/components/ui/card"
+  import { AuthCard, PublicLayout } from "@/shared/ui"
 
   interface Props {
     title: string
     description?: string
+    backHref?: string
     children: Snippet
     footer?: Snippet
   }
 
-  let { title, description, children, footer }: Props = $props()
+  let { title, description, backHref, children, footer }: Props = $props()
 </script>
 
-<main class="flex min-h-dvh items-center justify-center bg-secondary px-4 py-10">
-  <Card.Root class="w-full max-w-md">
-    <Card.Header>
-      <p class="font-serif text-sm tracking-wide text-primary">Common Ground</p>
-      <Card.Title level={1} class="text-2xl">{title}</Card.Title>
-      {#if description}<Card.Description>{description}</Card.Description>{/if}
-    </Card.Header>
-    <Card.Content>{@render children()}</Card.Content>
-    {#if footer}<Card.Footer class="flex-col gap-2 text-sm text-muted-foreground"
-        >{@render footer()}</Card.Footer
-      >{/if}
-  </Card.Root>
-</main>
+<PublicLayout hero="Good things have a place here.">
+  <AuthCard {title} {description} {backHref} {children} {footer} />
+</PublicLayout>

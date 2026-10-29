@@ -52,7 +52,7 @@ describe("space rules", () => {
 
   it("lists templates in order and falls back to the blank one", () => {
     expect(SPACE_TEMPLATES.map((t) => t.id)).toEqual(["couple", "friends", "family", "blank"])
-    expect(templateFor("couple").label).toBe("Couples")
+    expect(templateFor("couple").label).toBe("Couple")
     expect(templateFor("weird").id).toBe("blank")
     expect(templateFor(null).id).toBe("blank")
   })

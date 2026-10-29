@@ -27,8 +27,8 @@
   <Button
     {...props}
     variant="ghost"
-    size="icon"
-    class="relative"
+    size="icon-sm"
+    class="relative max-md:size-11"
     aria-label={store.unread > 0 ? `Notifications, ${store.unread} unread` : "Notifications"}
   >
     <Bell class="size-5" aria-hidden="true" />
