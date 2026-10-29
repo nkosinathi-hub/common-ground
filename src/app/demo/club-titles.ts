@@ -6,6 +6,23 @@ const [CY, DEE, EVE, FIN] = CLUB_PEOPLE.map(([id]) => id)
 /** The book club's titles: five people at different episodes of the same show. */
 export const CLUB_TITLES: Title[] = [
   {
+    title: "Andor",
+    catalog_id: 83867,
+    release_year: 2022,
+    media_type: "series",
+    poster_path: "/khZqmwHQicTYoS7Flreb9EddFZC.jpg",
+    synopsis: "A thief becomes a rebel in the years before the Rebellion.",
+    space: CLUB,
+    places: [
+      [ANA, 1, 4],
+      [CY!, 1, 7],
+      [DEE!, 1, 2],
+      [EVE!, 2, 1],
+      [FIN!, 1, 9],
+    ],
+    together: { season: 1, episode: 2 },
+  },
+  {
     title: "Chernobyl",
     catalog_id: 87108,
     release_year: 2019,
