@@ -64,4 +64,5 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   sessions (the range and `party_id` on `watch_sessions`; redefines `finish_party`), `000900`
   `export_table_names` and `export_table_filter` with the two new tables, `001000` For you
   (`genres` and `streamable` on `watch_items`, `set_watch_features` for the service role only,
-  `watch_for_you`), `001100` `list_watch_items` with the `for_you` sort and its reason.
+  `watch_for_you`), `001100` `list_watch_items` with the `for_you` sort and its reason, `001200` the update grant on
+  `ideas.template` (#78, D06 Template card).

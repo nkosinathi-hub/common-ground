@@ -1,19 +1,14 @@
 <script lang="ts">
-  import { NativeSelect } from "$lib/components/ui/native-select"
+  import * as Card from "$lib/components/ui/card"
+  import { Label } from "$lib/components/ui/label"
   import { untrack } from "svelte"
   import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
-  import {
-    HYPOTHESIS_MAX,
-    HYPOTHESIS_STATUSES,
-    type Hypothesis,
-    type HypothesisStatus,
-    type Idea,
-  } from "../domain"
+  import { FormError, PagedList } from "@/shared/ui"
+  import { HYPOTHESIS_MAX, type Hypothesis, type HypothesisStatus, type Idea } from "../domain"
   import { useResearch } from "./context"
-  import { HYPOTHESIS_LABELS } from "./labels"
+  import HypothesisItem from "./HypothesisItem.svelte"
   import ListFooter from "./ListFooter.svelte"
 
   interface Props {
@@ -48,46 +43,36 @@
   }
 </script>
 
-<section aria-labelledby="hypotheses-heading" class="flex flex-col gap-3">
-  <h2 id="hypotheses-heading" class="text-lg font-semibold">Hypotheses</h2>
-  <form class="flex gap-2" onsubmit={add}>
-    <Input
-      aria-label="New hypothesis"
-      placeholder="We believe that..."
-      maxlength={HYPOTHESIS_MAX}
-      bind:value={statement}
-    />
-    <Button type="submit" size="sm" disabled={!statement.trim()}>Add</Button>
-  </form>
-  <FormError message={error} />
-  <ul class="flex flex-col gap-2">
-    {#each list.items as hypothesis (hypothesis.id)}
-      <li
-        class="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3"
-        data-testid="hypothesis"
-      >
-        <p class="text-sm">{hypothesis.statement}</p>
-        <div class="flex items-center gap-1">
-          <NativeSelect
-            aria-label="Status"
-            value={hypothesis.status}
-            onchange={(event) =>
-              setStatus(hypothesis.id, event.currentTarget.value as HypothesisStatus)}
-          >
-            {#each HYPOTHESIS_STATUSES as status (status)}<option value={status}
-                >{HYPOTHESIS_LABELS[status]}</option
-              >{/each}
-          </NativeSelect>
-          {#if canDelete(hypothesis.createdBy, viewer)}
-            <DeleteButton
-              label="Delete hypothesis"
-              what="this hypothesis"
-              onConfirm={() => remove(hypothesis.id)}
-            />
-          {/if}
-        </div>
-      </li>
-    {/each}
-  </ul>
-  <ListFooter {list} empty="No hypotheses yet." />
-</section>
+<!-- D07 Hypotheses: each statement with its status as a segmented control, then add one. -->
+<Card.Root role="region" aria-labelledby="hypotheses-heading">
+  <Card.Header>
+    <Card.Title id="hypotheses-heading">Hypotheses</Card.Title>
+    <Card.Description>Questions to test, not things we already know.</Card.Description>
+  </Card.Header>
+  <Card.Content class="flex flex-col gap-stack">
+    <ul class="flex flex-col gap-item">
+      {#each list.items as hypothesis (hypothesis.id)}
+        <HypothesisItem
+          {hypothesis}
+          deletable={canDelete(hypothesis.createdBy, viewer)}
+          onStatus={(status) => setStatus(hypothesis.id, status)}
+          onRemove={() => remove(hypothesis.id)}
+        />
+      {/each}
+    </ul>
+    <ListFooter {list} empty="No hypotheses yet." />
+    <form class="flex flex-col gap-related" onsubmit={add}>
+      <Label for="new-hypothesis">New hypothesis</Label>
+      <div class="flex gap-item">
+        <Input
+          id="new-hypothesis"
+          placeholder="We believe that…"
+          maxlength={HYPOTHESIS_MAX}
+          bind:value={statement}
+        />
+        <Button type="submit" disabled={!statement.trim()}>Add</Button>
+      </div>
+      <FormError message={error} />
+    </form>
+  </Card.Content>
+</Card.Root>

@@ -24,6 +24,8 @@ export interface IdeaPatch {
   readonly title?: string
   readonly stage?: IdeaStage
   readonly tags?: readonly string[]
+  /** Which overview fields lead (D06 Template card). */
+  readonly template?: IdeaTemplate
 }
 
 /** A server-side narrowing of the list: the viewer's own ideas, or every idea they are on. */

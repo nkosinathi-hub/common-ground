@@ -28,6 +28,7 @@
     icon?: Component
     width?: Width
     required?: boolean
+    maxlength?: number
     /** Any other control (select, textarea); gets the id and the described-by ids. */
     control?: Snippet<[{ id: string; describedby: string | undefined; invalid: boolean }]>
   }
@@ -43,6 +44,7 @@
     icon: Icon,
     width = "full",
     required = true,
+    maxlength,
     control,
   }: Props = $props()
   const describedby = $derived(error ? `${id}-error` : hint ? `${id}-hint` : undefined)
@@ -70,6 +72,7 @@
         aria-invalid={error ? true : undefined}
         aria-describedby={describedby}
         {required}
+        {maxlength}
       />
     </div>
   {/if}

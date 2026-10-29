@@ -67,3 +67,9 @@ export function validateTags(input: readonly string[]): Result<string[]> {
     ? ok(tags)
     : err(appError("validation", `Keep each tag to ${TAG_MAX} characters`, "tags"))
 }
+
+/** An idea is only shown under the space in the URL, so links never cross spaces. */
+export function inSpace(result: Result<Idea>, spaceId: string): Result<Idea> {
+  if (!result.ok || result.value.spaceId === spaceId) return result
+  return err(appError("not_found", "That idea is not in this space"))
+}

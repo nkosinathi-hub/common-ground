@@ -17,6 +17,7 @@ import {
   type Brief,
   type Idea,
   type IdeaStage,
+  type IdeaTemplate,
 } from "../domain"
 import type {
   CaptureInput,
@@ -45,12 +46,8 @@ export class IdeasService {
     const title = validateTitle(input.title)
     if (!title.ok) return title
     const template = input.template ?? "blank"
-    return this.repo.create({
-      spaceId: input.spaceId,
-      title: title.value,
-      template,
-      brief: templateBrief(template),
-    })
+    const brief = templateBrief(template)
+    return this.repo.create({ spaceId: input.spaceId, title: title.value, template, brief })
   }
 
   async rename(id: string, input: string): Promise<Result<Idea>> {
@@ -76,6 +73,7 @@ export class IdeasService {
   }
 
   moveStage = (id: string, stage: IdeaStage) => this.repo.update(id, { stage })
+  setTemplate = (id: string, template: IdeaTemplate) => this.repo.update(id, { template })
 
   async setTags(id: string, input: readonly string[]): Promise<Result<Idea>> {
     const tags = validateTags(input)

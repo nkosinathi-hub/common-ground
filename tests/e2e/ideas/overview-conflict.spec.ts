@@ -3,7 +3,7 @@ import { captureIdea } from "../support/fixtures"
 import { createSpace, secondMember, signIn } from "../support/session"
 import { createUser } from "../support/stack"
 
-const pitch = (page: Page) => page.getByLabel("One-line pitch")
+const pitch = (page: Page) => page.getByLabel("The plan, in a few words")
 
 async function save(page: Page, text: string) {
   await pitch(page).fill(text)

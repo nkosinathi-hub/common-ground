@@ -1,15 +1,8 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
   import { ErrorState, Loading, Resource, navigate, pageTitle } from "@/shared/ui"
-  import {
-    appError,
-    err,
-    type AppError,
-    type IdeaTab,
-    type Result,
-    type Viewer,
-  } from "@/shared/domain"
-  import type { Idea } from "../domain"
+  import type { AppError, IdeaTab, Viewer } from "@/shared/domain"
+  import { inSpace, type Idea } from "../domain"
   import { useIdeas } from "./context"
   import IdeaHeader from "./IdeaHeader.svelte"
   import IdeaTabContent from "./IdeaTabContent.svelte"
@@ -27,11 +20,13 @@
     discussion?: Snippet<[Idea]>
     /** Attachment list for the research tab (attachments feature). */
     attachments?: Snippet<[Idea]>
+    /** At a glance rows from the tasks and budget features. */
+    glance?: Snippet<[Idea]>
     /** After the idea is deleted; by default goes back to the space's ideas list. */
     onDeleted?: () => void
   }
 
-  let { spaceId, ideaId, tab, tabHref, viewer, discussion, attachments, onDeleted }: Props =
+  let { spaceId, ideaId, tab, tabHref, viewer, discussion, attachments, glance, onDeleted }: Props =
     $props()
 
   const ideas = useIdeas().service
@@ -40,14 +35,8 @@
   let idea = $state<Idea | null>(null)
   let error = $state<AppError | null>(null)
 
-  /** An idea is only shown under the space in the URL, so links never cross spaces. */
-  function inThisSpace(result: Result<Idea>): Result<Idea> {
-    if (!result.ok || result.value.spaceId === spaceId) return result
-    return err(appError("not_found", "That idea is not in this space"))
-  }
-
   async function load() {
-    const result = inThisSpace(await ideas.get(ideaId))
+    const result = inSpace(await ideas.get(ideaId), spaceId)
     idea = result.ok ? result.value : null
     error = result.ok ? null : result.error
   }
@@ -85,6 +74,15 @@
       onDeleted={deleted}
     />
     <IdeaTabs current={tab} href={tabHref} />
-    <IdeaTabContent {idea} {tab} {viewer} {discussion} {attachments} onChange={changed} />
+    <IdeaTabContent
+      {idea}
+      {tab}
+      {viewer}
+      {discussion}
+      {attachments}
+      {glance}
+      {authors}
+      onChange={changed}
+    />
   </div>
 {/if}

@@ -15,6 +15,8 @@
     disabled?: boolean
     icon?: Component
     onfiles: (files: File[]) => void
+    /** Names the hidden file input for tests and assistive tech that reach it directly. */
+    inputLabel?: string
   }
 
   let {
@@ -26,6 +28,7 @@
     multiple = false,
     disabled = false,
     icon: Icon = Paperclip,
+    inputLabel,
     onfiles,
   }: Props = $props()
   let input = $state<HTMLInputElement>()
@@ -61,7 +64,8 @@
     type="file"
     class="sr-only"
     tabindex="-1"
-    aria-hidden="true"
+    aria-hidden={inputLabel ? undefined : "true"}
+    aria-label={inputLabel}
     {accept}
     {multiple}
     onchange={(event) => (take(event.currentTarget.files), (event.currentTarget.value = ""))}

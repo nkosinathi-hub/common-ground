@@ -1,7 +1,9 @@
 <script lang="ts">
   import { canDelete } from "@/shared/domain"
   import { untrack } from "svelte"
-  import { AsyncView, Resource, toast } from "@/shared/ui"
+  import * as Card from "$lib/components/ui/card"
+  import { Dropzone, ErrorState, Resource, toast } from "@/shared/ui"
+  import { ACCEPT, BYTES_MAX, formatBytes } from "../domain/rules"
   import type { Attachment } from "../domain/types"
   import AttachmentItem from "./AttachmentItem.svelte"
   import { useAttachments } from "./context"
@@ -37,31 +39,50 @@
   }
 </script>
 
-<section class="space-y-3" aria-label="Attachments">
-  <FilePicker disabled={upload.busy} onPick={(file) => void upload.upload(file)} />
-
-  {#if upload.error}
-    <div role="alert" class="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
-      {upload.error.message}
-    </div>
-  {/if}
-  {#if upload.busy}<UploadStatus {upload} />{/if}
-
-  <AsyncView resource={list}>
-    {#snippet children(items)}
-      {#if items.length === 0}
-        <p class="py-4 text-center text-xs text-muted-foreground">No files attached yet.</p>
-      {:else}
-        <ul class="divide-y">
-          {#each items as attachment (attachment.id)}
-            <AttachmentItem
-              {attachment}
-              deletable={canDelete(attachment.uploaderId, { me, isOwner })}
-              onDelete={remove}
-            />
-          {/each}
-        </ul>
-      {/if}
-    {/snippet}
-  </AsyncView>
-</section>
+<!-- D07 Attachments: an empty drop zone first; once files exist, the list and an attach button. -->
+<Card.Root role="region" aria-label="Attachments">
+  <Card.Header>
+    <Card.Title>Attachments</Card.Title>
+    {#if list.value?.length}
+      <Card.Action
+        ><FilePicker
+          disabled={upload.busy}
+          onPick={(file) => void upload.upload(file)}
+        /></Card.Action
+      >
+    {/if}
+  </Card.Header>
+  <Card.Content class="flex flex-col gap-stack">
+    {#if upload.error}<p role="alert" class="type-sm text-destructive">
+        {upload.error.message}
+      </p>{/if}
+    {#if upload.busy}<UploadStatus {upload} />{/if}
+    {#if list.value?.length}
+      <ul class="flex flex-col divide-y divide-border">
+        {#each list.value as attachment (attachment.id)}
+          <AttachmentItem
+            {attachment}
+            deletable={canDelete(attachment.uploaderId, { me, isOwner })}
+            onDelete={remove}
+          />
+        {/each}
+      </ul>
+    {:else}
+      <!-- Shown while the list loads too, so a file can be chosen straight away. -->
+      <Dropzone
+        title="No files yet"
+        description="Keep maps, brochures or inspiration close to the idea."
+        actionLabel="Choose a file"
+        hint="JPEG, PNG, WebP or PDF, up to {formatBytes(BYTES_MAX)} each"
+        accept={ACCEPT}
+        inputLabel="Choose a file to attach"
+        disabled={upload.busy}
+        onfiles={([file]) => file && void upload.upload(file)}
+      />
+      {#if list.state.status === "error"}<ErrorState
+          error={list.state.error}
+          onRetry={() => list.load()}
+        />{/if}
+    {/if}
+  </Card.Content>
+</Card.Root>

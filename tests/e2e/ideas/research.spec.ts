@@ -12,15 +12,15 @@ test("research survives a reload and refuses non-web links", async ({ page }) =>
   const ideaId = await captureIdea(page, spaceId, "Zine")
   await openIdeaTab(page, spaceId, ideaId, "research")
 
-  await page.getByLabel("New note").fill("Ask the print shop about risograph")
+  await page.getByLabel("Add a research note").fill("Ask the print shop about risograph")
   await page.getByRole("button", { name: "Add note" }).click()
   await expect(page.getByTestId("note")).toContainText("risograph")
 
-  await page.getByLabel("Link URL").fill("ftp://files.example.com/zine.pdf")
-  await page.getByLabel("Link title").fill("Old archive")
+  await page.getByLabel("URL", { exact: true }).fill("ftp://files.example.com/zine.pdf")
+  await page.getByLabel("Title", { exact: true }).fill("Old archive")
   await page.getByRole("button", { name: "Add link" }).click()
-  await expect(page.getByRole("alert")).toContainText("http:// or https://")
-  await page.getByLabel("Link URL").fill("https://example.com/riso-guide")
+  await expect(page.getByText(/http:\/\/ or https:\/\//)).toBeVisible()
+  await page.getByLabel("URL", { exact: true }).fill("https://example.com/riso-guide")
   await page.getByRole("button", { name: "Add link" }).click()
   await expect(page.getByTestId("research-link")).toContainText("Old archive")
 
@@ -29,7 +29,10 @@ test("research survives a reload and refuses non-web links", async ({ page }) =>
   const saved = page.waitForResponse(
     (r) => r.url().includes("/hypotheses") && r.request().method() === "PATCH",
   )
-  await page.getByTestId("hypothesis").getByLabel("Status").selectOption("validated")
+  await page
+    .getByTestId("hypothesis")
+    .getByRole("radio", { name: "Validated", exact: true })
+    .click()
   expect((await saved).ok()).toBe(true)
 
   await page.reload()
@@ -39,5 +42,7 @@ test("research survives a reload and refuses non-web links", async ({ page }) =>
     "href",
     "https://example.com/riso-guide",
   )
-  await expect(page.getByTestId("hypothesis").getByLabel("Status")).toHaveValue("validated")
+  await expect(
+    page.getByTestId("hypothesis").getByRole("radio", { name: "Validated", exact: true }),
+  ).toBeChecked()
 })
