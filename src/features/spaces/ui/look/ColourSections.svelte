@@ -30,6 +30,7 @@
 
 <!-- D15b Colours and style (230:7932). -->
 <SettingsSection
+  stacked
   id="look-colours"
   title="Colours"
   description="Text and icons adjust automatically to stay readable on any colour you pick."
@@ -60,6 +61,7 @@
   />
 </SettingsSection>
 <SettingsSection
+  stacked
   id="look-style"
   title="Style"
   description="How the page background and the sidebar are drawn."

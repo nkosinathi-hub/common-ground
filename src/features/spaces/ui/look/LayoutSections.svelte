@@ -20,6 +20,7 @@
 
 <!-- D15b Layout and type (230:8397). -->
 <SettingsSection
+  stacked
   id="look-layout"
   title="Layout"
   description="Spacing and corner shape across the whole app."
@@ -50,6 +51,7 @@
   </OptionTiles>
 </SettingsSection>
 <SettingsSection
+  stacked
   id="look-type"
   title="Type"
   description="Body text stays in Inter for easy reading."
