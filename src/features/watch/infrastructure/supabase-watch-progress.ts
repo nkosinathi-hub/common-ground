@@ -4,7 +4,8 @@ import type { Db } from "@/shared/infrastructure/supabase"
 import type * as T from "../domain/types"
 import { parseTogether } from "../domain/places"
 import { progressArgs } from "./watch-args"
-import { toProgress, toSession } from "./watch-rows"
+import { toSession } from "./session-rows"
+import { toProgress } from "./watch-rows"
 
 /** The watched-together log keeps the latest nights for a title. */
 const RECENT_SESSIONS = 50
@@ -46,7 +47,9 @@ export class SupabaseWatchProgress {
   sessions(itemId: string): Promise<Result<T.WatchSession[]>> {
     const query = this.db
       .from("watch_sessions")
-      .select("id, watched_on, note, watch_session_members(user_id)")
+      .select(
+        "id, watched_on, note, from_season, from_episode, to_season, to_episode, watch_session_members(user_id)",
+      )
       .eq("watch_item_id", itemId)
       .order("watched_on", { ascending: false })
       .order("created_at", { ascending: false })

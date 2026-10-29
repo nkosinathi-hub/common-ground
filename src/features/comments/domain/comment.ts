@@ -7,6 +7,7 @@ import {
   type Result,
   type Viewer as SpaceViewer,
 } from "@/shared/domain"
+import type { EpisodeTag } from "./episodes"
 
 export type ParentKind = "watch" | "idea"
 
@@ -31,6 +32,14 @@ export interface Comment extends Cursor {
   readonly edited: boolean
   /** Chosen explicitly in the composer; never parsed out of the body. */
   readonly mentionIds: readonly string[]
+  /** The comment this answers; replies are one level deep. */
+  readonly replyTo: string | null
+  /** The episode a title comment is about; ideas have none. */
+  readonly tag: EpisodeTag | null
+  readonly hearts: number
+  /** You hearted it. */
+  readonly hearted: boolean
+  readonly replies: number
 }
 
 export const BODY_MAX = 4000
@@ -47,3 +56,11 @@ export const canEdit = (comment: Comment, me: string): boolean =>
 
 export const isConcealed = (comment: Comment, revealed: ReadonlySet<string>): boolean =>
   comment.spoiler && !revealed.has(comment.id)
+
+/** The edit RPC returns no mentions, so an edited comment keeps the ones it has. */
+export const withEdit = (comment: Comment, next: Comment): Comment => ({
+  ...comment,
+  body: next.body,
+  spoiler: next.spoiler,
+  edited: true,
+})

@@ -1,10 +1,12 @@
 <script lang="ts">
   import { X } from "@lucide/svelte"
-  import type { Snippet } from "svelte"
+  import type { Component, Snippet } from "svelte"
   import { cn } from "$lib/utils"
 
   interface Props {
     children: Snippet
+    /** A leading icon, e.g. on a composer's starter chips. */
+    icon?: Component
     /** Text for the remove button's name, e.g. the tag itself. */
     label?: string
     /** A toggle chip when set: pressed state, secondary fill and primary border. */
@@ -14,10 +16,18 @@
     class?: string
   }
 
-  let { children, label, selected, onclick, onremove, class: className }: Props = $props()
+  let {
+    children,
+    icon: Icon,
+    label,
+    selected,
+    onclick,
+    onremove,
+    class: className,
+  }: Props = $props()
   const classes = $derived(
     cn(
-      "inline-flex h-8 items-center gap-hairline rounded-full border px-item type-sm pointer-coarse:h-9",
+      "inline-flex h-8 shrink-0 items-center gap-hairline rounded-full border px-item type-sm whitespace-nowrap pointer-coarse:h-9",
       selected
         ? "border-primary bg-secondary text-secondary-foreground"
         : "border-border bg-card text-foreground",
@@ -29,11 +39,11 @@
 
 {#if onclick}
   <button type="button" class={classes} aria-pressed={selected} {onclick}>
-    {@render children()}
+    {#if Icon}<Icon class="size-4" aria-hidden="true" />{/if}{@render children()}
   </button>
 {:else}
   <span class={classes}>
-    {@render children()}
+    {#if Icon}<Icon class="size-4" aria-hidden="true" />{/if}{@render children()}
     {#if onremove}
       <button
         type="button"

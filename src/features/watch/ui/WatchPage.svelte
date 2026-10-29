@@ -4,7 +4,6 @@
   import { Plus } from "@lucide/svelte"
   import * as Alert from "$lib/components/ui/alert"
   import { Button } from "$lib/components/ui/button"
-  import { Attribution } from "@/features/catalog"
   import { ErrorState, Fab, Loading, Resource } from "@/shared/ui"
   import AddTitleDialog from "./AddTitleDialog.svelte"
   import { useWatch } from "./context"
@@ -70,7 +69,6 @@
       </Alert.Description>
     </Alert.Root>
   {/if}
-  <Attribution />
 </section>
 {#if !wide.current}
   <Fab

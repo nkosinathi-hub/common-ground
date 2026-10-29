@@ -1,5 +1,6 @@
 import { getContext, setContext } from "svelte"
-import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
+import type { AuthorDirectory, MemberDirectory, Result } from "@/shared/domain"
+import type { SeasonFact } from "../domain/title-facts"
 import type { WatchHistory } from "../application/watch-history"
 import type { WatchOpinions } from "../application/watch-opinions"
 import type { WatchService } from "../application/watch-service"
@@ -14,6 +15,8 @@ export interface WatchContext {
   readonly history?: WatchHistory
   /** Like / dislike, private to the signed-in person. */
   readonly opinions?: WatchOpinions
+  /** A catalog series' seasons and episode counts, for "3 seasons" and the progress bars. */
+  readonly seasons?: (spaceId: string, catalogId: number) => Promise<Result<SeasonFact[]>>
 }
 
 const KEY = Symbol("watch")

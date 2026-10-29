@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { AtSign, X } from "@lucide/svelte"
-  import { Badge } from "$lib/components/ui/badge"
+  import { AtSign } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { Checkbox } from "$lib/components/ui/checkbox"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { memberName, type MemberRef, type Result } from "@/shared/domain"
+  import type { MemberRef, Result } from "@/shared/domain"
   import { FormError, FormState } from "@/shared/ui"
   import { BODY_MAX } from "../domain/comment"
   import { ComposerState } from "./composer-state.svelte"
+  import MentionChips from "./MentionChips.svelte"
   import MentionPicker from "./MentionPicker.svelte"
   import type { Draft } from "./thread-state.svelte"
 
@@ -49,22 +49,7 @@
     class="min-h-24"
     aria-invalid={problem ? true : undefined}
   />
-  {#if composer.mentionIds.length > 0}
-    <ul class="flex flex-wrap gap-1" aria-label="Mentioning">
-      {#each composer.mentionIds as mentioned (mentioned)}
-        <li>
-          <Badge variant="secondary">
-            @{memberName(members, mentioned)}
-            <button
-              type="button"
-              aria-label={`Do not mention ${memberName(members, mentioned)}`}
-              onclick={() => composer.unmention(mentioned)}><X class="size-3" /></button
-            >
-          </Badge>
-        </li>
-      {/each}
-    </ul>
-  {/if}
+  <MentionChips {composer} {members} />
   {#if composer.pickerOpen}
     <MentionPicker {composer} {members} {me} onDone={() => textarea?.focus()} />
   {/if}

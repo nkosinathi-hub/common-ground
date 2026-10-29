@@ -4,10 +4,8 @@
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
-  import { formatDateTime } from "@/shared/domain"
   import { splitAvailability } from "../domain/rules"
   import type { CatalogType } from "../domain/types"
-  import Attribution from "./Attribution.svelte"
   import { AvailabilityState } from "./availability-state.svelte"
   import { useCatalog } from "./context"
   import OtherCountries from "./OtherCountries.svelte"
@@ -17,13 +15,19 @@
     spaceId: string
     type: CatalogType
     id: number
+    /** Once loaded: when TMDB was asked (the page's listings line) and the first provider here. */
+    onloaded?: (listing: { checkedAt: string; firstProvider: string | null }) => void
   }
 
-  let { spaceId, type, id }: Props = $props()
+  let { spaceId, type, id, onloaded }: Props = $props()
 
   const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
-  const checked = $derived(listing.details ? formatDateTime(listing.details.checkedAt) : "")
+  $effect(() => {
+    const checkedAt = listing.details?.checkedAt
+    const firstProvider = split?.home?.categories[0]?.providers[0] ?? null
+    if (checkedAt) untrack(() => onloaded?.({ checkedAt, firstProvider }))
+  })
 
   $effect(() => {
     // Reload when the title or space changes; the load itself must not become a dependency.
@@ -34,12 +38,12 @@
   })
 </script>
 
-<!-- D03a "Where to watch": compact, with refresh on the title line and the credits at its foot. -->
+<!-- D03a "Where to watch": region and refresh on the title line, then each provider as a link. -->
 <Card.Root role="region" aria-label="Where to watch">
   <Card.Header>
     <Card.Title>Where to watch</Card.Title>
     <Card.Action class="flex items-center gap-related">
-      <Badge variant="outline">South Africa</Badge>
+      <Badge variant="outline" title="South Africa">ZA</Badge>
       <Button
         variant="ghost"
         size="icon-sm"
@@ -51,7 +55,7 @@
       </Button>
     </Card.Action>
   </Card.Header>
-  <Card.Content class="flex flex-col gap-stack">
+  <Card.Content class="flex flex-col gap-related">
     {#if listing.loading}
       <p class="flex items-center gap-related type-xs text-muted-foreground">
         <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
@@ -66,11 +70,8 @@
       </p>
     {/if}
     {#if listing.details && split}
-      {#if split.home}<RegionListing region={split.home} {checked} />{/if}
+      {#if split.home}<RegionListing region={split.home} />{/if}
       <OtherCountries regions={split.others} fallback={split.fallback} />
-      <p class="type-xs text-muted-foreground">
-        Availability varies by region and may change. Check with the provider.
-      </p>
       {#if listing.details.stale}
         <p class="flex flex-wrap items-center gap-related type-xs text-muted-foreground">
           <Badge variant="outline">Stale</Badge>
@@ -78,6 +79,5 @@
         </p>
       {/if}
     {/if}
-    <Attribution compact />
   </Card.Content>
 </Card.Root>

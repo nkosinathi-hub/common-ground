@@ -1,13 +1,25 @@
 import type { Cursor, Page, Result } from "@/shared/domain"
 import { validateBody, type Comment, type ParentRef } from "../domain/comment"
-import type { CommentsGateway, NewComment } from "./ports"
+import type { EpisodeTag } from "../domain/episodes"
+import type { CommentsGateway, NewComment, ThreadFilter } from "./ports"
 
 export class CommentsService {
   constructor(private readonly gateway: CommentsGateway) {}
 
-  page(spaceId: string, parent: ParentRef, after: Cursor | null): Promise<Result<Page<Comment>>> {
-    return this.gateway.list({ spaceId, parent, after })
+  page(
+    spaceId: string,
+    parent: ParentRef,
+    after: Cursor | null,
+    filter?: ThreadFilter,
+    replyTo?: string,
+  ): Promise<Result<Page<Comment>>> {
+    return this.gateway.list({ spaceId, parent, after, filter, replyTo })
   }
+
+  hidden = (spaceId: string, parent: ParentRef, upTo: EpisodeTag | null) =>
+    this.gateway.hidden(spaceId, parent, upTo)
+
+  heart = (commentId: string, on: boolean) => this.gateway.heart(commentId, on)
 
   async post(input: NewComment): Promise<Result<Comment>> {
     const body = validateBody(input.body)

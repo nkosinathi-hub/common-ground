@@ -30,6 +30,7 @@
     toast.success("Your account was deleted")
     signOut()
   }
+  import CatalogCredits from "./account/CatalogCredits.svelte"
 </script>
 
 <svelte:element this={framed ? "div" : "main"} class="mx-auto grid max-w-2xl gap-6 px-4 py-10">
@@ -49,6 +50,7 @@
     <SessionsCard onSignOutEverywhere={signOutEverywhere} />
     <SimklCard />
     <DataExportCard {spaces} />
+    <CatalogCredits />
     <DeleteAccountCard onDeleted={deleted} />
   {/if}
 </svelte:element>

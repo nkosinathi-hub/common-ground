@@ -61,8 +61,8 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
   )
   await expectFocusTrap(
     page,
-    page.getByRole("button", { name: "Edit details" }),
-    dialog("Edit this title"),
+    page.getByRole("button", { name: "Adjust my place" }),
+    dialog("Adjust my place"),
   )
   await page.goto(`./#/s/${spaceId}/watch`)
   await expectFocusTrap(

@@ -3,7 +3,12 @@
   import { spacePeople } from "../composition/people.svelte"
   import { CommentThread } from "@/features/comments"
   import { WatchTogether } from "@/features/parties"
-  import { PlayButton } from "@/features/playback"
+  import {
+    PlayerSlot,
+    PlaySplitButton,
+    TitlePlaybackScope,
+    TrailerButton,
+  } from "@/features/playback"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
@@ -33,23 +38,25 @@
       {tab}
       backHref={buildHash({ name: "watch", spaceId: space.id })}
     >
-      {#snippet together(isFilm: boolean)}
-        <WatchTogether spaceId={space.id} {itemId} {isFilm} />
-      {/snippet}
-      {#snippet play(item, onwatched)}
+      {#snippet playback(item, onwatched, page)}
         {#if item.catalog}
-          <PlayButton
+          <TitlePlaybackScope
             target={{ spaceId: space.id, itemId: item.id, catalog: item.catalog }}
-            title={item.title}
             {catalog}
-            {onwatched}
-          />
-        {/if}
+            {onwatched}>{@render page()}</TitlePlaybackScope
+          >
+        {:else}{@render page()}{/if}
       {/snippet}
-      {#snippet recommend()}
+      {#snippet play(block)}<PlaySplitButton {block} />{/snippet}
+      {#snippet together(isFilm, compact)}
+        <WatchTogether spaceId={space.id} {itemId} {isFilm} {compact} />
+      {/snippet}
+      {#snippet tools()}
+        <TrailerButton />
         <RecommendButton spaceId={space.id} {itemId} members={people.members} {me} />
       {/snippet}
-      {#snippet comments()}
+      {#snippet player(item)}<PlayerSlot title={item.title} />{/snippet}
+      {#snippet discussion(frame)}
         <CommentThread
           spaceId={space.id}
           parent={{ kind: "watch", id: itemId }}
@@ -57,6 +64,7 @@
           isOwner={space.role === "owner"}
           members={people.members}
           authors={people.authors}
+          episodes={frame}
         />
       {/snippet}
     </WatchItemDetail>

@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { DateOnly } from "./date-only"
 import {
+  formatAgo,
   formatDateOnly,
+  formatShortDay,
   formatDateTime,
   formatDay,
   formatLongDay,
@@ -28,5 +30,17 @@ describe("one locale for dates and numbers", () => {
 
   it("shows a date-only value as that calendar day in any zone", () => {
     expect(formatDateOnly("2026-11-20" as DateOnly)).toBe("20 Nov 2026")
+    expect(formatShortDay("2026-10-24" as DateOnly)).toBe("Sat 24 Oct")
+  })
+
+  it("says how long ago, as people do", () => {
+    const now = new Date(2026, 9, 29, 20, 0)
+    const ago = (h: number) => new Date(now.getTime() - h * 3_600_000).toISOString()
+    expect(formatAgo(ago(0.001), now)).toBe("Just now")
+    expect(formatAgo(ago(0.5), now)).toBe("30 min ago")
+    expect(formatAgo(ago(2), now)).toBe("2 h ago")
+    expect(formatAgo(ago(24), now)).toBe("Yesterday")
+    expect(formatAgo(ago(72), now)).toBe("Mon")
+    expect(formatAgo(ago(24 * 10), now)).toBe("19 Oct")
   })
 })

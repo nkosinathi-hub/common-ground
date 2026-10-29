@@ -1,4 +1,7 @@
 export type { PlaybackPorts, PlayTarget, ProviderAccount } from "./application/ports"
 export { PlaybackService } from "./application/playback-service"
 export { providePlayback } from "./ui/context"
-export { default as PlayButton } from "./ui/PlayButton.svelte"
+export { default as TitlePlaybackScope } from "./ui/TitlePlaybackScope.svelte"
+export { default as PlaySplitButton } from "./ui/PlaySplitButton.svelte"
+export { default as TrailerButton } from "./ui/TrailerButton.svelte"
+export { default as PlayerSlot } from "./ui/PlayerSlot.svelte"

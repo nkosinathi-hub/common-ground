@@ -1,20 +1,25 @@
 <script lang="ts">
-  import { Ellipsis, Trash2 } from "@lucide/svelte"
+  import { Ellipsis, SquarePen, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { ConfirmDialog, toast, navigate } from "@/shared/ui"
   import type { WatchItemView } from "../domain/types"
   import { useWatch } from "./context"
+  import EditTitleDialog from "./EditTitleDialog.svelte"
 
   interface Props {
     view: WatchItemView
     backHref: string
+    onChanged: () => void
   }
 
-  let { view, backHref }: Props = $props()
+  let { view, backHref, onChanged }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
   let confirming = $state(false)
+  let editing = $state(false)
+  // Catalog titles keep the catalog's details; only a title added by hand is edited here.
+  const editable = $derived(item.catalog === null)
 
   async function remove() {
     const result = await service.remove(item.id)
@@ -24,24 +29,32 @@
   }
 </script>
 
-<!-- Deleting is rare and final, so it waits in the title's menu; editing lives on the note card. -->
-{#if view.canDelete}
+<!-- Delete, and Edit for a title added by hand: rare, so they wait in the title's menu. -->
+{#if view.canDelete || editable}
   <DropdownMenu.Root>
     <DropdownMenu.Trigger>
       {#snippet child({ props })}
-        <Button {...props} variant="ghost" size="icon-sm" aria-label="More for {item.title}">
+        <Button {...props} variant="outline" size="icon" aria-label="More for {item.title}">
           <Ellipsis />
         </Button>
       {/snippet}
     </DropdownMenu.Trigger>
     <DropdownMenu.Content align="end">
-      <DropdownMenu.Item variant="destructive" onSelect={() => (confirming = true)}>
-        <Trash2 aria-hidden="true" />Delete
-      </DropdownMenu.Item>
+      {#if editable}
+        <DropdownMenu.Item onSelect={() => (editing = true)}>
+          <SquarePen aria-hidden="true" />Edit details
+        </DropdownMenu.Item>
+      {/if}
+      {#if view.canDelete}
+        <DropdownMenu.Item variant="destructive" onSelect={() => (confirming = true)}>
+          <Trash2 aria-hidden="true" />Delete
+        </DropdownMenu.Item>
+      {/if}
     </DropdownMenu.Content>
   </DropdownMenu.Root>
 {/if}
 
+{#if editable}<EditTitleDialog bind:open={editing} {item} onSaved={onChanged} />{/if}
 <ConfirmDialog
   bind:open={confirming}
   title={`Delete ${item.title}?`}

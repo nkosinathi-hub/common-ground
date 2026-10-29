@@ -61,11 +61,14 @@ export function provideServices(services: Services): void {
   provideMembers({ members: services.members, authors: services.authors })
   provideCollaboration(services.collaboration)
   provideWatchFeature(
-    services.watch,
-    services.members,
-    services.authors,
-    services.watchHistory,
-    services.watchOpinions,
+    {
+      service: services.watch,
+      members: services.members,
+      authors: services.authors,
+      history: services.watchHistory,
+      opinions: services.watchOpinions,
+    },
+    services.catalog,
   )
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)

@@ -5,7 +5,6 @@
   import { Input } from "$lib/components/ui/input"
   import { QUERY_MAX, type PickStatus } from "../domain/rules"
   import type { CatalogTitle } from "../domain/types"
-  import Attribution from "./Attribution.svelte"
   import { useCatalog } from "./context"
   import Pagination from "./Pagination.svelte"
   import SearchResults from "./SearchResults.svelte"
@@ -86,5 +85,4 @@
     <Plus aria-hidden="true" />
     Add a title manually instead
   </Button>
-  <Attribution />
 </section>

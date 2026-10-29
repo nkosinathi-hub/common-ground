@@ -19,9 +19,9 @@ export interface Playing {
   readonly width: number
 }
 
-/** Presses Watch movie on the open item page and waits until the app's player is past 2 seconds. */
+/** Presses Play on the open item page and waits until the app's player is past 2 seconds. */
 export async function playInApp(page: Page, timeout = 45_000): Promise<Playing> {
-  await page.getByRole("button", { name: "Watch movie", exact: true }).click()
+  await page.getByRole("button", { name: "Play", exact: true }).click()
   const video = page.locator("video")
   await expect(video).toBeVisible({ timeout })
   // Playback starts from a user gesture (iOS needs one): the player's own "k" shortcut.

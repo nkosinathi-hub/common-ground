@@ -35,6 +35,8 @@ export interface WatchSession {
   readonly watchedOn: DateOnly
   readonly note: string | null
   readonly memberIds: readonly string[]
+  /** The episodes a watch party covered; absent for a night logged by hand. */
+  readonly range?: { readonly from: Place; readonly to: Place } | null
 }
 
 /** Where someone is in a series: the last episode watched. A film has no season or episode. */

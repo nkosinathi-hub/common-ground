@@ -33,10 +33,6 @@ export type WatchItemRow = Pick<
 
 export type ProgressRow = Omit<Tables<"watch_progress">, "space_id" | "watch_item_id">
 
-export interface SessionRow extends Pick<Tables<"watch_sessions">, "id" | "watched_on" | "note"> {
-  readonly watch_session_members: { user_id: string }[] | null
-}
-
 export const ITEM_COLUMNS =
   "id, space_id, catalog_type, catalog_id, title, media_type, release_year, synopsis, poster_path, shared_intent, manual_availability_note, created_by, created_at"
 
@@ -69,13 +65,6 @@ export const toProgress = (row: ProgressRow): T.Progress => ({
   episode: row.episode,
   completedOn: row.completed_on as DateOnly | null,
   updatedAt: row.updated_at,
-})
-
-export const toSession = (row: SessionRow): T.WatchSession => ({
-  id: row.id,
-  watchedOn: row.watched_on as DateOnly,
-  note: row.note,
-  memberIds: (row.watch_session_members ?? []).map((member) => member.user_id),
 })
 
 /** Unique violations and the add RPC's friendly P0001 both read as a duplicate add. */

@@ -11,10 +11,12 @@ test("add a title manually, track progress and comment", async ({ page }) => {
 
   await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
-  const progress = page.getByRole("tabpanel", { name: "Progress" })
-  await expect(progress.getByText(/not a provider listing/i)).toBeVisible()
+  const where = page.getByRole("region", { name: "Where to watch" })
+  await expect(where.getByText(/not a provider listing/i)).toBeVisible()
 
-  await page.getByRole("tab", { name: "Discussion" }).click()
+  // Phones put the discussion on its own tab; wide screens show it beside progress.
+  const discussion = page.getByRole("tab", { name: "Discussion" })
+  if (await discussion.isVisible()) await discussion.click()
   await page.getByLabel("Add a comment").fill("Episode 10 made me cry")
   await page.getByRole("button", { name: /^(Post|Comment|Send)$/ }).click()
   await expect(page.getByText("Episode 10 made me cry")).toBeVisible()

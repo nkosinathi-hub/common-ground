@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Share } from "@lucide/svelte"
+  import { Send } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Dialog from "$lib/components/ui/dialog"
   import { Label } from "$lib/components/ui/label"
@@ -41,8 +41,14 @@
   }
 </script>
 
-<Button variant="outline" onclick={() => (open = true)} disabled={options.length === 0}>
-  <Share aria-hidden="true" />Recommend
+<Button
+  variant="outline"
+  size="icon"
+  aria-label="Recommend"
+  onclick={() => (open = true)}
+  disabled={options.length === 0}
+>
+  <Send />
 </Button>
 
 <Dialog.Root bind:open>

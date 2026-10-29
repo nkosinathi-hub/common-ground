@@ -16,14 +16,14 @@ describe("WatchItemDetail play slot", () => {
     const fakes = watchFakes()
     const film = item(1, "Night", { catalog: { type: "movie", id: 10331 } })
     fakes.gateway.items = [film]
-    const play = createRawSnippet((current: () => WatchItem) => ({
+    const player = createRawSnippet((current: () => WatchItem) => ({
       render: () => `<p>Play ${current().title} (${current().catalog?.id})</p>`,
     }))
     const provide = () => {
-      provideWatch({ service: fakes.service, members: fakes.members, authors: fakes.members })
+      provideWatch(fakes.context)
       provideCatalog({ service: new CatalogService(emptyCatalogGateway) })
     }
-    const props = { spaceId: SPACE_ID, itemId: film.id, backHref: "#/back", play }
+    const props = { spaceId: SPACE_ID, itemId: film.id, backHref: "#/back", player }
     render(Provided, { props: { provide, component: WatchItemDetail, props } })
     expect(await screen.findByText("Play Night (10331)")).toBeInTheDocument()
   })

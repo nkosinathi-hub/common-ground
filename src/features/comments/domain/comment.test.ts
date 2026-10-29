@@ -11,6 +11,11 @@ const comment = (over: Partial<Comment> = {}): Comment => ({
   edited: false,
   mentionIds: [],
   createdAt: "2026-10-15T10:00:00Z",
+  replyTo: null,
+  tag: null,
+  hearts: 0,
+  hearted: false,
+  replies: 0,
   ...over,
 })
 

@@ -2,13 +2,13 @@ import { render } from "@testing-library/svelte"
 import { appError, err, ok, type DeviceStore } from "@/shared/domain"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import type { PlaybackCatalog, PlayTarget } from "../application/ports"
-import PlayButton from "./PlayButton.svelte"
+import TitlePlaybackHarness from "./TitlePlaybackHarness.svelte"
 import { providePlayback } from "./context"
 import { PlaybackService } from "../application/playback-service"
 import type { MediaRef } from "../domain/media-ref"
 import type { PlayableSource } from "../domain/source.types"
 
-export function renderPlayButton(sources: PlayableSource[], target: PlayTarget) {
+export function renderTitlePlayback(sources: PlayableSource[], target: PlayTarget) {
   const asked: MediaRef[] = []
   const service = new PlaybackService(
     {
@@ -60,8 +60,8 @@ export function renderPlayButton(sources: PlayableSource[], target: PlayTarget) 
   render(Provided, {
     props: {
       provide,
-      component: PlayButton,
-      props: { target, title: "Film", catalog },
+      component: TitlePlaybackHarness,
+      props: { target, catalog },
     },
   })
   return { asked, service }

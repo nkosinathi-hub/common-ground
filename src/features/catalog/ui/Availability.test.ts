@@ -62,7 +62,7 @@ describe("Availability", () => {
       g.stale = true
     })
     expect(await screen.findByText("Stale")).toBeInTheDocument()
-    expect(screen.getByText(/^Subscription · checked 15 Oct 2026/)).toBeInTheDocument()
+    expect(screen.getByText("Stream with subscription")).toBeInTheDocument()
     gateway.stale = false
     await fireEvent.click(screen.getByRole("button", { name: /refresh listings/i }))
     await screen.findByText("Netflix")

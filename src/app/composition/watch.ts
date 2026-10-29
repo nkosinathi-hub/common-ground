@@ -1,5 +1,12 @@
-import { provideWatch, WatchHistory, WatchOpinions, WatchService } from "@/features/watch"
-import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
+import type { CatalogService } from "@/features/catalog"
+import {
+  provideWatch,
+  WatchHistory,
+  WatchOpinions,
+  WatchService,
+  type WatchContext,
+} from "@/features/watch"
+import { map } from "@/shared/domain"
 import { SupabaseWatchGateway } from "@/features/watch/infrastructure/supabase-watch-gateway"
 import { SupabaseWatchHistory } from "@/features/watch/infrastructure/supabase-watch-history"
 import { SupabaseWatchOpinions } from "@/features/watch/infrastructure/supabase-watch-opinions"
@@ -9,12 +16,16 @@ export const composeWatch = (db: Db) => new WatchService(new SupabaseWatchGatewa
 export const composeWatchHistory = (db: Db) => new WatchHistory(new SupabaseWatchHistory(db))
 export const composeWatchOpinions = (db: Db) => new WatchOpinions(new SupabaseWatchOpinions(db))
 
+/** The watch feature's context; the catalog supplies a series' seasons without watch importing it. */
 export function provideWatchFeature(
-  service: WatchService,
-  members: MemberDirectory,
-  authors: AuthorDirectory,
-  history: WatchHistory,
-  opinions: WatchOpinions,
+  parts: Omit<WatchContext, "seasons">,
+  catalog: CatalogService,
 ): void {
-  provideWatch({ service, members, authors, history, opinions })
+  provideWatch({
+    ...parts,
+    seasons: async (spaceId, id) =>
+      map(await catalog.details(spaceId, { type: "tv", id }), (details) =>
+        details.seasons.filter((season) => season.number > 0),
+      ),
+  })
 }
