@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Label } from "$lib/components/ui/label"
   import { toast } from "@/shared/ui"
   import type { CalendarEvent } from "../domain"
@@ -28,14 +29,13 @@
 
 <div class="grid max-w-xs gap-1.5">
   <Label for="my-reminder">Remind me</Label>
-  <select
+  <NativeSelect
     id="my-reminder"
-    class="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
     value={current}
     onchange={(change) => save(change.currentTarget.value)}
   >
     {#each options as option (option.value)}<option value={option.value}>{option.label}</option
       >{/each}
-  </select>
+  </NativeSelect>
   <p class="text-xs text-muted-foreground">Only you get this reminder.</p>
 </div>

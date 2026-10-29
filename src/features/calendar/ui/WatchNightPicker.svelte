@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { untrack } from "svelte"
   import { Popcorn } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
@@ -43,9 +44,8 @@
 {:else}
   <div class="grid gap-1.5">
     <Label for="watch-night-title">Watch together</Label>
-    <select
+    <NativeSelect
       id="watch-night-title"
-      class="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
       disabled={queue.state.status !== "ready"}
       onchange={(event) => pick(event.currentTarget.value)}
     >
@@ -53,6 +53,6 @@
       {#each queue.value ?? [] as title (title.id)}
         <option value={title.id}>{title.label}</option>
       {/each}
-    </select>
+    </NativeSelect>
   </div>
 {/if}

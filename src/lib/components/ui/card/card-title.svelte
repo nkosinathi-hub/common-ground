@@ -16,7 +16,7 @@
 	this={`h${level}`}
 	bind:this={ref}
 	data-slot="card-title"
-	class={cn("text-base leading-snug font-medium group-data-[size=sm]/card:text-sm", className)}
+	class={cn("type-h3 group-data-[size=sm]/card:type-label", className)}
 	{...restProps}
 >
 	{@render children?.()}

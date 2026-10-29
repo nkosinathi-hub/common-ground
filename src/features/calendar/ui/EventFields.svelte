@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
@@ -17,7 +18,6 @@
   }
 
   let { form, spaceId, members, errorFor }: Props = $props()
-  const select = "h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
 </script>
 
 <div class="grid gap-1.5">
@@ -57,11 +57,11 @@
 </fieldset>
 <div class="grid gap-1.5">
   <Label for="event-reminder">Remind people</Label>
-  <select id="event-reminder" class={select} bind:value={form.reminder}>
+  <NativeSelect id="event-reminder" bind:value={form.reminder}>
     {#each REMINDER_OPTIONS as option (option.value)}
       <option value={option.value}>{option.label}</option>
     {/each}
-  </select>
+  </NativeSelect>
   <FieldError message={errorFor("reminders")} />
 </div>
 <LinkPicker {spaceId} bind:value={form.link} />

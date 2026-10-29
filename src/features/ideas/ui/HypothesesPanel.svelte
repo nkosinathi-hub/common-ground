@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { untrack } from "svelte"
   import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
@@ -67,9 +68,8 @@
       >
         <p class="text-sm">{hypothesis.statement}</p>
         <div class="flex items-center gap-1">
-          <select
+          <NativeSelect
             aria-label="Status"
-            class="h-7 rounded-md border border-input bg-background px-1 text-xs"
             value={hypothesis.status}
             onchange={(event) =>
               setStatus(hypothesis.id, event.currentTarget.value as HypothesisStatus)}
@@ -77,7 +77,7 @@
             {#each HYPOTHESIS_STATUSES as status (status)}<option value={status}
                 >{HYPOTHESIS_LABELS[status]}</option
               >{/each}
-          </select>
+          </NativeSelect>
           {#if canDelete(hypothesis.createdBy, viewer)}
             <DeleteButton
               label="Delete hypothesis"

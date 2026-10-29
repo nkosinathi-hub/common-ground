@@ -91,7 +91,6 @@
     <DeleteButton
       label={`Delete ${attachment.filename}`}
       what={attachment.filename}
-      size="icon-sm"
       description="Everyone in this space loses access to it. This cannot be undone."
       onConfirm={() => onDelete(attachment)}
     />

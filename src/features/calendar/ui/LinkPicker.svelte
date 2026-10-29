@@ -46,7 +46,7 @@
       <span>Linked to <strong>{value.label}</strong></span>
       <Button
         variant="ghost"
-        size="icon-xs"
+        size="icon-sm"
         aria-label="Remove link"
         onclick={() => (value = null)}
       >

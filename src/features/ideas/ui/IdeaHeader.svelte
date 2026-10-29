@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Input } from "$lib/components/ui/input"
   import { canDelete, type MemberRef, type Result, TITLE_MAX, type Viewer } from "@/shared/domain"
   import { DeleteButton, FormError } from "@/shared/ui"
@@ -54,7 +55,6 @@
         label="Delete idea"
         what="this idea"
         description="Its notes, links, tasks, budget and discussion go with it. This cannot be undone."
-        size="icon-sm"
         onConfirm={remove}
       />
     {/if}
@@ -63,15 +63,14 @@
   <div class="flex flex-wrap items-center gap-2 text-sm">
     <label class="flex items-center gap-2"
       >Stage
-      <select
-        class="h-8 rounded-lg border border-input bg-background px-2"
+      <NativeSelect
         value={idea.stage}
         onchange={(event) =>
           apply(ideas.moveStage(idea.id, event.currentTarget.value as IdeaStage))}
       >
         {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
           >{/each}
-      </select>
+      </NativeSelect>
     </label>
     <label class="flex grow items-center gap-2"
       >Tags

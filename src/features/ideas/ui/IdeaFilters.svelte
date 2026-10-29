@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Input } from "$lib/components/ui/input"
   import { IDEA_STAGES, type IdeaFilter, type Whose } from "../domain"
   import { STAGE_LABELS } from "./labels"
@@ -7,8 +8,6 @@
     filter: IdeaFilter
     tags: readonly string[]
   }
-
-  const SELECT_CLASS = "border-input bg-background h-8 rounded-lg border px-2 text-sm"
 
   let { filter = $bindable(), tags }: Props = $props()
 </script>
@@ -21,17 +20,15 @@
     value={filter.text ?? ""}
     oninput={(event) => (filter = { ...filter, text: event.currentTarget.value })}
   />
-  <select
-    class={SELECT_CLASS}
+  <NativeSelect
     aria-label="Tag"
     value={filter.tag ?? ""}
     onchange={(event) => (filter = { ...filter, tag: event.currentTarget.value || undefined })}
   >
     <option value="">All tags</option>
     {#each tags as tag (tag)}<option value={tag}>{tag}</option>{/each}
-  </select>
-  <select
-    class={SELECT_CLASS}
+  </NativeSelect>
+  <NativeSelect
     aria-label="Stage"
     value={filter.stage ?? ""}
     onchange={(event) =>
@@ -42,9 +39,8 @@
   >
     <option value="">All stages</option>
     {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option>{/each}
-  </select>
-  <select
-    class={SELECT_CLASS}
+  </NativeSelect>
+  <NativeSelect
     aria-label="Whose"
     value={filter.whose ?? ""}
     onchange={(event) =>
@@ -53,5 +49,5 @@
     <option value="">All</option>
     <option value="mine">Mine</option>
     <option value="ours">Ours</option>
-  </select>
+  </NativeSelect>
 </div>

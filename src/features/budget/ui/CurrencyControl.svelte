@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { FormError } from "@/shared/ui"
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
@@ -31,9 +32,9 @@
 <div class="flex flex-wrap items-center gap-2 text-sm">
   <label class="flex items-center gap-2"
     >Currency
-    <select class="h-8 rounded-lg border border-input bg-background px-2" bind:value={next}>
+    <NativeSelect bind:value={next}>
       {#each options as code (code)}<option value={code}>{code}</option>{/each}
-    </select>
+    </NativeSelect>
   </label>
   {#if next !== currency}
     {#if entryCount > 0}

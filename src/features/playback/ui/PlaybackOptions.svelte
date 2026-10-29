@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Button } from "$lib/components/ui/button"
   import { Label } from "$lib/components/ui/label"
   import type { PlaybackEpisode, PlaybackSeason, ProviderAccount } from "../application/ports"
@@ -51,9 +52,8 @@
     <div class="grid gap-3 sm:grid-cols-2">
       <div class="grid gap-1.5">
         <Label for="play-season">Season</Label>
-        <select
+        <NativeSelect
           id="play-season"
-          class="h-10 rounded-lg border border-input bg-background px-3 text-sm"
           value={props.selectedSeason}
           disabled={props.detailsLoading || props.seasonLoading || props.seasons.length === 0}
           onchange={(event) => props.onseason(Number(event.currentTarget.value))}
@@ -64,13 +64,12 @@
           {#if props.seasons.length === 0}<option value={props.selectedSeason}
               >Season {props.selectedSeason}</option
             >{/if}
-        </select>
+        </NativeSelect>
       </div>
       <div class="grid gap-1.5">
         <Label for="play-episode">Episode</Label>
-        <select
+        <NativeSelect
           id="play-episode"
-          class="h-10 rounded-lg border border-input bg-background px-3 text-sm"
           value={props.selectedEpisode}
           disabled={props.detailsLoading || props.seasonLoading || props.episodes.length === 0}
           onchange={(event) => props.onepisode(Number(event.currentTarget.value))}
@@ -81,7 +80,7 @@
           {#if props.episodes.length === 0}<option value={props.selectedEpisode}
               >Choose an episode</option
             >{/if}
-        </select>
+        </NativeSelect>
       </div>
     </div>
     <p class="text-xs text-muted-foreground">

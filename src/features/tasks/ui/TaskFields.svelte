@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Input } from "$lib/components/ui/input"
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import type { Result } from "@/shared/domain"
   import {
     TASK_PRIORITIES,
@@ -7,7 +9,7 @@
     type TaskPriority,
     type TaskStatus,
   } from "../domain"
-  import { PRIORITY_LABELS, SELECT, STATUS_LABELS } from "./labels"
+  import { PRIORITY_LABELS, STATUS_LABELS } from "./labels"
   import type { TasksState } from "./tasks-state.svelte"
 
   interface Props {
@@ -27,31 +29,28 @@
 <div class="grid grid-cols-2 gap-2 text-xs">
   <label class="flex flex-col gap-1">
     Status
-    <select
-      class={SELECT}
+    <NativeSelect
       value={task.status}
       onchange={(event) => run(tasks.move(task.id, value(event) as TaskStatus))}
     >
       {#each TASK_STATUSES as status (status)}<option value={status}>{STATUS_LABELS[status]}</option
         >{/each}
-    </select>
+    </NativeSelect>
   </label>
   <label class="flex flex-col gap-1">
     Priority
-    <select
-      class={SELECT}
+    <NativeSelect
       value={task.priority}
       onchange={(event) => run(tasks.prioritize(task.id, value(event) as TaskPriority))}
     >
       {#each TASK_PRIORITIES as priority (priority)}<option value={priority}
           >{PRIORITY_LABELS[priority]}</option
         >{/each}
-    </select>
+    </NativeSelect>
   </label>
   <label class="flex flex-col gap-1">
     Assignee
-    <select
-      class={SELECT}
+    <NativeSelect
       value={task.assigneeId ?? ""}
       onchange={(event) => run(tasks.assign(task.id, value(event) || null))}
     >
@@ -59,21 +58,20 @@
       {#each board.members as member (member.id)}<option value={member.id}
           >{member.displayName}</option
         >{/each}
-    </select>
+    </NativeSelect>
   </label>
   <label class="flex flex-col gap-1">
     Due
-    <input
+    <Input
       type="date"
-      class={SELECT}
+      class="w-field-date"
       value={task.dueDate ?? ""}
       onchange={(event) => run(tasks.setDue(task.id, value(event) || null))}
     />
   </label>
   <label class="col-span-2 flex flex-col gap-1">
     Milestone
-    <select
-      class={SELECT}
+    <NativeSelect
       value={task.milestoneId ?? ""}
       onchange={(event) => run(tasks.linkMilestone(task.id, value(event) || null))}
     >
@@ -81,6 +79,6 @@
       {#each board.milestones as milestone (milestone.id)}<option value={milestone.id}
           >{milestone.title}</option
         >{/each}
-    </select>
+    </NativeSelect>
   </label>
 </div>

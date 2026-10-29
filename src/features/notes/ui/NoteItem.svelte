@@ -44,7 +44,7 @@
     <Collapsible.Root bind:open onOpenChange={changed}>
       <Collapsible.Trigger>
         {#snippet child({ props })}
-          <Button {...props} variant="ghost" size="xs" class="self-start"
+          <Button {...props} variant="ghost" size="sm" class="self-start"
             ><MessageSquare aria-hidden="true" />{toggle}</Button
           >
         {/snippet}

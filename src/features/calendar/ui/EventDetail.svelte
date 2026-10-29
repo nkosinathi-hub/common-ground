@@ -77,7 +77,7 @@
           <Button variant="outline" onclick={() => (editing = true)}>
             <Pencil aria-hidden="true" />Edit
           </Button>
-          <DeleteButton label="Delete event" what="this event" size="icon-sm" onConfirm={remove} />
+          <DeleteButton label="Delete event" what="this event" onConfirm={remove} />
         {/if}
       </div>
       <EventDialog

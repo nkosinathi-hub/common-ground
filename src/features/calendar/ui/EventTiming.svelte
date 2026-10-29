@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Input } from "$lib/components/ui/input"
   import { Label } from "$lib/components/ui/label"
   import { Switch } from "$lib/components/ui/switch"
@@ -59,12 +60,8 @@
 <FieldError message={errorFor("repeatsYearly")} />
 <div class="grid gap-1.5">
   <Label for="event-zone">Time zone</Label>
-  <select
-    id="event-zone"
-    class="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
-    bind:value={form.timeZone}
-  >
+  <NativeSelect id="event-zone" bind:value={form.timeZone}>
     {#each zones as zone (zone)}<option value={zone}>{zone.replaceAll("_", " ")}</option>{/each}
-  </select>
+  </NativeSelect>
   <FieldError message={errorFor("timeZone")} />
 </div>

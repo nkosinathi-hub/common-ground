@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Badge } from "$lib/components/ui/badge"
   import { IDEA_STAGES, isShared, type Idea, type IdeaStage } from "../domain"
   import { STAGE_LABELS } from "./labels"
@@ -24,13 +25,12 @@
   </div>
   <label class="flex items-center gap-2 text-xs text-muted-foreground">
     Stage
-    <select
-      class="h-7 rounded-md border border-input bg-background px-1 text-xs"
+    <NativeSelect
       value={idea.stage}
       onchange={(event) => onMove(event.currentTarget.value as IdeaStage)}
     >
       {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
         >{/each}
-    </select>
+    </NativeSelect>
   </label>
 </article>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { EXPIRY_CHOICES, NOTE_MAX } from "../domain"
@@ -6,10 +7,9 @@
 
   interface Props {
     composer: ComposerState
-    select: string
   }
 
-  let { composer, select }: Props = $props()
+  let { composer }: Props = $props()
 </script>
 
 <div class="grid gap-1.5">
@@ -22,9 +22,9 @@
 </label>
 <div class="grid gap-1.5">
   <Label for="note-expiry">Expires</Label>
-  <select id="note-expiry" class={select} bind:value={composer.expiry}>
+  <NativeSelect id="note-expiry" bind:value={composer.expiry}>
     {#each EXPIRY_CHOICES as choice (choice.value)}
       <option value={choice.value}>{choice.label}</option>
     {/each}
-  </select>
+  </NativeSelect>
 </div>

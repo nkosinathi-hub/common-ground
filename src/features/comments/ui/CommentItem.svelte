@@ -58,7 +58,6 @@
         <DeleteButton
           label="Delete comment"
           what="this comment"
-          size="icon-sm"
           description="It is removed for everyone in this space. This cannot be undone."
           onConfirm={remove}
         />

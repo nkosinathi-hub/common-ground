@@ -44,7 +44,7 @@
   <FormError message={error} class="text-xs" />
   <Button
     variant="ghost"
-    size="xs"
+    size="sm"
     class="self-start"
     aria-expanded={open}
     onclick={() => (open = !open)}

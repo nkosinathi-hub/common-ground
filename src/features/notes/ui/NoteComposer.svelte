@@ -34,7 +34,6 @@
     () => spaceId,
     untrack(() => draft),
   )
-  const SELECT = "h-11 rounded-lg border border-input bg-background px-2 text-sm"
   const hard = $derived(composer.mode === "hard_talk")
   const name = $derived(recipients.value?.find((m) => m.id === composer.to)?.displayName ?? "")
 
@@ -72,16 +71,11 @@
         mode={composer.mode}
         onChange={(m) => composer.switchTo(m, recipients.value ?? [])}
       />
-      <RecipientField
-        bind:value={composer.to}
-        members={recipients.value ?? []}
-        direct={hard}
-        select={SELECT}
-      />
+      <RecipientField bind:value={composer.to} members={recipients.value ?? []} direct={hard} />
       {#if hard}
         <HardTalkFields {composer} />
       {:else}
-        <QuickNoteFields {composer} select={SELECT} />
+        <QuickNoteFields {composer} />
       {/if}
       <FormError message={composer.error} />
       {#if hard}

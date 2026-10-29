@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
@@ -38,15 +39,11 @@
     aria-describedby={error ? "idea-capture-error" : undefined}
   />
   <label class="sr-only" for="idea-template">Template</label>
-  <select
-    id="idea-template"
-    bind:value={template}
-    class="h-8 rounded-lg border border-input bg-background px-2 text-sm"
-  >
+  <NativeSelect id="idea-template" bind:value={template}>
     {#each IDEA_TEMPLATE_OPTIONS as option (option.id)}
       <option value={option.id}>{option.label}</option>
     {/each}
-  </select>
+  </NativeSelect>
   <Button type="submit" disabled={busy || !title.trim()}><Plus />Capture</Button>
 </form>
 <FormError id="idea-capture-error" message={error} />
