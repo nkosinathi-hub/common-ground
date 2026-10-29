@@ -1,6 +1,7 @@
 import { demoUser } from "./identity"
 import { demoCatalog } from "./catalog"
 import { calendarRows } from "./calendar-data"
+import { demoEpisodeStatuses } from "./episode-data"
 import { watchRows } from "./watch-data"
 import { selectRows } from "./query"
 import { tables } from "./tables"
@@ -30,6 +31,7 @@ export const demoFetch: typeof fetch = async (input, init) => {
     if (name === "is_space_owner") return json(true)
     if (name === "mark_note_read") return json(null)
     if (name === "list_calendar") return json(calendarRows)
+    if (name === "episode_statuses") return json(demoEpisodeStatuses(args.target_item))
     if (name === "list_watch_items") {
       const rows = watchRows.filter(
         (row) =>

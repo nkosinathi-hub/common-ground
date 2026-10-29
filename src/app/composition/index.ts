@@ -25,6 +25,7 @@ export function compose(db: Db = createDb()) {
   const members = memberDirectory(core.spaces)
   const authors = authorDirectory(core.spaces)
   const watch = composeWatch(db)
+  const watchHistory = composeWatchHistory(db)
   const ideas = composeIdeas(db, members, authors)
   return {
     ...core,
@@ -36,9 +37,10 @@ export function compose(db: Db = createDb()) {
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
     parties: composeParties(db),
+    watchHistory,
     playback: composePlaybackFeature(
       watch,
-      composeWatchHistory(db),
+      watchHistory,
       core.catalog,
       catalogTmdb(core.catalog, () => core.spacesStore.active?.id ?? null),
     ),
@@ -52,7 +54,7 @@ export function provideServices(services: Services): void {
   provideCore(services)
   provideMembers({ members: services.members, authors: services.authors })
   provideCollaboration(services.collaboration)
-  provideWatchFeature(services.watch, services.members, services.authors)
+  provideWatchFeature(services.watch, services.members, services.authors, services.watchHistory)
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)

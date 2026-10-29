@@ -55,4 +55,6 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   JSON on `spaces` with `is_valid_space_look` (theme and accent_color stay for older builds and
   are mapped into the look once), `000200` the `background` space-media slot
   (`background_path`; redefines `space_media_space`, `set_space_media` and
-  `space_media_cleanup_candidates`), `000300` `export_space` with the look.
+  `space_media_cleanup_candidates`), `000300` `export_space` with the look, `000400` the
+  `on_your_mind` Home card (#76; redefines `is_valid_home_cards` and the `home_cards` default),
+  `000500` `episode_statuses` for the Episodes tab (#77; security invoker, so RLS scopes it).

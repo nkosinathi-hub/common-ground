@@ -27,12 +27,8 @@ function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
   const watching = { status: "watching", season: 1, episode: 4, rating: 3 } as const
   fakes.gateway.progressRows = [{ userId: PARTNER, ...watching, completedOn: null, updatedAt: "" }]
   const props = {
-    spaceId: SPACE_ID,
-    itemId: show.id,
-    backHref: "#/back",
-    comments: html("Comments go here"),
-    recommend: html("Recommend goes here"),
-    together: film,
+    ...{ spaceId: SPACE_ID, itemId: show.id, backHref: "#/back", together: film },
+    ...{ comments: html("Comments go here"), recommend: html("Recommend goes here") },
   }
   render(Provided, { props: { provide, component: WatchItemDetail, props } })
   return fakes
@@ -85,16 +81,20 @@ describe("WatchItemDetail", () => {
     expect(await screen.findByText("Nkosi")).toBeInTheDocument()
   })
 
-  it("deletes after confirmation only when allowed", async () => {
+  it("deletes from its menu after confirmation, and only when allowed", async () => {
+    const menu = async () =>
+      fireEvent.keyDown(await screen.findByRole("button", { name: /^More for/ }), { key: "Enter" })
     const { gateway } = setup()
-    await fireEvent.click(await screen.findByRole("button", { name: "Delete" }))
+    await menu()
+    await fireEvent.click(await screen.findByRole("menuitem", { name: "Delete" }))
     const confirm = within(await screen.findByRole("alertdialog"))
     await fireEvent.click(confirm.getByRole("button", { name: "Delete" }))
     await waitFor(() => expect(gateway.items).toHaveLength(0))
     expect(window.location.hash).toBe("#/back")
     cleanup()
     setup({ createdBy: PARTNER })
-    await screen.findByRole("heading", { name: "Home video" })
-    expect(screen.queryByRole("button", { name: "Delete" })).toBeNull()
+    await menu()
+    expect(await screen.findByRole("menuitem", { name: "Edit details" })).toBeInTheDocument()
+    expect(screen.queryByRole("menuitem", { name: "Delete" })).toBeNull()
   })
 })

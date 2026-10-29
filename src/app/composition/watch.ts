@@ -11,6 +11,7 @@ export function provideWatchFeature(
   service: WatchService,
   members: MemberDirectory,
   authors: AuthorDirectory,
+  history: WatchHistory,
 ): void {
-  provideWatch({ service, members, authors })
+  provideWatch({ service, members, authors, history })
 }

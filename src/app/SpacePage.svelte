@@ -44,6 +44,7 @@
           {space}
           me={user.id}
           itemId={route.name === "watch-item" ? route.itemId : null}
+          tab={route.name === "watch-item" ? route.tab : undefined}
         />
       {:else if route.name === "ideas" || route.name === "idea"}
         <IdeasSection

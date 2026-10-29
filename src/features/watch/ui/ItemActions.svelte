@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
-  import { Pencil, Trash2 } from "@lucide/svelte"
+  import { Ellipsis, Pencil, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { ConfirmDialog, toast, navigate } from "@/shared/ui"
   import type { WatchItemView } from "../domain/types"
   import { useWatch } from "./context"
@@ -10,11 +10,10 @@
   interface Props {
     view: WatchItemView
     backHref: string
-    recommend?: Snippet
     onChanged: () => void
   }
 
-  let { view, backHref, recommend, onChanged }: Props = $props()
+  let { view, backHref, onChanged }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
   let editing = $state(false)
@@ -28,19 +27,26 @@
   }
 </script>
 
-<div class="flex flex-wrap gap-2">
-  <Button variant="outline" size="sm" onclick={() => (editing = true)}>
-    <Pencil aria-hidden="true" />
-    Edit details
-  </Button>
-  {#if view.canDelete}
-    <Button variant="ghost" size="sm" class="text-destructive" onclick={() => (confirming = true)}>
-      <Trash2 aria-hidden="true" />
-      Delete
-    </Button>
-  {/if}
-  {@render recommend?.()}
-</div>
+<!-- The title's own actions, in its menu: editing the details and deleting it. -->
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>
+    {#snippet child({ props })}
+      <Button {...props} variant="ghost" size="icon-sm" aria-label="More for {item.title}">
+        <Ellipsis />
+      </Button>
+    {/snippet}
+  </DropdownMenu.Trigger>
+  <DropdownMenu.Content align="end">
+    <DropdownMenu.Item onSelect={() => (editing = true)}>
+      <Pencil aria-hidden="true" />Edit details
+    </DropdownMenu.Item>
+    {#if view.canDelete}
+      <DropdownMenu.Item variant="destructive" onSelect={() => (confirming = true)}>
+        <Trash2 aria-hidden="true" />Delete
+      </DropdownMenu.Item>
+    {/if}
+  </DropdownMenu.Content>
+</DropdownMenu.Root>
 
 <EditTitleDialog bind:open={editing} {item} onSaved={onChanged} />
 <ConfirmDialog

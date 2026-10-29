@@ -1,84 +1,80 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
+  import { MediaQuery } from "svelte/reactivity"
   import { ArrowLeft } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
-  import { AsyncView, Resource } from "@/shared/ui"
+  import * as Tabs from "$lib/components/ui/tabs"
+  import { buildHash, type TitleTab } from "@/shared/domain"
+  import { AsyncView, navigate, pageTitle, Resource, TextLink } from "@/shared/ui"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
-  import ItemAvailability from "./ItemAvailability.svelte"
   import ItemHeader from "./ItemHeader.svelte"
-  import ProgressPanel from "./ProgressPanel.svelte"
-  import SessionsPanel from "./SessionsPanel.svelte"
+  import TitleTabs from "./TitleTabs.svelte"
 
   interface Props {
     spaceId: string
     itemId: string
     backHref: string
-    /** Comment thread for this title, rendered below progress. */
+    /** From the link; wide screens fold overview and episodes into progress. */
+    tab?: TitleTab
     comments?: Snippet
-    /** "Recommend to a member" control, rendered with the title actions. */
     recommend?: Snippet
-    /** "Watch together" for this title; told whether it is a film (no episodes to pick). */
     together?: Snippet<[boolean]>
-    /** Watch-here player for the title, rendered under the header. */
     play?: Snippet<[WatchItem, () => void]>
   }
 
-  let { spaceId, itemId, backHref, comments, recommend, together, play }: Props = $props()
+  let { spaceId, itemId, backHref, tab, comments, recommend, together, play }: Props = $props()
   const { service, members, authors } = useWatch()
   const view = new Resource(() => service.get(spaceId, itemId))
   const people = new Resource(() => members.members(spaceId))
   const names = new Resource(() => authors.authors(spaceId))
+  const wide = new MediaQuery("min-width: 768px")
   let progressVersion = $state(0)
+  const changed = () => (progressVersion++, void view.load())
+  const shown = $derived.by((): TitleTab => {
+    if (!wide.current) return tab ?? "overview"
+    return tab === "discussion" ? "discussion" : "progress"
+  })
+  const open = (next: string) =>
+    navigate(buildHash({ name: "watch-item", spaceId, itemId, tab: next as TitleTab }))
 
   $effect(() => {
-    // Reload when the space or title changes; the loads must not become dependencies.
     void [spaceId, itemId]
-    untrack(() => {
-      void view.load()
-      void people.load()
-      void names.load()
-    })
+    untrack(() => void (view.load(), people.load(), names.load()))
   })
+  $effect(() => (view.value ? pageTitle.show(view.value.item.title) : undefined))
 </script>
 
-<article class="mx-auto max-w-5xl space-y-6">
-  <Button variant="ghost" size="sm" href={backHref}>
-    <ArrowLeft aria-hidden="true" />
-    Back to the list
-  </Button>
+<!-- D03a and D03b on wide screens; M03 to M03d on phones, where each part is its own tab. -->
+<article class="flex flex-col gap-section">
+  <TextLink href={backHref} icon={ArrowLeft} class="w-fit flex-row-reverse">Watch library</TextLink>
   <AsyncView resource={view}>
     {#snippet children(current)}
-      <ItemHeader view={current} {backHref} {recommend} onChanged={() => view.load()} />
-      {@render play?.(current.item, () => {
-        progressVersion++
-        void view.load()
-      })}
-      {#if together}{@render together(current.item.mediaType === "movie")}{/if}
-      <ItemAvailability {spaceId} item={current.item} />
-      <div class="grid gap-6 lg:grid-cols-2">
-        <ProgressPanel
+      <ItemHeader view={current} {backHref} onChanged={() => view.load()}>
+        {#snippet actions()}
+          {#if together}{@render together(current.item.mediaType === "movie")}{/if}
+          {@render recommend?.()}
+        {/snippet}
+      </ItemHeader>
+      <Tabs.Root value={shown} onValueChange={open} class="flex flex-col gap-section">
+        <Tabs.List variant="line" aria-label="Title" class="w-full justify-start overflow-x-auto">
+          {#if !wide.current}<Tabs.Trigger value="overview">Overview</Tabs.Trigger>
+            <Tabs.Trigger value="episodes">Episodes</Tabs.Trigger>{/if}
+          <Tabs.Trigger value="progress">Progress</Tabs.Trigger>
+          <Tabs.Trigger value="discussion">Discussion</Tabs.Trigger>
+        </Tabs.List>
+        <TitleTabs
+          {spaceId}
           item={current.item}
-          authors={names.value ?? people.value ?? []}
+          {people}
+          {names}
           version={progressVersion}
-          onSaved={() => {
-            progressVersion++
-            void view.load()
-          }}
-        />
-        <SessionsPanel
-          item={current.item}
-          members={people.value ?? []}
-          authors={names.value ?? people.value ?? []}
-          onLogged={() => {
-            progressVersion++
-            void view.load()
-          }}
-        />
-      </div>
-      {#if comments}
-        <section aria-label="Conversation" class="border-t pt-6">{@render comments()}</section>
-      {/if}
+          wide={wide.current}
+          onchanged={changed}
+        >
+          {#snippet playing()}{@render play?.(current.item, changed)}{/snippet}
+          {#snippet discussion()}{@render comments?.()}{/snippet}
+        </TitleTabs>
+      </Tabs.Root>
     {/snippet}
   </AsyncView>
 </article>

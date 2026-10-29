@@ -13,6 +13,7 @@ test("add a title manually, track progress and comment", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
   await expect(page.getByText(/no verified provider data/i)).toBeVisible()
 
+  await page.getByRole("tab", { name: "Discussion" }).click()
   await page.getByLabel("Add a comment").fill("Episode 10 made me cry")
   await page.getByRole("button", { name: /^(Post|Comment|Send)$/ }).click()
   await expect(page.getByText("Episode 10 made me cry")).toBeVisible()

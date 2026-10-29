@@ -1183,6 +1183,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"episode_statuses":
+{ Args: { "target_item": string }; Returns: {
+              "episode": number,"season": number,"together_on": string,"watched_by": (string)[]
+            }[]
+                           },
 "expire_watch_parties":
 { Args: Record<PropertyKey, never>; Returns: number
                            },

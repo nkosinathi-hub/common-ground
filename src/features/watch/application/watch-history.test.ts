@@ -7,6 +7,7 @@ function setup() {
   const calls: unknown[][] = []
   const gateway: WatchHistoryGateway = {
     markWatched: async (...args) => (calls.push(args), ok(undefined)),
+    statuses: async (itemId) => (calls.push([itemId]), ok([])),
   }
   return { calls, history: new WatchHistory(gateway) }
 }
@@ -31,5 +32,11 @@ describe("WatchHistory", () => {
     ])
       expect((await history.markWatched("i", tick, "manual")).ok).toBe(false)
     expect(calls).toEqual([])
+  })
+
+  it("reads each episode's status for a title", async () => {
+    const { calls, history } = setup()
+    expect(await history.statuses("i")).toEqual({ ok: true, value: [] })
+    expect(calls).toEqual([["i"]])
   })
 })

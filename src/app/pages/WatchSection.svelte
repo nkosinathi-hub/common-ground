@@ -7,7 +7,7 @@
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
   import { WatchItemDetail, WatchPage } from "@/features/watch"
-  import { buildHash } from "@/shared/domain"
+  import { buildHash, type TitleTab } from "@/shared/domain"
   import { useCatalog } from "@/features/catalog/ui/context"
   import { playbackCatalog } from "../composition/playback-catalog"
 
@@ -16,9 +16,10 @@
     /** The signed-in member's id. */
     me: string
     itemId: string | null
+    tab?: TitleTab
   }
 
-  let { space, me, itemId }: Props = $props()
+  let { space, me, itemId, tab }: Props = $props()
   const people = spacePeople(useMembers(), () => space.id)
   const catalog = playbackCatalog(useCatalog().service)
   const itemHref = (id: string) => buildHash({ name: "watch-item", spaceId: space.id, itemId: id })
@@ -29,6 +30,7 @@
     <WatchItemDetail
       spaceId={space.id}
       {itemId}
+      {tab}
       backHref={buildHash({ name: "watch", spaceId: space.id })}
     >
       {#snippet together(isFilm: boolean)}

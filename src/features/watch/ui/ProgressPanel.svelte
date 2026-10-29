@@ -30,8 +30,16 @@
   const nameOf = (id: string, me: string) => (id === me ? "You" : memberName(authors, id))
 </script>
 
-<section class="space-y-4 rounded-xl border p-4" aria-labelledby="progress-heading">
-  <h2 id="progress-heading" class="font-semibold">Your place in the story</h2>
+<section
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+  aria-labelledby="progress-heading"
+>
+  <div class="flex flex-col gap-hairline">
+    <h2 id="progress-heading" class="type-h3">Your place in the story</h2>
+    <p class="type-sm text-muted-foreground">
+      Personal progress. It does not move where you are together.
+    </p>
+  </div>
   <AsyncView resource={progress}>
     {#snippet children(state)}
       <ProgressForm
@@ -43,8 +51,8 @@
           onSaved()
         }}
       />
-      <div class="border-t pt-4">
-        <h3 class="mb-2 text-sm font-medium">Everyone's progress</h3>
+      <div class="border-t border-border pt-stack">
+        <h3 class="mb-related type-label">Everyone's progress</h3>
         {#if state.together}
           <p class="mb-2 text-sm">
             Together: {placeLabel(state.together) ?? "watched"}

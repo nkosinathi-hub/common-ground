@@ -1,17 +1,22 @@
 <script lang="ts">
-  import type { ComponentProps } from "svelte"
+  import type { Snippet } from "svelte"
   import { Poster } from "@/features/catalog"
   import { toast } from "@/shared/ui"
-  import { INTENTS, mediaTypeLabel } from "../domain/labels"
-  import type { SharedIntent } from "../domain/types"
+  import { INTENTS } from "../domain/labels"
+  import type { SharedIntent, WatchItemView } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import ItemActions from "./ItemActions.svelte"
 
-  // The header forwards everything to ItemActions, so it takes exactly ItemActions' props.
-  type Props = ComponentProps<typeof ItemActions>
+  interface Props {
+    view: WatchItemView
+    backHref: string
+    /** Watch together, play and recommend: the title's actions, primary first. */
+    actions?: Snippet
+    onChanged: () => void
+  }
 
-  let { view, backHref, recommend, onChanged }: Props = $props()
+  let { view, backHref, actions, onChanged }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
 
@@ -23,32 +28,34 @@
   }
 </script>
 
-<header class="flex flex-col gap-6 sm:flex-row">
+<!-- D03a title introduction: the artwork beside the year, the title, the story and what to do. -->
+<header class="flex flex-col gap-columns sm:flex-row">
   <Poster
     path={item.posterPath}
     title={item.title}
     size="w342"
-    class="h-60 w-40 self-center sm:self-start"
+    class="aspect-2/3 h-auto w-32 shrink-0 self-start rounded-lg object-cover sm:w-45"
   />
-  <div class="min-w-0 flex-1 space-y-4">
-    <div>
-      <h1 class="text-2xl font-semibold">{item.title}</h1>
-      <p class="mt-1 text-sm text-muted-foreground">
-        {mediaTypeLabel(item.mediaType)}{item.releaseYear ? ` · ${item.releaseYear}` : ""}
-      </p>
+  <div class="flex min-w-0 flex-1 flex-col gap-stack">
+    {#if item.releaseYear}<p class="type-xs text-muted-foreground">{item.releaseYear}</p>{/if}
+    <div class="flex items-start gap-item">
+      <div class="flex min-w-0 flex-1 flex-col gap-related">
+        <h1 class="type-h1 text-foreground">{item.title}</h1>
+        <p class="type-body text-muted-foreground">
+          {item.synopsis || "No synopsis yet. Add a little context to this story."}
+        </p>
+      </div>
+      <ItemActions {view} {backHref} {onChanged} />
     </div>
-    <p class="text-sm leading-6 text-muted-foreground">
-      {item.synopsis || "No synopsis yet. Add a little context to this story."}
-    </p>
-    <div class="max-w-xs">
+    {#if actions}<div class="flex flex-wrap items-center gap-related">{@render actions()}</div>{/if}
+    <div class="w-full sm:w-60">
       <Choice
         id="item-intent"
-        label="Shared list"
+        label="List"
         value={item.intent}
         options={INTENTS}
         onchange={(value) => value && changeIntent(value)}
       />
     </div>
-    <ItemActions {view} {backHref} {recommend} {onChanged} />
   </div>
 </header>

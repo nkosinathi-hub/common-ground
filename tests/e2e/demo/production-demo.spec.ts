@@ -15,7 +15,11 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(page.getByRole("heading", { name: "Our next good watch." })).toBeVisible()
   await page.getByRole("link", { name: /Ted Lasso poster/ }).click()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
+  // Phones keep the episodes on their own tab; wide screens show them with progress.
+  const episodes = page.getByRole("tab", { name: "Episodes" })
+  if (await episodes.isVisible()) await episodes.click()
   await expect(page.getByRole("combobox", { name: "Season", exact: true })).toBeVisible()
+  await page.getByRole("tab", { name: "Discussion" }).click()
   await expect(
     page.getByText("Let's watch the next episode on Friday.", { exact: true }),
   ).toBeVisible()

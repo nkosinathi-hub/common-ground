@@ -1,4 +1,5 @@
 import type { Result } from "@/shared/domain"
+import type { EpisodeStatus } from "../domain/episodes"
 import type {
   CatalogPick,
   ManualTitleInput,
@@ -55,4 +56,6 @@ export interface WatchHistoryGateway {
     tick: EpisodeTick | null,
     source: HistorySource,
   ): Promise<Result<void>>
+  /** Each watched episode of a title, for the Episodes tab (episode_statuses). */
+  statuses(itemId: string): Promise<Result<EpisodeStatus[]>>
 }

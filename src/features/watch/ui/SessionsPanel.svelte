@@ -31,9 +31,15 @@
   const names = (ids: readonly string[]) => ids.map((id) => memberName(authors, id)).join(", ")
 </script>
 
-<section class="space-y-4 rounded-xl border p-4" aria-labelledby="sessions-heading">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <h2 id="sessions-heading" class="font-semibold">Watched together</h2>
+<section
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+  aria-labelledby="sessions-heading"
+>
+  <div class="flex flex-col gap-hairline">
+    <h2 id="sessions-heading" class="type-h3">Watched together</h2>
+    <p class="type-sm text-muted-foreground">A shared record, separate from your own progress.</p>
+  </div>
+  <div class="order-last">
     <Button variant="outline" size="sm" onclick={() => (logging = true)}>
       <Users aria-hidden="true" />
       Log watched together
@@ -46,7 +52,7 @@
           Watched it as a group? Log the night and everyone there is marked completed.
         </p>
       {:else}
-        <ul class="divide-y text-sm">
+        <ul class="divide-y divide-border type-sm">
           {#each list as session (session.id)}
             <li class="py-2">
               <p class="font-medium">

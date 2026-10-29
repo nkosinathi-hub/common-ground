@@ -1,5 +1,6 @@
 import { getContext, setContext } from "svelte"
 import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
+import type { WatchHistory } from "../application/watch-history"
 import type { WatchService } from "../application/watch-service"
 
 export interface WatchContext {
@@ -8,6 +9,8 @@ export interface WatchContext {
   readonly members: MemberDirectory
   /** Names for progress and sessions, including removed people still visible to the viewer. */
   readonly authors: AuthorDirectory
+  /** Episode history: each episode's status for the Episodes tab. */
+  readonly history?: WatchHistory
 }
 
 const KEY = Symbol("watch")
