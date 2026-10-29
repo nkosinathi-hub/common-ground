@@ -11,8 +11,10 @@
   interface Props {
     spaceId: string
     itemHref: (itemId: string) => string
+    /** Offered when nothing waits, so finding something to share is one tap away. */
+    libraryHref?: string
   }
-  let { spaceId, itemHref }: Props = $props()
+  let { spaceId, itemHref, libraryHref }: Props = $props()
 
   const { service } = useRecommendations()
   const inbox = $derived(new InboxState(service, spaceId))
@@ -64,7 +66,10 @@
       icon={Inbox}
       title="Nothing waiting for you"
       description="When someone recommends a title to you, it shows up here."
-    />
+    >
+      {#if libraryHref}<Button variant="outline" size="sm" href={libraryHref}>Browse library</Button
+        >{/if}
+    </EmptyState>
   {/if}
   <LoadMore {list} label="Show more" />
 </section>

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { CalendarDays } from "@lucide/svelte"
+  import { CalendarDays, ChevronRight } from "@lucide/svelte"
   import { buildHash, todayDateOnly } from "@/shared/domain"
-  import { AsyncView, EmptyState, Resource } from "@/shared/ui"
-  import { addDays, dayHeading, entriesByDay } from "../domain"
+  import { AsyncView, EmptyState, Resource, TextLink } from "@/shared/ui"
+  import { entriesByDay, entryTime } from "../domain"
   import { viewerZone } from "./browser"
   import { useCalendar } from "./context"
-  import EntryChip from "./EntryChip.svelte"
+  import { entryHref } from "./links"
 
   interface Props {
     spaceId: string
@@ -30,30 +30,33 @@
   })
 </script>
 
+<!-- "Today, together" (D01): today's plans as rows, each opening its event. -->
 <AsyncView resource={week}>
   {#snippet children(entries)}
-    {@const days = [...entriesByDay(entries, today, addDays(today, 6), zone)]}
-    {#if days.length === 0}
-      <EmptyState icon={CalendarDays} title="Nothing this week" level={2}>
-        <a href={buildHash({ name: "calendar", spaceId })} class="text-sm underline"
-          >Open the calendar</a
-        >
+    {@const items = entriesByDay(entries, today, today, zone).get(today) ?? []}
+    {#if items.length === 0}
+      <EmptyState icon={CalendarDays} title="Nothing planned today" level={3}>
+        <TextLink href={buildHash({ name: "calendar", spaceId })}>Open the calendar</TextLink>
       </EmptyState>
     {:else}
-      <ol class="flex flex-col gap-3" data-testid="upcoming-events">
-        {#each days as [day, items] (day)}
+      <ul class="-mx-related flex flex-col" data-testid="upcoming-events">
+        {#each items as item (item.key)}
           <li>
-            <p class="text-xs font-medium text-muted-foreground">
-              {day === today ? "Today" : dayHeading(day)}
-            </p>
-            <ul>
-              {#each items as item (item.key)}<li>
-                  <EntryChip {item} {day} {zone} {spaceId} />
-                </li>{/each}
-            </ul>
+            <a
+              href={entryHref(spaceId, item.entry)}
+              class="flex min-h-9 items-center gap-inset rounded-md px-related outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/30"
+            >
+              <span class="w-16 shrink-0 type-label text-foreground tabular-nums">
+                {entryTime(item.entry.timing, today, zone) || "All day"}
+              </span>
+              <span class="min-w-0 flex-1 truncate type-label text-foreground"
+                >{item.entry.title}</span
+              >
+              <ChevronRight class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+            </a>
           </li>
         {/each}
-      </ol>
+      </ul>
     {/if}
   {/snippet}
 </AsyncView>

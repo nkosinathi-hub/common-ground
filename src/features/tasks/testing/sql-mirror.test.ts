@@ -10,6 +10,8 @@ const task = (id: string, dueDate: string): UpcomingTask => ({
   title: id,
   status: "todo",
   dueDate: dueDate as DateOnly,
+  priority: "medium",
+  assigneeName: null,
 })
 
 describe("sortUpcoming", () => {

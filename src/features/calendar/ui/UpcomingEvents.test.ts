@@ -35,15 +35,16 @@ describe("UpcomingEvents", () => {
         props: { spaceId: "s1" },
       },
     })
+    // Today only: later days are on the calendar.
     const list = within(await screen.findByTestId("upcoming-events"))
-    expect(list.getByText("Today")).toBeVisible()
-    expect(list.getByText("Sunday 18 October")).toBeVisible()
-    expect(
-      list.getAllByRole("link").map((link) => link.textContent?.replace(/\s+/g, " ").trim()),
-    ).toEqual(["Event: Picnic", "Event: Gig"])
+    const links = list
+      .getAllByRole("link")
+      .map((link) => link.textContent?.replace(/\s+/g, " ").trim())
+    expect(links).toHaveLength(1)
+    expect(links[0]).toMatch(/Picnic$/)
   })
 
-  it("points to the calendar when the week is empty", async () => {
+  it("points to the calendar when nothing is planned today", async () => {
     const { service } = setup()
     render(Provided, {
       props: {
@@ -52,7 +53,7 @@ describe("UpcomingEvents", () => {
         props: { spaceId: "s1" },
       },
     })
-    expect(await screen.findByText("Nothing this week")).toBeVisible()
+    expect(await screen.findByText("Nothing planned today")).toBeVisible()
     expect(screen.getByRole("link", { name: "Open the calendar" })).toHaveAttribute(
       "href",
       "#/s/s1/calendar",

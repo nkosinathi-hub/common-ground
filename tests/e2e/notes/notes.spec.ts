@@ -60,7 +60,7 @@ test("a note to one member is new for them, replies come back, and opening reads
   // The reply makes the note new again for Ana; reading the thread clears it.
   await expectNotification(ana, /ben replied to a note/)
   await expect(note(ana, "Dinner at 7?").getByText("New")).toBeVisible()
-  await note(ana, "Dinner at 7?").getByRole("button", { name: "Replies (1)" }).click()
+  await note(ana, "Dinner at 7?").getByRole("button", { name: "Reply" }).click()
   await expect(note(ana, "Dinner at 7?").getByText("Yes, see you then")).toBeVisible()
   await expect(note(ana, "Dinner at 7?").getByText("New")).toHaveCount(0)
   await ana.reload()

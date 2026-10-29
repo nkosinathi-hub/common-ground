@@ -5,6 +5,7 @@
   import type { Route } from "@/shared/domain"
   import { Loading } from "@/shared/ui"
   import HomePage from "./pages/HomePage.svelte"
+  import NotesPage from "./pages/NotesPage.svelte"
   import CalendarSection from "./pages/CalendarSection.svelte"
   import IdeasSection from "./pages/IdeasSection.svelte"
   import PartySection from "./pages/PartySection.svelte"
@@ -36,6 +37,8 @@
       {#snippet bell()}<QuickCapture spaceId={space.id} compact /><NotificationsBell />{/snippet}
       {#if route.name === "home"}
         <HomePage {space} displayName={user.displayName} />
+      {:else if route.name === "notes" || route.name === "note"}
+        <NotesPage spaceId={space.id} />
       {:else if route.name === "watch" || route.name === "watch-item"}
         <WatchSection
           {space}

@@ -12,6 +12,7 @@
   import { UpcomingTasks } from "@/features/tasks"
   import { ContinueWatching } from "@/features/watch"
   import { buildHash, HOME_CARD_LABELS, type HomeCardId } from "@/shared/domain"
+  import { TextLink } from "@/shared/ui"
 
   interface Props {
     id: HomeCardId
@@ -41,16 +42,21 @@
       <Card.Title>{title}</Card.Title>
       {#if id === "notes"}
         <!-- The section's one action, on the title's line. -->
-        <Card.Action class="self-center">
+        <Card.Action class="flex items-center gap-item self-center">
           <Button size="sm" variant="outline" onclick={() => (writing = true)}>
             <PenLine aria-hidden="true" />Write a note
           </Button>
+          <TextLink href={buildHash({ name: "notes", spaceId })}>See all</TextLink>
+        </Card.Action>
+      {:else if id === "ideas"}
+        <Card.Action class="self-center">
+          <TextLink href={buildHash({ name: "ideas", spaceId })}>See all</TextLink>
         </Card.Action>
       {/if}
     </Card.Header>
     <Card.Content>
       {#if id === "notes"}
-        <NotesCard {spaceId} bind:writing />
+        <NotesCard {spaceId} bind:writing limit={2} />
       {:else if id === "continue_watching"}
         <ContinueWatching
           {spaceId}
@@ -63,7 +69,11 @@
       {:else if id === "calendar"}
         <UpcomingEvents {spaceId} />
       {:else if id === "recommended"}
-        <RecommendationsInbox {spaceId} {itemHref} />
+        <RecommendationsInbox
+          {spaceId}
+          {itemHref}
+          libraryHref={buildHash({ name: "watch", spaceId })}
+        />
       {:else if id === "ideas"}
         <IdeasInProgress {spaceId} {ideaHref} />
       {:else if id === "activity"}

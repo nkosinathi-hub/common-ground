@@ -2,9 +2,12 @@
   import { untrack } from "svelte"
   import { CalendarCheck } from "@lucide/svelte"
   import { formatDateOnly, todayDateOnly } from "@/shared/domain"
-  import { AsyncView, EmptyState, Resource } from "@/shared/ui"
+  import { Badge } from "$lib/components/ui/badge"
+  import { Checkbox } from "$lib/components/ui/checkbox"
+  import { AsyncView, EmptyState, Resource, TextLink } from "@/shared/ui"
   import { dueState, type UpcomingTask } from "../domain"
   import { useTasks } from "./context"
+  import { PRIORITY_LABELS } from "./labels"
 
   const LABEL = { overdue: "Overdue", today: "Due today", soon: "Due" } as const
 
@@ -23,44 +26,48 @@
   })
 
   const today = todayDateOnly()
+  async function done(id: string) {
+    await service.move(id, "done")
+    await tasks.load()
+  }
 </script>
 
-<!-- The Home card ("Coming up") titles this list, so it has no heading of its own. -->
-<div class="flex flex-col gap-2">
-  <AsyncView resource={tasks}>
-    {#snippet children(items)}
-      {#if items.length === 0}
-        <EmptyState
-          icon={CalendarCheck}
-          title="Nothing due"
-          description="Tasks with a due date show up here."
-        />
-      {:else}
-        <ul class="flex flex-col gap-1" data-testid="upcoming-tasks">
-          {#each items as task (task.id)}
-            {@const state = dueState(task.dueDate, today)}
-            <li>
-              <a
-                href={taskHref(task.ideaId)}
-                class="flex items-baseline justify-between gap-2 rounded-md p-2 hover:bg-muted"
+<!-- Figma Task row (210:4494): tick it done from Home, or open its idea. -->
+<AsyncView resource={tasks}>
+  {#snippet children(items)}
+    {#if items.length === 0}
+      <EmptyState
+        icon={CalendarCheck}
+        title="Nothing due"
+        description="Tasks with a due date show up here."
+      />
+    {:else}
+      <ul class="flex flex-col gap-item" data-testid="upcoming-tasks">
+        {#each items as task (task.id)}
+          {@const state = dueState(task.dueDate, today)}
+          <li class="flex items-start gap-item">
+            <Checkbox
+              class="mt-0.5"
+              aria-label="Done: {task.title}"
+              onCheckedChange={() => done(task.id)}
+            />
+            <div class="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span class="truncate type-label text-foreground">{task.title}</span>
+              <span class="type-xs text-muted-foreground">
+                {[task.assigneeName, `${PRIORITY_LABELS[task.priority]} priority`]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </span>
+              <TextLink href={taskHref(task.ideaId)} class="block h-auto max-w-full truncate"
+                >{task.ideaTitle || "Open its idea"}</TextLink
               >
-                <span class="min-w-0">
-                  <span class="block truncate font-medium">{task.title}</span>
-                  <span class="block truncate text-xs text-muted-foreground">{task.ideaTitle}</span>
-                </span>
-                <span
-                  class="shrink-0 text-xs {state === 'overdue'
-                    ? 'font-medium text-destructive'
-                    : 'text-muted-foreground'}"
-                >
-                  {LABEL[state]}
-                  {formatDateOnly(task.dueDate)}
-                </span>
-              </a>
-            </li>
-          {/each}
-        </ul>
-      {/if}
-    {/snippet}
-  </AsyncView>
-</div>
+            </div>
+            <Badge variant={state === "overdue" ? "destructive" : "outline"}>
+              {LABEL[state]}{state === "soon" ? ` ${formatDateOnly(task.dueDate)}` : ""}
+            </Badge>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+  {/snippet}
+</AsyncView>

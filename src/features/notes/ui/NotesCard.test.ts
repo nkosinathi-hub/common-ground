@@ -39,7 +39,7 @@ describe("NotesCard", () => {
     await fireEvent.input(await note.findByLabelText("Your reply"), { target: { value: "Yes!" } })
     await fireEvent.click(note.getByRole("button", { name: "Send reply" }))
     expect(await note.findByText("Yes!")).toBeInTheDocument()
-    expect(note.getByRole("button", { name: "Replies (1)" })).toBeInTheDocument()
+    expect(note.getByText(/· 1 reply$/)).toBeInTheDocument()
   })
 
   it("loads the thread when it is opened, not before", async () => {

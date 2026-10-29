@@ -34,6 +34,7 @@ const taskRows = [
     created_at: now,
     updated_at: now,
     ideas: { title: ideaRows[0]!.title },
+    assignee: { display_name: "Ben" },
   },
 ]
 export const ideaTables = {

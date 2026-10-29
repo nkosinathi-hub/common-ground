@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { ChevronRight } from "@lucide/svelte"
+  import { Badge } from "$lib/components/ui/badge"
   import { untrack } from "svelte"
   import { Lightbulb } from "@lucide/svelte"
   import { AsyncView, EmptyState, Resource } from "@/shared/ui"
@@ -30,15 +32,18 @@
         description="Ideas you are exploring, planning or building show up here."
       />
     {:else}
-      <ul class="flex flex-col gap-1" data-testid="ideas-in-progress">
+      <ul class="-mx-related flex flex-col" data-testid="ideas-in-progress">
         {#each list as idea (idea.id)}
           <li>
             <a
               href={ideaHref(idea.id)}
-              class="flex items-baseline justify-between gap-2 rounded-md p-2 hover:bg-muted"
+              class="flex min-h-11 items-center gap-item rounded-md px-related outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/30"
             >
-              <span class="min-w-0 truncate font-medium">{idea.title}</span>
-              <span class="shrink-0 text-xs text-muted-foreground">{STAGE_LABELS[idea.stage]}</span>
+              <span class="min-w-0 flex-1 truncate type-label text-foreground">{idea.title}</span>
+              <Badge variant={idea.stage === "planning" ? "default" : "secondary"}>
+                {STAGE_LABELS[idea.stage]}
+              </Badge>
+              <ChevronRight class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             </a>
           </li>
         {/each}

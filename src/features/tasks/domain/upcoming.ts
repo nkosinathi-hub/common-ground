@@ -1,5 +1,5 @@
 import { compareDateOnly, type DateOnly } from "@/shared/domain"
-import type { TaskStatus } from "./task"
+import type { TaskPriority, TaskStatus } from "./task"
 
 /** An open task with a due date, with its idea for linking from Home. */
 export interface UpcomingTask {
@@ -9,6 +9,9 @@ export interface UpcomingTask {
   readonly title: string
   readonly status: TaskStatus
   readonly dueDate: DateOnly
+  readonly priority: TaskPriority
+  /** Who it is assigned to, or null when nobody is. */
+  readonly assigneeName: string | null
 }
 
 export const UPCOMING_LIMIT = 8

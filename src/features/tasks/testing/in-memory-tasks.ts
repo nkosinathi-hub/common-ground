@@ -72,6 +72,7 @@ export class InMemoryTasks implements TasksRepository {
       ...t,
       dueDate: t.dueDate!,
       ideaTitle: this.ideaTitles.get(t.ideaId) ?? "",
+      assigneeName: t.assigneeId,
     }))
     return ok(sortUpcoming(rows).slice(0, limit))
   }
