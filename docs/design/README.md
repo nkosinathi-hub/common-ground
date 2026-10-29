@@ -35,3 +35,18 @@ source of every visual value in the app.
 3. `pnpm design:tokens --from-figma <saved.json>` replaces the export and regenerates the CSS.
 4. Review the diff. `scripts/design/tokens.test.ts` fails whenever the CSS and the export drift,
    and `src/styles/themes.test.ts` fails when a text and surface pair drops below 4.5:1.
+
+## Logo and icons
+
+`src/assets/logo.svg` is the Figma Logo (`216:7026`) and the only source of the mark.
+`src/shared/ui/Logo.svelte` draws the same paths with the `brand` and `on-brand` tokens, and
+`src/shared/ui/logo-source.test.ts` fails if the two drift.
+
+After changing the logo, run both scripts from the repo root (ImageMagick 7 with librsvg). A
+rerun is byte-identical.
+
+- `bash scripts/icons/render-icons.sh`: `public/icon.svg` (the favicon), the manifest icons at
+  192 and 512, the maskable icon, and the Apple touch icon.
+- `bash scripts/icons/render-android.sh`: the launcher, round, foreground and monochrome icons
+  at five densities, and the splash mark. The adaptive background is the lime tile colour.
+  `ic_stat_notify` stays a silhouette and is not generated.
