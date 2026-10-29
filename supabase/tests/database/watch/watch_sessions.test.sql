@@ -1,5 +1,5 @@
 begin;
-select plan(9);
+select plan(8);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -17,7 +17,7 @@ insert into public.space_members (space_id, user_id) values
 select tests.act_as('ben');
 update ids set item_id = public.add_catalog_title((select space_id from ids), 'movie', 9, 'Film',
   'movie', 2020, '', null, 'watch_together');
-select public.save_watch_progress((select item_id from ids), 'watching', null, null, 4, null);
+select public.save_watch_progress((select item_id from ids), 'watching', null, null, null);
 
 select tests.act_as('ana');
 update ids set session_id = public.log_watch_session((select item_id from ids), '2026-10-10',
@@ -26,8 +26,6 @@ update ids set session_id = public.log_watch_session((select item_id from ids), 
 select is((select array_agg(status::text || ':' || completed_on order by status)
   from public.watch_progress), array['completed:2026-10-10', 'completed:2026-10-10'],
   'present members are marked completed on the watched date');
-select is((select rating::int from public.watch_progress where user_id = tests.user_id('ben')), 4,
-  'existing rating is kept');
 select is((select count(*) from public.watch_progress where user_id = tests.user_id('cat'))::int, 0,
   'absent member progress untouched');
 select is((select count(*) from public.watch_session_members

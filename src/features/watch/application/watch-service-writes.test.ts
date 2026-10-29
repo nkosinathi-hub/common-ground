@@ -62,12 +62,11 @@ describe("WatchService writes", () => {
     const progress: ProgressInput = {
       status: "watching",
       season: 1,
-      episode: 2,
-      rating: 9,
+      episode: -1,
       completedOn: null,
     }
     expect((await service.saveProgress(id, progress)).ok).toBe(false)
-    expect((await service.saveProgress(id, { ...progress, rating: 4 })).ok).toBe(true)
+    expect((await service.saveProgress(id, { ...progress, episode: 2 })).ok).toBe(true)
     expect((await service.progress(id)).ok && gateway.progressRows).toHaveLength(1)
     const session = { watchedOn: today, memberIds: ["a"], note: "" }
     expect((await service.logSession(id, { ...session, memberIds: [] })).ok).toBe(false)

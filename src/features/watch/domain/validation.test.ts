@@ -51,16 +51,8 @@ describe("progress validation", () => {
     status: "watching",
     season: 1,
     episode: 2,
-    rating: null,
     completedOn: null,
   } as const
-  it("accepts ratings 1 to 5 only", () => {
-    expect(validateProgress({ ...base, rating: 5 }).ok).toBe(true)
-    expect(field(validateProgress({ ...base, rating: 6 }))).toBe("rating")
-    expect(field(validateProgress({ ...base, rating: 0 }))).toBe("rating")
-    expect(field(validateProgress({ ...base, rating: 2.5 }))).toBe("rating")
-  })
-
   it("rejects negative episodes and a completed date that is not completed", () => {
     expect(field(validateProgress({ ...base, season: -1 }))).toBe("season")
     expect(field(validateProgress({ ...base, episode: 1.5 }))).toBe("episode")

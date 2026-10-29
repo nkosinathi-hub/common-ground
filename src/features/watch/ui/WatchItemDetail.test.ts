@@ -64,7 +64,7 @@ describe("WatchItemDetail", () => {
     await fireEvent.click(screen.getByRole("button", { name: "Save my progress" }))
     await waitFor(() => expect(gateway.progressRows).toHaveLength(2))
     const mine = gateway.progressRows.find((p) => p.userId === ME)
-    expect(mine).toMatchObject({ status: "completed", rating: null })
+    expect(mine).toMatchObject({ status: "completed" })
     expect(mine?.completedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/)
     expect(gateway.progressRows.find((p) => p.userId === PARTNER)?.status).toBe("watching")
   })

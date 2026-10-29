@@ -16,7 +16,6 @@ export const NOTE_MAX = 500
 export const YEAR_DIGITS = 4
 const FIRST_FILM_YEAR = 1870
 const LAST_YEAR = 2100
-export const RATING_MAX = 5
 
 const fail = (message: string, field: string) => err(appError("validation", message, field))
 
@@ -59,9 +58,6 @@ const isCount = (n: number | null) => n === null || (Number.isInteger(n) && n >=
 export function validateProgress(input: ProgressInput): Result<ProgressInput> {
   if (!isCount(input.season)) return fail("Use a whole number from 0", "season")
   if (!isCount(input.episode)) return fail("Use a whole number from 0", "episode")
-  const rating = input.rating
-  if (rating !== null && (!Number.isInteger(rating) || rating < 1 || rating > RATING_MAX))
-    return fail(`Rate from 1 to ${RATING_MAX}`, "rating")
   const completedOn = input.status === "completed" ? input.completedOn : null
   if (completedOn !== null && !isDateOnly(completedOn))
     return fail("Use a date like 2026-10-15", "completedOn")

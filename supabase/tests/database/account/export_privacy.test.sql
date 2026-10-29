@@ -1,7 +1,7 @@
 -- A space export holds exactly the rows the member can read: never other people's private notes,
 -- their replies, recommendations or reminders.
 begin;
-select plan(8);
+select plan(9);
 select tests.create_user(h) from unnest(array['exp_ana', 'exp_ben', 'exp_cat']) h;
 insert into public.spaces (id, name) values ('eb000000-0000-4000-8000-000000000001', 'Us');
 insert into public.space_members (space_id, user_id, role)
@@ -45,6 +45,14 @@ insert into public.activity_events (space_id, actor_id, event_type, subject_type
   'hard_talk_shared', 'space_note', 'eb000000-0000-4000-8000-000000000044',
   array[tests.user_id('exp_cat'), tests.user_id('exp_ana')]);
 select public.add_default_reminders('eb000000-0000-4000-8000-000000000051', tests.user_id('exp_ben'));
+insert into public.watch_opinions (user_id, space_id, watch_item_id, opinion)
+  select tests.user_id(h), 'eb000000-0000-4000-8000-000000000001',
+    'eb000000-0000-4000-8000-000000000021', 'liked' from unnest(array['exp_ana', 'exp_ben']) h;
+insert into public.comments (id, space_id, watch_item_id, author_id, body) values
+  ('eb000000-0000-4000-8000-000000000061', 'eb000000-0000-4000-8000-000000000001',
+   'eb000000-0000-4000-8000-000000000021', tests.user_id('exp_cat'), 'Loved it');
+insert into public.comment_reactions (comment_id, user_id)
+  select 'eb000000-0000-4000-8000-000000000061', tests.user_id(h) from unnest(array['exp_ana', 'exp_ben']) h;
 
 select tests.act_as('exp_ben');
 create temp table dump as select public.export_space('eb000000-0000-4000-8000-000000000001') d;
@@ -64,6 +72,9 @@ select ok((select d -> 'tables' ?& array['space_notes', 'space_note_replies', 'i
   'calendar_events', 'calendar_event_attendees', 'calendar_event_reminders', 'space_note_drafts',
   'space_note_responses', 'space_note_nudges'] and not d -> 'tables'
   ? 'space_note_reads' from dump), 'the v0.2 tables are exported, read state is not');
+
+select is((select array_agg(r ->> 'user_id') from dump, jsonb_array_elements(d #> '{tables,watch_opinions}') r),
+  array[tests.user_id('exp_ben')::text], 'only the member''s own likes and dislikes');
 
 -- Every exported table, compared with what the member reads under RLS (Ben is in one space).
 create function pg_temp.mismatches() returns text[] language plpgsql as $$

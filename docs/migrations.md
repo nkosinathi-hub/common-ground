@@ -57,4 +57,9 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   (`background_path`; redefines `space_media_space`, `set_space_media` and
   `space_media_cleanup_candidates`), `000300` `export_space` with the look, `000400` the
   `on_your_mind` Home card (#76; redefines `is_valid_home_cards` and the `home_cards` default),
-  `000500` `episode_statuses` for the Episodes tab (#77; security invoker, so RLS scopes it).
+  `000500` `episode_statuses` for the Episodes tab (#77; security invoker, so RLS scopes it),
+  `000600` `watch_opinions` (private like / dislike; drops `watch_progress.rating` and
+  redefines `save_watch_progress` without it), `000700` comment threads (`reply_to`, the
+  `season`/`episode` tag, `comment_reactions`), `000710` `post_comment` with replies and the tag, `000800` party
+  sessions (the range and `party_id` on `watch_sessions`; redefines `finish_party`), `000900`
+  `export_table_names` and `export_table_filter` with the two new tables.

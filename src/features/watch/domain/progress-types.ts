@@ -1,12 +1,14 @@
 import type { DateOnly } from "@/shared/domain"
 
+/** Like or dislike: private to whoever gives it (watch_opinions). */
+export type Opinion = "liked" | "disliked"
+
 export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
 
 export interface ProgressInput {
   readonly status: ProgressStatus
   readonly season: number | null
   readonly episode: number | null
-  readonly rating: number | null
   readonly completedOn: DateOnly | null
 }
 

@@ -11,7 +11,12 @@ import { composeParties, providePartiesFeature } from "./parties"
 import { composePlaybackFeature, providePlaybackFeature } from "./playback-feature"
 import { catalogTmdb } from "./catalog-tmdb"
 import { ActivePlayer } from "./player-bridge"
-import { composeWatch, composeWatchHistory, provideWatchFeature } from "./watch"
+import {
+  composeWatch,
+  composeWatchHistory,
+  composeWatchOpinions,
+  provideWatchFeature,
+} from "./watch"
 
 /** The Android app keeps its session in Preferences; the website in browser storage. */
 function createDb(): Db {
@@ -38,6 +43,7 @@ export function compose(db: Db = createDb()) {
     notes: composeNotes(db, members, authors),
     parties: composeParties(db),
     watchHistory,
+    watchOpinions: composeWatchOpinions(db),
     playback: composePlaybackFeature(
       watch,
       watchHistory,
@@ -54,7 +60,13 @@ export function provideServices(services: Services): void {
   provideCore(services)
   provideMembers({ members: services.members, authors: services.authors })
   provideCollaboration(services.collaboration)
-  provideWatchFeature(services.watch, services.members, services.authors, services.watchHistory)
+  provideWatchFeature(
+    services.watch,
+    services.members,
+    services.authors,
+    services.watchHistory,
+    services.watchOpinions,
+  )
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)

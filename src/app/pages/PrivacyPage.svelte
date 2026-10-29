@@ -23,7 +23,9 @@
       Your email address and password (hashed) for signing in. Other members never see your email.
     </li>
     <li>Your display name, shown only to members of spaces you belong to.</li>
-    <li>What you add: titles, progress, ratings, comments, ideas, tasks, budgets and files.</li>
+    <li>
+      What you add: titles, progress, likes and dislikes, comments, ideas, tasks, budgets and files.
+    </li>
   </ul>
   <h2 class="text-lg font-semibold">Who can see it</h2>
   <p>

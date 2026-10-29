@@ -7,7 +7,6 @@ export class ProgressFormState {
   status = $state<ProgressStatus>("not_started")
   season = $state("")
   episode = $state("")
-  rating = $state("")
   completedOn = $state("")
 
   constructor(private readonly today: () => DateOnly) {}
@@ -16,7 +15,6 @@ export class ProgressFormState {
     this.status = saved?.status ?? "not_started"
     this.season = saved?.season?.toString() ?? ""
     this.episode = saved?.episode?.toString() ?? ""
-    this.rating = saved?.rating?.toString() ?? ""
     this.completedOn = saved?.completedOn ?? ""
   }
 
@@ -31,7 +29,6 @@ export class ProgressFormState {
     if (!season.ok) return season
     const episode = parseCount(this.episode, "episode")
     if (!episode.ok) return episode
-    const rating = this.rating === "" ? null : Number(this.rating)
     const day = this.completedOn.trim()
     if (this.status === "completed" && day !== "" && !isDateOnly(day))
       return err(appError("validation", "Use a date like 2026-10-15", "completedOn"))
@@ -39,7 +36,6 @@ export class ProgressFormState {
       status: this.status,
       season: season.value,
       episode: episode.value,
-      rating,
       completedOn: this.status === "completed" && day !== "" ? (day as DateOnly) : null,
     })
   }

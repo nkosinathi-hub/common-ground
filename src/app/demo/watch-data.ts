@@ -32,7 +32,6 @@ export const progressRows = watchRows.flatMap((item) =>
     ...place,
     watch_item_id: item.id,
     space_id: item.space_id,
-    rating: null,
     completed_on: null,
     updated_at: now,
   })),

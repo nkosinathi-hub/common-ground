@@ -19,12 +19,11 @@ describe("ProgressFormState", () => {
       status: "watching",
       season: 2,
       episode: 3,
-      rating: 4,
       completedOn: null,
       userId: ME,
       updatedAt: "",
     })
-    expect(form.toInput()).toMatchObject({ ok: true, value: { season: 2, episode: 3, rating: 4 } })
+    expect(form.toInput()).toMatchObject({ ok: true, value: { season: 2, episode: 3 } })
     form.setStatus("completed")
     expect(form.toInput()).toMatchObject({ ok: true, value: { completedOn: "2026-10-15" } })
     form.completedOn = "15/10"

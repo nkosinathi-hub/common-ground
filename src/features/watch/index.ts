@@ -1,5 +1,6 @@
 export { WatchService } from "./application/watch-service"
 export { WatchHistory } from "./application/watch-history"
+export { WatchOpinions } from "./application/watch-opinions"
 export type { EpisodeTick, HistorySource } from "./application/ports"
 export { provideWatch } from "./ui/context"
 export { default as WatchPage } from "./ui/WatchPage.svelte"

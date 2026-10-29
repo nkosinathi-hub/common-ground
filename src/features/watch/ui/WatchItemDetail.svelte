@@ -53,7 +53,7 @@
   >
   <AsyncView resource={view}>
     {#snippet children(current)}
-      <ItemHeader view={current} {backHref} {progress} onChanged={reload} onRated={changed}>
+      <ItemHeader view={current} {backHref} onChanged={reload}>
         {#snippet actions()}
           {#if together}{@render together(current.item.mediaType === "movie")}{/if}
           {@render recommend?.()}

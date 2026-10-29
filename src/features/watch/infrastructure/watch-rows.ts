@@ -67,7 +67,6 @@ export const toProgress = (row: ProgressRow): T.Progress => ({
   status: row.status,
   season: row.season,
   episode: row.episode,
-  rating: row.rating,
   completedOn: row.completed_on as DateOnly | null,
   updatedAt: row.updated_at,
 })

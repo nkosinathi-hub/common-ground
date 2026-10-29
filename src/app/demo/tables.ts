@@ -16,6 +16,8 @@ export const tables: Record<string, DemoRow[]> = {
   ],
   watch_items: watchRows,
   watch_progress: progressRows,
+  // Ana liked the first title, so the like button and For you have something to show.
+  watch_opinions: [{ user_id: ANA, watch_item_id: watchRows[0]!.id, opinion: "liked" }],
   together_progress: watchRows.flatMap((row) =>
     row.together ? [{ watch_item_id: row.id, ...row.together }] : [],
   ),

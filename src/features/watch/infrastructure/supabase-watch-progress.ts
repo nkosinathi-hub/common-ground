@@ -24,7 +24,7 @@ export class SupabaseWatchProgress {
     if (!me) return signedOut()
     const query = this.db
       .from("watch_progress")
-      .select("user_id, status, season, episode, rating, completed_on, updated_at")
+      .select("user_id, status, season, episode, completed_on, updated_at")
       .eq("watch_item_id", itemId)
       .order("updated_at", { ascending: false })
     const together = this.db

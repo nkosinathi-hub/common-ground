@@ -1,5 +1,6 @@
 import type { Result } from "@/shared/domain"
 import type { EpisodeStatus } from "../domain/episodes"
+import type { Opinion } from "../domain/progress-types"
 import type {
   CatalogPick,
   ManualTitleInput,
@@ -58,4 +59,10 @@ export interface WatchHistoryGateway {
   ): Promise<Result<void>>
   /** Each watched episode of a title, for the Episodes tab (episode_statuses). */
   statuses(itemId: string): Promise<Result<EpisodeStatus[]>>
+}
+
+/** Like / dislike, private to the signed-in person. Null clears it. */
+export interface WatchOpinionGateway {
+  opinion(itemId: string): Promise<Result<Opinion | null>>
+  setOpinion(spaceId: string, itemId: string, opinion: Opinion | null): Promise<Result<void>>
 }

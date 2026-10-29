@@ -1,6 +1,7 @@
 import { getContext, setContext } from "svelte"
 import type { AuthorDirectory, MemberDirectory } from "@/shared/domain"
 import type { WatchHistory } from "../application/watch-history"
+import type { WatchOpinions } from "../application/watch-opinions"
 import type { WatchService } from "../application/watch-service"
 
 export interface WatchContext {
@@ -11,6 +12,8 @@ export interface WatchContext {
   readonly authors: AuthorDirectory
   /** Episode history: each episode's status for the Episodes tab. */
   readonly history?: WatchHistory
+  /** Like / dislike, private to the signed-in person. */
+  readonly opinions?: WatchOpinions
 }
 
 const KEY = Symbol("watch")

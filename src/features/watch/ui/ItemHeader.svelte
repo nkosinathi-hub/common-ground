@@ -1,26 +1,22 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
   import { Poster } from "@/features/catalog"
-  import { toast, type Resource } from "@/shared/ui"
+  import { toast } from "@/shared/ui"
   import { INTENTS } from "../domain/labels"
-  import type { MemberProgress } from "../domain/progress-types"
   import type { SharedIntent, WatchItemView } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import ItemActions from "./ItemActions.svelte"
-  import TitleRating from "./TitleRating.svelte"
 
   interface Props {
     view: WatchItemView
     backHref: string
-    progress: Resource<MemberProgress>
     /** Watch together and recommend: the title's actions, primary first. */
     actions?: Snippet
     onChanged: () => void
-    onRated: () => void
   }
 
-  let { view, backHref, progress, actions, onChanged, onRated }: Props = $props()
+  let { view, backHref, actions, onChanged }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
 
@@ -63,7 +59,6 @@
           onchange={(value) => value && changeIntent(value)}
         />
       </div>
-      <TitleRating itemId={item.id} {progress} onSaved={onRated} />
     </div>
   </div>
 </header>
