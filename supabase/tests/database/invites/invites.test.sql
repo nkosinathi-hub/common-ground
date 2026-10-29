@@ -19,7 +19,7 @@ select throws_ok($$ select token_hash from public.space_invites $$, '42501', nul
 select tests.act_as('eve');
 select is((select count(*) from public.space_invites)::int, 0, 'strangers cannot list invites');
 select throws_ok($$ select public.create_invite((select space_id from public.space_members limit 1)) $$,
-  null, null, 'non-owners cannot invite');
+  '42501', null, 'strangers cannot invite');
 
 select tests.act_as('ben');
 select is((select status from public.invite_preview((select token from t))), 'valid', 'preview shows valid');
