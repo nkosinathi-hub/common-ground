@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import { Lightbulb } from "@lucide/svelte"
   import * as Alert from "$lib/components/ui/alert"
-  import type { MemberRef } from "@/shared/domain"
+  import { ok, type MemberRef } from "@/shared/domain"
   import { EmptyState, ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
@@ -10,7 +10,7 @@
   import IdeaListCard from "./IdeaListCard.svelte"
   import IdeaFilters from "./IdeaFilters.svelte"
   import { IdeasState } from "./ideas-state.svelte"
-  import QuickCapture from "./QuickCapture.svelte"
+  import { onCaptured } from "./captured"
 
   interface Props {
     spaceId: string
@@ -33,6 +33,8 @@
     void spaceId
     untrack(() => void board.load())
   })
+  // An idea saved from the capture dialog joins the list at once.
+  $effect(() => onCaptured((idea) => void board.list.add(Promise.resolve(ok(idea)))))
 </script>
 
 <div class="flex flex-col gap-section">
@@ -47,9 +49,6 @@
     </p>
   </header>
 
-  {#if board.view === "list"}<QuickCapture
-      onCapture={(title, template) => board.capture({ title, template })}
-    />{/if}
   <IdeaFilters
     bind:filter={board.filter}
     tags={allTags(board.list.items)}

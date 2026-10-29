@@ -1,5 +1,7 @@
 export { IdeasService } from "./application/ideas-service"
 export { ResearchService } from "./application/research-service"
+export { IDEA_TEMPLATE_OPTIONS, type IdeaTemplate } from "./domain"
+export { announceCaptured } from "./ui/captured"
 export { provideIdeas, provideResearch, useIdeas } from "./ui/context"
 export { default as IdeasPage } from "./ui/IdeasPage.svelte"
 export { default as IdeaDetail } from "./ui/IdeaDetail.svelte"

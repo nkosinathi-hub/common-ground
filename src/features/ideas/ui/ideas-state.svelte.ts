@@ -1,7 +1,6 @@
 import type { AppError, Cursor } from "@/shared/domain"
 import { PagedList } from "@/shared/ui"
 import type { IdeasService } from "../application/ideas-service"
-import type { CaptureInput } from "../application/ports"
 import { filterIdeas, type Idea, type IdeaFilter, type IdeaStage } from "../domain"
 
 type View = "list" | "board"
@@ -33,10 +32,6 @@ export class IdeasState {
   load(): Promise<void> {
     this.moveError = null
     return this.list.load()
-  }
-
-  async capture(input: Omit<CaptureInput, "spaceId">): Promise<AppError | null> {
-    return this.list.add(this.ideas.capture({ ...input, spaceId: this.spaceId() }))
   }
 
   async move(id: string, stage: IdeaStage): Promise<void> {

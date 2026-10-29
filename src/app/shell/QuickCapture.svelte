@@ -2,8 +2,21 @@
   import { untrack } from "svelte"
   import { Lightbulb, Plus } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { useIdeas } from "@/features/ideas"
-  import { DialogShell, FormError, FormField, FormState, navigate, toast } from "@/shared/ui"
+  import {
+    announceCaptured,
+    IDEA_TEMPLATE_OPTIONS,
+    type IdeaTemplate,
+    useIdeas,
+  } from "@/features/ideas"
+  import {
+    DialogShell,
+    FormError,
+    FormField,
+    FormState,
+    navigate,
+    SelectField,
+    toast,
+  } from "@/shared/ui"
   import { captureDraft } from "./draft"
 
   interface Props {
@@ -17,12 +30,19 @@
   const form = new FormState()
   let open = $state(false)
   let title = $state(untrack(() => captureDraft.read(spaceId)))
+  let template = $state<IdeaTemplate>("blank")
+  const templates = IDEA_TEMPLATE_OPTIONS.map((option) => ({
+    value: option.id,
+    label: option.label,
+  }))
   $effect(() => captureDraft.write(spaceId, title))
 
   async function submit() {
-    const made = await form.run(() => ideas.capture({ spaceId, title }))
+    const made = await form.run(() => ideas.capture({ spaceId, title, template }))
     if (!made.ok) return
+    announceCaptured(made.value)
     title = ""
+    template = "blank"
     open = false
     toast.success("Idea saved", {
       action: {
@@ -45,12 +65,19 @@
 <DialogShell
   bind:open
   title="Catch it before it goes"
-  description="Just a title is enough. It lands in your Ideas inbox."
+  description="Just a title is enough. A template adds the questions worth answering later."
   primary="Save idea"
   busy={form.pending}
   disabled={!title.trim()}
   onsubmit={submit}
 >
   <FormField id="quick-idea" label="Idea" bind:value={title} error={form.fieldError("title")} />
+  <SelectField
+    id="quick-idea-template"
+    label="Template"
+    value={template}
+    options={templates}
+    onchange={(value) => (template = value)}
+  />
   <FormError message={form.formError} />
 </DialogShell>

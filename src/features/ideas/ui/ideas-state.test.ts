@@ -7,6 +7,7 @@ const setup = () => {
   const { repo, service } = inMemoryIdeasService()
   return {
     repo,
+    capture: (title: string) => service.capture({ spaceId: "s", title }),
     board: new IdeasState(
       service,
       () => "s",
@@ -16,10 +17,10 @@ const setup = () => {
 }
 
 describe("IdeasState", () => {
-  it("captures to the top, moves stage and filters", async () => {
-    const { board } = setup()
-    expect(await board.capture({ title: "Tea bar" })).toBeNull()
-    expect(await board.capture({ title: "" })).toMatchObject({ kind: "validation" })
+  it("moves stage and filters", async () => {
+    const { board, capture } = setup()
+    await capture("Tea bar")
+    await board.load()
     const id = board.list.items[0]!.id
     await board.move(id, "building")
     expect(board.list.items[0]!.stage).toBe("building")
@@ -39,11 +40,11 @@ describe("IdeasState", () => {
   })
 
   it("asks the server for the viewer's ideas when the whose filter is set", async () => {
-    const { repo, board } = setup()
+    const { repo, board, capture } = setup()
     repo.author = "ben"
-    await board.capture({ title: "Ben's" })
+    await capture("Ben's")
     repo.author = "ana"
-    await board.capture({ title: "Ana's" })
+    await capture("Ana's")
     board.filter = { whose: "mine" }
     await board.load()
     expect(board.list.items.map((i) => i.title)).toEqual(["Ana's"])

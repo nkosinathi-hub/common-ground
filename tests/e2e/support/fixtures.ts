@@ -4,11 +4,12 @@ import type { TestUser } from "./stack"
 
 const UUID = "[0-9a-f-]{36}"
 
-/** Captures an idea from the ideas list, opens it and returns its id. */
+/** Captures an idea with the capture dialog on the ideas list, opens it and returns its id. */
 export async function captureIdea(page: Page, spaceId: string, title: string): Promise<string> {
   await page.goto(`./#/s/${spaceId}/ideas`)
+  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
   await page.getByLabel("Idea", { exact: true }).fill(title)
-  await page.getByRole("button", { name: "Capture", exact: true }).click()
+  await page.getByRole("button", { name: "Save idea" }).click()
   await page.getByRole("link", { name: title }).first().click()
   await page.waitForURL(new RegExp(`/ideas/${UUID}/overview`))
   return new RegExp(`/ideas/(${UUID})/`).exec(page.url())![1]!

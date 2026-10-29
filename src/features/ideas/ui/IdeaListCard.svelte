@@ -23,14 +23,14 @@
 
 <!-- Figma Idea list card (211:10844): the whole card opens the idea; its menu moves it. -->
 <article
-  class="relative flex items-center gap-columns rounded-lg border border-border bg-card p-card"
+  class="relative flex items-center gap-item rounded-lg border border-border bg-card p-card sm:gap-columns"
   data-testid="idea-card"
 >
   <div class="flex min-w-0 flex-1 flex-col gap-related">
-    <div class="flex items-center gap-related">
+    <div class="flex flex-wrap items-center gap-related">
       <a
         {href}
-        class="truncate type-h3 text-foreground outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring/30"
+        class="min-w-0 type-h3 text-foreground outline-none after:absolute after:inset-0 after:rounded-lg focus-visible:after:ring-3 focus-visible:after:ring-ring/30"
         >{idea.title}</a
       >
       <Badge variant={idea.stage === "planning" ? "default" : "secondary"}
@@ -47,10 +47,13 @@
       >
     </div>
   </div>
-  <AvatarStack
-    people={people.map((name) => ({ name }))}
-    label="On this idea: {people.join(', ')}"
-  />
+  <!-- The byline already names everyone; phones keep the width for the title. -->
+  <div class="max-sm:hidden">
+    <AvatarStack
+      people={people.map((name) => ({ name }))}
+      label="On this idea: {people.join(', ')}"
+    />
+  </div>
   <div class="relative z-10">
     <MoveMenu
       subject={idea.title}
