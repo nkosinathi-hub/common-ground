@@ -7,7 +7,7 @@ const UUID = "[0-9a-f-]{36}"
 /** Captures an idea from the ideas list, opens it and returns its id. */
 export async function captureIdea(page: Page, spaceId: string, title: string): Promise<string> {
   await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByLabel("Idea title").fill(title)
+  await page.getByLabel("Idea", { exact: true }).fill(title)
   await page.getByRole("button", { name: "Capture", exact: true }).click()
   await page.getByRole("link", { name: title }).first().click()
   await page.waitForURL(new RegExp(`/ideas/${UUID}/overview`))

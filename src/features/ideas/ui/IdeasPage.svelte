@@ -1,11 +1,13 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Columns3, Lightbulb, List } from "@lucide/svelte"
-  import { EmptyState, ErrorState, FormError, Loading, LoadMore, ViewToggle } from "@/shared/ui"
+  import { Lightbulb } from "@lucide/svelte"
+  import * as Alert from "$lib/components/ui/alert"
+  import type { MemberRef } from "@/shared/domain"
+  import { EmptyState, ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
-  import IdeaCard from "./IdeaCard.svelte"
+  import IdeaListCard from "./IdeaListCard.svelte"
   import IdeaFilters from "./IdeaFilters.svelte"
   import { IdeasState } from "./ideas-state.svelte"
   import QuickCapture from "./QuickCapture.svelte"
@@ -15,9 +17,11 @@
     /** The signed-in user, for the Mine and Ours filters. */
     me: string
     ideaHref: (ideaId: string) => string
+    /** Names for who started and shares each idea. */
+    authors?: readonly MemberRef[]
   }
 
-  let { spaceId, me, ideaHref }: Props = $props()
+  let { spaceId, me, ideaHref, authors = [] }: Props = $props()
 
   const board = new IdeasState(
     useIdeas().service,
@@ -29,20 +33,29 @@
     void spaceId
     untrack(() => void board.load())
   })
-  const VIEWS = [
-    { value: "list", label: "List", icon: List },
-    { value: "board", label: "Board", icon: Columns3 },
-  ] as const
 </script>
 
-<div class="flex flex-col gap-4">
-  <header class="flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-2xl font-semibold">Ideas</h1>
-    <ViewToggle value={board.view} options={VIEWS} onchange={(view) => (board.view = view)} />
+<div class="flex flex-col gap-section">
+  <header class="flex flex-col gap-related">
+    <h1 class="type-h1">
+      {board.view === "board" ? "Ideas, finding their shape." : "Room for what could be."}
+    </h1>
+    <p class="type-body text-muted-foreground">
+      {board.view === "board"
+        ? "The same ideas, arranged by where they are now."
+        : "Small sparks, shared plans, and things you are making together."}
+    </p>
   </header>
 
-  <QuickCapture onCapture={(title, template) => board.capture({ title, template })} />
-  <IdeaFilters bind:filter={board.filter} tags={allTags(board.list.items)} />
+  {#if board.view === "list"}<QuickCapture
+      onCapture={(title, template) => board.capture({ title, template })}
+    />{/if}
+  <IdeaFilters
+    bind:filter={board.filter}
+    tags={allTags(board.list.items)}
+    view={board.view}
+    onview={(view) => (board.view = view)}
+  />
 
   <FormError message={board.moveError?.message} />
   {#if board.list.error && board.list.items.length === 0}
@@ -56,15 +69,31 @@
       description="A business, a creative project, a wild little thought. There is room for it here."
     />
   {:else if board.view === "board"}
-    <IdeaBoard ideas={board.visible} {ideaHref} onMove={(id, stage) => board.move(id, stage)} />
+    <IdeaBoard
+      ideas={board.visible}
+      {ideaHref}
+      {authors}
+      onMove={(id, stage) => board.move(id, stage)}
+    />
   {:else}
-    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="flex flex-col gap-stack">
       {#each board.visible as idea (idea.id)}
-        <IdeaCard {idea} href={ideaHref(idea.id)} onMove={(stage) => board.move(idea.id, stage)} />
+        <IdeaListCard
+          {idea}
+          href={ideaHref(idea.id)}
+          {authors}
+          onMove={(stage) => board.move(idea.id, stage)}
+        />
       {:else}
-        <p class="text-sm text-muted-foreground">No ideas match these filters.</p>
+        <p class="type-sm text-muted-foreground">No ideas match these filters.</p>
       {/each}
     </div>
+    <Alert.Root variant="secondary">
+      <Alert.Description>
+        Every idea has room to evolve. Change its stage without losing research, tasks or
+        discussion.
+      </Alert.Description>
+    </Alert.Root>
   {/if}
 
   <LoadMore list={board.list} />

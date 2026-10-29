@@ -47,5 +47,5 @@
     </IdeaDetail>
   {/key}
 {:else}
-  <IdeasPage spaceId={space.id} {me} {ideaHref} />
+  <IdeasPage spaceId={space.id} {me} {ideaHref} authors={people.authors} />
 {/if}
