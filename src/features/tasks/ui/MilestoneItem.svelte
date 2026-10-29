@@ -1,55 +1,50 @@
 <script lang="ts">
-  import { formatDateOnly } from "@/shared/domain"
+  import { ArrowRight, SquarePen } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { Pencil } from "@lucide/svelte"
-  import { DeleteButton } from "@/shared/ui"
-  import { type Milestone, type MilestoneInput } from "../domain"
-  import MilestoneEdit from "./MilestoneEdit.svelte"
+  import { Checkbox } from "$lib/components/ui/checkbox"
+  import { formatDateOnly } from "@/shared/domain"
+  import { TextLink } from "@/shared/ui"
+  import type { Milestone, Task } from "../domain"
 
   interface Props {
     milestone: Milestone
-    deletable: boolean
+    /** The tasks that move it forward, for the link under it. */
+    linked: readonly Task[]
+    tasksHref: string
     onToggle: (done: boolean) => void
-    onEdit: (input: MilestoneInput) => Promise<boolean>
-    onRemove: () => void
+    onEdit: () => void
   }
 
-  let { milestone, deletable, onToggle, onEdit, onRemove }: Props = $props()
-  let editing = $state(false)
+  let { milestone, linked, tasksHref, onToggle, onEdit }: Props = $props()
+  const done = $derived(milestone.completedAt !== null)
+  const linkText = $derived(
+    `${linked.length} linked ${linked.length === 1 ? "task" : "tasks"}: ${linked.map((t) => t.title).join(", ")}`,
+  )
 </script>
 
-<li class="flex items-center justify-between gap-2 rounded-lg border p-3" data-testid="milestone">
-  {#if editing}
-    <MilestoneEdit {milestone} onSave={onEdit} onCancel={() => (editing = false)} />
-  {:else}
-    <label class="flex items-center gap-2">
-      <input
-        type="checkbox"
-        checked={milestone.completedAt !== null}
-        onchange={(e) => onToggle(e.currentTarget.checked)}
-      />
-      <span class={milestone.completedAt ? "text-muted-foreground line-through" : "font-medium"}
-        >{milestone.title}</span
+<!-- D10 milestone row: tick it done, see its target and the tasks that move it forward. -->
+<li class="flex items-start gap-item py-related" data-testid="milestone">
+  <Checkbox
+    class="mt-hairline"
+    aria-label="Done: {milestone.title}"
+    checked={done}
+    onCheckedChange={(v) => onToggle(v === true)}
+  />
+  <div class="flex min-w-0 flex-1 flex-col gap-hairline">
+    <span class="type-label {done ? 'text-muted-foreground line-through' : 'text-foreground'}"
+      >{milestone.title}</span
+    >
+    {#if milestone.targetDate}
+      <span class="type-xs text-muted-foreground"
+        >Target {formatDateOnly(milestone.targetDate)}</span
       >
-    </label>
-    <span class="flex items-center gap-2 text-xs">
-      {#if milestone.targetDate}<span class="text-muted-foreground"
-          >Target {formatDateOnly(milestone.targetDate)}</span
-        >{/if}
-      <Button
-        size="icon"
-        variant="ghost"
-        aria-label="Edit milestone {milestone.title}"
-        onclick={() => (editing = true)}><Pencil /></Button
-      >
-      {#if deletable}
-        <DeleteButton
-          label="Delete milestone {milestone.title}"
-          what="this milestone"
-          description="Tasks linked to it stay, without a milestone."
-          onConfirm={onRemove}
-        />
-      {/if}
-    </span>
-  {/if}
+    {/if}
+    {#if linked.length > 0}<TextLink href={tasksHref} icon={ArrowRight}>{linkText}</TextLink>{/if}
+  </div>
+  <Button
+    variant="ghost"
+    size="icon-sm"
+    aria-label="Edit milestone {milestone.title}"
+    onclick={onEdit}><SquarePen /></Button
+  >
 </li>

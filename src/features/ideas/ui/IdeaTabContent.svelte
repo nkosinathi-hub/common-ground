@@ -2,7 +2,7 @@
   import type { Snippet } from "svelte"
   import { BudgetPanel } from "@/features/budget"
   import { MilestonesPanel, TasksTab } from "@/features/tasks"
-  import { canDelete, type IdeaTab, type Viewer } from "@/shared/domain"
+  import { buildHash, canDelete, type IdeaTab, type Viewer } from "@/shared/domain"
   import { type Idea } from "../domain"
   import OverviewTab from "./OverviewTab.svelte"
   import { TAB_LABELS } from "./labels"
@@ -30,10 +30,25 @@
   {:else if tab === "research"}
     <ResearchTab {idea} {viewer} {attachments} />
   {:else if tab === "tasks"}
-    <TasksTab spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
+    <TasksTab
+      spaceId={idea.spaceId}
+      ideaId={idea.id}
+      ideaTitle={idea.title}
+      canDelete={deletable}
+    />
   {:else if tab === "milestones"}
-    <div class="grid gap-6 lg:grid-cols-2">
-      <MilestonesPanel spaceId={idea.spaceId} ideaId={idea.id} canDelete={deletable} />
+    <div class="grid items-start gap-columns lg:grid-cols-2">
+      <MilestonesPanel
+        spaceId={idea.spaceId}
+        ideaId={idea.id}
+        canDelete={deletable}
+        tasksHref={buildHash({
+          name: "idea",
+          spaceId: idea.spaceId,
+          ideaId: idea.id,
+          tab: "tasks",
+        })}
+      />
       <BudgetPanel
         spaceId={idea.spaceId}
         ideaId={idea.id}

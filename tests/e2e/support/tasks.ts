@@ -16,15 +16,21 @@ export function written(page: Page, table: string): Promise<Response> {
 /** Adds a task on the tasks tab, with an optional date-only due date (YYYY-MM-DD). */
 export async function addTask(page: Page, title: string, due = ""): Promise<void> {
   const form = page.getByRole("form", { name: "Add a task" })
-  await form.getByLabel("Task title").fill(title)
-  if (due) await form.getByLabel("Due").fill(due)
+  await form.getByLabel("New task").fill(title)
+  if (due) await form.getByLabel("Due date").fill(due)
   await form.getByRole("button", { name: "Add task" }).click()
   await expect(taskCard(page, title)).toBeVisible()
 }
 
-/** Picks a value in one of a task card's selects and waits for the write. */
+/** Opens a task's editor (S08), picks a value in one of its selects, saves and waits. */
 export async function setTaskField(page: Page, title: string, field: string, label: string) {
+  await taskCard(page, title)
+    .getByRole("button", { name: `Edit ${title}` })
+    .click()
+  const editor = page.getByRole("dialog", { name: "Edit task" })
+  await editor.getByLabel(field).selectOption({ label })
   const saved = written(page, "tasks")
-  await taskCard(page, title).getByLabel(field).selectOption({ label })
+  await editor.getByRole("button", { name: "Save task" }).click()
   await saved
+  await expect(editor).toBeHidden()
 }

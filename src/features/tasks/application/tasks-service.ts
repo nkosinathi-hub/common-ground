@@ -1,7 +1,9 @@
 import { err, toDateOnly, type Cursor, type MemberDirectory, type Result } from "@/shared/domain"
 import {
   UPCOMING_LIMIT,
+  validateTaskDraft,
   validateTaskInput,
+  type TaskDraft,
   type Task,
   type TaskInput,
   type TaskPriority,
@@ -21,9 +23,16 @@ export class TasksService {
   upcoming = (spaceId: string) => this.tasks.upcoming(spaceId, UPCOMING_LIMIT)
   remove = (id: string) => this.tasks.remove(id)
 
-  async create(place: IdeaPlace, input: TaskInput): Promise<Result<Task>> {
+  /** A task added from a Kanban column passes that column's status. */
+  async create(place: IdeaPlace, input: TaskInput, status?: TaskStatus): Promise<Result<Task>> {
     const valid = validateTaskInput(input)
-    return valid.ok ? this.tasks.create({ ...place, ...valid.value }) : valid
+    return valid.ok ? this.tasks.create({ ...place, ...valid.value, status }) : valid
+  }
+
+  /** The editor saves every field at once, and never over someone else's newer save. */
+  async save(task: Task, draft: TaskDraft): Promise<Result<Task>> {
+    const valid = validateTaskDraft(draft)
+    return valid.ok ? this.tasks.save(task.id, task.updatedAt, valid.value) : valid
   }
 
   async rename(id: string, title: string): Promise<Result<Task>> {

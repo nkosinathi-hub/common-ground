@@ -4,7 +4,9 @@ import type { TaskPatch } from "../application/ports"
 import type { ChecklistItem, Milestone, Task, UpcomingTask } from "../domain"
 
 type TaskTable = Tables<"tasks">
-export type TaskRow = TaskTable
+export type TaskRow = TaskTable & {
+  readonly task_checklist_items?: readonly { readonly done: boolean }[]
+}
 export type UpcomingRow = Pick<
   TaskTable,
   "id" | "idea_id" | "title" | "status" | "due_date" | "priority"
@@ -19,7 +21,7 @@ export type ItemRow = Pick<
 export type MilestoneRow = Omit<Tables<"milestones">, "created_at">
 
 export const TASK_COLUMNS =
-  "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_by, created_at, updated_at"
+  "id, space_id, idea_id, title, description, status, priority, due_date, assignee_id, milestone_id, created_by, created_at, updated_at, task_checklist_items(done)"
 export const UPCOMING_COLUMNS =
   "id, idea_id, title, status, due_date, priority, ideas(title), assignee:profiles!assignee_id(display_name)"
 export const ITEM_COLUMNS = "id, task_id, label, done, position, created_by"
@@ -43,6 +45,10 @@ export const toTask = (row: TaskRow): Task => ({
   createdBy: row.created_by,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+  checklist: row.task_checklist_items && {
+    done: row.task_checklist_items.filter((item) => item.done).length,
+    total: row.task_checklist_items.length,
+  },
 })
 
 export const toItem = (row: ItemRow): ChecklistItem => ({

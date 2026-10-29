@@ -1,59 +1,49 @@
 <script lang="ts">
-  import { FormError } from "@/shared/ui"
   import { Button } from "$lib/components/ui/button"
-  import { Input } from "$lib/components/ui/input"
   import type { AppError } from "@/shared/domain"
-  import { entryFormOf, LABEL_MAX, type BudgetEntry, type EntryForm } from "../domain"
+  import { DeleteButton, FormError } from "@/shared/ui"
+  import { entryFormOf, type BudgetEntry, type EntryForm } from "../domain"
+  import EntryFields from "./EntryFields.svelte"
 
   interface Props {
     entry: BudgetEntry
     currency: string
+    categories: readonly string[]
+    deletable: boolean
     onSave: (form: EntryForm) => Promise<AppError | null>
     onCancel: () => void
+    onRemove: () => void
   }
 
-  let { entry, currency, onSave, onCancel }: Props = $props()
+  let { entry, currency, categories, deletable, onSave, onCancel, onRemove }: Props = $props()
   // Seeded once from the line being edited; later prop changes must not wipe the draft.
   const seed = () => entryFormOf(entry)
   let form = $state(seed())
   let error = $state<AppError | null>(null)
-  const invalid = (field: string) => (error?.field === field ? true : undefined)
 
-  async function save() {
+  async function save(event: SubmitEvent) {
+    event.preventDefault()
     error = await onSave(form)
     if (!error) onCancel()
   }
 </script>
 
-<tr class="border-t" aria-label="Edit {entry.label}">
-  <td class="p-1">{entry.category}</td>
-  <td class="p-1">
-    <Input
-      aria-label="Item"
-      maxlength={LABEL_MAX}
-      bind:value={form.label}
-      aria-invalid={invalid("label")}
-    />
-  </td>
-  <td class="p-1">
-    <Input
-      aria-label="Estimated ({currency})"
-      inputmode="decimal"
-      bind:value={form.estimated}
-      aria-invalid={invalid("estimated")}
-    />
-  </td>
-  <td class="p-1">
-    <Input
-      aria-label="Actual ({currency})"
-      inputmode="decimal"
-      bind:value={form.actual}
-      aria-invalid={invalid("actual")}
-    />
-  </td>
-  <td class="p-1 text-right whitespace-nowrap">
-    <Button size="sm" onclick={save}>Save</Button>
-    <Button size="sm" variant="ghost" onclick={onCancel}>Cancel</Button>
-    <FormError message={error?.message} />
-  </td>
-</tr>
+<!-- A line opens in place to edit; delete waits here rather than on every row. -->
+<form class="flex flex-col gap-stack py-item" onsubmit={save} aria-label="Edit {entry.label}">
+  <p class="type-label text-foreground">{entry.label}</p>
+  <EntryFields id="line-{entry.id}" bind:form {currency} {error} {categories} />
+  <FormError message={error?.message} />
+  <div class="flex items-center gap-item">
+    <Button type="submit" size="sm">Save</Button>
+    <Button type="button" size="sm" variant="ghost" onclick={onCancel}>Cancel</Button>
+    {#if deletable}
+      <span class="ml-auto"
+        ><DeleteButton
+          label="Delete {entry.label}"
+          what="this budget line"
+          onConfirm={onRemove}
+        /></span
+      >
+    {/if}
+  </div>
+</form>

@@ -17,9 +17,9 @@ describe("ViewToggle", () => {
       props: { value: "list", options, onchange: (v: string) => chosen.push(v) },
     })
     expect(screen.getByRole("group", { name: "View" })).toBeInTheDocument()
-    expect(screen.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true")
-    expect(screen.getByRole("button", { name: "Board" })).toHaveAttribute("aria-pressed", "false")
-    await fireEvent.click(screen.getByRole("button", { name: "Board" }))
+    expect(screen.getByRole("radio", { name: "List" })).toBeChecked()
+    expect(screen.getByRole("radio", { name: "Board" })).not.toBeChecked()
+    await fireEvent.click(screen.getByRole("radio", { name: "Board" }))
     expect(chosen).toEqual(["board"])
   })
 })

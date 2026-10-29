@@ -32,7 +32,7 @@ test("the notification badge updates live in the other member's browser", async 
   const ideaId = await captureIdea(page, spaceId, "Anime club")
   await openIdeaTab(page, spaceId, ideaId, "tasks")
   await addTask(page, "Book the room")
-  await setTaskField(page, "Book the room", "Assignee", "ben")
+  await setTaskField(page, "Book the room", "Assigned to", "ben")
   await expect(bell).toHaveAccessibleName("Notifications, 2 unread")
 
   await bell.click()

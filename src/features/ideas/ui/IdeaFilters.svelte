@@ -16,6 +16,7 @@
 
   let { filter = $bindable(), tags, view, onview }: Props = $props()
   const active = $derived(Boolean(filter.text || filter.tag || filter.stage || filter.whose))
+  import { ViewToggle } from "@/shared/ui"
 </script>
 
 <!-- Figma Idea toolbar (211:10826): search, tags, stage, whose, Clear, then List or Board. -->
@@ -68,16 +69,13 @@
     <ToggleGroup.Item value="ours">Ours</ToggleGroup.Item>
   </ToggleGroup.Root>
   {#if active}<Button variant="ghost" onclick={() => (filter = {})}>Clear</Button>{/if}
-  <ToggleGroup.Root
-    type="single"
-    variant="segment"
-    spacing={1}
-    aria-label="View"
-    class="w-fit! sm:ml-auto"
+  <ViewToggle
+    class="sm:ml-auto"
     value={view}
-    onValueChange={(value) => value && onview(value as "list" | "board")}
-  >
-    <ToggleGroup.Item value="list">List</ToggleGroup.Item>
-    <ToggleGroup.Item value="board">Board</ToggleGroup.Item>
-  </ToggleGroup.Root>
+    options={[
+      { value: "list", label: "List" },
+      { value: "board", label: "Board" },
+    ]}
+    onchange={onview}
+  />
 </div>

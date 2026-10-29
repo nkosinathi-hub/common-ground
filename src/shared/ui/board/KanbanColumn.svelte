@@ -38,7 +38,7 @@
 <!-- Figma Kanban column (208:7756), shared by the ideas board and the tasks Kanban. -->
 <section
   aria-label={title}
-  class="flex w-72 shrink-0 snap-start flex-col gap-item rounded-lg bg-muted p-item"
+  class="flex min-w-64 flex-1 snap-start flex-col gap-item rounded-lg bg-muted p-item"
 >
   <div class="flex items-center gap-related">
     <h3 class="type-label text-foreground">{title}</h3>
@@ -55,24 +55,29 @@
       </Button>
     {/if}
   </div>
-  <ul
-    class="flex min-h-16 flex-col gap-related rounded-md outline-none"
-    aria-label="{title} cards"
-    use:dndzone={{
-      items: shown,
-      type: board,
-      flipDurationMs: 150,
-      dropTargetStyle: {},
-      dropTargetClasses: ["ring-2", "ring-primary/40"],
-    }}
-    onconsider={consider}
-    onfinalize={finalize}
-  >
-    {#each shown as item (item.id)}<li>{@render card(item)}</li>{/each}
-  </ul>
-  {#if shown.length === 0}
-    <p class="rounded-md border border-border px-inset py-card type-sm text-muted-foreground">
-      {empty}
-    </p>
-  {/if}
+  <!-- The empty note sits inside the drop zone, so an empty column still takes a card. -->
+  <div class="relative">
+    <ul
+      class="flex min-h-16 flex-col gap-related rounded-md outline-none"
+      aria-label="{title} cards"
+      use:dndzone={{
+        items: shown,
+        type: board,
+        flipDurationMs: 150,
+        dropTargetStyle: {},
+        dropTargetClasses: ["ring-2", "ring-primary/40"],
+      }}
+      onconsider={consider}
+      onfinalize={finalize}
+    >
+      {#each shown as item (item.id)}<li>{@render card(item)}</li>{/each}
+    </ul>
+    {#if shown.length === 0}
+      <p
+        class="pointer-events-none absolute inset-0 flex items-center justify-center rounded-md border border-dashed border-border px-inset type-sm text-muted-foreground"
+      >
+        {empty}
+      </p>
+    {/if}
+  </div>
 </section>

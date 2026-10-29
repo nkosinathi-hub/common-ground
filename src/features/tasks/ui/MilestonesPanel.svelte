@@ -1,77 +1,82 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import type { AppError, Result } from "@/shared/domain"
-  import { AsyncView, FormError, Resource } from "@/shared/ui"
-  import { milestoneProgress, type Milestone, type MilestoneInput } from "../domain"
-  import { STALE_COPY } from "./conflict"
+  import * as Card from "$lib/components/ui/card"
+  import { Progress } from "$lib/components/ui/progress"
+  import { AsyncView, FormError } from "@/shared/ui"
+  import type { Milestone } from "../domain"
   import { useTasks } from "./context"
   import MilestoneForm from "./MilestoneForm.svelte"
   import MilestoneItem from "./MilestoneItem.svelte"
-
-  type Change<T> = (value: T, items: Milestone[]) => Milestone[]
+  import { MilestonesState } from "./milestones-state.svelte"
 
   interface Props {
     spaceId: string
     ideaId: string
     /** Whether the viewer may delete a row by this author (the author or the space owner). */
     canDelete: (createdBy: string | null) => boolean
+    /** The idea's tasks tab, where each milestone's linked tasks are. */
+    tasksHref?: string
   }
 
-  let { spaceId, ideaId, canDelete }: Props = $props()
-  const { milestones } = useTasks()
-  const list = new Resource<Milestone[]>(() => milestones.list(untrack(() => ideaId)))
-  let error = $state<AppError | null>(null)
+  let { spaceId, ideaId, canDelete, tasksHref = "" }: Props = $props()
+  const plan = new MilestonesState(useTasks(), () => ({ spaceId, ideaId }))
+  let editing = $state<Milestone | null>(null)
   // Reloads when the page shows another idea.
   $effect(() => {
     void ideaId
-    untrack(() => void list.load())
+    untrack(() => void plan.load())
   })
-
-  /**
-   * Applies a write. A stale edit shows the conflict copy and reloads the list; it still reports
-   * done so the edit form closes onto their version. False keeps the form open to fix an error.
-   */
-  async function run<T>(write: Promise<Result<T>>, change: Change<T>): Promise<boolean> {
-    const failure = await list.apply(write, (value, items) => change(value, items ?? []))
-    error = failure
-    if (!failure || failure.kind !== "conflict") return !failure
-    error = { ...failure, message: STALE_COPY }
-    await list.load()
-    return true
-  }
-
-  const replace: Change<Milestone> = (saved, items) =>
-    items.map((item) => (item.id === saved.id ? saved : item))
-  const add = (input: MilestoneInput) =>
-    run(milestones.add({ spaceId, ideaId }, input), (added, items) => [...items, added])
-  const remove = (id: string) =>
-    run(milestones.remove(id), (_removed, items) => items.filter((item) => item.id !== id))
-  const progress = $derived(milestoneProgress(list.value ?? []))
 </script>
 
-<section aria-labelledby="milestones-heading" class="flex flex-col gap-3">
-  <h2 id="milestones-heading" class="text-lg font-semibold">
-    Milestones {#if progress.total}<span class="text-sm text-muted-foreground"
-        >({progress.done} of {progress.total} complete)</span
-      >{/if}
-  </h2>
-  <MilestoneForm {error} onAdd={add} />
-  <FormError message={error?.message} />
-  <AsyncView resource={list}>
-    {#snippet children(items)}
-      <ul class="flex flex-col gap-2">
-        {#each items as milestone (milestone.id)}
-          <MilestoneItem
-            {milestone}
-            deletable={canDelete(milestone.createdBy)}
-            onToggle={(done) => run(milestones.complete(milestone, done), replace)}
-            onEdit={(input) => run(milestones.retarget(milestone, input), replace)}
-            onRemove={() => remove(milestone.id)}
-          />
-        {:else}
-          <li class="text-sm text-muted-foreground">No milestones yet.</li>
-        {/each}
-      </ul>
-    {/snippet}
-  </AsyncView>
-</section>
+<!-- D10 left column: the milestones with their progress, then add or edit one. -->
+<div class="flex flex-col gap-stack">
+  <Card.Root role="region" aria-labelledby="milestones-heading">
+    <Card.Header>
+      <Card.Title id="milestones-heading">Milestones</Card.Title>
+      <Card.Action class="flex items-center gap-related">
+        <span class="type-xs text-muted-foreground"
+          >{plan.progress.done} of {plan.progress.total} done</span
+        >
+        <Progress
+          value={plan.progress.total ? (plan.progress.done / plan.progress.total) * 100 : 0}
+          class="h-1.5 w-20"
+          aria-hidden="true"
+        />
+      </Card.Action>
+    </Card.Header>
+    <Card.Content>
+      <AsyncView resource={plan.list}>
+        {#snippet children(items)}
+          <ul class="flex flex-col divide-y divide-border">
+            {#each items as milestone (milestone.id)}
+              <MilestoneItem
+                {milestone}
+                linked={plan.linkedTo(milestone)}
+                {tasksHref}
+                onToggle={(done) => plan.toggle(milestone, done)}
+                onEdit={() => (editing = milestone)}
+              />
+            {:else}
+              <li class="type-sm text-muted-foreground">No milestones yet.</li>
+            {/each}
+          </ul>
+        {/snippet}
+      </AsyncView>
+      <FormError message={editing ? null : plan.error?.message} />
+    </Card.Content>
+  </Card.Root>
+  {#if editing}
+    {#key editing.id}
+      <MilestoneForm
+        milestone={editing}
+        deletable={canDelete(editing.createdBy)}
+        error={plan.error}
+        onSave={(input, done) => plan.save(editing!, input, done)}
+        onCancel={() => (editing = null)}
+        onRemove={() => void plan.remove(editing!.id).then(() => (editing = null))}
+      />
+    {/key}
+  {:else}
+    <MilestoneForm error={plan.error} onSave={(input) => plan.add(input)} />
+  {/if}
+</div>

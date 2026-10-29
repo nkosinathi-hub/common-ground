@@ -28,8 +28,8 @@ describe("BudgetPanel", () => {
   it("edits a line in place", async () => {
     await setup()
     await fireEvent.click(await screen.findByRole("button", { name: "Edit Deposit" }))
-    const row = within(screen.getByRole("row", { name: "Edit Deposit" }))
-    await fireEvent.input(row.getByRole("textbox", { name: "Item" }), { target: { value: "Bond" } })
+    const row = within(screen.getByRole("form", { name: "Edit Deposit" }))
+    await fireEvent.input(row.getByLabelText("Item"), { target: { value: "Bond" } })
     await fireEvent.click(screen.getByRole("button", { name: "Save" }))
     expect(await screen.findByText("Bond")).toBeInTheDocument()
   })
@@ -45,12 +45,13 @@ describe("BudgetPanel", () => {
     expect(await screen.findByText("Theirs")).toBeInTheDocument()
   })
 
-  it("offers delete only for lines the viewer may delete", async () => {
+  it("offers delete, inside the open line, only for lines the viewer may delete", async () => {
     await setup((createdBy) => createdBy === "ben")
-    await screen.findByText("Deposit")
+    await fireEvent.click(await screen.findByRole("button", { name: "Edit Deposit" }))
     expect(screen.queryByRole("button", { name: "Delete Deposit" })).toBeNull()
     cleanup()
     await setup((createdBy) => createdBy === "ana")
+    await fireEvent.click(await screen.findByRole("button", { name: "Edit Deposit" }))
     expect(await screen.findByRole("button", { name: "Delete Deposit" })).toBeInTheDocument()
   })
 })

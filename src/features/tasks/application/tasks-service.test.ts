@@ -71,3 +71,25 @@ describe("TasksService", () => {
     expect((await service.remove(task.id)).ok).toBe(true)
   })
 })
+
+describe("TasksService editor save", () => {
+  it("saves every field at once, starts a column's task in that column, refuses a stale save", async () => {
+    const service = setup()
+    const task = await created(service)
+    const draft = {
+      title: "Sign lease",
+      description: "By Friday",
+      status: "in_progress",
+      priority: "high",
+      dueDate: "2026-10-20",
+      assigneeId: "ben",
+      milestoneId: null,
+    } as const
+    const saved = await service.save(task, draft)
+    expect(saved.ok && saved.value).toMatchObject({ ...draft, dueDate: "2026-10-20" })
+    const stale = await service.save(task, { ...draft, title: "Too late" })
+    expect(!stale.ok && stale.error.kind).toBe("conflict")
+    const added = await service.create(place, { title: "Pack", dueDate: null }, "todo")
+    expect(added.ok && added.value.status).toBe("todo")
+  })
+})
