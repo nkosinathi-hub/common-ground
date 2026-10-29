@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import type { DateOnly } from "./date-only"
-import { formatDateOnly, formatDateTime, formatDay, LOCALE } from "./format"
+import { formatDateOnly, formatDateTime, formatDay, formatTime, LOCALE } from "./format"
 
 const TZ = process.env.TZ
 beforeEach(() => (process.env.TZ = "America/Los_Angeles"))
@@ -15,6 +15,7 @@ describe("one locale for dates and numbers", () => {
     // 05:30 UTC on 16 Oct is still 15 Oct in Los Angeles.
     expect(formatDateTime("2026-10-16T05:30:00Z")).toBe("15 Oct 2026, 22:30")
     expect(formatDay("2026-10-16T05:30:00Z")).toBe("15 Oct 2026")
+    expect(formatTime("2026-10-16T05:30:00Z")).toBe("22:30")
   })
 
   it("shows a date-only value as that calendar day in any zone", () => {

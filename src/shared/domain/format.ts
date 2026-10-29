@@ -16,6 +16,11 @@ const day = (zone?: string) =>
 /** An instant (ISO timestamp) as day and time in the viewer's time zone: "15 Oct 2026, 10:00". */
 export const formatDateTime = (iso: string): string => dateTime().format(new Date(iso))
 
+const clock = () => new Intl.DateTimeFormat(LOCALE, { hour: "2-digit", minute: "2-digit" })
+
+/** An instant as the viewer's clock time: "14:32". */
+export const formatTime = (iso: string): string => clock().format(new Date(iso))
+
 /** An instant as the day it falls on in the viewer's time zone: "15 Oct 2026". */
 export const formatDay = (iso: string): string => day().format(new Date(iso))
 
