@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  SPACE_ICONS,
-  validateAccent,
-  validateDescription,
-  validateIcon,
-  validateTagline,
-} from "./profile"
+import { SPACE_ICONS, validateDescription, validateIcon, validateTagline } from "./profile"
 
 describe("space profile rules", () => {
   it("trims a tagline and keeps it to one short line", () => {
@@ -32,11 +26,5 @@ describe("space profile rules", () => {
     expect(validateIcon("heart")).toEqual({ ok: true, value: "heart" })
     expect(validateIcon(null)).toEqual({ ok: true, value: null })
     expect(validateIcon("skull")).toMatchObject({ ok: false, error: { field: "icon" } })
-  })
-
-  it("stores accents as lowercase #rrggbb, or none", () => {
-    expect(validateAccent("#ABC")).toEqual({ ok: true, value: "#aabbcc" })
-    expect(validateAccent(null)).toEqual({ ok: true, value: null })
-    expect(validateAccent("blue")).toMatchObject({ ok: false, error: { field: "accent" } })
   })
 })

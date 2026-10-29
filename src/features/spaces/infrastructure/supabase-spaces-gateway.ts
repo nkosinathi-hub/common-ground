@@ -9,7 +9,7 @@ import { invitesOf, previewOf } from "./supabase-invites"
 import { SupabaseSpaceProfile } from "./supabase-space-profile"
 
 const SPACE_SELECT =
-  "role, spaces!inner(id, name, template, tagline, description, theme, accent_color, icon, avatar_path, cover_path, home_cards, default_watch_intent, week_starts_on)"
+  "role, spaces!inner(id, name, template, tagline, description, look, icon, avatar_path, cover_path, background_path, home_cards, default_watch_intent, week_starts_on)"
 
 export class SupabaseSpacesGateway implements SpacesGateway {
   private readonly profile: SupabaseSpaceProfile

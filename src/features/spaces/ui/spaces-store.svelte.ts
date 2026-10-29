@@ -32,7 +32,7 @@ export class SpacesStore {
     this.active = loaded.value.active
     this.error = null
     this.status = "ready"
-    const paths = loaded.value.spaces.flatMap((s) => [s.avatarPath, s.coverPath])
+    const paths = loaded.value.spaces.flatMap((s) => [s.avatarPath, s.coverPath, s.backgroundPath])
     this.mediaUrls = await this.service.media.resolve(paths)
   }
 

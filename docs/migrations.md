@@ -15,7 +15,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   | `remove_member`                             | `20261015 000700`, `20261016 000400`                              |
   | `change_idea_currency`                      | `20261015 200700`, `200900`                                       |
   | `tasks_notify_assignee`                     | `20261015 200600`, `200900`, `20261016 200400`                    |
-  | `export_space`                              | `20261015 400200`, `20261016 400300`                              |
+  | `export_space`                              | `20261015 400200`, `20261016 400300`, `20261029 000300`           |
   | `export_me`                                 | `20261015 400300`, `20261022 000420`                              |
   | `export_table_names`, `export_table_filter` | `20261015 400100`, `20261016 400100`, `400400`, `20261022 001700` |
   | `export_table_rows`                         | `20261015 400100`, `20261016 400200`, `400500`                    |
@@ -50,3 +50,9 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).
   `002000-002099` Netflix parties (#66): `002000` adds the `netflix` party source and lets
   `start_party` accept any `party_source`.
+
+- v0.6 files are dated `20261029`: `000100-000999` the space look (#75). `000100` the `look`
+  JSON on `spaces` with `is_valid_space_look` (theme and accent_color stay for older builds and
+  are mapped into the look once), `000200` the `background` space-media slot
+  (`background_path`; redefines `space_media_space`, `set_space_media` and
+  `space_media_cleanup_candidates`), `000300` `export_space` with the look.

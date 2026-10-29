@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { profileColumns, toSpace } from "./space-row"
+import { DEFAULT_LOOK } from "../domain/space-look"
 import { SPACE_ROW } from "./space-row.fixture"
 
 describe("space rows", () => {
@@ -11,11 +12,11 @@ describe("space rows", () => {
       role: "member",
       tagline: "Hi",
       description: "",
-      theme: "ocean",
-      accent: "#aabbcc",
+      look: { ...DEFAULT_LOOK, button: "#1e6b66" },
       icon: null,
       avatarPath: "s1/avatar/a.webp",
       coverPath: null,
+      backgroundPath: null,
       homeCards: ["ideas", "notes"],
       defaultWatchIntent: "watch_together",
       weekStartsOn: 0,
@@ -31,9 +32,8 @@ describe("space rows", () => {
   })
 
   it("writes only the columns a patch names", () => {
-    expect(profileColumns({ accent: null, theme: "dusk", homeCards: ["notes"] })).toEqual({
-      accent_color: null,
-      theme: "dusk",
+    expect(profileColumns({ look: { density: "compact" }, homeCards: ["notes"] })).toEqual({
+      look: { density: "compact" },
       home_cards: ["notes"],
     })
     expect(

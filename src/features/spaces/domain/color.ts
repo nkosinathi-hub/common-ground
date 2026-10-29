@@ -73,3 +73,23 @@ export function mix(a: string, b: string, weight: number): string {
   const blend = (p: number, q: number) => p * weight + q * (1 - weight)
   return toHex({ r: blend(x.r, y.r), g: blend(x.g, y.g), b: blend(x.b, y.b) })
 }
+
+export interface Hsv {
+  readonly h: number
+  readonly s: number
+  readonly v: number
+}
+
+/** Hue, saturation and value: the colour picker's area is saturation by value at one hue. */
+export function toHsv({ r, g, b }: Rgb): Hsv {
+  const [rn, gn, bn] = [r / 255, g / 255, b / 255]
+  const max = Math.max(rn, gn, bn)
+  const d = max - Math.min(rn, gn, bn)
+  return { h: toHsl({ r, g, b }).h, s: max === 0 ? 0 : d / max, v: max }
+}
+
+export function fromHsv({ h, s, v }: Hsv): Rgb {
+  const l = v * (1 - s / 2)
+  const sl = l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l)
+  return fromHsl({ h, s: sl, l })
+}

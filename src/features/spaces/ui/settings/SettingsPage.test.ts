@@ -1,5 +1,4 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
-import { setMode } from "mode-watcher"
 import { afterEach, describe, expect, it } from "vitest"
 import Provided from "@/shared/ui/testing/Provided.svelte"
 import type { Space } from "../../domain/space"
@@ -33,23 +32,6 @@ describe("SettingsPage for the owner", () => {
     await fireEvent.click(within(card("Name and feel") as HTMLElement).getByText("Save"))
     await waitFor(() => expect(gateway.spaces[0]).toMatchObject({ tagline: "Our corner" }))
     expect(gateway.spaces[0]?.icon).toBe("heart")
-  })
-
-  it("saves a preset and a custom accent, and notes when it was adjusted", async () => {
-    setMode("light")
-    const { gateway } = await open()
-    await fireEvent.click(screen.getByRole("radio", { name: "Ocean" }))
-    await fireEvent.input(screen.getByLabelText("Accent hex code"), {
-      target: { value: "#FFFF00" },
-    })
-    expect(screen.getByText(/Adjusted for readability/)).toBeInTheDocument()
-    expect(screen.getByTestId("look-preview").style.getPropertyValue("--primary")).not.toBe("")
-    await fireEvent.click(screen.getByRole("button", { name: "Save look" }))
-    await waitFor(() =>
-      expect(gateway.spaces[0]).toMatchObject({ theme: "ocean", accent: "#ffff00" }),
-    )
-    await fireEvent.click(screen.getByRole("button", { name: "Reset" }))
-    expect(screen.getByText(/No custom accent/)).toBeInTheDocument()
   })
 
   it("hides and reorders Home cards", async () => {

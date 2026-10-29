@@ -1,6 +1,7 @@
 import type { HomeCardId, MemberRef, Reauthenticator, Result } from "@/shared/domain"
-import type { DefaultWatchIntent, SpacePreset, WeekStart } from "../domain/look"
+import type { DefaultWatchIntent, WeekStart } from "../domain/look"
 import type { MediaSlot } from "../domain/media"
+import type { SpaceLook } from "../domain/space-look"
 import type { InvitePreview, InviteRecord, Member, Space } from "../domain/space"
 import type { SpaceTemplateId } from "../domain/templates"
 
@@ -11,8 +12,8 @@ export interface SpaceProfilePatch {
   readonly tagline?: string
   readonly description?: string
   readonly icon?: string | null
-  readonly theme?: SpacePreset | null
-  readonly accent?: string | null
+  /** Only what differs from the default (storedLook). */
+  readonly look?: Partial<SpaceLook>
   readonly homeCards?: readonly HomeCardId[]
   readonly defaultWatchIntent?: DefaultWatchIntent
   readonly weekStartsOn?: WeekStart

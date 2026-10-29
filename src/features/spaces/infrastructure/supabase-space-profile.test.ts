@@ -11,13 +11,13 @@ const setup = (replies: Reply[]) => {
 describe("SupabaseSpaceProfile", () => {
   it("updates only the named columns and confirms a row changed", async () => {
     const { profile, calls } = setup([{ data: [{ id: "s1" }], error: null }])
-    expect(await profile.updateProfile("s1", { tagline: "Hi", accent: null })).toEqual({
+    expect(await profile.updateProfile("s1", { tagline: "Hi", look: {} })).toEqual({
       ok: true,
       value: undefined,
     })
     expect(calls).toEqual([
       ["from", "spaces"],
-      ["update", { tagline: "Hi", accent_color: null }],
+      ["update", { tagline: "Hi", look: {} }],
       ["eq", "id", "s1"],
       ["select", "id"],
     ])

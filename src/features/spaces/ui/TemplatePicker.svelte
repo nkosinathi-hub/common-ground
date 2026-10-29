@@ -21,7 +21,6 @@
       type="button"
       role="radio"
       aria-checked={value === template.id}
-      data-space-theme={template.id}
       onclick={() => choose(template.id)}
       class={cn(
         "rounded-xl border bg-secondary p-4 text-left transition-shadow",

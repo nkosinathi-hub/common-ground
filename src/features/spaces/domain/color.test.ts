@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { fromHsl, mix, normaliseHex, parseHex, toHex, toHsl } from "./color"
+import { fromHsl, fromHsv, mix, normaliseHex, parseHex, toHex, toHsl, toHsv } from "./color"
 
 describe("colour parsing", () => {
   it("reads #rrggbb and #rgb in any case, with or without the hash", () => {
@@ -34,5 +34,11 @@ describe("colour maths", () => {
     expect(mix("#000000", "#ffffff", 0.5)).toBe("#808080")
     expect(mix("#ff0000", "#0000ff", 0)).toBe("#0000ff")
     expect(mix("#ff0000", "#0000ff", 1)).toBe("#ff0000")
+  })
+
+  it("converts to and from hue, saturation and value", () => {
+    for (const hex of ["#3225a8", "#c7f268", "#000000", "#ffffff", "#808080"])
+      expect(toHex(fromHsv(toHsv(parseHex(hex)!)))).toBe(hex)
+    expect(toHsv(parseHex("#ff0000")!)).toEqual({ h: 0, s: 1, v: 1 })
   })
 })

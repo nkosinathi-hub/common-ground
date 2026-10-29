@@ -835,14 +835,14 @@ isOneToOne: false
                   ]
                 },"spaces": {
                   Row: {
-                    "accent_color": string | null,"avatar_path": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_watch_intent": Database["public"]['Enums']["watch_intent"],"description": string,"home_cards": (string)[],"icon": string | null,"id": string,"name": string,"tagline": string,"template": Database["public"]['Enums']["space_template"],"theme": Database["public"]['Enums']["space_theme"] | null,"updated_at": string,"week_starts_on": number
+                    "accent_color": string | null,"avatar_path": string | null,"background_path": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_watch_intent": Database["public"]['Enums']["watch_intent"],"description": string,"home_cards": (string)[],"icon": string | null,"id": string,"look": NonNullable<Json>,"name": string,"tagline": string,"template": Database["public"]['Enums']["space_template"],"theme": Database["public"]['Enums']["space_theme"] | null,"updated_at": string,"week_starts_on": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name": string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"background_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"look"?: NonNullable<Json>,"name": string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
                   }
                   Update: {
-                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name"?: string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"background_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"look"?: NonNullable<Json>,"name"?: string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
                   }
                   Relationships: [
                     {
@@ -1250,6 +1250,9 @@ isOneToOne: false
                            },
 "is_valid_note_sections":
 { Args: { "allow_empty": boolean,"sections": Json }; Returns: boolean
+                           },
+"is_valid_space_look":
+{ Args: { "look": Json }; Returns: boolean
                            },
 "join_party":
 { Args: { "party": string }; Returns: undefined

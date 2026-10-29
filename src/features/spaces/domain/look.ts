@@ -1,30 +1,5 @@
 import { DEFAULT_HOME_CARDS, HOME_CARDS, type HomeCardId } from "@/shared/domain"
-import { accentTokens, type AccentVar, type ColourMode } from "./contrast"
-import type { SpaceTemplateId } from "./templates"
-
-/** Colour presets, independent of the template; null on a space means follow the template. */
-export const SPACE_PRESETS = [
-  "blank",
-  "couple",
-  "friends",
-  "family",
-  "ocean",
-  "meadow",
-  "dusk",
-  "berry",
-] as const
-export type SpacePreset = (typeof SPACE_PRESETS)[number]
-
-export const PRESET_LABELS: Readonly<Record<SpacePreset, string>> = {
-  blank: "Sage",
-  couple: "Rose",
-  friends: "Lavender",
-  family: "Honey",
-  ocean: "Ocean",
-  meadow: "Meadow",
-  dusk: "Dusk",
-  berry: "Berry",
-}
+import { DEFAULT_LOOK, type SpaceLook } from "./space-look"
 
 export type DefaultWatchIntent = "want_to_watch" | "watch_together"
 export type WeekStart = 0 | 1
@@ -33,13 +8,14 @@ export type WeekStart = 0 | 1
 export interface SpaceProfile {
   readonly tagline: string
   readonly description: string
-  readonly theme: SpacePreset | null
-  /** Lowercase #rrggbb, or null for the preset's own accent. */
-  readonly accent: string | null
+  /** Colours, background, sidebar, density, corners and heading font (D15b). */
+  readonly look: SpaceLook
   /** A key from SPACE_ICONS, or null for the space's initial. */
   readonly icon: string | null
   readonly avatarPath: string | null
   readonly coverPath: string | null
+  /** The background picture, used when the look's background style is image. */
+  readonly backgroundPath: string | null
   readonly homeCards: readonly HomeCardId[]
   readonly defaultWatchIntent: DefaultWatchIntent
   readonly weekStartsOn: WeekStart
@@ -49,41 +25,26 @@ export interface SpaceProfile {
 export const DEFAULT_PROFILE: SpaceProfile = {
   tagline: "",
   description: "",
-  theme: null,
-  accent: null,
+  look: DEFAULT_LOOK,
   icon: null,
   avatarPath: null,
   coverPath: null,
+  backgroundPath: null,
   homeCards: DEFAULT_HOME_CARDS,
   defaultWatchIntent: "want_to_watch",
   weekStartsOn: 1,
 }
-
-export const toPreset = (raw: string | null | undefined): SpacePreset | null =>
-  SPACE_PRESETS.find((preset) => preset === raw) ?? null
-
-export const presetOf = (space: {
-  readonly theme: SpacePreset | null
-  readonly template: SpaceTemplateId
-}): SpacePreset => space.theme ?? space.template
 
 /** Known cards only, each once, in the order given. */
 export const homeCardsOf = (raw: readonly string[]): HomeCardId[] => [
   ...new Set(raw.filter((id): id is HomeCardId => HOME_CARDS.some((known) => known === id))),
 ]
 
-export interface SpaceLook {
-  readonly preset: SpacePreset
-  /** Inline CSS variables for a custom accent; empty when the preset alone applies. */
-  readonly vars: Partial<Record<AccentVar, string>>
-  readonly adjusted: boolean
-}
-
-type LookSource = Pick<SpaceProfile, "theme" | "accent"> & { readonly template: SpaceTemplateId }
-
-export function lookOf(space: LookSource, mode: ColourMode): SpaceLook {
-  const preset = presetOf(space)
-  if (!space.accent) return { preset, vars: {}, adjusted: false }
-  const { vars, adjusted } = accentTokens(space.accent, mode)
-  return { preset, vars, adjusted }
+/** Only what differs from the default is stored, so a later default change reaches everyone. */
+export function storedLook(look: SpaceLook): Partial<SpaceLook> {
+  return Object.fromEntries(
+    Object.entries(look).filter(
+      ([key, value]) => value !== null && value !== DEFAULT_LOOK[key as keyof SpaceLook],
+    ),
+  )
 }

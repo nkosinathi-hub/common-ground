@@ -1,0 +1,20 @@
+/** Every text colour the design puts on a surface, as [text, surface]; each must reach 4.5:1. */
+export const TEXT_PAIRS: readonly (readonly [string, string])[] = [
+  ["foreground", "background"],
+  ["foreground", "card"],
+  ["foreground", "muted"],
+  ["foreground", "secondary"],
+  ["muted-foreground", "background"],
+  ["muted-foreground", "card"],
+  ["muted-foreground", "muted"],
+  ["muted-foreground", "secondary"],
+  ["primary", "background"],
+  ["primary", "card"],
+  ["primary-foreground", "primary"],
+  ["secondary-foreground", "secondary"],
+  ["destructive", "background"],
+  ["destructive", "card"],
+  ["destructive-foreground", "destructive"],
+  ["on-brand", "brand"],
+  ["sidebar-foreground", "sidebar"],
+]

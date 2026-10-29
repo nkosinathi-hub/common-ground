@@ -3,10 +3,10 @@
   import type { Space } from "../domain/space"
   import DangerZone from "./DangerZone.svelte"
   import InvitesCard from "./InvitesCard.svelte"
+  import LookSettings from "./look/LookSettings.svelte"
   import MembersCard from "./MembersCard.svelte"
   import GeneralCard from "./settings/GeneralCard.svelte"
   import HomeLayoutCard from "./settings/HomeLayoutCard.svelte"
-  import LookCard from "./settings/LookCard.svelte"
   import MediaCard from "./settings/MediaCard.svelte"
   import PreferencesCard from "./settings/PreferencesCard.svelte"
   import SectionNav from "./settings/SectionNav.svelte"
@@ -42,7 +42,7 @@
     <div class="grid min-w-0 gap-6">
       {#if owner}
         <GeneralCard {space} />
-        <LookCard {space} />
+        <div id="settings-look" tabindex="-1"><LookSettings {space} /></div>
         <MediaCard {space} />
         <HomeLayoutCard {space} />
         <PreferencesCard {space} />

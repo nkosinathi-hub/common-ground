@@ -36,3 +36,21 @@ export async function saveSettings(page: Page, button: string) {
   await page.getByRole("button", { name: button, exact: true }).click()
   await expect(page.getByText("Saved").last()).toBeVisible()
 }
+
+/** Picks a custom button colour; a hard-to-read one takes the offered fix first. */
+export async function pickCustomButton(page: Page, hex: string) {
+  await page.getByRole("radio", { name: "Custom colour" }).last().click()
+  await page.getByLabel("Hex colour").fill(hex)
+  const fix = page.getByRole("button", { name: /^Use #/ })
+  if (await fix.isVisible()) await fix.click()
+  await expect(page.getByText(/Readable, /)).toBeVisible()
+  await page.getByRole("button", { name: "Use colour" }).click()
+}
+
+/** The space's picture beside its name in the space switcher's menu (the rail shows the name only). */
+export async function spacePicture(page: Page, name: string) {
+  await page.getByRole("button", { name: "Switch space" }).locator("visible=true").first().click()
+  const picture = page.getByRole("menuitem", { name }).locator("img")
+  await expect(picture).toBeVisible()
+  return picture
+}

@@ -1,5 +1,4 @@
 import { appError, err, ok, type Result } from "@/shared/domain"
-import { normaliseHex } from "./color"
 
 const TAGLINE_MAX = 120
 const PROFILE_DESCRIPTION_MAX = 1000
@@ -59,10 +58,4 @@ export const isSpaceIcon = (raw: string | null | undefined): raw is SpaceIcon =>
 export function validateIcon(raw: string | null): Result<SpaceIcon | null> {
   if (raw === null) return ok(null)
   return isSpaceIcon(raw) ? ok(raw) : err(appError("validation", "Pick one of the icons", "icon"))
-}
-
-export function validateAccent(raw: string | null): Result<string | null> {
-  if (raw === null) return ok(null)
-  const hex = normaliseHex(raw)
-  return hex ? ok(hex) : err(appError("validation", "Use a colour like #8a4f5d", "accent"))
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
   import { mode } from "mode-watcher"
-  import { applySpaceLook, type Space } from "@/features/spaces"
+  import { applySpaceLook, useSpaces, type Space } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
   import { pageTitle } from "@/shared/ui"
   import { crumbsOf } from "./breadcrumbs"
@@ -27,7 +27,9 @@
   const crumbs = $derived(crumbsOf(route, space.name, pageTitle.current))
   // The look applies only inside the shell; leaving it restores the neutral palette.
   const colourMode = $derived(mode.current === "dark" ? "dark" : "light")
-  $effect(() => applySpaceLook(document.documentElement, space, colourMode))
+  const { store } = useSpaces()
+  const backgroundUrl = $derived(store.mediaUrl(space.backgroundPath))
+  $effect(() => applySpaceLook(document.documentElement, space.look, colourMode, backgroundUrl))
   /** The router reads every hash as a route, so the skip link moves focus itself. */
   function skipToMain(event: MouseEvent) {
     event.preventDefault()

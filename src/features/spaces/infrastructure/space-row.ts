@@ -1,7 +1,8 @@
 import type { Database } from "@/shared/infrastructure/database.types"
 import type { SpaceProfilePatch } from "../application/ports"
-import { homeCardsOf, toPreset } from "../domain/look"
+import { homeCardsOf } from "../domain/look"
 import { isSpaceIcon } from "../domain/profile"
+import { parseLook } from "../domain/space-look"
 import type { Space, SpaceRole } from "../domain/space"
 
 type SpaceTable = Database["public"]["Tables"]["spaces"]
@@ -12,11 +13,11 @@ export type SpaceRow = Pick<
   | "template"
   | "tagline"
   | "description"
-  | "theme"
-  | "accent_color"
+  | "look"
   | "icon"
   | "avatar_path"
   | "cover_path"
+  | "background_path"
   | "home_cards"
   | "default_watch_intent"
   | "week_starts_on"
@@ -29,11 +30,11 @@ export const toSpace = (row: SpaceRow, role: SpaceRole): Space => ({
   role,
   tagline: row.tagline,
   description: row.description,
-  theme: toPreset(row.theme),
-  accent: row.accent_color,
+  look: parseLook(row.look),
   icon: isSpaceIcon(row.icon) ? row.icon : null,
   avatarPath: row.avatar_path,
   coverPath: row.cover_path,
+  backgroundPath: row.background_path,
   homeCards: homeCardsOf(row.home_cards),
   defaultWatchIntent:
     row.default_watch_intent === "watch_together" ? "watch_together" : "want_to_watch",
@@ -46,8 +47,7 @@ const COLUMN_OF = {
   tagline: "tagline",
   description: "description",
   icon: "icon",
-  theme: "theme",
-  accent: "accent_color",
+  look: "look",
   homeCards: "home_cards",
   defaultWatchIntent: "default_watch_intent",
   weekStartsOn: "week_starts_on",
