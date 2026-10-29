@@ -65,4 +65,6 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `export_table_names` and `export_table_filter` with the two new tables, `001000` For you
   (`genres` and `streamable` on `watch_items`, `set_watch_features` for the service role only,
   `watch_for_you`), `001100` `list_watch_items` with the `for_you` sort and its reason, `001200` the update grant on
-  `ideas.template` (#78, D06 Template card).
+  `ideas.template` (#78, D06 Template card), `001300` `list_calendar` with each row's place,
+  people, priority, milestone and idea (#80; dropped and made again for the new return type),
+  `001400` member invites (#81; members create and see links, revoke their own, the owner any).
