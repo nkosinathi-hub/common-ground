@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import type { AppError } from "@/shared/domain"
   import * as Card from "$lib/components/ui/card"
-  import { AsyncView, FormError, Resource } from "@/shared/ui"
+  import { AsyncView, FormError, PhoneAdd, Resource } from "@/shared/ui"
   import { budgetTotals, type BudgetEntry, type EntryForm as Form } from "../domain"
   import BudgetSummary from "./BudgetSummary.svelte"
   import BudgetTable from "./BudgetTable.svelte"
@@ -86,9 +86,11 @@
       <FormError message={notice} />
     </Card.Content>
   </Card.Root>
-  <EntryForm
-    {currency}
-    categories={[...new Set(entries().map((e) => e.category))]}
-    onSubmit={add}
-  />
+  <PhoneAdd label="Add budget item" variant="block">
+    <EntryForm
+      {currency}
+      categories={[...new Set(entries().map((e) => e.category))]}
+      onSubmit={add}
+    />
+  </PhoneAdd>
 </div>

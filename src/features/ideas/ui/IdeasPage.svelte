@@ -1,15 +1,16 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Lightbulb } from "@lucide/svelte"
-  import * as Alert from "$lib/components/ui/alert"
+  import { MediaQuery } from "svelte/reactivity"
+  import { Lightbulb, Plus } from "@lucide/svelte"
   import { ok, type MemberRef } from "@/shared/domain"
-  import { EmptyState, ErrorState, FormError, Loading, LoadMore } from "@/shared/ui"
+  import { EmptyState, ErrorState, Fab, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
-  import IdeaListCard from "./IdeaListCard.svelte"
+  import IdeaList from "./IdeaList.svelte"
   import IdeaFilters from "./IdeaFilters.svelte"
   import { IdeasState } from "./ideas-state.svelte"
+  import { openCapture } from "./capture-request.svelte"
   import { onCaptured } from "./captured"
 
   interface Props {
@@ -22,6 +23,7 @@
   }
 
   let { spaceId, me, ideaHref, authors = [] }: Props = $props()
+  const wide = new MediaQuery("min-width: 768px")
 
   const board = new IdeasState(
     useIdeas().service,
@@ -75,25 +77,19 @@
       onMove={(id, stage) => board.move(id, stage)}
     />
   {:else}
-    <div class="flex flex-col gap-stack">
-      {#each board.visible as idea (idea.id)}
-        <IdeaListCard
-          {idea}
-          href={ideaHref(idea.id)}
-          {authors}
-          onMove={(stage) => board.move(idea.id, stage)}
-        />
-      {:else}
-        <p class="type-sm text-muted-foreground">No ideas match these filters.</p>
-      {/each}
-    </div>
-    <Alert.Root variant="secondary">
-      <Alert.Description>
-        Every idea has room to evolve. Change its stage without losing research, tasks or
-        discussion.
-      </Alert.Description>
-    </Alert.Root>
+    <IdeaList
+      ideas={board.visible}
+      {ideaHref}
+      {authors}
+      onMove={(id, stage) => board.move(id, stage)}
+    />
   {/if}
 
   <LoadMore list={board.list} />
 </div>
+{#if !wide.current}<Fab
+    icon={Plus}
+    label="Capture idea"
+    onclick={openCapture}
+    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
+  />{/if}

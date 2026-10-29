@@ -11,6 +11,7 @@
   import PartySection from "./pages/PartySection.svelte"
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
+  import CaptureDialog from "./shell/CaptureDialog.svelte"
   import QuickCapture from "./shell/QuickCapture.svelte"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
@@ -33,8 +34,8 @@
 {#if space && user}
   {#key space.id}
     <AppShell {space} {route} onSignOut={signOut}>
-      {#snippet actions()}<QuickCapture spaceId={space.id} /><NotificationsBell />{/snippet}
-      {#snippet bell()}<QuickCapture spaceId={space.id} compact /><NotificationsBell />{/snippet}
+      {#snippet actions()}<QuickCapture /><NotificationsBell />{/snippet}
+      {#snippet bell()}<QuickCapture compact /><NotificationsBell />{/snippet}
       {#if route.name === "home"}
         <HomePage {space} displayName={user.displayName} />
       {:else if route.name === "notes" || route.name === "note"}
@@ -65,6 +66,7 @@
         <SettingsPage {space} me={user.id} tab={route.tab} />
       {/if}
     </AppShell>
+    <CaptureDialog spaceId={space.id} />
   {/key}
 {:else}
   <Loading />

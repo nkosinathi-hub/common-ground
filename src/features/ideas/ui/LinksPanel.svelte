@@ -13,7 +13,7 @@
     type LinkInput,
     type ResearchLink,
   } from "../domain"
-  import { FormError, FormField, PagedList } from "@/shared/ui"
+  import { FormError, FormField, PagedList, PhoneAdd } from "@/shared/ui"
   import { useResearch } from "./context"
   import LinkItem from "./LinkItem.svelte"
   import ListFooter from "./ListFooter.svelte"
@@ -67,32 +67,34 @@
       {/each}
     </ul>
     <ListFooter {list} empty="No links yet." />
-    <form class="flex flex-col gap-stack border-t border-border pt-stack" onsubmit={add}>
-      <FormField
-        id="link-url"
-        maxlength={URL_MAX}
-        label="URL"
-        type="url"
-        icon={Link}
-        bind:value={draft.url}
-        error={error?.field === "url" ? error.message : undefined}
-      />
-      <FormField
-        id="link-title"
-        maxlength={LINK_TITLE_MAX}
-        label="Title"
-        bind:value={draft.title}
-        error={error?.field === "title" ? error.message : undefined}
-      />
-      <FormField
-        id="link-description"
-        maxlength={LINK_DESCRIPTION_MAX}
-        label="Description (optional)"
-        required={false}
-        bind:value={draft.description}
-      />
-      <FormError message={error && !error.field ? error.message : null} />
-      <Button type="submit" class="self-start" disabled={!draft.url.trim()}>Add link</Button>
-    </form>
+    <PhoneAdd label="Add link">
+      <form class="flex flex-col gap-stack border-t border-border pt-stack" onsubmit={add}>
+        <FormField
+          id="link-url"
+          maxlength={URL_MAX}
+          label="URL"
+          type="url"
+          icon={Link}
+          bind:value={draft.url}
+          error={error?.field === "url" ? error.message : undefined}
+        />
+        <FormField
+          id="link-title"
+          maxlength={LINK_TITLE_MAX}
+          label="Title"
+          bind:value={draft.title}
+          error={error?.field === "title" ? error.message : undefined}
+        />
+        <FormField
+          id="link-description"
+          maxlength={LINK_DESCRIPTION_MAX}
+          label="Description (optional)"
+          required={false}
+          bind:value={draft.description}
+        />
+        <FormError message={error && !error.field ? error.message : null} />
+        <Button type="submit" class="self-start" disabled={!draft.url.trim()}>Add link</Button>
+      </form>
+    </PhoneAdd>
   </Card.Content>
 </Card.Root>

@@ -13,7 +13,7 @@
   } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { DeleteButton, FormError, InitialAvatar, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, InitialAvatar, PagedList, PhoneAdd } from "@/shared/ui"
   import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
@@ -75,17 +75,19 @@
       {/each}
     </ul>
     <ListFooter {list} empty="No notes yet." />
-    <form class="flex flex-col gap-related" onsubmit={add}>
-      <Label for="note-body">Add a research note</Label>
-      <Textarea
-        id="note-body"
-        bind:value={body}
-        maxlength={NOTE_MAX}
-        placeholder="Jot something down…"
-        rows={3}
-      />
-      <FormError message={error} />
-      <Button type="submit" class="self-start" disabled={!body.trim()}>Add note</Button>
-    </form>
+    <PhoneAdd label="Add note">
+      <form class="flex flex-col gap-related" onsubmit={add}>
+        <Label for="note-body">Add a research note</Label>
+        <Textarea
+          id="note-body"
+          bind:value={body}
+          maxlength={NOTE_MAX}
+          placeholder="Jot something down…"
+          rows={3}
+        />
+        <FormError message={error} />
+        <Button type="submit" class="self-start" disabled={!body.trim()}>Add note</Button>
+      </form>
+    </PhoneAdd>
   </Card.Content>
 </Card.Root>

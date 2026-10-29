@@ -47,7 +47,8 @@
   }
 </script>
 
-<!-- D06 to D11 idea header: back, the title, then stage, tags and people on one line. -->
+<!-- D06 to D11 idea header: back, the title, then stage, tags and people on one line. Phones keep
+     M04's one row: stage, people and the menu; tags and the byline wait for a wider screen. -->
 <header class="flex flex-col gap-stack">
   <TextLink
     href={buildHash({ name: "ideas", spaceId: idea.spaceId })}
@@ -67,15 +68,19 @@
         >{/each}
     </NativeSelect>
     {#if idea.tags.length > 0}
-      <ul class="flex flex-wrap gap-related" aria-label="Tags">
+      <ul class="flex flex-wrap gap-related max-md:hidden" aria-label="Tags">
         {#each idea.tags as tag (tag)}<li><Badge variant="outline">{tag}</Badge></li>{/each}
       </ul>
     {/if}
-    <IdeaByline {idea} {authors} />
+    <div class="max-md:hidden"><IdeaByline {idea} {authors} /></div>
     <div class="ml-auto flex items-center gap-related">
       <AvatarStack {people} {label} />
-      <Button variant="outline" onclick={() => (managing = true)}>
-        <Users aria-hidden="true" />Manage people
+      <Button
+        variant="outline"
+        class="max-md:size-10 max-md:px-0"
+        onclick={() => (managing = true)}
+      >
+        <Users aria-hidden="true" /><span class="max-md:sr-only">Manage people</span>
       </Button>
       <IdeaMenu {idea} {viewer} {onChange} onDelete={remove} />
     </div>

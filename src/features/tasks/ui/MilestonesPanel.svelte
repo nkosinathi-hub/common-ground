@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import * as Card from "$lib/components/ui/card"
   import { Progress } from "$lib/components/ui/progress"
-  import { AsyncView, FormError } from "@/shared/ui"
+  import { AsyncView, FormError, PhoneAdd } from "@/shared/ui"
   import type { Milestone } from "../domain"
   import { useTasks } from "./context"
   import MilestoneForm from "./MilestoneForm.svelte"
@@ -77,6 +77,8 @@
       />
     {/key}
   {:else}
-    <MilestoneForm error={plan.error} onSave={(input) => plan.add(input)} />
+    <PhoneAdd label="Add milestone" variant="block">
+      <MilestoneForm error={plan.error} onSave={(input) => plan.add(input)} />
+    </PhoneAdd>
   {/if}
 </div>
