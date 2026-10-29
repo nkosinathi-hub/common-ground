@@ -49,7 +49,7 @@ describe("WatchPage", () => {
   it("shows a no-match state for filters and clears them", async () => {
     setup(3)
     await waitFor(() => expect(cards()).toHaveLength(3))
-    await fireEvent.click(screen.getByRole("button", { name: "Anime" }))
+    await fireEvent.click(screen.getByRole("radio", { name: /^Anime/ }))
     expect(await screen.findByText("Nothing here just yet")).toBeInTheDocument()
     await fireEvent.click(screen.getByRole("button", { name: "Clear filters" }))
     await waitFor(() => expect(cards()).toHaveLength(3))

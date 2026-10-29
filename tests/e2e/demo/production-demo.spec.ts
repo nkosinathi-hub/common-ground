@@ -12,7 +12,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(page.getByRole("dialog")).toBeVisible()
   await page.keyboard.press("Escape")
   await page.getByRole("link", { name: "Watch", exact: true }).click()
-  await expect(page.getByRole("heading", { name: "Watch", exact: true })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Our next good watch." })).toBeVisible()
   await page.getByRole("link", { name: /Ted Lasso poster/ }).click()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
   await expect(page.getByRole("combobox", { name: "Season", exact: true })).toBeVisible()

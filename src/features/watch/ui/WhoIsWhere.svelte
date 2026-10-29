@@ -38,7 +38,7 @@
       <span class="type-label-sm tabular-nums">{summary.together}</span>
     </li>
   {/if}
-  {#each rows as row (row.names.join())}
+  {#each rows as row (row.ids.join())}
     <li class="flex h-7 items-center gap-related">
       <span class={lead}
         ><AvatarStack

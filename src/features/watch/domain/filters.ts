@@ -1,5 +1,5 @@
 import { PAGE_SIZE } from "@/shared/domain"
-import type { WatchFilters, WatchItem, WatchPage } from "./types"
+import type { WatchFilters, WatchItem, WatchPage, MediaType } from "./types"
 
 export interface KeyedRow {
   readonly item: WatchItem
@@ -34,4 +34,11 @@ export function pageOf(rows: readonly KeyedRow[], size = PAGE_SIZE): WatchPage {
     items: page.map((row) => row.item),
     next: rows.length > size && last ? { key: last.sortKey, id: last.item.id } : null,
   }
+}
+
+/** Titles per type for the library's type filter (D02: "All 3 · Movies 1 · Series 2"). */
+export function countTypes(types: readonly MediaType[]): Record<MediaType, number> {
+  const counts: Record<MediaType, number> = { movie: 0, series: 0, anime: 0 }
+  for (const type of types) counts[type] += 1
+  return counts
 }

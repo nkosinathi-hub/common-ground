@@ -8,7 +8,7 @@
 				default: "bg-transparent",
 				outline: "border-border hover:bg-muted border bg-transparent",
 				// Local change: one segment of the Figma Segmented control; the group draws the track.
-				segment: "flex-1 rounded-sm px-3 text-muted-foreground hover:bg-transparent data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=on]:shadow-xs",
+				segment: "min-w-0 flex-1 rounded-sm px-2 text-muted-foreground sm:px-3 hover:bg-transparent data-[state=on]:bg-card data-[state=on]:text-foreground data-[state=on]:shadow-xs",
 			},
 			size: {
 				default: "h-8 min-w-8 px-2.5 pointer-coarse:h-9",

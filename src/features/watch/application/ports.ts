@@ -12,6 +12,7 @@ import type {
   WatchItemView,
   WatchPage,
   WatchSession,
+  MediaType,
 } from "../domain/types"
 
 export interface ListRequest {
@@ -24,6 +25,8 @@ export interface ListRequest {
 /** Watchlist persistence. Duplicate adds fail with kind "conflict" and copy "Already on your list". */
 export interface WatchGateway {
   list(request: ListRequest): Promise<Result<WatchPage>>
+  /** How many titles of each type the library holds, archived ones left out. */
+  countByType(spaceId: string): Promise<Result<Record<MediaType, number>>>
   get(spaceId: string, itemId: string): Promise<Result<WatchItemView>>
   addCatalog(spaceId: string, pick: CatalogPick, intent: SharedIntent): Promise<Result<string>>
   addManual(spaceId: string, input: ManualTitleInput): Promise<Result<string>>

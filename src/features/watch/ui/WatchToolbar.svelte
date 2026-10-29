@@ -1,78 +1,71 @@
 <script lang="ts">
-  import { ArrowDownUp, Search } from "@lucide/svelte"
+  import { Search, Shuffle } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
+  import * as ToggleGroup from "$lib/components/ui/toggle-group"
   import { SEARCH_MAX } from "../domain/filters"
-  import { INTENTS, MEDIA_TYPES, STATUSES } from "../domain/labels"
-  import type { WatchSort } from "../domain/types"
-  import Choice from "./Choice.svelte"
+  import { MEDIA_TYPES } from "../domain/labels"
+  import type { MediaType } from "../domain/types"
+  import WatchFilterRow from "./WatchFilterRow.svelte"
   import type { WatchListState } from "./watch-list-state.svelte"
 
-  const CHIPS = [{ value: null, label: "All titles" }, ...MEDIA_TYPES]
-  const SORTS: readonly { value: WatchSort; label: string }[] = [
-    { value: "recent", label: "Recently added" },
-    { value: "title", label: "Title A to Z" },
-  ]
+  const PLURAL = { movie: "Movies", series: "Series", anime: "Anime" } as const
 
   interface Props {
     list: WatchListState
+    /** Titles per type, for the counts on the type filter. */
+    counts: Record<MediaType, number> | null
+    onpick: () => void
   }
 
-  let { list }: Props = $props()
+  let { list, counts, onpick }: Props = $props()
+  const all = $derived(counts ? counts.movie + counts.series + counts.anime : null)
+  const count = (n: number | null | undefined) => (n == null ? "" : ` ${n}`)
 </script>
 
-<div class="flex flex-col gap-4 border-b pb-5">
-  <div class="flex flex-wrap gap-1" role="group" aria-label="Type">
-    {#each CHIPS as chip (chip.label)}
-      <Button
-        variant={list.filters.mediaType === chip.value ? "secondary" : "ghost"}
-        size="sm"
-        aria-pressed={list.filters.mediaType === chip.value}
-        onclick={() => list.setFilter({ mediaType: chip.value })}>{chip.label}</Button
+<!-- D02 rows on wide screens (type and Pick for us, then search, lists, progress, sort); on
+     phones (M02) the search comes first and the filters share one swipeable line. -->
+<div
+  class="flex flex-col gap-stack lg:grid lg:grid-cols-[auto_1fr] lg:items-center lg:gap-x-related"
+>
+  <label class="relative lg:col-start-1 lg:row-start-2 lg:w-field-search">
+    <span class="sr-only">Search your titles</span>
+    <Search
+      class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+      aria-hidden="true"
+    />
+    <Input
+      type="search"
+      class="pl-9"
+      maxlength={SEARCH_MAX}
+      placeholder="Search your collection"
+      value={list.filters.search}
+      oninput={(event) => list.search(event.currentTarget.value)}
+    />
+  </label>
+  <ToggleGroup.Root
+    type="single"
+    variant="segment"
+    spacing={1}
+    aria-label="Type"
+    value={list.filters.mediaType ?? "all"}
+    onValueChange={(value) =>
+      value && list.setFilter({ mediaType: value === "all" ? null : (value as MediaType) })}
+    class="lg:col-start-1 lg:row-start-1 lg:w-fit!"
+  >
+    <ToggleGroup.Item value="all">All{count(all)}</ToggleGroup.Item>
+    {#each MEDIA_TYPES as type (type.value)}
+      <ToggleGroup.Item value={type.value}
+        >{PLURAL[type.value]}{count(counts?.[type.value])}</ToggleGroup.Item
       >
     {/each}
-  </div>
-  <div class="flex flex-wrap items-end gap-3">
-    <label class="relative min-w-48 flex-1">
-      <span class="sr-only">Search your titles</span>
-      <Search class="absolute top-2.5 left-2.5 size-4 text-muted-foreground" aria-hidden="true" />
-      <Input
-        type="search"
-        class="pl-8"
-        maxlength={SEARCH_MAX}
-        placeholder="Find a title"
-        value={list.filters.search}
-        oninput={(event) => list.search(event.currentTarget.value)}
-      />
-    </label>
-    <Choice
-      id="watch-intent"
-      label="List"
-      hideLabel
-      value={list.filters.intent ?? ""}
-      options={INTENTS}
-      anyLabel="All lists"
-      onchange={(value) => list.setFilter({ intent: value || null })}
-    />
-    <Choice
-      id="watch-my-status"
-      label="My progress"
-      hideLabel
-      value={list.filters.myStatus ?? ""}
-      options={STATUSES}
-      anyLabel="Any progress"
-      onchange={(value) => list.setFilter({ myStatus: value || null })}
-    />
-    <div class="flex items-center gap-1">
-      <ArrowDownUp class="size-4 text-muted-foreground" aria-hidden="true" />
-      <Choice
-        id="watch-sort"
-        label="Sort"
-        hideLabel
-        value={list.filters.sort}
-        options={SORTS}
-        onchange={(value) => list.setFilter({ sort: value || "recent" })}
-      />
-    </div>
-  </div>
+  </ToggleGroup.Root>
+  <WatchFilterRow {list} />
+  <Button
+    variant="secondary"
+    class="w-fit lg:col-start-2 lg:row-start-1 lg:justify-self-end"
+    onclick={onpick}
+  >
+    <Shuffle aria-hidden="true" />Pick for us
+  </Button>
 </div>
