@@ -30,6 +30,11 @@ export const toEntry = (row: ListRow): CalendarEntry => ({
   ideaId: row.idea_id ?? null,
   status: row.status ?? null,
   myRsvp: row.my_rsvp ?? null,
+  place: row.place ?? "",
+  people: row.people ?? [],
+  priority: row.priority ?? null,
+  milestone: row.milestone_title ?? null,
+  ideaTitle: row.idea_title ?? null,
 })
 
 function linkOf(row: EventRow): EventLink | null {

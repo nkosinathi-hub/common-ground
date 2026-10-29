@@ -1,11 +1,20 @@
 import { untrack } from "svelte"
 import type { AppError, DateOnly, Result } from "@/shared/domain"
 import type { CalendarWindow } from "../application/ports"
-import { addDays, entriesByDay, entryKey, type CalendarEntry, type DayItem } from "../domain"
+import {
+  addDays,
+  entriesByDay,
+  entryKey,
+  monthEnd,
+  monthOf,
+  type CalendarEntry,
+  type DayItem,
+  type YearMonth,
+} from "../domain"
 
 export type WindowLoader = (from: DateOnly, to: DateOnly) => Promise<Result<CalendarWindow>>
 
-/** The agenda: days with entries from a start day, one window at a time (ADR 0008). */
+/** The agenda: days with entries from a start day to its month end, then a month at a time. */
 export class AgendaState {
   entries = $state<CalendarEntry[]>([])
   loading = $state(true)
@@ -20,12 +29,16 @@ export class AgendaState {
   constructor(
     private readonly loader: WindowLoader,
     private readonly zone: string,
-    private readonly windowDays = 31,
     private readonly maxWindows = 12,
   ) {}
 
   get hasMore(): boolean {
     return this.windows > 0 && this.windows < this.maxWindows
+  }
+
+  /** The last month shown in full, for "That is everything for October". */
+  get month(): YearMonth | null {
+    return this.until ? monthOf(this.until) : null
   }
 
   /** Days in order, each with its sorted items. */
@@ -39,7 +52,7 @@ export class AgendaState {
       this.loading = true
       return ++this.generation
     })
-    const to = addDays(from, this.windowDays - 1)
+    const to = monthEnd(from)
     const result = await this.loader(from, to)
     if (mine !== this.generation) return
     this.loading = false
@@ -57,7 +70,7 @@ export class AgendaState {
     if (!until || !this.hasMore || untrack(() => this.loadingMore)) return
     const mine = this.generation
     this.loadingMore = true
-    const to = addDays(until, this.windowDays)
+    const to = monthEnd(addDays(until, 1))
     const result = await this.loader(addDays(until, 1), to)
     if (mine !== this.generation) return
     this.loadingMore = false

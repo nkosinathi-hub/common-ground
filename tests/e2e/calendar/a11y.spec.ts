@@ -24,7 +24,7 @@ test("calendar views and an event page are accessible @a11y", async ({ browser }
   await expectAccessible(page)
   for (const view of ["Month", "Agenda"]) {
     await page.goto(`./#/s/${spaceId}/calendar`)
-    await page.getByRole("tab", { name: view }).click()
+    await page.getByRole("radio", { name: view }).click()
     await expectAccessible(page)
   }
   await page.context().close()

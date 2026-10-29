@@ -15,6 +15,15 @@ export interface CalendarEntry {
   /** Task status, or "open"/"done" for milestones. */
   readonly status: string | null
   readonly myRsvp: Rsvp | null
+  /** An event's place; empty when none. */
+  readonly place: string
+  /** Who is coming to an event, or a task's assignee: user ids. */
+  readonly people: readonly string[]
+  /** A task's priority and milestone. */
+  readonly priority: string | null
+  readonly milestone: string | null
+  /** The idea a task, milestone or linked event belongs to. */
+  readonly ideaTitle: string | null
 }
 
 export type Span = "single" | "start" | "middle" | "end"

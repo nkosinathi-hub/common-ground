@@ -19,24 +19,28 @@ export interface EventInput {
 export async function addEvent(page: Page, spaceId: string, input: EventInput): Promise<string> {
   await page.goto(`./#/s/${spaceId}/calendar`)
   await page.getByRole("button", { name: "New event" }).click()
-  const dialog = page.getByRole("dialog", { name: "New event" })
-  await expect(dialog.getByRole("checkbox").first()).toBeChecked()
+  const dialog = page.getByRole("dialog", { name: "Make a little time" })
   await dialog.getByLabel("Title").fill(input.title)
+  if (input.reminder) await dialog.getByLabel("Reminder").selectOption({ label: input.reminder })
+  await dialog.getByRole("tab", { name: "When" }).click()
   if (!input.from) await dialog.getByRole("switch", { name: "All day" }).click()
   await dialog.getByLabel("Starts").fill(input.start)
   await dialog.getByLabel("Ends").fill(input.end ?? input.start)
   if (input.from) await dialog.getByLabel("Start time").fill(input.from)
   if (input.to) await dialog.getByLabel("End time").fill(input.to)
   if (input.zone) await dialog.getByLabel("Time zone").selectOption(input.zone)
-  if (input.yearly) await dialog.getByRole("switch", { name: /Every year/ }).click()
-  if (input.reminder)
-    await dialog.getByLabel("Remind people").selectOption({ label: input.reminder })
+  if (input.yearly) await dialog.getByRole("switch", { name: "Every year" }).click()
+  await dialog.getByRole("tab", { name: "People" }).click()
+  await expect(
+    dialog.getByRole("group", { name: "Who's invited?" }).getByRole("button").first(),
+  ).toHaveAttribute("aria-pressed", "true")
   if (input.linkIdea) {
-    await dialog.getByRole("tab", { name: "Idea" }).click()
+    await dialog.getByRole("radio", { name: "Idea" }).click()
+    await dialog.getByRole("searchbox", { name: "Search to link" }).fill(input.linkIdea)
     await dialog.getByRole("button", { name: input.linkIdea }).click()
     await expect(dialog.getByText(input.linkIdea, { exact: true })).toBeVisible()
   }
-  await dialog.getByRole("button", { name: "Add event" }).click()
+  await dialog.getByRole("button", { name: "Create event" }).click()
   await page.waitForURL(new RegExp(`/calendar/${UUID}$`))
   await expect(page.getByRole("heading", { level: 1, name: input.title })).toBeVisible()
   return new RegExp(`/calendar/(${UUID})$`).exec(page.url())![1]!

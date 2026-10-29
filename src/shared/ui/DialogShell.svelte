@@ -23,6 +23,8 @@
     onsubmit?: () => unknown
     /** Replaces the footer, for a step indicator or a status line. */
     footer?: Snippet
+    /** Sits at the footer's start, before Cancel, e.g. "Delete event…". */
+    footerStart?: Snippet
     cancelLabel?: string
   }
 
@@ -39,6 +41,7 @@
     disabled = false,
     onsubmit,
     footer,
+    footerStart,
     cancelLabel = "Cancel",
   }: Props = $props()
 
@@ -71,6 +74,7 @@
         class="flex items-center justify-end gap-related border-t border-border px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
       >
         {#if footer}{@render footer()}{:else}
+          {#if footerStart}<div class="mr-auto">{@render footerStart()}</div>{/if}
           <Button variant="outline" onclick={() => (open = false)}>{cancelLabel}</Button>
           {#if primary}
             <Button

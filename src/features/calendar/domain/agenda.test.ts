@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
+import { noDetail } from "../testing/entries"
 import { entriesByDay, entryKey, type CalendarEntry } from "./agenda"
 
 const d = (value: string) => value as DateOnly
-const base = { ideaId: null, status: null, myRsvp: null }
+const base = { ideaId: null, status: null, myRsvp: null, ...noDetail }
 const timed = (id: string, startsAt: string, endsAt: string): CalendarEntry => ({
   ...base,
   kind: "event",

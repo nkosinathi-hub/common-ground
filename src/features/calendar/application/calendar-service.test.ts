@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import { draft, setup } from "../testing/fixtures"
+import { noDetail } from "../testing/entries"
 
 const d = (value: string) => value as DateOnly
 
@@ -65,6 +66,7 @@ describe("CalendarService", () => {
     const { service, repo } = setup()
     await service.create("s1", draft(), [])
     repo.extra.push({
+      ...noDetail,
       kind: "task",
       id: "t1",
       title: "Due",

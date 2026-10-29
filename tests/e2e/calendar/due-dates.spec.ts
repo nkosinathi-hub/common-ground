@@ -28,7 +28,7 @@ test("task due dates and milestones are on the calendar and link to the idea", a
   await expect(page.getByTestId("milestone").filter({ hasText: "Planted" })).toBeVisible()
 
   await page.goto(`./#/s/${spaceId}/calendar`)
-  await page.getByRole("tab", { name: "Agenda" }).click()
+  await page.getByRole("radio", { name: "Agenda" }).click()
   const agenda = page.getByTestId("agenda")
   const dueDay = agenda
     .getByRole("listitem")

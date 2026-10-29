@@ -1,30 +1,33 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Plus, Popcorn } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
-  import * as Tabs from "$lib/components/ui/tabs"
-  import { todayDateOnly, type DateOnly } from "@/shared/domain"
-  import { AsyncView, navigate } from "@/shared/ui"
-  import type { WeekStart } from "../domain"
+  import { Plus } from "@lucide/svelte"
+  import { FORMER_MEMBER, todayDateOnly, type DateOnly } from "@/shared/domain"
+  import { AsyncView, Fab, navigate, Resource } from "@/shared/ui"
+  import { peopleLine, type WeekStart } from "../domain"
   import AgendaList from "./AgendaList.svelte"
+  import CalendarHeader from "./CalendarHeader.svelte"
   import { isWide, viewerZone } from "./browser"
   import { CalendarState } from "./calendar-state.svelte"
   import CalendarToolbar from "./CalendarToolbar.svelte"
   import { useCalendar } from "./context"
-  import DayPanel from "./DayPanel.svelte"
+  import DayCard from "./DayCard.svelte"
   import EventDialog from "./EventDialog.svelte"
   import MonthGrid from "./MonthGrid.svelte"
-  import { browserMemory, type CalendarView } from "./view-memory"
+  import PhoneAgenda from "./PhoneAgenda.svelte"
+  import { browserMemory } from "./view-memory"
 
   interface Props {
     spaceId: string
+    /** The space's name, for "Everything Ana & Ben have planned". */
+    spaceName?: string
     /** spaces.week_starts_on when known; Monday otherwise. */
     weekStart?: WeekStart
   }
 
-  let { spaceId, weekStart = 1 }: Props = $props()
+  let { spaceId, spaceName = "you", weekStart = 1 }: Props = $props()
   const { service } = useCalendar()
   const zone = viewerZone()
+  const wide = isWide()
   const calendar = new CalendarState({
     service,
     spaceId: untrack(() => spaceId),
@@ -32,59 +35,52 @@
     today: todayDateOnly(),
     weekStart: untrack(() => weekStart),
     memory: browserMemory(),
-    wide: isWide(),
+    wide,
   })
-  $effect(() => void calendar.load())
+  const people = new Resource(() => service.authors(untrack(() => spaceId)))
+  $effect(() => void (calendar.load(), people.load()))
+  const who = (ids: readonly string[]) =>
+    peopleLine(
+      ids.map((id) => people.value?.find((p) => p.id === id)?.displayName ?? FORMER_MEMBER),
+    )
 
-  let dialog = $state({ open: false, day: todayDateOnly(), watchNight: false })
-  const plan = (day: DateOnly, watchNight = false) => (dialog = { open: true, day, watchNight })
+  let dialog = $state({ open: false, day: todayDateOnly() })
+  const plan = (day: DateOnly) => (dialog = { open: true, day })
   const created = (eventId: string) => navigate({ name: "event", spaceId, eventId })
+  const month = $derived(calendar.view === "month")
 </script>
 
-<div class="flex flex-col gap-4">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-2xl font-semibold">Calendar</h1>
-    <div class="flex flex-wrap gap-2">
-      <Button variant="outline" onclick={() => plan(calendar.selected, true)}>
-        <Popcorn aria-hidden="true" />Plan a watch night
-      </Button>
-      <Button onclick={() => plan(calendar.selected)}><Plus aria-hidden="true" />New event</Button>
-    </div>
-  </div>
-  <CalendarToolbar {calendar} />
-  <Tabs.Root
-    class="min-w-0"
-    value={calendar.view}
-    onValueChange={(view) => calendar.setView(view as CalendarView)}
-  >
-    <Tabs.List aria-label="Calendar view">
-      <Tabs.Trigger value="month">Month</Tabs.Trigger>
-      <Tabs.Trigger value="agenda">Agenda</Tabs.Trigger>
-    </Tabs.List>
-    <Tabs.Content value="month" class="flex min-w-0 flex-col gap-4">
-      <AsyncView resource={calendar.window}>
-        {#snippet children(_window)}
+<!-- Figma D12 (month), D13 (agenda) and M05 (phone agenda). -->
+<div class="flex flex-col gap-section">
+  <CalendarHeader {month} {spaceName} onNew={() => plan(calendar.selected)} />
+  <CalendarToolbar {calendar} {zone} />
+  {#if month}
+    <AsyncView resource={calendar.window}>
+      {#snippet children(_window)}
+        <div class="grid items-start gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
           <MonthGrid {calendar} {weekStart} {zone} {spaceId} />
-          <DayPanel
+          <DayCard
             day={calendar.selected}
             items={calendar.days.get(calendar.selected) ?? []}
             {zone}
             {spaceId}
-            onAdd={(day) => plan(day)}
+            {who}
+            onAdd={plan}
           />
-        {/snippet}
-      </AsyncView>
-    </Tabs.Content>
-    <Tabs.Content value="agenda" class="min-w-0">
-      <AgendaList agenda={calendar.agenda} {zone} {spaceId} onRetry={() => calendar.load()} />
-    </Tabs.Content>
-  </Tabs.Root>
+        </div>
+      {/snippet}
+    </AsyncView>
+  {:else if wide}
+    <AgendaList agenda={calendar.agenda} {zone} {spaceId} {who} onRetry={() => calendar.load()} />
+  {:else}
+    <PhoneAgenda {calendar} {weekStart} {zone} {spaceId} {who} />
+  {/if}
 </div>
+{#if !wide}<Fab
+    icon={Plus}
+    label="New event"
+    onclick={() => plan(calendar.selected)}
+    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
+  />{/if}
 
-<EventDialog
-  bind:open={dialog.open}
-  {spaceId}
-  day={dialog.day}
-  watchNight={dialog.watchNight}
-  onSaved={created}
-/>
+<EventDialog bind:open={dialog.open} {spaceId} day={dialog.day} onSaved={created} />

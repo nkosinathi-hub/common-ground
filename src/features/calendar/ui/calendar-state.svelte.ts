@@ -23,12 +23,11 @@ export interface CalendarOptions {
   readonly today: DateOnly
   readonly weekStart: WeekStart
   readonly memory: ViewMemory
-  /** md and up, where the month view is the default (the agenda below). */
+  /** md and up: the month view by default; phones start on the agenda. */
   readonly wide: boolean
 }
 
 const sameMonth = (a: YearMonth, b: YearMonth) => a.year === b.year && a.month === b.month
-
 /** The calendar page: which month and view, the selected day, and the loaded window. */
 export class CalendarState {
   view = $state<CalendarView>("agenda")
@@ -62,12 +61,13 @@ export class CalendarState {
     return entriesByDay(entries, ...this.gridRange, this.options.zone)
   }
 
-  /** Loads what the current view shows; the agenda starts today in this month. */
-  load(): Promise<void> {
+  /** Loads the view; the agenda starts today, and on phones (M05) also needs its month. */
+  async load(): Promise<void> {
     if (this.view === "month") return this.window.load()
     const first = dateOf(this.month.year, this.month.month, 1)
     const inThisMonth = sameMonth(this.month, monthOf(this.options.today))
-    return this.agenda.start(inThisMonth ? this.options.today : first)
+    const agenda = this.agenda.start(inThisMonth ? this.options.today : first)
+    await Promise.all([agenda, this.options.wide ? null : this.window.load()])
   }
 
   private show(month: YearMonth, selected?: DateOnly): void {

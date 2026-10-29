@@ -29,6 +29,9 @@
     width?: Width
     required?: boolean
     maxlength?: number
+    placeholder?: string
+    /** Marks the label "(optional)" in muted text, as the Figma composer fields do. */
+    optional?: boolean
     /** Any other control (select, textarea); gets the id and the described-by ids. */
     control?: Snippet<[{ id: string; describedby: string | undefined; invalid: boolean }]>
   }
@@ -45,6 +48,8 @@
     width = "full",
     required = true,
     maxlength,
+    placeholder,
+    optional = false,
     control,
   }: Props = $props()
   const describedby = $derived(error ? `${id}-error` : hint ? `${id}-hint` : undefined)
@@ -52,7 +57,11 @@
 
 <!-- Figma Input field (177:45): label, control, helper, 8 apart. -->
 <div class={cn("flex max-w-full flex-col gap-related", WIDTHS[width])}>
-  <Label for={id} class="type-label">{label}</Label>
+  <Label for={id} class="type-label"
+    >{label}{#if optional}<span class="font-normal text-muted-foreground">
+        (optional)</span
+      >{/if}</Label
+  >
   {#if control}
     {@render control({ id, describedby, invalid: Boolean(error) })}
   {:else}
@@ -71,8 +80,9 @@
         class={Icon ? "pl-9" : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedby}
-        {required}
+        required={required && !optional}
         {maxlength}
+        {placeholder}
       />
     </div>
   {/if}

@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import type { CalendarEntry } from "../domain"
+import { noDetail } from "../testing/entries"
 import { entryHref, linkHref } from "./links"
 
 const S = "00000000-0000-4000-8000-000000000001"
 const day = "2026-10-16" as DateOnly
 const entry = (kind: CalendarEntry["kind"]): CalendarEntry => ({
+  ...noDetail,
   kind,
   id: "x1",
   title: "T",

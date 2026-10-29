@@ -14,7 +14,7 @@ test("the month grid moves by keyboard", async ({ page }) => {
   await signIn(page, await createUser("keys"))
   const spaceId = await createSpace(page, "Grid keys")
   await page.goto(`./#/s/${spaceId}/calendar`)
-  await page.getByRole("tab", { name: "Month" }).click()
+  await page.getByRole("radio", { name: "Month" }).click()
   const grid = page.getByRole("grid")
   const today = grid.locator('[role="gridcell"][tabindex="0"]')
   await expect(today).toHaveAttribute("aria-current", "date")
@@ -46,7 +46,8 @@ test("phones get the agenda first and no sideways scroll @mobile", async ({ brow
   const page = await projectPage(browser, { timezoneId: "Europe/London" })
   await signIn(page, await createUser("phone"))
   const spaceId = await createSpace(page, "A calendar on a narrow phone screen")
-  const day = new Date(Date.now() + 2 * 86_400_000).toISOString().slice(0, 10)
+  // Today: a phone's agenda shows the chosen day and the rest of this month.
+  const day = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/London" })
   await addEvent(page, spaceId, {
     title: "A deliberately long event title to stress wrapping",
     start: day,
@@ -56,13 +57,13 @@ test("phones get the agenda first and no sideways scroll @mobile", async ({ brow
   expect(await scrollsSideways(page)).toBe(false)
   await page.goto(`./#/s/${spaceId}/calendar`)
   const wide = (page.viewportSize()?.width ?? 0) >= 768
-  await expect(page.getByRole("tab", { name: wide ? "Month" : "Agenda" })).toHaveAttribute(
-    "aria-selected",
+  await expect(page.getByRole("radio", { name: wide ? "Month" : "Agenda" })).toHaveAttribute(
+    "aria-checked",
     "true",
   )
   await expect(page.getByRole("link", { name: /deliberately long event/ }).first()).toBeVisible()
   expect(await scrollsSideways(page)).toBe(false)
-  await page.getByRole("tab", { name: "Month" }).click()
+  await page.getByRole("radio", { name: "Month" }).click()
   await expect(page.getByRole("grid")).toBeVisible()
   expect(await scrollsSideways(page)).toBe(false)
   await page.context().close()

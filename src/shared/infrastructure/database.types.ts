@@ -1334,7 +1334,7 @@ isOneToOne: false
                            },
 "list_calendar":
 { Args: { "from_date": string,"target_space": string,"to_date": string,"tz": string }; Returns: {
-              "all_day": boolean,"end_date": string,"ends_at": string,"id": string,"idea_id": string,"kind": string,"my_rsvp": Database["public"]['Enums']["event_rsvp"],"start_date": string,"starts_at": string,"status": string,"title": string
+              "all_day": boolean,"end_date": string,"ends_at": string,"id": string,"idea_id": string,"idea_title": string,"kind": string,"milestone_title": string,"my_rsvp": Database["public"]['Enums']["event_rsvp"],"people": (string)[],"place": string,"priority": string,"start_date": string,"starts_at": string,"status": string,"title": string
             }[]
                            },
 "list_watch_items":

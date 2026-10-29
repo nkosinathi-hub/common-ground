@@ -49,7 +49,7 @@ function wallClock(ms: number, zone: string) {
 const minuteOf = (ms: number) => Math.floor(ms / 60_000) * 60_000
 
 /** How far the zone's wall clock is ahead of UTC at an instant, in milliseconds. */
-function offset(ms: number, zone: string): number {
+export function offsetMs(ms: number, zone: string): number {
   const w = wallClock(ms, zone)
   return Date.UTC(w.y, w.m - 1, w.d, w.h, w.min) - minuteOf(ms)
 }
@@ -75,9 +75,9 @@ export function toInstant(day: DateOnly, time: string, zone: string): string {
   const [y, m, d] = day.split("-").map(Number) as [number, number, number]
   const [h, min] = time.split(":").map(Number) as [number, number]
   const wall = Date.UTC(y, m - 1, d, h, min)
-  const guess = offset(wall, zone)
+  const guess = offsetMs(wall, zone)
   let ms = wall - guess
-  const actual = offset(ms, zone)
+  const actual = offsetMs(ms, zone)
   if (actual !== guess) ms = wall - actual
   return new Date(ms).toISOString()
 }
