@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { AtSign, Send, X } from "@lucide/svelte"
+  import { AtSign, X } from "@lucide/svelte"
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
+  import { Checkbox } from "$lib/components/ui/checkbox"
   import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
   import { memberName, type MemberRef, type Result } from "@/shared/domain"
@@ -35,15 +36,17 @@
   }
 </script>
 
-<form class="grid gap-2" onsubmit={submit} novalidate>
-  <Label for={id}>Add a comment</Label>
+<!-- D03b composer: the box, then spoilers on the left and mention and Post on the right. -->
+<form class="grid gap-item" onsubmit={submit} novalidate>
+  <Label for={id} class="sr-only">Add a comment</Label>
   <Textarea
     {id}
     bind:ref={textarea}
     bind:value={composer.body}
     onkeydown={keydown}
     maxlength={BODY_MAX}
-    placeholder="Plain text. Type @ to mention someone."
+    placeholder="Write a comment. Type @ to mention someone."
+    class="min-h-24"
     aria-invalid={problem ? true : undefined}
   />
   {#if composer.mentionIds.length > 0}
@@ -66,20 +69,19 @@
     <MentionPicker {composer} {members} {me} onDone={() => textarea?.focus()} />
   {/if}
   <FormError message={problem} />
-  <div class="flex flex-wrap items-center gap-3">
+  <div class="flex flex-wrap items-center gap-related">
+    <Label class="flex items-center gap-related">
+      <Checkbox bind:checked={composer.spoiler} />Contains spoilers
+    </Label>
     <Button
       type="button"
       variant="ghost"
-      size="sm"
+      size="icon-sm"
+      class="ml-auto"
+      aria-label="Mention"
       aria-expanded={composer.pickerOpen}
-      onclick={() => composer.openPicker()}><AtSign aria-hidden="true" />Mention</Button
+      onclick={() => composer.openPicker()}><AtSign /></Button
     >
-    <label class="flex items-center gap-2 text-sm">
-      <input type="checkbox" class="accent-primary" bind:checked={composer.spoiler} />
-      Contains spoilers
-    </label>
-    <Button type="submit" size="sm" class="ml-auto" disabled={form.pending}>
-      <Send aria-hidden="true" />Post
-    </Button>
+    <Button type="submit" size="sm" disabled={form.pending}>Post</Button>
   </div>
 </form>

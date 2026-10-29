@@ -5,10 +5,10 @@ import Provided from "@/shared/ui/testing/Provided.svelte"
 import type { WatchService } from "../application/watch-service"
 import { item } from "../testing/fixtures"
 import { provideWatch } from "./context"
-import ProgressPanel from "./ProgressPanel.svelte"
+import SessionsPanel from "./SessionsPanel.svelte"
 
 function renderWith(together: { season: number | null; episode: number | null } | null) {
-  const service = { progress: async () => ok({ me: "a", entries: [], together }) }
+  const service = { sessions: async () => ok([]) }
   const provide = () =>
     provideWatch({
       service: service as unknown as WatchService,
@@ -17,24 +17,26 @@ function renderWith(together: { season: number | null; episode: number | null } 
     })
   const props = {
     item: item(1, "Show", { mediaType: "series" }),
+    together,
+    members: [],
     authors: [],
-    version: 0,
-    onSaved: () => {},
+    onLogged: () => {},
   }
-  render(Provided, { props: { provide, component: ProgressPanel, props } })
+  render(Provided, { props: { provide, component: SessionsPanel, props } })
 }
 
 afterEach(cleanup)
 
-describe("ProgressPanel together", () => {
+describe("SessionsPanel together", () => {
   it("shows where you are together, which only a watch party moves", async () => {
     renderWith({ season: 1, episode: 2 })
-    expect(await screen.findByText(/Together: S1E2/)).toBeInTheDocument()
+    const badge = await screen.findByText("S1 E2", { exact: false })
+    expect(badge).toHaveTextContent("Together at S1 E2")
   })
 
   it("says nothing about together before any party", async () => {
     renderWith(null)
-    await screen.findByText("Everyone's progress")
-    expect(screen.queryByText(/Together:/)).toBeNull()
+    await screen.findByRole("button", { name: "Log watched together" })
+    expect(screen.queryByText(/Together at/)).toBeNull()
   })
 })

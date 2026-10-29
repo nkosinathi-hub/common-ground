@@ -5,15 +5,10 @@
   import { todayDateOnly } from "@/shared/domain"
   import { FormError, FormState, toast } from "@/shared/ui"
   import { STATUSES } from "../domain/labels"
-  import { RATING_MAX } from "../domain/validation"
   import type { Progress } from "../domain/types"
   import Choice from "./Choice.svelte"
   import { useWatch } from "./context"
   import { ProgressFormState } from "./progress-form-state.svelte"
-
-  const RATINGS = Array.from({ length: RATING_MAX }, (_, index) => String(index + 1)).map(
-    (value) => ({ value, label: `${value} of ${RATING_MAX}` }),
-  )
 
   interface Props {
     itemId: string
@@ -45,34 +40,23 @@
   <FormError message={submission.fieldError(field)} alert={false} />
 {/snippet}
 
-<form class="grid gap-3" onsubmit={submit} novalidate aria-label="My progress">
-  <p class="text-xs text-muted-foreground">
-    Only you change this. Everyone in the space can see it.
-  </p>
-  <div class="grid grid-cols-2 gap-3">
-    <Choice
-      id="progress-status"
-      label="Status"
-      value={fields.status}
-      options={STATUSES}
-      onchange={(value) => fields.setStatus(value || "not_started")}
-    />
-    <Choice
-      id="progress-rating"
-      label="Your rating"
-      value={fields.rating}
-      options={RATINGS}
-      anyLabel="No rating"
-      onchange={(value) => (fields.rating = value)}
-    />
-  </div>
+<!-- The rating is set from the header's stars; this form keeps it as saved. -->
+<form class="grid gap-stack" onsubmit={submit} novalidate aria-label="My progress">
+  <Choice
+    id="progress-status"
+    class="w-full"
+    label="Status"
+    value={fields.status}
+    options={STATUSES}
+    onchange={(value) => fields.setStatus(value || "not_started")}
+  />
   {#if episodic}
-    <div class="grid grid-cols-2 gap-3">
-      <div class="grid gap-1.5">
+    <div class="grid grid-cols-2 gap-item">
+      <div class="grid gap-related">
         <Label for="progress-season">Season</Label>
         <Input id="progress-season" inputmode="numeric" bind:value={fields.season} />
       </div>
-      <div class="grid gap-1.5">
+      <div class="grid gap-related">
         <Label for="progress-episode">Episode</Label>
         <Input id="progress-episode" inputmode="numeric" bind:value={fields.episode} />
       </div>
@@ -81,13 +65,12 @@
     {@render problem("episode")}
   {/if}
   {#if fields.status === "completed"}
-    <div class="grid gap-1.5">
+    <div class="grid gap-related">
       <Label for="progress-completed">Finished on</Label>
       <Input id="progress-completed" type="date" bind:value={fields.completedOn} />
       {@render problem("completedOn")}
     </div>
   {/if}
-  {@render problem("rating")}
   <FormError message={submission.formError} />
   <Button type="submit" class="justify-self-start" disabled={submission.pending}
     >Save my progress</Button

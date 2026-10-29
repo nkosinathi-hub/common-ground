@@ -1,5 +1,4 @@
 import type { MediaType, ProgressStatus, SharedIntent } from "./types"
-import { RATING_MAX } from "./validation"
 
 export const MEDIA_TYPES: readonly { value: MediaType; label: string }[] = [
   { value: "movie", label: "Movie" },
@@ -30,20 +29,3 @@ export const statusLabel = (value: ProgressStatus) => labelOf(STATUSES, value)
 /** The list RPC returns status as text; anything unknown reads as not started. */
 export const progressStatusOf = (raw: string | null | undefined): ProgressStatus =>
   STATUSES.find((entry) => entry.value === raw)?.value ?? "not_started"
-
-/** "Watching, season 2 episode 4, 4/5" for a progress line. */
-export function progressSummary(progress: {
-  status: ProgressStatus
-  season: number | null
-  episode: number | null
-  rating: number | null
-}): string {
-  const place = [
-    progress.season !== null ? `season ${progress.season}` : "",
-    progress.episode !== null ? `episode ${progress.episode}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ")
-  const rating = progress.rating !== null ? `${progress.rating}/${RATING_MAX}` : ""
-  return [statusLabel(progress.status), place, rating].filter(Boolean).join(", ")
-}

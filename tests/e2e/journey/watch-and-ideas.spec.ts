@@ -11,7 +11,8 @@ test("add a title manually, track progress and comment", async ({ page }) => {
 
   await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
-  await expect(page.getByText(/no verified provider data/i)).toBeVisible()
+  const progress = page.getByRole("tabpanel", { name: "Progress" })
+  await expect(progress.getByText(/not a provider listing/i)).toBeVisible()
 
   await page.getByRole("tab", { name: "Discussion" }).click()
   await page.getByLabel("Add a comment").fill("Episode 10 made me cry")

@@ -1,81 +1,64 @@
 <script lang="ts">
-  import { untrack } from "svelte"
-  import { AsyncView, Resource } from "@/shared/ui"
-  import { progressSummary } from "../domain/labels"
-  import { placeLabel } from "../domain/places"
+  import * as Card from "$lib/components/ui/card"
+  import { AsyncView, InitialAvatar, type Resource } from "@/shared/ui"
   import { memberName, type MemberRef } from "@/shared/domain"
+  import type { MemberProgress } from "../domain/progress-types"
   import type { WatchItem } from "../domain/types"
-  import { useWatch } from "./context"
+  import OtherProgress from "./OtherProgress.svelte"
   import ProgressForm from "./ProgressForm.svelte"
 
   interface Props {
     item: WatchItem
+    /** Loaded by the title page, which the header's rating shares. */
+    progress: Resource<MemberProgress>
     /** Names for everyone with progress, including removed people still visible. */
     authors: readonly MemberRef[]
-    /** Bumped by the parent when progress changed elsewhere (a watched-together log). */
-    version: number
     onSaved: () => void
   }
 
-  let { item, authors, version, onSaved }: Props = $props()
-  const { service } = useWatch()
-  const progress = new Resource(() => service.progress(item.id))
-
-  $effect(() => {
-    // Reload when the title changes or the parent bumps the version.
-    void [item.id, version]
-    untrack(() => void progress.load())
-  })
-
-  const nameOf = (id: string, me: string) => (id === me ? "You" : memberName(authors, id))
+  let { item, progress, authors, onSaved }: Props = $props()
 </script>
 
-<section
-  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
-  aria-labelledby="progress-heading"
->
-  <div class="flex flex-col gap-hairline">
-    <h2 id="progress-heading" class="type-h3">Your place in the story</h2>
-    <p class="type-sm text-muted-foreground">
-      Personal progress. It does not move where you are together.
-    </p>
-  </div>
-  <AsyncView resource={progress}>
-    {#snippet children(state)}
-      <ProgressForm
-        itemId={item.id}
-        episodic={item.mediaType !== "movie"}
-        mine={state.entries.find((p) => p.userId === state.me) ?? null}
-        onSaved={() => {
-          void progress.load()
-          onSaved()
-        }}
-      />
-      <div class="border-t border-border pt-stack">
-        <h3 class="mb-related type-label">Everyone's progress</h3>
-        {#if state.together}
-          <p class="mb-2 text-sm">
-            Together: {placeLabel(state.together) ?? "watched"}
-            <span class="text-muted-foreground">(moves only when you watch together)</span>
-          </p>
-        {/if}
-        {#if state.entries.length === 0}
-          <p class="text-sm text-muted-foreground">Nobody has started this one yet.</p>
-        {:else}
-          <ul class="space-y-1 text-sm">
-            {#each state.entries as entry (entry.userId)}
-              <li class="flex flex-wrap justify-between gap-2">
-                <span class="font-medium">{nameOf(entry.userId, state.me)}</span>
-                <span class="text-muted-foreground">
-                  {progressSummary(entry)}{entry.completedOn
-                    ? `, finished ${entry.completedOn}`
-                    : ""}
-                </span>
-              </li>
-            {/each}
-          </ul>
-        {/if}
-      </div>
-    {/snippet}
-  </AsyncView>
-</section>
+<!-- D03a "Your place in the story": your own form beside everyone else's place, read-only. -->
+<Card.Root role="region" aria-labelledby="progress-heading">
+  <Card.Header>
+    <Card.Title id="progress-heading">Your place in the story</Card.Title>
+    <Card.Description>Personal progress. It does not change your together history.</Card.Description
+    >
+  </Card.Header>
+  <Card.Content>
+    <AsyncView resource={progress}>
+      {#snippet children(state)}
+        {@const others = state.entries.filter((p) => p.userId !== state.me)}
+        <div class="grid gap-columns md:grid-cols-2 md:divide-x md:divide-border">
+          <div class="flex flex-col gap-stack md:pr-columns">
+            <div class="flex items-center gap-item">
+              <InitialAvatar
+                name={memberName(authors, state.me)}
+                size="sm"
+                tone="brand"
+                decorative
+              />
+              <span class="type-label text-foreground">You</span>
+            </div>
+            <ProgressForm
+              itemId={item.id}
+              episodic={item.mediaType !== "movie"}
+              mine={state.entries.find((p) => p.userId === state.me) ?? null}
+              {onSaved}
+            />
+          </div>
+          {#if others.length === 0}
+            <p class="type-sm text-muted-foreground">Nobody else has started this one yet.</p>
+          {:else}
+            <ul class="flex flex-col gap-section" aria-label="Everyone else">
+              {#each others as entry (entry.userId)}
+                <OtherProgress {entry} name={memberName(authors, entry.userId)} />
+              {/each}
+            </ul>
+          {/if}
+        </div>
+      {/snippet}
+    </AsyncView>
+  </Card.Content>
+</Card.Root>

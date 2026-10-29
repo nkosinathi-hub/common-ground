@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Users } from "@lucide/svelte"
+  import { Play } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { buildHash } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
@@ -26,13 +26,14 @@
 </script>
 
 {#if open.value}
-  <Button variant="outline" href={buildHash({ name: "party", spaceId, partyId: open.value.id })}>
-    <Users aria-hidden="true" />
+  <!-- The title page's primary action (D03a). -->
+  <Button href={buildHash({ name: "party", spaceId, partyId: open.value.id })}>
+    <Play aria-hidden="true" />
     Join the watch party
   </Button>
 {:else if open.state.status !== "loading"}
-  <Button variant="outline" onclick={() => (starting = true)}>
-    <Users aria-hidden="true" />
+  <Button onclick={() => (starting = true)}>
+    <Play aria-hidden="true" />
     Watch together
   </Button>
   <StartPartyDialog bind:open={starting} {spaceId} {itemId} {isFilm} />

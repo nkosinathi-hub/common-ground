@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Button } from "$lib/components/ui/button"
-  import { Label } from "$lib/components/ui/label"
+  import { Play } from "@lucide/svelte"
   import type { PlaybackEpisode, PlaybackSeason, ProviderAccount } from "../application/ports"
+  import EpisodeChoice from "./EpisodeChoice.svelte"
   import MediaServerSignIn from "./MediaServerSignIn.svelte"
 
   interface Props {
@@ -26,74 +26,53 @@
   }
 
   let props: Props = $props()
+  const current = $derived(
+    props.episodic ? props.episodes.find((e) => e.number === props.selectedEpisode) : undefined,
+  )
 </script>
 
-<div class="space-y-3 rounded-xl border bg-card p-4">
-  <div class="flex flex-wrap gap-2" aria-label="Choose what to watch">
-    <Button
-      variant={props.mode === "title" ? "default" : "outline"}
-      onclick={props.ontitle}
-      disabled={props.loading}
-    >
-      {props.label}
-    </Button>
-    {#if props.trailerAvailable}
-      <Button
-        variant={props.mode === "trailer" ? "default" : "outline"}
-        onclick={props.ontrailer}
-        disabled={props.loading}
-      >
-        Watch trailer
-      </Button>
-    {/if}
-    {#if props.account}<MediaServerSignIn account={props.account} />{/if}
-  </div>
-  {#if props.episodic}
-    <div class="grid gap-3 sm:grid-cols-2">
-      <div class="grid gap-1.5">
-        <Label for="play-season">Season</Label>
-        <NativeSelect
-          id="play-season"
-          value={props.selectedSeason}
-          disabled={props.detailsLoading || props.seasonLoading || props.seasons.length === 0}
-          onchange={(event) => props.onseason(Number(event.currentTarget.value))}
-        >
-          {#each props.seasons as season (season.number)}
-            <option value={season.number}>{season.name} · {season.episodeCount} episodes</option>
-          {/each}
-          {#if props.seasons.length === 0}<option value={props.selectedSeason}
-              >Season {props.selectedSeason}</option
-            >{/if}
-        </NativeSelect>
-      </div>
-      <div class="grid gap-1.5">
-        <Label for="play-episode">Episode</Label>
-        <NativeSelect
-          id="play-episode"
-          value={props.selectedEpisode}
-          disabled={props.detailsLoading || props.seasonLoading || props.episodes.length === 0}
-          onchange={(event) => props.onepisode(Number(event.currentTarget.value))}
-        >
-          {#each props.episodes as episode (episode.number)}
-            <option value={episode.number}>Episode {episode.number} · {episode.name}</option>
-          {/each}
-          {#if props.episodes.length === 0}<option value={props.selectedEpisode}
-              >Choose an episode</option
-            >{/if}
-        </NativeSelect>
-      </div>
+<!-- D03a "Next up": what plays next, with a play button, the trailer, and any other episode. -->
+<section
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+  aria-label="Next up"
+>
+  <div class="flex items-start gap-item">
+    <div class="flex min-w-0 flex-1 flex-col gap-hairline">
+      <h2 class="type-h3 text-foreground">{current?.name ?? "Watch here"}</h2>
+      {#if props.episodic}
+        <p class="type-sm text-muted-foreground">
+          Next up · S{props.selectedSeason} E{props.selectedEpisode}. Picked from your progress; you
+          can choose any episode.
+        </p>
+      {/if}
     </div>
-    <p class="text-xs text-muted-foreground">
-      Your next episode is selected automatically. Choose any season or episode here.
-    </p>
-  {/if}
+    <div
+      class="flex shrink-0 items-center gap-related"
+      aria-label="Choose what to watch"
+      role="group"
+    >
+      {#if props.trailerAvailable}
+        <Button
+          variant={props.mode === "trailer" ? "secondary" : "outline"}
+          aria-label="Watch trailer"
+          onclick={props.ontrailer}
+          disabled={props.loading}>Trailer</Button
+        >
+      {/if}
+      <Button size="icon" aria-label={props.label} onclick={props.ontitle} disabled={props.loading}
+        ><Play /></Button
+      >
+      {#if props.account}<MediaServerSignIn account={props.account} />{/if}
+    </div>
+  </div>
+  {#if props.episodic}<EpisodeChoice {...props} />{/if}
   {#if props.detailsLoading || props.seasonLoading}
-    <p class="text-sm text-muted-foreground">
+    <p class="type-sm text-muted-foreground">
       Loading {props.seasonLoading ? "episodes" : "watch options"}…
     </p>
   {/if}
-  {#if props.error}<p class="text-sm text-destructive" role="alert">{props.error}</p>{/if}
-  {#if props.loading}<p class="text-sm text-muted-foreground" role="status">
+  {#if props.error}<p class="type-sm text-destructive" role="alert">{props.error}</p>{/if}
+  {#if props.loading}<p class="type-sm text-muted-foreground" role="status">
       Finding a source…
     </p>{/if}
-</div>
+</section>

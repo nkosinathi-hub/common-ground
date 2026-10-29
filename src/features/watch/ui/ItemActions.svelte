@@ -1,22 +1,19 @@
 <script lang="ts">
-  import { Ellipsis, Pencil, Trash2 } from "@lucide/svelte"
+  import { Ellipsis, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { ConfirmDialog, toast, navigate } from "@/shared/ui"
   import type { WatchItemView } from "../domain/types"
   import { useWatch } from "./context"
-  import EditTitleDialog from "./EditTitleDialog.svelte"
 
   interface Props {
     view: WatchItemView
     backHref: string
-    onChanged: () => void
   }
 
-  let { view, backHref, onChanged }: Props = $props()
+  let { view, backHref }: Props = $props()
   const { service } = useWatch()
   const item = $derived(view.item)
-  let editing = $state(false)
   let confirming = $state(false)
 
   async function remove() {
@@ -27,28 +24,24 @@
   }
 </script>
 
-<!-- The title's own actions, in its menu: editing the details and deleting it. -->
-<DropdownMenu.Root>
-  <DropdownMenu.Trigger>
-    {#snippet child({ props })}
-      <Button {...props} variant="ghost" size="icon-sm" aria-label="More for {item.title}">
-        <Ellipsis />
-      </Button>
-    {/snippet}
-  </DropdownMenu.Trigger>
-  <DropdownMenu.Content align="end">
-    <DropdownMenu.Item onSelect={() => (editing = true)}>
-      <Pencil aria-hidden="true" />Edit details
-    </DropdownMenu.Item>
-    {#if view.canDelete}
+<!-- Deleting is rare and final, so it waits in the title's menu; editing lives on the note card. -->
+{#if view.canDelete}
+  <DropdownMenu.Root>
+    <DropdownMenu.Trigger>
+      {#snippet child({ props })}
+        <Button {...props} variant="ghost" size="icon-sm" aria-label="More for {item.title}">
+          <Ellipsis />
+        </Button>
+      {/snippet}
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Content align="end">
       <DropdownMenu.Item variant="destructive" onSelect={() => (confirming = true)}>
         <Trash2 aria-hidden="true" />Delete
       </DropdownMenu.Item>
-    {/if}
-  </DropdownMenu.Content>
-</DropdownMenu.Root>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
+{/if}
 
-<EditTitleDialog bind:open={editing} {item} onSaved={onChanged} />
 <ConfirmDialog
   bind:open={confirming}
   title={`Delete ${item.title}?`}

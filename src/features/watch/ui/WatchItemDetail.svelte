@@ -1,7 +1,7 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
   import { MediaQuery } from "svelte/reactivity"
-  import { ArrowLeft } from "@lucide/svelte"
+  import { ChevronLeft } from "@lucide/svelte"
   import * as Tabs from "$lib/components/ui/tabs"
   import { buildHash, type TitleTab } from "@/shared/domain"
   import { AsyncView, navigate, pageTitle, Resource, TextLink } from "@/shared/ui"
@@ -27,9 +27,11 @@
   const view = new Resource(() => service.get(spaceId, itemId))
   const people = new Resource(() => members.members(spaceId))
   const names = new Resource(() => authors.authors(spaceId))
+  // One load shared by the header's rating and the progress panel, so both stay in step.
+  const progress = new Resource(() => service.progress(itemId))
   const wide = new MediaQuery("min-width: 768px")
-  let progressVersion = $state(0)
-  const changed = () => (progressVersion++, void view.load())
+  const reload = () => void view.load()
+  const changed = () => void (progress.load(), view.load())
   const shown = $derived.by((): TitleTab => {
     if (!wide.current) return tab ?? "overview"
     return tab === "discussion" ? "discussion" : "progress"
@@ -39,17 +41,19 @@
 
   $effect(() => {
     void [spaceId, itemId]
-    untrack(() => void (view.load(), people.load(), names.load()))
+    untrack(() => void (view.load(), people.load(), names.load(), progress.load()))
   })
   $effect(() => (view.value ? pageTitle.show(view.value.item.title) : undefined))
 </script>
 
 <!-- D03a and D03b on wide screens; M03 to M03d on phones, where each part is its own tab. -->
 <article class="flex flex-col gap-section">
-  <TextLink href={backHref} icon={ArrowLeft} class="w-fit flex-row-reverse">Watch library</TextLink>
+  <TextLink href={backHref} icon={ChevronLeft} class="w-fit flex-row-reverse"
+    >Watch library</TextLink
+  >
   <AsyncView resource={view}>
     {#snippet children(current)}
-      <ItemHeader view={current} {backHref} onChanged={() => view.load()}>
+      <ItemHeader view={current} {backHref} {progress} onChanged={reload} onRated={changed}>
         {#snippet actions()}
           {#if together}{@render together(current.item.mediaType === "movie")}{/if}
           {@render recommend?.()}
@@ -67,9 +71,10 @@
           item={current.item}
           {people}
           {names}
-          version={progressVersion}
+          {progress}
           wide={wide.current}
           onchanged={changed}
+          onedited={reload}
         >
           {#snippet playing()}{@render play?.(current.item, changed)}{/snippet}
           {#snippet discussion()}{@render comments?.()}{/snippet}
