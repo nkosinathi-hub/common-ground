@@ -30,7 +30,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(
     page.getByRole("heading", { name: "A weekend in the Cederberg", exact: true }),
   ).toBeVisible()
-  for (const tab of ["Research", "Tasks", "Milestones", "Discussion"]) {
+  for (const tab of ["Research", "Tasks", "Milestones & budget", "Discussion"]) {
     await page.getByRole("link", { name: tab, exact: true }).click()
     await expect(
       page.getByRole("heading", { name: "A weekend in the Cederberg", exact: true }),

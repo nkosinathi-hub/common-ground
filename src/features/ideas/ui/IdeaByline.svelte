@@ -1,32 +1,26 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
-  import { UserPlus } from "@lucide/svelte"
   import { memberName, type MemberRef } from "@/shared/domain"
-  import { isShared, peopleOf, type Idea } from "../domain"
-  import CollaboratorsDialog from "./CollaboratorsDialog.svelte"
-  import OursBadge from "./OursBadge.svelte"
-  import PeopleStack from "./PeopleStack.svelte"
+  import { peopleOf, type Idea } from "../domain"
 
   interface Props {
     idea: Idea
-    members: readonly MemberRef[]
     authors: readonly MemberRef[]
-    onPeopleChanged: () => void
   }
 
-  let { idea, members, authors, onPeopleChanged }: Props = $props()
-  let open = $state(false)
-  const names = $derived(peopleOf(idea).map((id) => memberName(authors, id)))
+  let { idea, authors }: Props = $props()
+  const others = $derived(
+    peopleOf(idea)
+      .filter((id) => id !== idea.createdBy)
+      .map((id) => memberName(authors, id)),
+  )
 </script>
 
-<div class="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-  <span>Started by {memberName(authors, idea.createdBy)}</span>
-  <PeopleStack {names} />
-  {#if isShared(idea)}<OursBadge />{/if}
-  <Button size="sm" variant="outline" onclick={() => (open = true)}
-    ><UserPlus aria-hidden="true" />People</Button
-  >
-</div>
-{#if open}
-  <CollaboratorsDialog bind:open {idea} {members} onSaved={onPeopleChanged} />
-{/if}
+<!-- "Started by Ana · Shared with Ben": who it belongs to, in words; the avatars sit at the end. -->
+<p class="type-sm text-muted-foreground">
+  {[
+    `Started by ${memberName(authors, idea.createdBy)}`,
+    others.length > 0 && `Shared with ${others.join(", ")}`,
+  ]
+    .filter(Boolean)
+    .join(" · ")}
+</p>

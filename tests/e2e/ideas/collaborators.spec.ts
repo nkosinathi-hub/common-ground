@@ -26,7 +26,7 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
   const ideaId = await captureIdea(ana, spaceId, "Garden club")
   await expect(ana.getByText("Started by ana")).toBeVisible()
 
-  await ana.getByRole("button", { name: "People" }).click()
+  await ana.getByRole("button", { name: "Manage people" }).click()
   const dialog = ana.getByRole("dialog", { name: "People on this idea" })
   await expect(dialog.getByRole("checkbox", { name: "ana (started it)" })).toBeDisabled()
   await dialog.getByRole("checkbox", { name: "ben" }).check()
@@ -41,7 +41,7 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
   await expect(invitation).toContainText("ana invited you to work on this idea")
   await invitation.getByRole("button", { name: "Accept" }).click()
   await expect(invitation).toBeHidden()
-  await expect(ben.getByText("Our idea")).toBeVisible()
+  await expect(ben.getByText(/Shared with ben/)).toBeVisible()
   await expect(ben.getByRole("img", { name: "On this idea: ana, ben" })).toBeVisible()
   await expectNotification(ana, /ben joined your idea/)
 

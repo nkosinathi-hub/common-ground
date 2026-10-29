@@ -1,11 +1,15 @@
 <script lang="ts">
+  import { ChevronLeft, Users } from "@lucide/svelte"
+  import { Badge } from "$lib/components/ui/badge"
+  import { Button } from "$lib/components/ui/button"
   import { NativeSelect } from "$lib/components/ui/native-select"
-  import { Input } from "$lib/components/ui/input"
-  import { canDelete, type MemberRef, type Result, TITLE_MAX, type Viewer } from "@/shared/domain"
-  import { DeleteButton, FormError } from "@/shared/ui"
-  import { IDEA_STAGES, type Idea, type IdeaStage } from "../domain"
+  import { buildHash, memberName, type MemberRef, type Viewer } from "@/shared/domain"
+  import { AvatarStack, FormError, TextLink } from "@/shared/ui"
+  import { IDEA_STAGES, peopleOf, type Idea, type IdeaStage } from "../domain"
+  import CollaboratorsDialog from "./CollaboratorsDialog.svelte"
   import { useIdeas } from "./context"
   import IdeaByline from "./IdeaByline.svelte"
+  import IdeaMenu from "./IdeaMenu.svelte"
   import { STAGE_LABELS } from "./labels"
 
   interface Props {
@@ -24,9 +28,14 @@
   let { idea, viewer, members, authors, onChange, onPeopleChanged, onDeleted }: Props = $props()
   const ideas = useIdeas().service
   let error = $state<string | null>(null)
+  let managing = $state(false)
+  const people = $derived(
+    peopleOf(idea).map((id) => ({ name: memberName(authors, id), me: id === viewer.me })),
+  )
+  const label = $derived(`On this idea: ${people.map((p) => p.name).join(", ")}`)
 
-  async function apply(change: Promise<Result<Idea>>) {
-    const result = await change
+  async function moveStage(stage: IdeaStage) {
+    const result = await ideas.moveStage(idea.id, stage)
     error = result.ok ? null : result.error.message
     if (result.ok) onChange(result.value)
   }
@@ -36,51 +45,43 @@
     error = result.ok ? null : result.error.message
     if (result.ok) onDeleted()
   }
-  const tagsOf = (text: string) => text.split(",")
 </script>
 
-<header class="flex flex-col gap-2">
-  <h1 class="sr-only">{idea.title}</h1>
-  <div class="flex items-center gap-2">
-    <label class="sr-only" for="idea-title">Title</label>
-    <Input
-      id="idea-title"
-      class="h-10 text-xl font-semibold"
-      value={idea.title}
-      maxlength={TITLE_MAX}
-      onchange={(event) => apply(ideas.rename(idea.id, event.currentTarget.value))}
-    />
-    {#if canDelete(idea.createdBy, viewer)}
-      <DeleteButton
-        label="Delete idea"
-        what="this idea"
-        description="Its notes, links, tasks, budget and discussion go with it. This cannot be undone."
-        onConfirm={remove}
-      />
+<!-- D06 to D11 idea header: back, the title, then stage, tags and people on one line. -->
+<header class="flex flex-col gap-stack">
+  <TextLink
+    href={buildHash({ name: "ideas", spaceId: idea.spaceId })}
+    icon={ChevronLeft}
+    class="w-fit flex-row-reverse">All ideas</TextLink
+  >
+  <h1 class="type-h1 text-foreground">{idea.title}</h1>
+  <div class="flex flex-wrap items-center gap-x-item gap-y-related">
+    <NativeSelect
+      size="sm"
+      aria-label="Stage"
+      value={idea.stage}
+      class="[&_select]:border-border [&_select]:type-label [&_select]:text-primary"
+      onchange={(event) => moveStage(event.currentTarget.value as IdeaStage)}
+    >
+      {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
+        >{/each}
+    </NativeSelect>
+    {#if idea.tags.length > 0}
+      <ul class="flex flex-wrap gap-related" aria-label="Tags">
+        {#each idea.tags as tag (tag)}<li><Badge variant="outline">{tag}</Badge></li>{/each}
+      </ul>
     {/if}
-  </div>
-  <IdeaByline {idea} {members} {authors} {onPeopleChanged} />
-  <div class="flex flex-wrap items-center gap-2 text-sm">
-    <label class="flex items-center gap-2"
-      >Stage
-      <NativeSelect
-        value={idea.stage}
-        onchange={(event) =>
-          apply(ideas.moveStage(idea.id, event.currentTarget.value as IdeaStage))}
-      >
-        {#each IDEA_STAGES as stage (stage)}<option value={stage}>{STAGE_LABELS[stage]}</option
-          >{/each}
-      </NativeSelect>
-    </label>
-    <label class="flex grow items-center gap-2"
-      >Tags
-      <Input
-        class="max-w-sm"
-        value={idea.tags.join(", ")}
-        placeholder="food, pop-up"
-        onchange={(event) => apply(ideas.setTags(idea.id, tagsOf(event.currentTarget.value)))}
-      />
-    </label>
+    <IdeaByline {idea} {authors} />
+    <div class="ml-auto flex items-center gap-related">
+      <AvatarStack {people} {label} />
+      <Button variant="outline" onclick={() => (managing = true)}>
+        <Users aria-hidden="true" />Manage people
+      </Button>
+      <IdeaMenu {idea} {viewer} {onChange} onDelete={remove} />
+    </div>
   </div>
   <FormError message={error} />
 </header>
+{#if managing}
+  <CollaboratorsDialog bind:open={managing} {idea} {members} onSaved={onPeopleChanged} />
+{/if}

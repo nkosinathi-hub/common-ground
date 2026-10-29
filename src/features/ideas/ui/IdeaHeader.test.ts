@@ -29,8 +29,12 @@ async function setup(viewer = AUTHOR) {
   return { repo, idea, onDeleted }
 }
 
+const openMenu = async () =>
+  fireEvent.keyDown(screen.getByRole("button", { name: "More for Tea bar" }), { key: "Enter" })
+
 async function confirmDelete() {
-  await fireEvent.click(screen.getByRole("button", { name: "Delete idea" }))
+  await openMenu()
+  await fireEvent.click(await screen.findByRole("menuitem", { name: "Delete idea" }))
   const dialog = await screen.findByRole("alertdialog")
   await fireEvent.click(within(dialog).getByRole("button", { name: "Delete" }))
 }
@@ -44,6 +48,20 @@ describe("IdeaHeader heading", () => {
   })
 })
 
+describe("IdeaHeader details", () => {
+  it("renames and retags from the details dialog", async () => {
+    const { repo, idea } = await setup()
+    await openMenu()
+    await fireEvent.click(await screen.findByRole("menuitem", { name: "Edit details" }))
+    const dialog = within(await screen.findByRole("dialog", { name: "Edit this idea" }))
+    await fireEvent.input(dialog.getByLabelText("Title"), { target: { value: "Tea cart" } })
+    await fireEvent.input(dialog.getByLabelText("Tags"), { target: { value: "food, pop-up" } })
+    await fireEvent.click(dialog.getByRole("button", { name: "Save" }))
+    await waitFor(() => expect(repo.rows.get(idea.id)?.title).toBe("Tea cart"))
+    expect(repo.rows.get(idea.id)?.tags).toEqual(["food", "pop-up"])
+  })
+})
+
 describe("IdeaHeader delete", () => {
   it("deletes the idea after confirming and hands control back", async () => {
     const { repo, idea, onDeleted } = await setup()
@@ -54,10 +72,13 @@ describe("IdeaHeader delete", () => {
 
   it("offers delete only to the author or the space owner", async () => {
     await setup({ me: "u2", isOwner: false })
-    expect(screen.queryByRole("button", { name: "Delete idea" })).toBeNull()
+    await openMenu()
+    expect(await screen.findByRole("menuitem", { name: "Edit details" })).toBeInTheDocument()
+    expect(screen.queryByRole("menuitem", { name: "Delete idea" })).toBeNull()
     cleanup()
     await setup({ me: "u2", isOwner: true })
-    expect(screen.getByRole("button", { name: "Delete idea" })).toBeInTheDocument()
+    await openMenu()
+    expect(await screen.findByRole("menuitem", { name: "Delete idea" })).toBeInTheDocument()
   })
 
   it("shows the server's refusal and stays on the idea", async () => {

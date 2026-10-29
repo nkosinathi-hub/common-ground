@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
-  import { ErrorState, Loading, Resource, navigate } from "@/shared/ui"
+  import { ErrorState, Loading, Resource, navigate, pageTitle } from "@/shared/ui"
   import {
     appError,
     err,
@@ -61,6 +61,7 @@
     void names.load()
   })
   const authors = $derived(names.value ?? people.value ?? [])
+  $effect(() => (idea ? pageTitle.show(idea.title) : undefined))
 
   const backToList = () => navigate({ name: "ideas", spaceId })
   const deleted = () => (onDeleted ?? backToList)()

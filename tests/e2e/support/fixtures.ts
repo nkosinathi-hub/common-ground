@@ -16,7 +16,9 @@ export async function captureIdea(page: Page, spaceId: string, title: string): P
 
 /** The region an idea section renders in, named after its link and the idea ("Tasks for Zine"). */
 export const ideaSection = (page: Page, tab: string) =>
-  page.getByRole("region", { name: new RegExp(`^${tab[0]!.toUpperCase()}${tab.slice(1)} for `) })
+  page.getByRole("region", {
+    name: new RegExp(`^${tab[0]!.toUpperCase()}${tab.slice(1)}( & budget)? for `),
+  })
 
 /** Opens one section of an idea and waits for its region. */
 export async function openIdeaTab(page: Page, spaceId: string, ideaId: string, tab: string) {

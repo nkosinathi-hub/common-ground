@@ -31,9 +31,7 @@ test("capture an idea and open every tab", async ({ page }) => {
   await captureIdea(page, spaceId, "Night market stall")
   for (const tab of ["research", "tasks", "milestones", "discussion", "overview"]) {
     await page.goto(page.url().replace(/\/[a-z]+$/, `/${tab}`))
-    await expect(page.getByLabel("Title", { exact: true }).first()).toHaveValue(
-      "Night market stall",
-    )
+    await expect(page.getByRole("heading", { level: 1, name: "Night market stall" })).toBeVisible()
   }
 })
 
