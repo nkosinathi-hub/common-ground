@@ -2,7 +2,9 @@
   import { greetingFor } from "../shell/greeting"
   import { SharedWithYou } from "@/features/notes"
   import { HOME_CARD_COLUMN, visibleCards } from "@/shared/domain"
+  import { MediaQuery } from "svelte/reactivity"
   import HomeCard from "./home/HomeCard.svelte"
+  import MobileHome from "./home/MobileHome.svelte"
   import { RENDERABLE_CARDS } from "./home/cards"
   import { SpaceBanner, type Space } from "@/features/spaces"
 
@@ -18,6 +20,8 @@
   const cards = $derived(visibleCards(space.homeCards, RENDERABLE_CARDS))
   const main = $derived(cards.filter((id) => HOME_CARD_COLUMN[id] === "main"))
   const aside = $derived(cards.filter((id) => HOME_CARD_COLUMN[id] === "aside"))
+  // Phones get their own arrangement (M01), not the two columns squeezed into one.
+  const wide = new MediaQuery("min-width: 768px")
 </script>
 
 <!-- D01: the welcome, then the shared life beside a narrow column of what is next. -->
@@ -25,12 +29,16 @@
   <SpaceBanner {space} title={`${greeting}, ${displayName}.`} />
   <!-- Above every card, whatever the layout: something shared with you, until it is opened. -->
   <SharedWithYou spaceId={space.id} />
-  <div class="grid gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
-    <div class="flex min-w-0 flex-col gap-stack">
-      {#each main as id (id)}<HomeCard {id} {space} />{/each}
+  {#if !wide.current}
+    <MobileHome spaceId={space.id} spaceName={space.name} {cards} />
+  {:else}
+    <div class="grid gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
+      <div class="flex min-w-0 flex-col gap-stack">
+        {#each main as id (id)}<HomeCard {id} {space} />{/each}
+      </div>
+      <div class="flex min-w-0 flex-col gap-stack">
+        {#each aside as id (id)}<HomeCard {id} {space} />{/each}
+      </div>
     </div>
-    <div class="flex min-w-0 flex-col gap-stack">
-      {#each aside as id (id)}<HomeCard {id} {space} />{/each}
-    </div>
-  </div>
+  {/if}
 </div>

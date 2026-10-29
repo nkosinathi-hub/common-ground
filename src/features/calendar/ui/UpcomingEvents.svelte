@@ -10,9 +10,11 @@
 
   interface Props {
     spaceId: string
+    /** Phones show only the first in their Up next card. */
+    limit?: number
   }
 
-  let { spaceId }: Props = $props()
+  let { spaceId, limit }: Props = $props()
   const { service } = useCalendar()
   const zone = viewerZone()
   const today = todayDateOnly()
@@ -40,7 +42,7 @@
       </EmptyState>
     {:else}
       <ul class="-mx-related flex flex-col" data-testid="upcoming-events">
-        {#each items as item (item.key)}
+        {#each items.slice(0, limit) as item (item.key)}
           <li>
             <a
               href={entryHref(spaceId, item.entry)}

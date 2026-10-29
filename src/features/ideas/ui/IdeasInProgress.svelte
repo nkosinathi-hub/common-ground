@@ -11,9 +11,11 @@
   interface Props {
     spaceId: string
     ideaHref: (ideaId: string) => string
+    /** Phones show only the first in their Up next card. */
+    limit?: number
   }
 
-  let { spaceId, ideaHref }: Props = $props()
+  let { spaceId, ideaHref, limit }: Props = $props()
   const service = useIdeas().service
   const ideas = new Resource<Idea[]>(() => service.inProgress(untrack(() => spaceId)))
   $effect(() => {
@@ -33,7 +35,7 @@
       />
     {:else}
       <ul class="-mx-related flex flex-col" data-testid="ideas-in-progress">
-        {#each list as idea (idea.id)}
+        {#each list.slice(0, limit) as idea (idea.id)}
           <li>
             <a
               href={ideaHref(idea.id)}

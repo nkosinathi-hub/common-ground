@@ -14,9 +14,11 @@
   interface Props {
     spaceId: string
     taskHref: (ideaId: string) => string
+    /** Phones show only the first in their Up next card. */
+    limit?: number
   }
 
-  let { spaceId, taskHref }: Props = $props()
+  let { spaceId, taskHref, limit }: Props = $props()
   const service = useTasks().tasks
   const tasks = new Resource<UpcomingTask[]>(() => service.upcoming(untrack(() => spaceId)))
   // Reloads when Home switches to another space.
@@ -43,7 +45,7 @@
       />
     {:else}
       <ul class="flex flex-col gap-item" data-testid="upcoming-tasks">
-        {#each items as task (task.id)}
+        {#each items.slice(0, limit) as task (task.id)}
           {@const state = dueState(task.dueDate, today)}
           <li class="flex items-start gap-item">
             <Checkbox

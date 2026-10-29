@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
 import { expectNotification } from "../support/social"
 import { requireStack, type TestUser } from "../support/stack"
-import { closeDialog, feed, readable, startSharing, threeMembers, waiting } from "./hard-talk"
+import { closeDialog, expectFeed, readable, startSharing, threeMembers, waiting } from "./hard-talk"
 
 requireStack()
 
@@ -81,15 +81,9 @@ test("the author sees the response and nothing about the reminder @mobile", asyn
 })
 
 test("the feed shows it only to the two of them, and the third member sees nothing @mobile", async () => {
-  await ana.reload()
-  await expect(feed(ana)).toContainText("You shared something with ben")
-  await expect(feed(ana)).toContainText("ben responded to what you shared")
-  await ben.reload()
-  await expect(feed(ben)).toContainText("ana shared something with you")
-  await expect(feed(ben)).toContainText("You responded to what ana shared")
-  await cy.reload()
-  await expect(feed(cy)).toContainText("joined")
-  await expect(feed(cy)).not.toContainText("shared")
+  await expectFeed(ana, ["You shared something with ben", "ben responded to what you shared"])
+  await expectFeed(ben, ["ana shared something with you", "You responded to what ana shared"])
+  await expectFeed(cy, ["joined"], ["shared"])
   await expect(cy.getByTestId("home-note")).toHaveCount(0)
   await expect(waiting(cy)).toHaveCount(0)
   const events = (await readable(users[2]!, "activity_events")) as { event_type: string }[]

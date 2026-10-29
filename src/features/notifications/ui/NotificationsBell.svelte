@@ -31,7 +31,7 @@
     class="relative max-md:size-11"
     aria-label={store.unread > 0 ? `Notifications, ${store.unread} unread` : "Notifications"}
   >
-    <Bell class="size-5" aria-hidden="true" />
+    <Bell aria-hidden="true" />
     {#if store.unread > 0}
       <span
         class="absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground"

@@ -31,13 +31,13 @@
     row?.scrollBy({ left: direction * row.clientWidth * 0.8, behavior: "smooth" })
 </script>
 
-<!-- One row of fixed-width items: swiped on touch, moved with the arrows where there is a pointer. -->
+<!-- Paint containment stops phone browsers sizing the page to the hidden cards. One row of fixed-width items, bleeding to its container's edge (--bleed, a card's padding by default): swiped on touch, moved with the arrows where there is a pointer. -->
 <div class="relative">
   <ul
     bind:this={row}
     aria-label={label}
     onscroll={measure}
-    class="-mx-card flex snap-x snap-mandatory scroll-px-card [scrollbar-width:none] gap-item overflow-x-auto px-card pb-1"
+    class="-mx-(--row-bleed) flex snap-x snap-mandatory scroll-px-(--row-bleed) [scrollbar-width:none] gap-item overflow-x-auto px-(--row-bleed) pb-1 contain-paint [--row-bleed:var(--bleed,var(--space-card))]"
   >
     {@render children()}
   </ul>
