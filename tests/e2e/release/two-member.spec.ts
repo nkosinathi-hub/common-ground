@@ -28,7 +28,7 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
   await expect(benPage.getByRole("link", { name: /Studio Ghibli marathon/ }).first()).toBeVisible()
 
   const calPage = await inviteMember(page, browser, spaceId, cal!)
-  await benPage.goto(`./#/s/${spaceId}/settings`)
+  await benPage.goto(`./#/s/${spaceId}/settings/members`)
   await expect(benPage.getByText("cal", { exact: true })).toBeVisible()
 
   await page.goto(`./#/s/${spaceId}/watch/${itemId}`)

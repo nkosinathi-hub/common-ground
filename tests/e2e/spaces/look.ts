@@ -34,7 +34,9 @@ export async function expectReadablePrimary(page: Page) {
 /** Saves one settings form and waits for the confirmation. */
 export async function saveSettings(page: Page, button: string) {
   await page.getByRole("button", { name: button, exact: true }).click()
-  await expect(page.getByText("Saved").last()).toBeVisible()
+  await expect(
+    page.locator("[data-sonner-toast]").getByText("Saved", { exact: true }).last(),
+  ).toBeVisible()
 }
 
 /** Picks a custom button colour; a hard-to-read one takes the offered fix first. */

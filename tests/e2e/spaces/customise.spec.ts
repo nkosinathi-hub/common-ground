@@ -21,7 +21,7 @@ test("the owner customises a space and a member sees the same look", async ({ pa
   const [ana, ben] = await Promise.all([createUser("ana"), createUser("ben")])
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Our corner")
-  await page.goto(`./#/s/${spaceId}/settings`)
+  await page.goto(`./#/s/${spaceId}/settings/look`)
   const before = await rootColour(page, "--primary")
 
   await pickCustomButton(page, "#ffee00")
@@ -34,8 +34,14 @@ test("the owner customises a space and a member sees the same look", async ({ pa
   const primary = await expectReadablePrimary(page)
   expect(primary).not.toBe(before)
 
+  await page.getByRole("tab", { name: "Identity" }).click()
   await page.getByLabel("Tagline").fill("Sunday dinners and slow films")
   await saveSettings(page, "Save")
+  await page.getByLabel("Choose a picture").setInputFiles(PICTURE)
+  await expect(page.getByText("Picture saved")).toBeVisible()
+  await expect(await spacePicture(page, "Our corner")).toHaveAttribute("src", SIGNED)
+  await page.keyboard.press("Escape")
+  await page.getByRole("tab", { name: "Home & preferences" }).click()
   const activity = page.getByRole("switch", { name: "Show Recent activity" })
   const shownColour = await activity.evaluate((el) => getComputedStyle(el).backgroundColor)
   await activity.click()
@@ -43,10 +49,6 @@ test("the owner customises a space and a member sees the same look", async ({ pa
   // The switch must look different off than on, not only report it to assistive tech.
   await expect(activity).not.toHaveCSS("background-color", shownColour)
   await saveSettings(page, "Save layout")
-
-  await page.getByLabel("Choose a picture").setInputFiles(PICTURE)
-  await expect(page.getByText("Picture saved")).toBeVisible()
-  await expect(await spacePicture(page, "Our corner")).toHaveAttribute("src", SIGNED)
 
   await page.goto(`./#/s/${spaceId}/home`)
   await page.reload()
@@ -70,7 +72,7 @@ test("a customised space passes axe in dark mode @a11y", async ({ browser }) => 
   const page = await projectPage(browser, { colorScheme: "dark" })
   await signIn(page, await createUser("dusk"))
   const spaceId = await createSpace(page, "Night owls")
-  await page.goto(`./#/s/${spaceId}/settings`)
+  await page.goto(`./#/s/${spaceId}/settings/look`)
   await page.getByRole("radio", { name: "Ink" }).click()
   await saveSettings(page, "Save changes")
   await expect(page.locator("html")).toHaveClass(/dark/)

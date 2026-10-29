@@ -14,7 +14,7 @@ test("owner invites a member who joins once; strangers see nothing", async ({ pa
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Ana and Ben")
 
-  await page.goto(`./#/s/${spaceId}/settings`)
+  await page.goto(`./#/s/${spaceId}/settings/members`)
   await page.getByRole("button", { name: "Create invite link" }).click()
   const link = (await page.locator("code").textContent())!.trim()
   const token = link.split("#/invite/")[1]!

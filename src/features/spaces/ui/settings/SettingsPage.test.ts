@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import Provided from "@/shared/ui/testing/Provided.svelte"
+import type { SettingsTab } from "@/shared/domain"
 import type { Space } from "../../domain/space"
 import { sampleSpace } from "../../testing/sample-space"
 import { spacesSetup } from "../../testing/spaces-setup"
@@ -10,14 +11,14 @@ import { SpacesStore } from "../spaces-store.svelte"
 
 afterEach(cleanup)
 
-async function open(overrides: Partial<Space> = {}) {
+async function open(overrides: Partial<Space> = {}, tab?: SettingsTab) {
   const { gateway, service } = spacesSetup()
   gateway.spaces.push(sampleSpace({ id: "s1", name: "Us", ...overrides }))
   const store = new SpacesStore(service)
   await store.refresh()
   const provide = () => provideSpaces({ service, store })
   const space = store.spaces[0]!
-  render(Provided, { props: { provide, component: SettingsPage, props: { space, me: "u1" } } })
+  render(Provided, { props: { provide, component: SettingsPage, props: { space, me: "u1", tab } } })
   return { gateway, store }
 }
 
@@ -35,7 +36,7 @@ describe("SettingsPage for the owner", () => {
   })
 
   it("hides and reorders Home cards", async () => {
-    const { gateway } = await open()
+    const { gateway } = await open({}, "home")
     await fireEvent.click(screen.getByRole("switch", { name: "Show Notes for you" }))
     await fireEvent.click(screen.getByRole("button", { name: "Move Recent activity up" }))
     await fireEvent.click(screen.getByRole("button", { name: "Save layout" }))
@@ -51,7 +52,7 @@ describe("SettingsPage for the owner", () => {
   })
 
   it("saves the default watch intent and week start", async () => {
-    const { gateway } = await open()
+    const { gateway } = await open({}, "home")
     await fireEvent.click(screen.getByLabelText("Watch together"))
     await fireEvent.click(screen.getByLabelText("Sunday"))
     await fireEvent.click(screen.getByRole("button", { name: "Save preferences" }))
@@ -63,18 +64,21 @@ describe("SettingsPage for the owner", () => {
     )
   })
 
-  it("jumps to a section from the section nav", async () => {
-    await open()
-    const nav = screen.getByRole("navigation", { name: "Settings sections" })
-    Element.prototype.scrollIntoView = () => {}
-    await fireEvent.click(within(nav).getByRole("button", { name: "Home layout" }))
-    expect(document.activeElement?.id).toBe("settings-home")
+  it("opens the tab in the link, with all four tabs for the owner", async () => {
+    await open({}, "members")
+    const tabs = screen.getAllByRole("tab").map((tab) => tab.textContent?.trim())
+    expect(tabs).toEqual(["Identity", "Look and feel", "Home & preferences", "Members & safety"])
+    expect(screen.getByRole("tab", { name: "Members & safety" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    )
   })
 })
 
 describe("SettingsPage for a member", () => {
   it("shows only appearance, members and leaving", async () => {
-    await open({ role: "member" })
+    await open({ role: "member" }, "identity")
+    expect(screen.getAllByRole("tab")).toHaveLength(2)
     expect(screen.queryByText("Name and feel")).toBeNull()
     expect(screen.queryByRole("button", { name: "Save look" })).toBeNull()
     expect(screen.getByRole("radiogroup", { name: "Appearance" })).toBeInTheDocument()

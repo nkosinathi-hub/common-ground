@@ -58,7 +58,7 @@
       {:else if route.name === "party"}
         <PartySection spaceId={space.id} partyId={route.partyId} me={user.id} />
       {:else if route.name === "settings"}
-        <SettingsPage {space} me={user.id} />
+        <SettingsPage {space} me={user.id} tab={route.tab} />
       {/if}
     </AppShell>
   {/key}
