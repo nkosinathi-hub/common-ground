@@ -2,6 +2,7 @@
   import { untrack } from "svelte"
   import { Users } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
+  import type { SummaryTitle } from "@/features/catalog"
   import { buildHash } from "@/shared/domain"
   import { Resource } from "@/shared/ui"
   import { useParties } from "./context"
@@ -14,9 +15,11 @@
     isFilm: boolean
     /** Icon only, beside the play button in the phone's sticky bar. */
     compact?: boolean
+    /** Shown at the top of the setup dialog. */
+    title?: SummaryTitle
   }
 
-  let { spaceId, itemId, isFilm, compact = false }: Props = $props()
+  let { spaceId, itemId, isFilm, compact = false, title }: Props = $props()
   const { service } = useParties()
   const open = new Resource(() => service.openFor(itemId))
   let starting = $state(false)
@@ -46,5 +49,5 @@
   >
     <Users aria-hidden="true" />{#if !compact}Watch together{/if}
   </Button>
-  <StartPartyDialog bind:open={starting} {spaceId} {itemId} {isFilm} />
+  <StartPartyDialog bind:open={starting} {spaceId} {itemId} {isFilm} {title} />
 {/if}

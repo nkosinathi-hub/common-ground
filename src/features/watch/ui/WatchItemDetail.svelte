@@ -22,10 +22,10 @@
     playback?: Snippet<[WatchItem, () => void, Snippet]>
     /** The play split button; true fills the phone's sticky bar. */
     play?: Snippet<[boolean]>
-    /** Watch together: (is a film, icon only). */
-    together?: Snippet<[boolean, boolean]>
-    /** Trailer and recommend icon buttons. */
-    tools?: Snippet
+    /** Watch together: (the title, icon only). */
+    together?: Snippet<[WatchItem, boolean]>
+    /** Trailer and recommend icon buttons, for the title. */
+    tools?: Snippet<[WatchItem]>
     player?: Snippet<[WatchItem]>
     discussion?: Snippet<[DiscussionFrame | null]>
   }
@@ -43,18 +43,15 @@
 </script>
 
 {#snippet body(item: WatchItem)}
-  {@const isFilm = item.mediaType === "movie"}
-  {#snippet actions()}{@render slots.play?.(false)}{@render slots.together?.(
-      isFilm,
-      false,
-    )}{/snippet}
+  {#snippet actions()}{@render slots.play?.(false)}{@render slots.together?.(item, false)}{/snippet}
+  {#snippet tools()}{@render slots.tools?.(item)}{/snippet}
   <TitleHeader
     view={page.view.value!}
     {backHref}
     seasons={page.seasonsText}
     wide={wide.current}
     {actions}
-    tools={slots.tools}
+    {tools}
     onChanged={page.reloadItem}
   />
   {@render slots.player?.(item)}
@@ -81,7 +78,7 @@
     <div
       class="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 flex gap-related border-t border-border bg-background/95 px-gutter py-related backdrop-blur"
     >
-      {@render slots.play?.(true)}{@render slots.together?.(isFilm, true)}
+      {@render slots.play?.(true)}{@render slots.together?.(item, true)}
     </div>
   {/if}
 {/snippet}

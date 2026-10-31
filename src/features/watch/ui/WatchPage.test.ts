@@ -59,11 +59,11 @@ describe("WatchPage", () => {
     setup(4)
     await fireEvent.click(await screen.findByRole("button", { name: "Pick for us" }))
     const dialog = await screen.findByRole("dialog")
-    expect(dialog).toHaveTextContent("Tonight's little adventure")
-    await waitFor(() => expect(screen.getByRole("button", { name: "One more pick" })).toBeVisible())
+    expect(dialog).toHaveTextContent("Tonight's pick")
+    await waitFor(() => expect(screen.getByRole("button", { name: "Pick again" })).toBeVisible())
     const first = screen.getByRole("heading", { level: 3 }).textContent
     expect(["Title 2", "Title 4"]).toContain(first)
-    await fireEvent.click(screen.getByRole("button", { name: "One more pick" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Pick again" }))
     await waitFor(() =>
       expect(screen.getByRole("heading", { level: 3 }).textContent).not.toBe(first),
     )

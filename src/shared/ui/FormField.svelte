@@ -58,8 +58,8 @@
 <!-- Figma Input field (177:45): label, control, helper, 8 apart. -->
 <div class={cn("flex max-w-full flex-col gap-related", WIDTHS[width])}>
   <Label for={id} class="type-label"
-    >{label}{#if optional}<span class="font-normal text-muted-foreground">
-        (optional)</span
+    >{optional ? `${label} ` : label}{#if optional}<span class="font-normal text-muted-foreground"
+        >(optional)</span
       >{/if}</Label
   >
   {#if control}

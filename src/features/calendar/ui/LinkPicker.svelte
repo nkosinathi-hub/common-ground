@@ -13,6 +13,8 @@
     { value: "idea", label: "Idea" },
     { value: "task", label: "Task" },
   ]
+  // The space before "(optional)" survives only inside an expression.
+  const LEGEND = "Link to something "
   const PLACEHOLDER = { watch_item: "your Watch library", idea: "your ideas", task: "your tasks" }
 
   interface Props {
@@ -42,7 +44,7 @@
 <!-- S06c "Link to something": the kind as a segmented choice, then search it. -->
 <fieldset class="flex flex-col gap-related">
   <legend class="mb-related type-label text-foreground">
-    Link to something<span class="font-normal text-muted-foreground"> (optional)</span>
+    {LEGEND}<span class="font-normal text-muted-foreground">(optional)</span>
   </legend>
   {#if value}
     <div

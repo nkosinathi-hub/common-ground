@@ -66,6 +66,7 @@
 <LogSessionDialog
   bind:open={logging}
   itemId={item.id}
+  title={{ title: item.title, posterPath: item.posterPath }}
   {members}
   onLogged={() => {
     void sessions.load()

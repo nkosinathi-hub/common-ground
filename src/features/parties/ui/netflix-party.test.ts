@@ -34,8 +34,8 @@ describe("Netflix parties (#66)", () => {
     const provide = () => provideParties(fakes.context)
     render(Provided, { props: { provide, component: WatchTogether, props } })
     await fireEvent.click(await screen.findByRole("button", { name: "Watch together" }))
-    await fireEvent.click(screen.getByLabelText("On Netflix (with the Common Ground extension)"))
-    await fireEvent.click(screen.getByRole("button", { name: "Start the party" }))
+    await fireEvent.click(screen.getByRole("radio", { name: "Netflix" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Start watching" }))
     await waitFor(() =>
       expect(fakes.gateway.calls).toContainEqual([
         "start",

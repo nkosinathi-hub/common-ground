@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/svelte"
+import type { WatchItem } from "../domain/types"
 import { createRawSnippet } from "svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { CatalogService, provideCatalog } from "@/features/catalog"
@@ -11,8 +12,8 @@ import WatchItemDetail from "./WatchItemDetail.svelte"
 afterEach(cleanup)
 
 const html = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }))
-const together = createRawSnippet((film: () => boolean, compact: () => boolean) => ({
-  render: () => `<p>Together ${film()} ${compact()}</p>`,
+const together = createRawSnippet((item: () => WatchItem, compact: () => boolean) => ({
+  render: () => `<p>Together ${item().mediaType === "movie"} ${compact()}</p>`,
 }))
 
 function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
@@ -73,7 +74,7 @@ describe("WatchItemDetail", () => {
   it("logs a watched-together night by hand", async () => {
     const { gateway } = setup()
     await fireEvent.click(await screen.findByRole("button", { name: "Log watched together" }))
-    await fireEvent.click(await screen.findByRole("button", { name: "Log it" }))
+    await fireEvent.click(await screen.findByRole("button", { name: "Log watch" }))
     await waitFor(() => expect(gateway.sessionRows).toHaveLength(1))
   })
 
