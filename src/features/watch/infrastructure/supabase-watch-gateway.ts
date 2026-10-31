@@ -1,7 +1,7 @@
 import { appError, err, ok, type AppError, type Result } from "@/shared/domain"
 import { removed, same, settle, signedOut, touched } from "@/shared/infrastructure/query"
 import type { ListRequest, WatchGateway } from "../application/ports"
-import { pageOf } from "../domain/filters"
+import { countTypes, pageOf } from "../domain/filters"
 import type * as T from "../domain/types"
 import { SupabaseWatchProgress } from "./supabase-watch-progress"
 import { catalogArgs, detailColumns, listArgs } from "./watch-args"
@@ -17,6 +17,15 @@ export class SupabaseWatchGateway extends SupabaseWatchProgress implements Watch
       const keyed = rows.map((row) => ({ item: toItem(row), sortKey: row.sort_key ?? "" }))
       return pageOf(keyed, request.size)
     })
+  }
+
+  countByType(spaceId: string): Promise<Result<Record<T.MediaType, number>>> {
+    const query = this.db
+      .from("watch_items")
+      .select("media_type")
+      .eq("space_id", spaceId)
+      .neq("shared_intent", "archived")
+    return settle(query, (rows) => countTypes(rows.map((row) => row.media_type)))
   }
 
   async get(spaceId: string, itemId: string): Promise<Result<T.WatchItemView>> {

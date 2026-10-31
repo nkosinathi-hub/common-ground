@@ -1,84 +1,95 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
-  import { ArrowLeft } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
-  import { AsyncView, Resource } from "@/shared/ui"
+  import { MediaQuery } from "svelte/reactivity"
+  import * as Tabs from "$lib/components/ui/tabs"
+  import { ListingsNote } from "@/features/catalog"
+  import { buildHash, type TitleTab } from "@/shared/domain"
+  import { AsyncView, navigate, pageTitle } from "@/shared/ui"
+  import type { DiscussionFrame } from "../domain/title-facts"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
-  import ItemAvailability from "./ItemAvailability.svelte"
-  import ItemHeader from "./ItemHeader.svelte"
-  import ProgressPanel from "./ProgressPanel.svelte"
-  import SessionsPanel from "./SessionsPanel.svelte"
+  import TitleAside from "./TitleAside.svelte"
+  import TitleHeader from "./TitleHeader.svelte"
+  import { TitlePage } from "./title-page.svelte"
 
   interface Props {
     spaceId: string
     itemId: string
     backHref: string
-    /** Comment thread for this title, rendered below progress. */
-    comments?: Snippet
-    /** "Recommend to a member" control, rendered with the title actions. */
-    recommend?: Snippet
-    /** "Watch together" for this title; told whether it is a film (no episodes to pick). */
-    together?: Snippet<[boolean]>
-    /** Watch-here player for the title, rendered under the header. */
-    play?: Snippet<[WatchItem, () => void]>
+    /** Phones only: Progress or Discussion; older links to other tabs open Progress. */
+    tab?: TitleTab
+    /** Wraps the page so its play button, trailer and player share one title's playback. */
+    playback?: Snippet<[WatchItem, () => void, Snippet]>
+    /** The play split button; true fills the phone's sticky bar. */
+    play?: Snippet<[boolean]>
+    /** Watch together: (the title, icon only). */
+    together?: Snippet<[WatchItem, boolean]>
+    /** Trailer and recommend icon buttons, for the title. */
+    tools?: Snippet<[WatchItem]>
+    player?: Snippet<[WatchItem]>
+    discussion?: Snippet<[DiscussionFrame | null]>
   }
 
-  let { spaceId, itemId, backHref, comments, recommend, together, play }: Props = $props()
-  const { service, members, authors } = useWatch()
-  const view = new Resource(() => service.get(spaceId, itemId))
-  const people = new Resource(() => members.members(spaceId))
-  const names = new Resource(() => authors.authors(spaceId))
-  let progressVersion = $state(0)
+  let { spaceId, itemId, backHref, tab, ...slots }: Props = $props()
+  const page = untrack(() => new TitlePage(useWatch(), spaceId, itemId))
+  const wide = new MediaQuery("min-width: 768px")
+  let checkedAt = $state<string | null>(null)
+  const shown = $derived(tab === "discussion" ? "discussion" : "progress")
+  const open = (next: string) =>
+    navigate(buildHash({ name: "watch-item", spaceId, itemId, tab: next as TitleTab }))
 
-  $effect(() => {
-    // Reload when the space or title changes; the loads must not become dependencies.
-    void [spaceId, itemId]
-    untrack(() => {
-      void view.load()
-      void people.load()
-      void names.load()
-    })
-  })
+  $effect(() => void untrack(() => page.load()))
+  $effect(() => (page.view.value ? pageTitle.show(page.view.value.item.title) : undefined))
 </script>
 
-<article class="mx-auto max-w-5xl space-y-6">
-  <Button variant="ghost" size="sm" href={backHref}>
-    <ArrowLeft aria-hidden="true" />
-    Back to the list
-  </Button>
-  <AsyncView resource={view}>
+{#snippet body(item: WatchItem)}
+  {#snippet actions()}{@render slots.play?.(false)}{@render slots.together?.(item, false)}{/snippet}
+  {#snippet tools()}{@render slots.tools?.(item)}{/snippet}
+  <TitleHeader
+    view={page.view.value!}
+    {backHref}
+    seasons={page.seasonsText}
+    wide={wide.current}
+    {actions}
+    {tools}
+    onChanged={page.reloadItem}
+  />
+  {@render slots.player?.(item)}
+  {#if wide.current}
+    <div class="grid items-start gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
+      <div class="min-w-0">{@render slots.discussion?.(page.frame)}</div>
+      <aside class="flex min-w-0 flex-col gap-stack" aria-label="Progress and where to watch">
+        <TitleAside {page} {item} wide onchecked={(at) => (checkedAt = at)} />
+      </aside>
+    </div>
+    <ListingsNote {checkedAt} />
+  {:else}
+    <Tabs.Root value={shown} onValueChange={open} class="flex flex-col gap-stack">
+      <Tabs.List variant="line" aria-label="Title" class="w-full justify-start">
+        <Tabs.Trigger value="progress">Progress</Tabs.Trigger>
+        <Tabs.Trigger value="discussion">Discussion</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="progress" class="flex flex-col gap-stack">
+        <TitleAside {page} {item} wide={false} onchecked={(at) => (checkedAt = at)} />
+      </Tabs.Content>
+      <Tabs.Content value="discussion">{@render slots.discussion?.(page.frame)}</Tabs.Content>
+    </Tabs.Root>
+    <!-- One sticky action above the tab bar (M03c): play, and Watch together as an icon. -->
+    <div
+      class="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 flex gap-related border-t border-border bg-background/95 px-gutter py-related backdrop-blur"
+    >
+      {@render slots.play?.(true)}{@render slots.together?.(item, true)}
+    </div>
+  {/if}
+{/snippet}
+
+<!-- D03a/D03b (289:9576, 291:10377) on wide screens; M03c/M03d (292:10242, 296:10755) on phones. -->
+<article class="flex flex-col gap-section">
+  <AsyncView resource={page.view}>
     {#snippet children(current)}
-      <ItemHeader view={current} {backHref} {recommend} onChanged={() => view.load()} />
-      {@render play?.(current.item, () => {
-        progressVersion++
-        void view.load()
-      })}
-      {#if together}{@render together(current.item.mediaType === "movie")}{/if}
-      <ItemAvailability {spaceId} item={current.item} />
-      <div class="grid gap-6 lg:grid-cols-2">
-        <ProgressPanel
-          item={current.item}
-          authors={names.value ?? people.value ?? []}
-          version={progressVersion}
-          onSaved={() => {
-            progressVersion++
-            void view.load()
-          }}
-        />
-        <SessionsPanel
-          item={current.item}
-          members={people.value ?? []}
-          authors={names.value ?? people.value ?? []}
-          onLogged={() => {
-            progressVersion++
-            void view.load()
-          }}
-        />
-      </div>
-      {#if comments}
-        <section aria-label="Conversation" class="border-t pt-6">{@render comments()}</section>
-      {/if}
+      {#snippet content()}{@render body(current.item)}{/snippet}
+      {#if slots.playback}{@render slots.playback(current.item, page.changed, content)}
+      {:else}{@render content()}{/if}
     {/snippet}
   </AsyncView>
 </article>

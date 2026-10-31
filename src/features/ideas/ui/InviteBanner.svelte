@@ -30,13 +30,13 @@
 {#if invite}
   <section
     aria-label="Invitation"
-    class="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-highlight p-3"
+    class="flex flex-wrap items-center justify-between gap-related rounded-lg border bg-secondary p-item"
   >
-    <p class="text-sm">
+    <p class="type-sm">
       {memberName(authors, invite.invitedBy)} invited you to work on this idea. Joining makes it our idea;
       you hear about new comments and stage changes.
     </p>
-    <div class="flex gap-2">
+    <div class="flex gap-related">
       <Button size="sm" disabled={pending} onclick={() => answer(true)}>Accept</Button>
       <Button size="sm" variant="outline" disabled={pending} onclick={() => answer(false)}
         >Decline</Button

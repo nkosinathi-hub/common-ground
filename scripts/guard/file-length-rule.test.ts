@@ -24,8 +24,11 @@ describe("file length rule", () => {
       findLengthViolations([
         { path: "pnpm-lock.yaml", text: big },
         { path: "src/shared/infrastructure/database.types.ts", text: big },
+        { path: "src/styles/generated/theme.css", text: big },
+        { path: "src/shared/domain/design/figma-export.json", text: big },
+        { path: "src/styles/theme.css", text: big },
         { path: "supabase/migrations/x.sql", text: big },
       ]).map((v) => v.path),
-    ).toEqual(["supabase/migrations/x.sql"])
+    ).toEqual(["src/styles/theme.css", "supabase/migrations/x.sql"])
   })
 })

@@ -6,13 +6,13 @@ import AppearanceCard from "./AppearanceCard.svelte"
 afterEach(cleanup)
 
 describe("AppearanceCard", () => {
-  it("offers light, dark and system, and remembers the choice on this device", async () => {
+  it("offers light, dark and system, and keeps the saved choice on this device", async () => {
     render(AppearanceCard)
-    expect(screen.getByRole("radio", { name: "Match this device" })).toBeChecked()
+    expect(screen.getByRole("radio", { name: "System" })).toBeChecked()
     await fireEvent.click(screen.getByRole("radio", { name: "Dark" }))
+    expect(userPrefersMode.current).toBe("system")
+    await fireEvent.click(screen.getByRole("button", { name: "Save" }))
     expect(userPrefersMode.current).toBe("dark")
     expect(screen.getByRole("radio", { name: "Dark" })).toBeChecked()
-    await fireEvent.click(screen.getByRole("radio", { name: "Light" }))
-    expect(userPrefersMode.current).toBe("light")
   })
 })

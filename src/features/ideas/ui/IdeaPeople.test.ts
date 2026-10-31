@@ -38,9 +38,9 @@ describe("idea invitations", () => {
     await setup("ana")
     const banner = screen.getByRole("region", { name: "Invitation" })
     expect(banner).toHaveTextContent("Ben invited you to work on this idea")
-    expect(screen.queryByText("Our idea")).toBeNull()
+    expect(screen.queryByText(/Shared with/)).toBeNull()
     await fireEvent.click(within(banner).getByRole("button", { name: "Accept" }))
-    expect(await screen.findByText("Our idea")).toBeInTheDocument()
+    expect(await screen.findByText(/Shared with Ana/)).toBeInTheDocument()
     expect(screen.queryByRole("region", { name: "Invitation" })).toBeNull()
     expect(screen.getByRole("img", { name: "On this idea: Ben, Ana" })).toBeInTheDocument()
   })
@@ -56,7 +56,7 @@ describe("idea invitations", () => {
 describe("people dialog", () => {
   it("locks the author, shows pending invites and invites who is picked", async () => {
     const { service, id } = await setup("ben")
-    await fireEvent.click(screen.getByRole("button", { name: "People" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Manage people" }))
     const dialog = within(await screen.findByRole("dialog", { name: "People on this idea" }))
     const author = dialog.getByRole("checkbox", { name: "Ben (started it)" })
     expect(author).toBeChecked()

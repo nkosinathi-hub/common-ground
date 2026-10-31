@@ -29,13 +29,11 @@ export type WatchItemRow = Pick<
   /** list_watch_items only: every member's place and the together pointer (jsonb). */
   readonly places?: unknown
   readonly together?: unknown
+  /** list_watch_items sorted For you: the genre key that lifted the title. */
+  readonly reason?: string | null
 }
 
 export type ProgressRow = Omit<Tables<"watch_progress">, "space_id" | "watch_item_id">
-
-export interface SessionRow extends Pick<Tables<"watch_sessions">, "id" | "watched_on" | "note"> {
-  readonly watch_session_members: { user_id: string }[] | null
-}
 
 export const ITEM_COLUMNS =
   "id, space_id, catalog_type, catalog_id, title, media_type, release_year, synopsis, poster_path, shared_intent, manual_availability_note, created_by, created_at"
@@ -59,6 +57,7 @@ export const toItem = (row: WatchItemRow, myStatus?: T.ProgressStatus): T.WatchI
   myStatus: myStatus ?? progressStatusOf(row.my_progress),
   places: parsePlaces(row.places),
   together: parseTogether(row.together),
+  reason: row.reason ?? null,
 })
 
 // Postgres renders date columns as YYYY-MM-DD, which is exactly a DateOnly.
@@ -67,16 +66,8 @@ export const toProgress = (row: ProgressRow): T.Progress => ({
   status: row.status,
   season: row.season,
   episode: row.episode,
-  rating: row.rating,
   completedOn: row.completed_on as DateOnly | null,
   updatedAt: row.updated_at,
-})
-
-export const toSession = (row: SessionRow): T.WatchSession => ({
-  id: row.id,
-  watchedOn: row.watched_on as DateOnly,
-  note: row.note,
-  memberIds: (row.watch_session_members ?? []).map((member) => member.user_id),
 })
 
 /** Unique violations and the add RPC's friendly P0001 both read as a duplicate add. */

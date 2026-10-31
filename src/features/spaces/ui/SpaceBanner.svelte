@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { Illustration } from "@/shared/ui"
+  import { formatLongDay } from "@/shared/domain"
   import type { Space } from "../domain/space"
   import { templateFor } from "../domain/templates"
   import { useSpaces } from "./context"
 
-  /** The Home welcome: the cover picture behind a readable scrim, the title and the tagline. */
+  /** The Home welcome (D01): the day, the greeting as the page's heading, and the tagline. */
   interface Props {
     space: Space
     title: string
@@ -17,21 +17,12 @@
   const line = $derived(space.tagline || `${template.headline} ${template.welcome}`)
 </script>
 
-<section
-  data-testid="space-banner"
-  class="relative overflow-hidden rounded-2xl bg-banner bg-cover bg-center"
-  style:background-image={cover ? `url("${cover}")` : undefined}
->
-  <div
-    class={[
-      "flex items-center justify-between gap-6 px-6 py-8",
-      cover && "m-3 w-fit max-w-[calc(100%-1.5rem)] rounded-xl bg-background/80 py-5 sm:mt-16",
-    ]}
-  >
-    <div>
-      <h1 class="text-2xl font-semibold">{title}</h1>
-      <p class="mt-1 text-muted-foreground">{line}</p>
-    </div>
-    {#if !cover}<Illustration class="hidden h-24 shrink-0 sm:block" />{/if}
+<section data-testid="space-banner" class="flex flex-col gap-stack">
+  <!-- The space's cover, when it has one, fills a wide strip above the greeting. -->
+  {#if cover}<img src={cover} alt="" class="h-36 w-full rounded-lg object-cover md:h-44" />{/if}
+  <div class="flex flex-col gap-related">
+    <p class="type-overline text-muted-foreground">{formatLongDay(new Date())}</p>
+    <h1 class="type-h1 text-foreground">{title}</h1>
+    <p class="type-body text-muted-foreground">{line}</p>
   </div>
 </section>

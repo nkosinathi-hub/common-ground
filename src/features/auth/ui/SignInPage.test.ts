@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/svelte"
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/svelte"
 import { afterEach, describe, expect, it } from "vitest"
 import { AuthService } from "../application/auth-service"
 import { FakeAuthGateway } from "../testing/fake-auth-gateway"
@@ -29,7 +29,7 @@ describe("SignInPage", () => {
     const gateway = await setup()
     await signIn("a long password")
     await fireEvent.click(await screen.findByRole("button", { name: /resend verification/i }))
-    expect(await screen.findByRole("status")).toHaveTextContent("Check your inbox")
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("Check your inbox"))
     expect(gateway.sent.filter((s) => s.kind === "verify")).toHaveLength(2)
   })
 

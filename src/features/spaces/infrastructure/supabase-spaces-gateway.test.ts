@@ -15,7 +15,7 @@ describe("SupabaseSpacesGateway", () => {
     const { gateway, calls } = gatewayFor([{ data: [row], error: null }])
     expect(await gateway.listMine()).toMatchObject({
       ok: true,
-      value: [{ id: "s1", name: "Us", template: "couple", role: "owner", accent: "#aabbcc" }],
+      value: [{ id: "s1", name: "Us", template: "couple", role: "owner", backgroundPath: null }],
     })
     expect(calls).toContainEqual(["eq", "user_id", "u1"])
     expect(String(calls[1]?.[1])).toContain("home_cards")

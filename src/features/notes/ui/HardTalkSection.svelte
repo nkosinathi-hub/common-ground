@@ -1,40 +1,36 @@
 <script lang="ts">
-  import type { Snippet } from "svelte"
-  import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
+  import { FormField } from "@/shared/ui"
   import { SECTION_COPY, SECTION_MAX, showCounter, type SectionKey } from "../domain"
 
   interface Props {
     key: SectionKey
     value?: string
-    ref?: HTMLTextAreaElement | null
-    children?: Snippet
+    /** Under the box, e.g. the tip to start with "I". */
+    hint?: string
+    rows?: number
   }
 
-  let { key, value = $bindable(""), ref = $bindable(null), children }: Props = $props()
-  const id = $derived(`hard-talk-${key}`)
+  let { key, value = $bindable(""), hint, rows = 3 }: Props = $props()
   const copy = $derived(SECTION_COPY[key])
   const long = $derived(value.length > SECTION_MAX)
 </script>
 
-<div class="grid gap-1.5">
-  <Label for={id}>{copy.label}</Label>
-  <Textarea
-    {id}
-    rows={2}
-    placeholder={copy.placeholder}
-    aria-invalid={long || undefined}
-    aria-describedby={showCounter(value) ? `${id}-count` : undefined}
-    bind:ref
-    bind:value
-  />
-  {#if showCounter(value)}
-    <p
-      id="{id}-count"
-      class="text-right text-xs {long ? 'text-destructive' : 'text-muted-foreground'}"
-    >
-      {value.length} / {SECTION_MAX}
-    </p>
-  {/if}
-  {@render children?.()}
-</div>
+<!-- One optional part of "Something on my mind"; the count shows only near the limit. -->
+<FormField
+  id="hard-talk-{key}"
+  label={copy.label}
+  hint={showCounter(value) ? `${value.length} / ${SECTION_MAX}` : hint}
+  error={long ? `Each part is at most ${SECTION_MAX} characters` : undefined}
+>
+  {#snippet control({ id, describedby, invalid })}
+    <Textarea
+      {id}
+      {rows}
+      placeholder={copy.placeholder}
+      aria-invalid={invalid || undefined}
+      aria-describedby={describedby}
+      bind:value
+    />
+  {/snippet}
+</FormField>

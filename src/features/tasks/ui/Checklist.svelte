@@ -1,9 +1,11 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Input } from "$lib/components/ui/input"
+  import { Checkbox } from "$lib/components/ui/checkbox"
+  import { Label } from "$lib/components/ui/label"
   import type { Result } from "@/shared/domain"
   import { AsyncView, DeleteButton, FormError, Resource } from "@/shared/ui"
-  import { checklistProgress, LABEL_MAX, type ChecklistItem, type Task } from "../domain"
+  import { checklistProgress, type ChecklistItem, type Task } from "../domain"
+  import ChecklistAdd from "./ChecklistAdd.svelte"
   import { useTasks } from "./context"
 
   type Change<T> = (value: T, items: ChecklistItem[]) => ChecklistItem[]
@@ -16,7 +18,6 @@
   let { task, canDelete }: Props = $props()
   const { checklist } = useTasks()
   const items = new Resource<ChecklistItem[]>(() => checklist.list(untrack(() => task.id)))
-  let label = $state("")
   let error = $state<string | null>(null)
   // Reloads when the card shows another task.
   $effect(() => {
@@ -32,11 +33,8 @@
     return !failure
   }
 
-  async function add(event: SubmitEvent) {
-    event.preventDefault()
-    const added = await run(checklist.add(task, label, current()), (item, list) => [...list, item])
-    if (added) label = ""
-  }
+  const add = (label: string) =>
+    run(checklist.add(task, label, current()), (item, list) => [...list, item])
 
   const toggle = (id: string, done: boolean) =>
     run(checklist.toggle(id, done), (item, list) =>
@@ -46,24 +44,29 @@
     run(checklist.remove(id), (_removed, list) => list.filter((entry) => entry.id !== id))
 </script>
 
-<div class="flex flex-col gap-1" aria-label="Checklist for {task.title}">
-  {#if progress.total > 0}<p class="text-xs text-muted-foreground">
-      {progress.done} of {progress.total} done
-    </p>{/if}
+<!-- D08 checklist: a quiet panel inside the task card, ticked in place. -->
+<section
+  class="flex flex-col gap-related rounded-md bg-muted p-inset"
+  aria-label="Checklist for {task.title}"
+>
+  <p class="flex items-baseline gap-related">
+    <span class="type-label text-foreground">Checklist</span>
+    <span class="type-xs text-muted-foreground">{progress.done} of {progress.total}</span>
+  </p>
   <AsyncView resource={items}>
     {#snippet children(list)}
-      <ul class="flex flex-col gap-1">
+      <ul class="flex flex-col gap-related">
         {#each list as item (item.id)}
-          <li class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
+          <li class="flex min-h-8 items-center gap-item">
+            <Checkbox
               id="item-{item.id}"
               checked={item.done}
-              onchange={(event) => toggle(item.id, event.currentTarget.checked)}
+              onCheckedChange={(done) => toggle(item.id, done === true)}
             />
-            <label
+            <Label
               for="item-{item.id}"
-              class={item.done ? "text-muted-foreground line-through" : ""}>{item.label}</label
+              class="flex-1 {item.done ? 'text-muted-foreground line-through' : ''}"
+              >{item.label}</Label
             >
             {#if canDelete(item.createdBy)}
               <DeleteButton
@@ -77,14 +80,6 @@
       </ul>
     {/snippet}
   </AsyncView>
-  <form class="flex gap-1" onsubmit={add}>
-    <Input
-      class="h-7 text-xs"
-      aria-label="New checklist item"
-      placeholder="Add an item"
-      maxlength={LABEL_MAX}
-      bind:value={label}
-    />
-  </form>
-  <FormError message={error} class="text-xs" />
-</div>
+  <ChecklistAdd onadd={add} />
+  <FormError message={error} />
+</section>

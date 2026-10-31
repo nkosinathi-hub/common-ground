@@ -32,7 +32,7 @@
 <form class="flex flex-col gap-1" onsubmit={send}>
   <label class="sr-only" for={id}>Your reply</label>
   <Textarea {id} rows={2} maxlength={NOTE_MAX} placeholder="Write a reply" bind:value={body} />
-  <FormError message={error} class="text-xs" />
+  <FormError message={error} class="type-xs" />
   <Button type="submit" size="sm" class="self-start" disabled={sending || !body.trim()}
     >Send reply</Button
   >

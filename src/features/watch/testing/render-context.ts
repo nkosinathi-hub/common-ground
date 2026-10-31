@@ -1,6 +1,8 @@
 import { appError, err, ok } from "@/shared/domain"
 import { FakeMemberDirectory } from "@/shared/domain/testing/fake-members"
+import { WatchOpinions } from "../application/watch-opinions"
 import { WatchService } from "../application/watch-service"
+import { FakeWatchOpinions } from "./fake-watch-opinions"
 import { ME, PARTNER } from "./fixtures"
 import { FakeWatchGateway } from "./fake-watch-gateway"
 
@@ -12,7 +14,17 @@ export function watchFakes() {
     { id: PARTNER, displayName: "Lindi" },
   ])
   const service = new WatchService(gateway)
-  return { gateway, members, service }
+  const opinionRows = new FakeWatchOpinions()
+  const opinions = new WatchOpinions(opinionRows)
+  /** Everything provideWatch takes; one series season of six episodes. */
+  const context = {
+    service,
+    members,
+    authors: members,
+    opinions,
+    seasons: async () => ok([{ number: 1, episodeCount: 6 }]),
+  }
+  return { gateway, members, service, opinionRows, context }
 }
 
 /** A catalog that finds nothing and has no listings; enough for watch UI tests. */

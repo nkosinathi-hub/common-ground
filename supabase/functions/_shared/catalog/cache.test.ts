@@ -19,7 +19,7 @@ describe("cache keys", () => {
 
   it("keys details by type and id", () => {
     // v2 since v0.5 added trailers, recommendations, seasons and IMDb ids: older rows lack them.
-    expect(detailsKey("movie", 438631)).toBe("details:v2:movie:438631")
+    expect(detailsKey("movie", 438631)).toBe("details:v3:movie:438631")
     expect(detailsKey("tv", 438631)).not.toBe(detailsKey("movie", 438631))
   })
 })

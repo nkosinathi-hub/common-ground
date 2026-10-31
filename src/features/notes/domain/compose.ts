@@ -27,3 +27,12 @@ export function whoToWhom(note: Pick<Note, "authorId" | "authorName" | "recipien
   if (note.recipient.kind === "everyone") return `${from} to everyone`
   return `${from} to ${note.recipient.id === me ? "you" : note.recipient.name}`
 }
+
+/** The composer's heading for each kind (S01, S02a); later steps show no line under it. */
+export const COMPOSER_COPY = {
+  note: { title: "Leave a little note", line: "A hello, a reminder, or something worth sharing." },
+  hard_talk: {
+    title: "Something on my mind",
+    line: "Take your time. Write it however it comes, in any language.",
+  },
+} as const

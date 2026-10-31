@@ -6,7 +6,7 @@ export const RESEARCH_KINDS: readonly ItemKind[] = [
     name: "note",
     tab: "research",
     add: async (page, text) => {
-      await page.getByLabel("New note").fill(text)
+      await page.getByLabel("Add a research note").fill(text)
       await page.getByRole("button", { name: "Add note" }).click()
     },
     row: byTestId("note"),
@@ -16,8 +16,10 @@ export const RESEARCH_KINDS: readonly ItemKind[] = [
     name: "link",
     tab: "research",
     add: async (page, text) => {
-      await page.getByLabel("Link URL").fill(`https://example.com/${text.replaceAll(" ", "-")}`)
-      await page.getByLabel("Link title").fill(text)
+      await page
+        .getByLabel("URL", { exact: true })
+        .fill(`https://example.com/${text.replaceAll(" ", "-")}`)
+      await page.getByLabel("Title", { exact: true }).fill(text)
       await page.getByRole("button", { name: "Add link" }).click()
     },
     row: byTestId("research-link"),

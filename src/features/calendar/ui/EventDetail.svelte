@@ -1,7 +1,5 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { ArrowLeft, Download, Pencil } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
   import {
     appError,
     buildHash,
@@ -10,15 +8,17 @@
     FORMER_MEMBER,
     todayDateOnly,
   } from "@/shared/domain"
-  import { AsyncView, DeleteButton, Resource, toast, navigate } from "@/shared/ui"
-  import { eventIcs, icsFileName, type CalendarEvent } from "../domain"
-  import { saveFile, viewerZone } from "./browser"
+  import { AsyncView, Resource, toast, navigate } from "@/shared/ui"
+  import type { CalendarEvent } from "../domain"
+  import { viewerZone } from "./browser"
   import ConflictWarning from "./ConflictWarning.svelte"
   import { useCalendar } from "./context"
   import EventDialog from "./EventDialog.svelte"
-  import EventSummary from "./EventSummary.svelte"
-  import MyReminders from "./MyReminders.svelte"
-  import RsvpChips from "./RsvpChips.svelte"
+  import EventDetailsCard from "./EventDetailsCard.svelte"
+  import EventHeader from "./EventHeader.svelte"
+  import LinkedCard from "./LinkedCard.svelte"
+  import RemindersCard from "./RemindersCard.svelte"
+  import RsvpCard from "./RsvpCard.svelte"
 
   interface Props {
     spaceId: string
@@ -48,45 +48,44 @@
 
   async function remove() {
     const result = await service.remove(eventId)
-    if (!result.ok) return toast.error(result.error.message)
+    if (!result.ok) return void toast.error(result.error.message)
     toast.success("Event deleted")
     navigate(calendarHref)
   }
 </script>
 
-<div class="flex flex-col gap-4">
-  <a href={calendarHref} class="inline-flex items-center gap-1 text-sm text-muted-foreground">
-    <ArrowLeft class="size-4" aria-hidden="true" />Calendar
-  </a>
-  <AsyncView resource={event}>
-    {#snippet children(current)}
-      {@const mayChange = canDelete(current.createdBy, { me, isOwner })}
-      <EventSummary event={current} {zone} {spaceId} />
-      <ConflictWarning event={current} {spaceId} {zone} />
-      <RsvpChips event={current} {me} {nameOf} onAnswered={() => event.load()} />
-      <MyReminders event={current} />
-      <div class="flex flex-wrap items-center gap-2">
-        <Button
-          variant="outline"
-          onclick={() =>
-            saveFile(icsFileName(current.title), eventIcs(current, new Date()), "text/calendar")}
-        >
-          <Download aria-hidden="true" />Download .ics
-        </Button>
-        {#if mayChange}
-          <Button variant="outline" onclick={() => (editing = true)}>
-            <Pencil aria-hidden="true" />Edit
-          </Button>
-          <DeleteButton label="Delete event" what="this event" size="icon-sm" onConfirm={remove} />
-        {/if}
-      </div>
-      <EventDialog
-        bind:open={editing}
-        {spaceId}
+<!-- Figma D14: the header, then details and answers beside reminders and what it is linked to. -->
+<AsyncView resource={event}>
+  {#snippet children(current)}
+    {@const mayChange = canDelete(current.createdBy, { me, isOwner })}
+    <div class="flex flex-col gap-section">
+      <EventHeader
         event={current}
-        day={todayDateOnly()}
-        onSaved={() => event.load()}
+        {spaceId}
+        {zone}
+        {mayChange}
+        onEdit={() => (editing = true)}
+        onDelete={remove}
       />
-    {/snippet}
-  </AsyncView>
-</div>
+      <div class="grid items-start gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
+        <div class="flex flex-col gap-columns">
+          <ConflictWarning event={current} {spaceId} {zone} />
+          <EventDetailsCard event={current} {zone} />
+          <RsvpCard event={current} {me} {nameOf} onAnswered={() => event.load()} />
+        </div>
+        <div class="flex flex-col gap-columns">
+          <RemindersCard event={current} onEdit={mayChange ? () => (editing = true) : undefined} />
+          <LinkedCard event={current} {spaceId} />
+        </div>
+      </div>
+    </div>
+    <EventDialog
+      bind:open={editing}
+      {spaceId}
+      event={current}
+      day={todayDateOnly()}
+      onSaved={() => event.load()}
+      onDelete={mayChange ? remove : undefined}
+    />
+  {/snippet}
+</AsyncView>

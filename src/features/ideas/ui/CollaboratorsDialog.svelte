@@ -1,10 +1,10 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { SvelteSet } from "svelte/reactivity"
-  import { Button } from "$lib/components/ui/button"
-  import * as Dialog from "$lib/components/ui/dialog"
+  import { Checkbox } from "$lib/components/ui/checkbox"
+  import { Label } from "$lib/components/ui/label"
   import type { MemberRef, Result } from "@/shared/domain"
-  import { toast } from "@/shared/ui"
+  import { DialogShell, InitialAvatar, toast } from "@/shared/ui"
   import { rosterChanges, type Idea } from "../domain"
   import { useIdeas } from "./context"
 
@@ -32,8 +32,7 @@
     if (!result.ok) toast.error(result.error.message)
   }
 
-  async function save(event: SubmitEvent) {
-    event.preventDefault()
+  async function save() {
     saving = true
     const { invite, remove } = rosterChanges(idea, picked)
     refused(await ideas.invite(idea.id, invite))
@@ -44,34 +43,29 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Content>
-    <Dialog.Header>
-      <Dialog.Title>People on this idea</Dialog.Title>
-      <Dialog.Description
-        >Invite members to make it your idea together. They hear about new comments and stage
-        changes.</Dialog.Description
-      >
-    </Dialog.Header>
-    <form class="grid gap-4" onsubmit={save}>
-      <fieldset class="grid gap-2">
-        <legend class="mb-1 text-sm font-medium">Members</legend>
-        {#each members as member (member.id)}
-          <label class="flex min-h-11 items-center gap-2 text-sm sm:min-h-0">
-            <input
-              type="checkbox"
-              class="accent-primary"
-              checked={member.id === idea.createdBy || picked.has(member.id)}
-              disabled={member.id === idea.createdBy}
-              onchange={(e) => toggle(member.id, e.currentTarget.checked)}
-            />
-            {member.displayName}{note(member.id)}
-          </label>
-        {/each}
-      </fieldset>
-      <Dialog.Footer>
-        <Button type="submit" disabled={saving}>Save</Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
+<!-- Who is on this idea: a checkbox row per member, the author always on it. -->
+<DialogShell
+  bind:open
+  title="People on this idea"
+  description="Invite members to make it your idea together. They hear about new comments and stage changes."
+  primary="Save"
+  busy={saving}
+  onsubmit={save}
+>
+  <fieldset class="flex flex-col">
+    <legend class="sr-only">Members</legend>
+    {#each members as member (member.id)}
+      {@const id = `collaborator-${member.id}`}
+      <div class="flex min-h-11 items-center gap-item">
+        <Checkbox
+          {id}
+          checked={member.id === idea.createdBy || picked.has(member.id)}
+          disabled={member.id === idea.createdBy}
+          onCheckedChange={(on) => toggle(member.id, on)}
+        />
+        <InitialAvatar name={member.displayName} size="sm" decorative />
+        <Label for={id} class="type-label">{member.displayName}{note(member.id)}</Label>
+      </div>
+    {/each}
+  </fieldset>
+</DialogShell>

@@ -29,6 +29,8 @@ export interface Task {
   readonly createdBy: string | null
   readonly createdAt: string
   readonly updatedAt: string
+  /** How much of its checklist is ticked, for the Kanban card's "0/1". */
+  readonly checklist?: { readonly done: number; readonly total: number }
 }
 
 export interface TaskInput {

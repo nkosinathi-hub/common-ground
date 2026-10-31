@@ -1,5 +1,4 @@
 import type { MediaType, ProgressStatus, SharedIntent } from "./types"
-import { RATING_MAX } from "./validation"
 
 export const MEDIA_TYPES: readonly { value: MediaType; label: string }[] = [
   { value: "movie", label: "Movie" },
@@ -27,23 +26,19 @@ export const mediaTypeLabel = (value: MediaType) => labelOf(MEDIA_TYPES, value)
 export const intentLabel = (value: SharedIntent) => labelOf(INTENTS, value)
 export const statusLabel = (value: ProgressStatus) => labelOf(STATUSES, value)
 
+/** A card's quiet line: your status unless not started, the year, and why For you put it here. */
+export const cardMeta = (
+  item: { myStatus: ProgressStatus; releaseYear: number | null; reason?: string | null },
+  genreName: (key: string) => string,
+): string[] =>
+  [
+    item.myStatus !== "not_started" && statusLabel(item.myStatus),
+    item.releaseYear,
+    item.reason && `Because you liked ${genreName(item.reason)}`,
+  ]
+    .filter((part): part is string | number => Boolean(part))
+    .map(String)
+
 /** The list RPC returns status as text; anything unknown reads as not started. */
 export const progressStatusOf = (raw: string | null | undefined): ProgressStatus =>
   STATUSES.find((entry) => entry.value === raw)?.value ?? "not_started"
-
-/** "Watching, season 2 episode 4, 4/5" for a progress line. */
-export function progressSummary(progress: {
-  status: ProgressStatus
-  season: number | null
-  episode: number | null
-  rating: number | null
-}): string {
-  const place = [
-    progress.season !== null ? `season ${progress.season}` : "",
-    progress.episode !== null ? `episode ${progress.episode}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ")
-  const rating = progress.rating !== null ? `${progress.rating}/${RATING_MAX}` : ""
-  return [statusLabel(progress.status), place, rating].filter(Boolean).join(", ")
-}

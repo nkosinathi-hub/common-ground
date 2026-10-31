@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from "@playwright/test"
 import { axeViolations } from "../support/a11y"
 import { requireStack } from "../support/stack"
-import { closeDialog, startSharing, threeMembers, waiting } from "./hard-talk"
+import { closeDialog, next, startSharing, threeMembers, waiting } from "./hard-talk"
 
 requireStack()
 
@@ -42,13 +42,13 @@ for (const scheme of ["light", "dark"] as const) {
       if (scheme === "dark") await expect(page.locator("html")).toHaveClass(/dark/)
     }
     const dialog = await startSharing(ana, "ben")
-    const helper = dialog.getByRole("button", { name: "Need a word?" })
-    if ((await helper.getAttribute("aria-expanded")) !== "true") await helper.click()
+    await next(dialog)
     await dialog.getByRole("button", { name: "hurt", exact: true }).click()
-    await expect(dialog.getByLabel("How I feel")).toHaveValue("hurt")
-    await expect(dialog.getByRole("status")).toHaveText(/Saved/)
+    await expect(dialog.getByRole("button", { name: "Remove hurt" })).toBeVisible()
+    await expect(dialog.getByRole("status")).toHaveText(/saved/i)
     await sheetOnPhones(ana, dialog)
     await scan(ana)
+    await next(dialog)
     await dialog.getByRole("button", { name: "Send to ben" }).click()
     await expect(dialog).toBeHidden()
 

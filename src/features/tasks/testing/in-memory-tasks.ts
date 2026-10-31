@@ -43,7 +43,7 @@ export class InMemoryTasks implements TasksRepository {
       ...input,
       id,
       description: "",
-      status: "backlog",
+      status: input.status ?? "backlog",
       priority: "medium",
       assigneeId: null,
       milestoneId: null,
@@ -60,6 +60,14 @@ export class InMemoryTasks implements TasksRepository {
     return this.store.patch(id, patch)
   }
 
+  async save(id: string, expectedUpdatedAt: string, patch: TaskPatch): Promise<Result<Task>> {
+    const row = this.store.rows.get(id)
+    if (row && row.updatedAt !== expectedUpdatedAt) return err(appError("conflict", "Changed"))
+    const saved = await this.update(id, patch)
+    const later = new Date(Date.parse(expectedUpdatedAt) + 1000).toISOString()
+    return saved.ok ? this.store.patch(id, { updatedAt: later }) : saved
+  }
+
   async remove(id: string) {
     return this.store.remove(id)
   }
@@ -72,6 +80,7 @@ export class InMemoryTasks implements TasksRepository {
       ...t,
       dueDate: t.dueDate!,
       ideaTitle: this.ideaTitles.get(t.ideaId) ?? "",
+      assigneeName: t.assigneeId,
     }))
     return ok(sortUpcoming(rows).slice(0, limit))
   }

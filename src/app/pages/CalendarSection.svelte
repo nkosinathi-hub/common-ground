@@ -19,5 +19,5 @@
     <EventDetail spaceId={space.id} {eventId} {me} isOwner={space.role === "owner"} />
   {/key}
 {:else}
-  <CalendarPage spaceId={space.id} {weekStart} />
+  <CalendarPage spaceId={space.id} spaceName={space.name} {weekStart} />
 {/if}

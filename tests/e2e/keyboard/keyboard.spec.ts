@@ -61,19 +61,19 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
   )
   await expectFocusTrap(
     page,
-    page.getByRole("button", { name: "Edit details" }),
-    dialog("Edit this title"),
+    page.getByRole("button", { name: "Adjust my place" }),
+    dialog("Adjust my place"),
   )
   await page.goto(`./#/s/${spaceId}/watch`)
   await expectFocusTrap(
     page,
     page.getByRole("button", { name: "Add a title", exact: true }),
-    dialog("Add a title"),
+    dialog("Add something good"),
   )
   const trigger = page.getByRole("button", { name: "Add a title", exact: true })
   await trigger.click()
-  await dialog("Add a title").getByRole("button", { name: "Done" }).click()
-  await expect(dialog("Add a title")).toBeHidden()
+  await dialog("Add something good").getByRole("button", { name: "Done" }).click()
+  await expect(dialog("Add something good")).toBeHidden()
   await expect(trigger).toBeFocused()
   const bell = page.getByRole("button", { name: /^Notifications/ })
   await bell.focus()

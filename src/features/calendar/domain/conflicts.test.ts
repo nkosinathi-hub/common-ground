@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import type { DateOnly } from "@/shared/domain"
 import type { CalendarEntry } from "./agenda"
+import { noDetail } from "../testing/entries"
 import { conflicts } from "./conflicts"
 
 const d = (value: string) => value as DateOnly
@@ -12,6 +13,7 @@ const entry = (id: string, startsAt: string, endsAt: string, patch: Partial<Cale
     ideaId: null,
     status: null,
     myRsvp: "going",
+    ...noDetail,
     timing: { allDay: false, startsAt, endsAt },
     ...patch,
   }) satisfies CalendarEntry

@@ -9,22 +9,15 @@
     /** Shown in the dialog title, e.g. "this note". */
     what: string
     description?: string
-    size?: "icon-xs" | "icon-sm"
     onConfirm: () => unknown
   }
 
-  let {
-    label,
-    what,
-    description = "This cannot be undone.",
-    size = "icon-xs",
-    onConfirm,
-  }: Props = $props()
+  let { label, what, description = "This cannot be undone.", onConfirm }: Props = $props()
 
   let open = $state(false)
 </script>
 
-<Button variant="ghost" {size} aria-label={label} onclick={() => (open = true)}>
+<Button variant="ghost" size="icon-sm" aria-label={label} onclick={() => (open = true)}>
   <Trash2 />
 </Button>
 <ConfirmDialog

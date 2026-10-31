@@ -31,7 +31,9 @@ afterEach(() => {
 describe("IdeaDetail", () => {
   it("goes back to the space's ideas list once the idea is deleted", async () => {
     await setup("space-a")
-    await fireEvent.click(await screen.findByRole("button", { name: "Delete idea" }))
+    const more = await screen.findByRole("button", { name: "More for Tea bar" })
+    await fireEvent.keyDown(more, { key: "Enter" })
+    await fireEvent.click(await screen.findByRole("menuitem", { name: "Delete idea" }))
     const dialog = within(await screen.findByRole("alertdialog"))
     await fireEvent.click(dialog.getByRole("button", { name: "Delete" }))
     const list = buildHash({ name: "ideas", spaceId: "space-a" })

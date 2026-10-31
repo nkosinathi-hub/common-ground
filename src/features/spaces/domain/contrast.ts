@@ -1,35 +1,7 @@
-import { fromHsl, mix, normaliseHex, parseHex, toHex, toHsl } from "./color"
-
-export type ColourMode = "light" | "dark"
-
-/** The neutral surfaces from src/styles/tokens.css that an accent must read against. */
-export const SURFACES = {
-  light: { background: "#faf9f6", card: "#ffffff", foreground: "#30382e" },
-  dark: { background: "#1d211c", card: "#252a24", foreground: "#ecebe4" },
-} as const satisfies Record<ColourMode, Record<string, string>>
-
-/** The CSS variables a custom accent overrides; everything else comes from the preset. */
-export const ACCENT_VARS = [
-  "--primary",
-  "--primary-foreground",
-  "--ring",
-  "--accent",
-  "--sidebar-accent",
-  "--banner",
-] as const
-export type AccentVar = (typeof ACCENT_VARS)[number]
-
-export interface AccentTokens {
-  readonly vars: Readonly<Record<AccentVar, string>>
-  /** True when the chosen colour had to be darkened or lightened to stay readable. */
-  readonly adjusted: boolean
-}
+import { fromHsl, normaliseHex, parseHex, toHex, toHsl } from "./color"
 
 const AA = 4.5
 const STEP = 0.01
-const ACCENT_TINT = 0.14
-const BANNER_TINT = 0.16
-const WHITE = "#ffffff"
 
 const linear = (c: number) => {
   const v = c / 255
@@ -47,44 +19,21 @@ export function contrastRatio(a: string, b: string): number {
   return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)
 }
 
-const tints = (primary: string, background: string) => ({
-  accent: mix(primary, background, ACCENT_TINT),
-  banner: mix(primary, background, BANNER_TINT),
-})
-
-const readable = (primary: string, mode: ColourMode) => {
-  const { background, card } = SURFACES[mode]
-  const { banner } = tints(primary, background)
-  return [background, card, banner].every((surface) => contrastRatio(primary, surface) >= AA)
-}
-
-/** Steps lightness down (light) or up (dark) until the accent reads as text; black and white always do. */
-function readablePrimary(hex: string, mode: ColourMode): string {
-  const hsl = toHsl(parseHex(hex)!)
-  const direction = mode === "light" ? -1 : 1
-  let primary = hex
-  for (let l = hsl.l; !readable(primary, mode) && l >= 0 && l <= 1; l += direction * STEP)
-    primary = toHex(fromHsl({ ...hsl, l: Math.min(1, Math.max(0, l)) }))
-  return primary
-}
-
-/** The accent's CSS variables for one mode, each pair at least 4.5:1. */
-export function accentTokens(hex: string, mode: ColourMode): AccentTokens {
-  const chosen = normaliseHex(hex) ?? SURFACES[mode].foreground
-  const primary = readablePrimary(chosen, mode)
-  const { background } = SURFACES[mode]
-  const dark = SURFACES.dark.background
-  const foreground = contrastRatio(WHITE, primary) >= contrastRatio(dark, primary) ? WHITE : dark
-  const { accent, banner } = tints(primary, background)
-  return {
-    adjusted: primary !== chosen,
-    vars: {
-      "--primary": primary,
-      "--primary-foreground": foreground,
-      "--ring": primary,
-      "--accent": accent,
-      "--sidebar-accent": accent,
-      "--banner": banner,
-    },
-  }
+/**
+ * The colour nearest `hex` that reads at 4.5:1 on every colour `against` returns for it: its
+ * lightness steps darker or lighter until it does. Black and white always do, so it ends.
+ */
+export function nudgeToContrast(
+  hex: string,
+  against: (candidate: string) => readonly string[],
+  direction: "darker" | "lighter",
+): string {
+  const start = toHsl(parseHex(hex)!)
+  const step = direction === "darker" ? -STEP : STEP
+  const passes = (candidate: string) =>
+    against(candidate).every((c) => contrastRatio(candidate, c) >= AA)
+  let candidate = normaliseHex(hex)!
+  for (let l = start.l; !passes(candidate) && l >= 0 && l <= 1; l += step)
+    candidate = toHex(fromHsl({ ...start, l: Math.min(1, Math.max(0, l)) }))
+  return passes(candidate) ? candidate : direction === "darker" ? "#000000" : "#ffffff"
 }

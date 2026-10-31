@@ -16,7 +16,7 @@ async function twoDevices(page: Page, handle: string) {
 test("changing the password signs out the other devices, not this one", async ({ page }) => {
   const { user, otherDevice } = await twoDevices(page, "ana")
   await page.getByLabel("Current password").fill(user.password)
-  await page.getByLabel("New password").fill("a brand new password")
+  await page.getByLabel("New password", { exact: true }).fill("a brand new password")
   await page.getByRole("button", { name: "Change password" }).click()
   await expect(page.getByText("Password changed")).toBeVisible()
 

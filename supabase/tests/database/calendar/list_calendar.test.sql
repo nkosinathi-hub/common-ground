@@ -1,6 +1,6 @@
 -- list_calendar: one window of events, yearly occasions, task due dates and milestones.
 begin;
-select plan(9);
+select plan(12);
 select tests.calendar_setup();
 select tests.cal_event('cal_ana', 'Span timed', '2027-02-27 20:00+02', 38 * 60);
 select tests.cal_event('cal_ana', 'Span day', null, 0, '2027-02-20');
@@ -12,7 +12,22 @@ select tests.cal_event('cal_ana', 'April', '2027-04-01 00:30+02', 60);
 select tests.cal_event('cal_ana', 'Feb late', '2027-02-28 23:30+02', 30);
 select tests.cal_event('cal_ana', 'Leap', null, 0, '2028-02-29', yearly => true);
 
+update public.calendar_events set location = 'At home' where title = 'Late';
+update public.tasks set assignee_id = tests.user_id('cal_ben'), priority = 'high',
+  milestone_id = 'ca000000-0000-4000-8000-000000000051' where title = 'Sign lease';
+
 select tests.act_as('cal_ana');
+select is((select place || ':' || array_length(people, 1) from public.list_calendar(
+    'ca000000-0000-4000-8000-000000000001', '2027-03-01', '2027-03-31', 'Africa/Johannesburg')
+    where title = 'Late'), 'At home:1', 'events carry their place and who is coming');
+select is((select array_to_string(array[priority, milestone_title, idea_title,
+    (people = array[tests.user_id('cal_ben')])::text], ',')
+  from public.list_calendar('ca000000-0000-4000-8000-000000000001', '2027-03-01', '2027-03-31',
+    'Africa/Johannesburg') where kind = 'task'), 'high,Opening,Cafe,true',
+  'tasks carry their assignee, priority, milestone and idea');
+select is((select count(*)::int from public.list_calendar('ca000000-0000-4000-8000-000000000001',
+    '2027-03-01', '2027-03-31', 'Africa/Johannesburg') where kind = 'event' and place is not null),
+  1, 'an event without a place has none');
 select is((select array_agg(kind || ':' || title) from public.list_calendar(
     'ca000000-0000-4000-8000-000000000001', '2027-03-01', '2027-03-31', 'Africa/Johannesburg')),
   array['event:Span day', 'event:Span timed', 'task:Sign lease', 'milestone:Opening', 'event:Late'],

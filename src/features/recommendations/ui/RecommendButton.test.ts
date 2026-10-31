@@ -31,9 +31,9 @@ describe("RecommendButton", () => {
     const gateway = setup()
     const dialog = await openDialog()
     expect(within(dialog).queryByLabelText("Nkosi")).toBeNull()
-    await fireEvent.click(within(dialog).getByLabelText("Zola"))
-    await fireEvent.click(within(dialog).getByLabelText("Anele"))
-    await fireEvent.click(within(dialog).getByLabelText("Anele"))
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Zola" }))
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Anele" }))
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Anele" }))
     await fireEvent.input(within(dialog).getByLabelText("Note (optional)"), {
       target: { value: "Episode 10" },
     })
@@ -48,7 +48,7 @@ describe("RecommendButton", () => {
     const dialog = await openDialog()
     await fireEvent.click(within(dialog).getByRole("button", { name: "Send" }))
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(/choose at least one/i)
-    await fireEvent.click(within(dialog).getByLabelText("Zola"))
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Zola" }))
     await fireEvent.click(within(dialog).getByRole("button", { name: "Send" }))
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(/already has this/i)
   })
@@ -56,5 +56,18 @@ describe("RecommendButton", () => {
   it("is disabled when nobody else is in the space", () => {
     setup([{ id: "me", displayName: "Nkosi" }])
     expect(screen.getByRole("button", { name: "Recommend" })).toBeDisabled()
+  })
+
+  it("starts empty each time it opens", async () => {
+    setup()
+    let dialog = await openDialog()
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Zola" }))
+    await fireEvent.keyDown(dialog, { key: "Escape" })
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
+    dialog = await openDialog()
+    const zola = within(dialog).getByRole("button", { name: "Zola" })
+    expect(zola).toHaveAttribute("aria-pressed", "false")
+    await fireEvent.click(zola)
+    expect(zola).toHaveAttribute("aria-pressed", "true")
   })
 })

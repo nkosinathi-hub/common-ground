@@ -15,6 +15,11 @@ const atNoonUtc = (day: DateOnly) => new Date(`${day}T12:00:00Z`)
 export const monthTitle = ({ year, month }: YearMonth) =>
   MONTH.format(new Date(Date.UTC(year, month - 1, 15)))
 
+const MONTH_NAME = dayFormat({ month: "long" })
+/** "October": the month alone, for "That is everything for October". */
+export const monthName = ({ year, month }: YearMonth) =>
+  MONTH_NAME.format(new Date(Date.UTC(year, month - 1, 15)))
+
 /** "Fri 5 October 2026", built from parts so ICU punctuation differences do not leak in. */
 function spelled(format: Intl.DateTimeFormat, day: DateOnly, withYear: boolean): string {
   const parts = format.formatToParts(atNoonUtc(day))

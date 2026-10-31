@@ -23,8 +23,8 @@ describe("WatchTogether", () => {
     await fireEvent.click(await screen.findByRole("button", { name: "Watch together" }))
     await waitFor(() => expect(screen.getByLabelText("From episode")).toHaveValue(4))
     expect(screen.getByLabelText("From season")).toHaveValue(2)
-    expect(screen.getByLabelText("In the app")).toBeChecked()
-    await fireEvent.click(screen.getByRole("button", { name: "Start the party" }))
+    expect(screen.getByRole("radio", { name: "In the app" })).toBeChecked()
+    await fireEvent.click(screen.getByRole("button", { name: "Start watching" }))
     await waitFor(() => expect(window.location.hash).toBe(`#/s/${SPACE}/party/party-1`))
     expect(fakes.gateway.calls).toContainEqual([
       "start",
@@ -40,8 +40,8 @@ describe("WatchTogether", () => {
     const fakes = setup(true)
     await fireEvent.click(await screen.findByRole("button", { name: "Watch together" }))
     expect(screen.queryByLabelText("From season")).toBeNull()
-    await fireEvent.click(screen.getByLabelText("Somewhere else (a TV, another app)"))
-    await fireEvent.click(screen.getByRole("button", { name: "Start the party" }))
+    await fireEvent.click(screen.getByRole("radio", { name: "Elsewhere" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Start watching" }))
     await waitFor(() =>
       expect(fakes.gateway.calls).toContainEqual([
         "start",
@@ -55,7 +55,7 @@ describe("WatchTogether", () => {
     await fireEvent.click(await screen.findByRole("button", { name: "Watch together" }))
     await fireEvent.input(screen.getByLabelText("To season"), { target: { value: "2" } })
     expect(await screen.findByLabelText("Episodes in season 1")).toBeInTheDocument()
-    await fireEvent.click(screen.getByRole("button", { name: "Start the party" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Start watching" }))
     expect(
       await screen.findByText("Each season the party leaves needs its episode count"),
     ).toBeInTheDocument()

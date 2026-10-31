@@ -10,7 +10,7 @@ test("a member downloads a space export and their own data", async ({ page }) =>
   const spaceId = await createSpace(page, "Weekend Plans")
   await addIdea(ana, spaceId, "Pottery class")
 
-  await page.goto("./#/account")
+  await page.goto("./#/account/data")
   await expect(page.getByRole("heading", { name: "Account and data" })).toBeVisible()
   const space = await exportFrom(page, "Export Weekend Plans")
   expect(space.space.name).toBe("Weekend Plans")
@@ -25,6 +25,6 @@ test("a member downloads a space export and their own data", async ({ page }) =>
   expect(me.email).toBe(ana.email)
   expect(me.counts.ideas).toBe(1)
 
-  await page.getByRole("link", { name: "How we handle your data" }).click()
+  await page.getByRole("link", { name: /Your rights/ }).click()
   await expect(page.getByRole("heading", { name: "Deleting your account" })).toBeVisible()
 })

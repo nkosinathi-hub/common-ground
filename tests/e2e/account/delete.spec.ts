@@ -11,22 +11,22 @@ test("deleting an account keeps shared content without the author", async ({ pag
   await join(ben, spaceId)
   await addIdea(ben, spaceId, "Paint the fence")
 
-  await page.goto("./#/account")
+  await page.goto("./#/account/data")
   await page.getByLabel("Your password").fill(ana.password)
   await page.getByLabel("Type DELETE to confirm").fill("DELETE")
-  await page.getByRole("button", { name: "Delete my account" }).click()
+  await page.getByRole("button", { name: "Delete account…" }).click()
   await expect(page.getByRole("alert")).toHaveText(
     "transfer ownership or delete your shared spaces first",
   )
 
   const benPage = await secondMember(browser, ben)
-  await benPage.goto("./#/account")
+  await benPage.goto("./#/account/data")
   await benPage.getByLabel("Your password").fill("wrong password")
   await benPage.getByLabel("Type DELETE to confirm").fill("DELETE")
-  await benPage.getByRole("button", { name: "Delete my account" }).click()
+  await benPage.getByRole("button", { name: "Delete account…" }).click()
   await expect(benPage.getByText("Password is incorrect")).toBeVisible()
   await benPage.getByLabel("Your password").fill(ben.password)
-  await benPage.getByRole("button", { name: "Delete my account" }).click()
+  await benPage.getByRole("button", { name: "Delete account…" }).click()
   await benPage.waitForURL(/#\/auth\/sign-in/)
 
   await page.reload()

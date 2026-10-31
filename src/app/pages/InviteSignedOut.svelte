@@ -1,20 +1,18 @@
 <script lang="ts">
-  import { buildHash } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
-  import * as Card from "$lib/components/ui/card"
+  import { buildHash } from "@/shared/domain"
+  import { AuthCard, PublicLayout, TextLink } from "@/shared/ui"
 </script>
 
-<main class="flex min-h-dvh items-center justify-center px-4">
-  <Card.Root class="w-full max-w-md">
-    <Card.Header>
-      <Card.Title level={1}>You have been invited</Card.Title>
-      <Card.Description>
-        Sign in or create an account to see and accept this invitation. We will bring you back here.
-      </Card.Description>
-    </Card.Header>
-    <Card.Content class="flex flex-wrap gap-2">
-      <Button href={buildHash({ name: "sign-in" })}>Sign in</Button>
-      <Button variant="outline" href={buildHash({ name: "sign-up" })}>Create account</Button>
-    </Card.Content>
-  </Card.Root>
-</main>
+<!-- No frame: an invitation opened signed out, on the sign-in layout (D21). -->
+<PublicLayout hero="Good things have a place here.">
+  <AuthCard
+    title="You have been invited"
+    description="Sign in or create an account to see and accept this invitation. We will bring you back here."
+  >
+    <Button href={buildHash({ name: "sign-in" })}>Sign in</Button>
+    {#snippet footer()}
+      New here? <TextLink href={buildHash({ name: "sign-up" })}>Create an account</TextLink>
+    {/snippet}
+  </AuthCard>
+</PublicLayout>

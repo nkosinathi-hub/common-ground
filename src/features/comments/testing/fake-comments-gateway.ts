@@ -1,21 +1,8 @@
-import {
-  appError,
-  err,
-  nextCursor,
-  ok,
-  PAGE_SIZE,
-  type AppError,
-  type Cursor,
-} from "@/shared/domain"
+import { appError, err, nextCursor, ok, PAGE_SIZE, type AppError } from "@/shared/domain"
 import type { CommentsGateway, NewComment, ThreadPageRequest } from "../application/ports"
 import type { Comment, ParentRef } from "../domain/comment"
-
-const START = Date.parse("2026-10-15T10:00:00.000Z")
-const newestFirst = (a: Comment, b: Comment) =>
-  b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)
-const olderThan = (c: Comment, cursor: Cursor) =>
-  c.createdAt < cursor.createdAt || (c.createdAt === cursor.createdAt && c.id < cursor.id)
-const sameParent = (a: ParentRef, b: ParentRef) => a.kind === b.kind && a.id === b.id
+import { isAhead, type EpisodeTag } from "../domain/episodes"
+import { fresh, sameParent, selected, START, threadOf } from "./comment-rows"
 
 /** In-memory comments with the same ordering and permission rules as the database. */
 export class FakeCommentsGateway implements CommentsGateway {
@@ -23,6 +10,8 @@ export class FakeCommentsGateway implements CommentsGateway {
   calls: string[] = []
   failWith: AppError | null = null
   me = "me"
+  /** Who hearted each comment. */
+  readonly hearts = new Map<string, Set<string>>()
   private seq = 0
 
   constructor(private readonly pageSize = PAGE_SIZE) {}
@@ -32,37 +21,59 @@ export class FakeCommentsGateway implements CommentsGateway {
     return { id: `c${this.seq}`, createdAt: new Date(START + this.seq * 1000).toISOString() }
   }
 
-  seed(spaceId: string, parent: ParentRef, count: number, authorId = "someone") {
+  seed(
+    spaceId: string,
+    parent: ParentRef,
+    count: number,
+    authorId = "someone",
+    extra: Partial<Comment> = {},
+  ) {
     for (let i = 0; i < count; i += 1) {
-      const { id, createdAt } = this.nextId()
-      this.rows.push({
-        id,
-        createdAt,
-        spaceId,
-        parent,
-        authorId,
-        body: `Comment ${this.seq}`,
-        spoiler: false,
-        edited: false,
-        mentionIds: [],
-      })
+      const base = { ...this.nextId(), spaceId, parent, authorId, body: `Comment ${this.seq}` }
+      this.rows.push(fresh({ ...base, spoiler: false, edited: false, mentionIds: [], ...extra }))
     }
   }
 
-  async list({ spaceId, parent, after }: ThreadPageRequest) {
+  /** Hearts and reply counts are read at query time, as the page query embeds them. */
+  private view = (c: Comment): Comment => {
+    const by = this.hearts.get(c.id) ?? new Set()
+    const replies = this.rows.filter((r) => r.replyTo === c.id).length
+    return { ...c, hearts: by.size, hearted: by.has(this.me), replies }
+  }
+
+  async list(request: ThreadPageRequest) {
     if (this.failWith) return err(this.failWith)
-    const rows = this.rows
-      .filter((c) => c.spaceId === spaceId && sameParent(c.parent, parent))
-      .filter((c) => !after || olderThan(c, after))
-      .sort(newestFirst)
-    const items = rows.slice(0, this.pageSize)
+    const items = selected(this.rows, request).slice(0, this.pageSize).map(this.view)
     return ok({ items, next: nextCursor(items, this.pageSize) })
+  }
+
+  async hidden(spaceId: string, parent: ParentRef, upTo: EpisodeTag | null) {
+    const rows = this.rows.filter(
+      (c) => c.spaceId === spaceId && sameParent(c.parent, parent) && c.replyTo === null,
+    )
+    return ok(
+      rows.filter((c) => isAhead(c.tag, upTo)).map((c) => ({ authorId: c.authorId, tag: c.tag })),
+    )
+  }
+
+  async heart(commentId: string, on: boolean) {
+    const by = this.hearts.get(commentId) ?? new Set<string>()
+    if (on) by.add(this.me)
+    else by.delete(this.me)
+    this.hearts.set(commentId, by)
+    return ok(undefined)
   }
 
   async post(input: NewComment) {
     this.calls.push("post")
     if (this.failWith) return err(this.failWith)
-    const comment: Comment = { ...input, ...this.nextId(), authorId: this.me, edited: false }
+    const comment = fresh({
+      ...input,
+      ...this.nextId(),
+      authorId: this.me,
+      edited: false,
+      ...threadOf(this.rows, input),
+    })
     this.rows.push(comment)
     return ok(comment)
   }
@@ -81,7 +92,7 @@ export class FakeCommentsGateway implements CommentsGateway {
   async remove(id: string) {
     this.calls.push(`remove:${id}`)
     if (this.failWith) return err(this.failWith)
-    this.rows = this.rows.filter((c) => c.id !== id)
+    this.rows = this.rows.filter((c) => c.id !== id && c.replyTo !== id)
     return ok(undefined)
   }
 }

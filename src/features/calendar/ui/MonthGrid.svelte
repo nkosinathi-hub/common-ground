@@ -38,12 +38,12 @@
   bind:this={grid}
   role="grid"
   aria-labelledby="calendar-month-title"
-  class="overflow-hidden rounded-xl border"
+  class="min-w-0 rounded-lg border border-border bg-card p-card"
   data-testid="month-grid"
 >
-  <div role="row" class="grid grid-cols-7 bg-muted/50">
+  <div role="row" class="grid grid-cols-7">
     {#each weeks[0] ?? [] as day (day)}
-      <div role="columnheader" class="py-1 text-center text-xs font-medium">
+      <div role="columnheader" class="px-related pb-related type-label-sm text-muted-foreground">
         <abbr title={weekdayName(day, "long")} class="no-underline"
           >{weekdayName(day, "short")}</abbr
         >
@@ -51,7 +51,7 @@
     {/each}
   </div>
   {#each weeks as week (week[0])}
-    <div role="row" class="grid grid-cols-7 divide-x">
+    <div role="row" class="grid grid-cols-7 border-r border-border last:border-b">
       {#each week as day (day)}
         <DayCell
           {day}

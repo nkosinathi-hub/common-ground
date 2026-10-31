@@ -1,7 +1,9 @@
 import { expect, test, type Page } from "@playwright/test"
 import { expectNotification } from "../support/social"
 import { requireStack, type TestUser } from "../support/stack"
-import { closeDialog, feed, readable, startSharing, threeMembers, waiting } from "./hard-talk"
+import * as talk from "./hard-talk"
+const { closeDialog, COMPOSER, expectFeed, next, readable, startSharing, threeMembers } = talk
+const { waiting } = talk
 
 requireStack()
 
@@ -22,11 +24,11 @@ test.afterAll(async () => {
   for (const page of [ana, ben, cy]) await page?.context().close()
 })
 
-test("a draft saves privately, resumes, and sends in one step @mobile", async () => {
+test("a draft saves privately, resumes, and sends at the last step @mobile", async () => {
   test.setTimeout(120_000)
   const dialog = await startSharing(ana, "ben")
   await dialog.getByLabel("What's on my mind").fill(WORDS)
-  await expect(dialog.getByRole("status")).toHaveText(/Saved/)
+  await expect(dialog.getByRole("status")).toHaveText(/saved/i)
   await closeDialog(ana, dialog)
   await expect(ana.getByRole("region", { name: "Your drafts (1)" })).toBeVisible()
   await expect(ana.getByRole("button", { name: "Write a note" })).toBeFocused()
@@ -41,10 +43,14 @@ test("a draft saves privately, resumes, and sends in one step @mobile", async ()
   expect(await readable(users[0]!, "space_note_drafts")).toHaveLength(1)
 
   await ana.getByRole("button", { name: /^To ben · edited/ }).click()
-  const resumed = ana.getByRole("dialog", { name: "Write a note" })
+  const resumed = ana.getByRole("dialog", { name: COMPOSER })
   await expect(resumed.getByLabel("What's on my mind")).toHaveValue(WORDS)
-  await resumed.getByLabel("How I feel").fill("a bit left out")
-  await resumed.getByText("Can we talk in person?").click()
+  await next(resumed)
+  await resumed.getByLabel("In my own words").fill("a bit left out")
+  await next(resumed)
+  await resumed
+    .getByLabel("How should ben respond?")
+    .selectOption({ label: "Can we talk in person?" })
   await resumed.getByRole("button", { name: "Send to ben" }).click()
   await expect(resumed).toBeHidden()
   await expect(ana.getByText("Sent. ben can open it when they're ready.")).toBeVisible()
@@ -81,15 +87,9 @@ test("the author sees the response and nothing about the reminder @mobile", asyn
 })
 
 test("the feed shows it only to the two of them, and the third member sees nothing @mobile", async () => {
-  await ana.reload()
-  await expect(feed(ana)).toContainText("You shared something with ben")
-  await expect(feed(ana)).toContainText("ben responded to what you shared")
-  await ben.reload()
-  await expect(feed(ben)).toContainText("ana shared something with you")
-  await expect(feed(ben)).toContainText("You responded to what ana shared")
-  await cy.reload()
-  await expect(feed(cy)).toContainText("joined")
-  await expect(feed(cy)).not.toContainText("shared")
+  await expectFeed(ana, ["You shared something with ben", "ben responded to what you shared"])
+  await expectFeed(ben, ["ana shared something with you", "You responded to what ana shared"])
+  await expectFeed(cy, ["joined"], ["shared"])
   await expect(cy.getByTestId("home-note")).toHaveCount(0)
   await expect(waiting(cy)).toHaveCount(0)
   const events = (await readable(users[2]!, "activity_events")) as { event_type: string }[]

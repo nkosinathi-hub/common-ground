@@ -9,7 +9,7 @@ const RECENT_INVITES = 50
 export function invitesOf(db: Db, spaceId: string): Promise<Result<InviteRecord[]>> {
   const query = db
     .from("space_invites")
-    .select("id, created_at, expires_at, redeemed_at, revoked_at")
+    .select("id, created_at, expires_at, redeemed_at, revoked_at, created_by")
     .eq("space_id", spaceId)
     .order("created_at", { ascending: false })
     .limit(RECENT_INVITES)
@@ -20,6 +20,7 @@ export function invitesOf(db: Db, spaceId: string): Promise<Result<InviteRecord[
       expiresAt: row.expires_at,
       redeemedAt: row.redeemed_at,
       revokedAt: row.revoked_at,
+      createdBy: row.created_by,
     })),
   )
 }

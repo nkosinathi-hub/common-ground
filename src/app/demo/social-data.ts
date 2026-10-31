@@ -1,3 +1,4 @@
+import { commentRows } from "./comment-data"
 import { ANA, BEN, SPACE, demoId, now } from "./identity"
 
 const noteRows = [
@@ -30,23 +31,7 @@ export const socialTables = {
     body: "Let's make a plan together.",
     created_at: now,
   })),
-  comments: [
-    { watch_item_id: demoId(10), idea_id: null, body: "Let's watch the next episode on Friday." },
-    {
-      watch_item_id: null,
-      idea_id: demoId(20),
-      body: "I can research the campsites this weekend.",
-    },
-  ].map((comment, i) => ({
-    ...comment,
-    id: demoId(60 + i),
-    space_id: SPACE,
-    author_id: BEN,
-    spoiler: false,
-    edited: false,
-    created_at: now,
-    comment_mentions: [],
-  })),
+  comments: commentRows,
   activity_events: [
     {
       id: demoId(65),

@@ -1,12 +1,11 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Compass, LoaderCircle, RefreshCw } from "@lucide/svelte"
+  import { LoaderCircle, RefreshCw } from "@lucide/svelte"
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
-  import { formatDateTime } from "@/shared/domain"
+  import * as Card from "$lib/components/ui/card"
   import { splitAvailability } from "../domain/rules"
   import type { CatalogType } from "../domain/types"
-  import Attribution from "./Attribution.svelte"
   import { AvailabilityState } from "./availability-state.svelte"
   import { useCatalog } from "./context"
   import OtherCountries from "./OtherCountries.svelte"
@@ -16,13 +15,19 @@
     spaceId: string
     type: CatalogType
     id: number
+    /** Once loaded: when TMDB was asked (the page's listings line) and the first provider here. */
+    onloaded?: (listing: { checkedAt: string; firstProvider: string | null }) => void
   }
 
-  let { spaceId, type, id }: Props = $props()
+  let { spaceId, type, id, onloaded }: Props = $props()
 
   const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
-  const checked = $derived(listing.details ? formatDateTime(listing.details.checkedAt) : "")
+  $effect(() => {
+    const checkedAt = listing.details?.checkedAt
+    const firstProvider = split?.home?.categories[0]?.providers[0] ?? null
+    if (checkedAt) untrack(() => onloaded?.({ checkedAt, firstProvider }))
+  })
 
   $effect(() => {
     // Reload when the title or space changes; the load itself must not become a dependency.
@@ -33,54 +38,46 @@
   })
 </script>
 
-<section class="space-y-4 rounded-xl border bg-card p-4" aria-label="Where to watch">
-  <header class="flex items-center justify-between gap-2">
-    <h2 class="flex items-center gap-2 text-sm font-medium">
-      <Compass class="size-4" aria-hidden="true" />
-      Where to watch
-    </h2>
-    <Badge variant="secondary">South Africa</Badge>
-  </header>
-
-  {#if listing.loading}
-    <p class="flex items-center gap-2 text-xs text-muted-foreground">
-      <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
-      Checking streaming listings
-    </p>
-  {/if}
-  {#if listing.error}
-    <p role="alert" class="text-sm leading-6 text-destructive">
-      {listing.error.message}{listing.details ? " Previously loaded listings are shown below." : ""}
-    </p>
-  {/if}
-
-  {#if listing.details && split}
-    {#if split.home}
-      <RegionListing region={split.home} />
+<!-- D03a "Where to watch": region and refresh on the title line, then each provider as a link. -->
+<Card.Root role="region" aria-label="Where to watch">
+  <Card.Header>
+    <Card.Title>Where to watch</Card.Title>
+    <Card.Action class="flex items-center gap-related">
+      <Badge variant="outline" title="South Africa">ZA</Badge>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        aria-label={listing.error ? "Try again" : "Refresh listings"}
+        disabled={listing.loading}
+        onclick={() => listing.load(spaceId, { type, id }, true)}
+      >
+        <RefreshCw />
+      </Button>
+    </Card.Action>
+  </Card.Header>
+  <Card.Content class="flex flex-col gap-related">
+    {#if listing.loading}
+      <p class="flex items-center gap-related type-xs text-muted-foreground">
+        <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />
+        Checking streaming listings
+      </p>
     {/if}
-    <OtherCountries regions={split.others} fallback={split.fallback} />
-    <p class="text-xs leading-5 text-muted-foreground">
-      Listings are not exhaustive and do not guarantee access across borders. Links open
-      country-level watch options, not provider streams.
-    </p>
-    <p class="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-      <span>Checked <time datetime={listing.details.checkedAt}>{checked}</time></span>
+    {#if listing.error}
+      <p role="alert" class="type-sm text-destructive">
+        {listing.error.message}{listing.details
+          ? " Previously loaded listings are shown below."
+          : ""}
+      </p>
+    {/if}
+    {#if listing.details && split}
+      {#if split.home}<RegionListing region={split.home} />{/if}
+      <OtherCountries regions={split.others} fallback={split.fallback} />
       {#if listing.details.stale}
-        <Badge variant="outline">Stale</Badge>
-        <span>TMDB could not be reached, so these listings may be out of date.</span>
+        <p class="flex flex-wrap items-center gap-related type-xs text-muted-foreground">
+          <Badge variant="outline">Stale</Badge>
+          TMDB could not be reached, so these listings may be out of date.
+        </p>
       {/if}
-    </p>
-  {/if}
-
-  <Button
-    variant="ghost"
-    size="sm"
-    class="px-0"
-    disabled={listing.loading}
-    onclick={() => listing.load(spaceId, { type, id }, true)}
-  >
-    <RefreshCw aria-hidden="true" />
-    {listing.error ? "Try again" : "Refresh listings"}
-  </Button>
-  <Attribution />
-</section>
+    {/if}
+  </Card.Content>
+</Card.Root>

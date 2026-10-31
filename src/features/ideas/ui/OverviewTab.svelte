@@ -1,20 +1,14 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import { Button } from "$lib/components/ui/button"
+  import * as Card from "$lib/components/ui/card"
   import { Textarea } from "$lib/components/ui/textarea"
-  import type { AppError } from "@/shared/domain"
-  import { FormError, toast } from "@/shared/ui"
-  import {
-    BRIEF_FIELDS,
-    BRIEF_MAX,
-    IDEA_TEMPLATE_OPTIONS,
-    changedFields,
-    type Brief,
-    type Idea,
-  } from "../domain"
+  import { FormError } from "@/shared/ui"
+  import { BRIEF_MAX, type Idea } from "../domain"
+  import BriefDetails from "./BriefDetails.svelte"
   import BriefMerge from "./BriefMerge.svelte"
   import { useIdeas } from "./context"
-  import { BRIEF_LABELS } from "./labels"
+  import { OverviewState } from "./overview-state.svelte"
 
   interface Props {
     idea: Idea
@@ -22,75 +16,48 @@
   }
 
   let { idea, onSaved }: Props = $props()
-  const ideas = useIdeas().service
-
   // The editor owns its copy from mount; IdeaDetail remounts it per idea.
-  let base = $state(untrack(() => idea))
-  let draft = $state<Brief>(untrack(() => ({ ...idea.brief })))
-  let latest = $state<Idea | null>(null)
-  let busy = $state(false)
-  let fieldError = $state<AppError | null>(null)
-
-  const ordered = $derived.by(() => {
-    const focus = IDEA_TEMPLATE_OPTIONS.find((option) => option.id === idea.template)?.focus ?? []
-    return [...focus, ...BRIEF_FIELDS.filter((field) => !focus.includes(field))]
-  })
-
-  async function save(brief: Brief, from: Idea) {
-    busy = true
-    const result = await ideas.saveBrief(from, brief)
-    busy = false
-    if (!result.ok) {
-      fieldError = result.error
-      return
-    }
-    fieldError = null
-    if (result.value.status === "conflict") {
-      const theirs = result.value.latest
-      // Only title, stage or tags moved underneath us: nothing in the overview to merge.
-      if (changedFields(from.brief, theirs.brief).length === 0) return save(brief, theirs)
-      latest = theirs
-      return
-    }
-    base = result.value.idea
-    draft = { ...base.brief }
-    latest = null
-    onSaved(base)
-    toast.success("Overview saved")
-  }
-
+  const brief = untrack(() => new OverviewState(useIdeas().service, idea, onSaved))
   function submit(event: SubmitEvent) {
     event.preventDefault()
-    void save(draft, base)
+    void brief.save()
   }
 </script>
 
-{#if latest}
+{#if brief.latest}
   <BriefMerge
-    mine={draft}
-    {latest}
-    onCancel={() => (latest = null)}
-    onResolve={(merged) => latest && save(merged, latest)}
+    mine={brief.draft}
+    latest={brief.latest}
+    onCancel={() => (brief.latest = null)}
+    onResolve={(merged) => brief.latest && brief.save(merged, brief.latest)}
   />
 {:else}
-  <form class="flex flex-col gap-4" onsubmit={submit}>
-    {#each ordered as field (field)}
-      <div class="flex flex-col gap-1">
-        <label for="brief-{field}" class="text-sm font-medium">{BRIEF_LABELS[field]}</label>
+  <!-- D06: the plan in a few words, then the details; one save covers both. -->
+  <form class="flex flex-col gap-stack" onsubmit={submit} aria-label="Overview">
+    <Card.Root>
+      <Card.Header><Card.Title id="pitch-heading">The plan, in a few words</Card.Title></Card.Header
+      >
+      <Card.Content class="flex flex-col gap-stack">
         <Textarea
-          id="brief-{field}"
+          id="brief-pitch"
+          aria-labelledby="pitch-heading"
           maxlength={BRIEF_MAX}
-          rows={field === "pitch" ? 2 : 3}
-          value={draft[field] ?? ""}
-          oninput={(event) => (draft = { ...draft, [field]: event.currentTarget.value })}
-          aria-invalid={fieldError?.field === field ? true : undefined}
+          rows={3}
+          value={brief.draft.pitch ?? ""}
+          oninput={(event) => brief.set("pitch", event.currentTarget.value)}
+          aria-invalid={brief.fieldError?.field === "pitch" ? true : undefined}
         />
-        {#if fieldError?.field === field}<p class="text-sm text-destructive">
-            {fieldError.message}
-          </p>{/if}
-      </div>
-    {/each}
-    <FormError message={fieldError && !fieldError.field ? fieldError.message : null} />
-    <Button type="submit" class="self-start" disabled={busy}>Save overview</Button>
+        <FormError message={brief.fieldError?.message ?? null} />
+        <div class="flex items-center gap-item">
+          <Button type="submit" disabled={brief.busy || !brief.unsaved}>Save overview</Button>
+          {#if brief.unsaved}<Button type="button" variant="ghost" onclick={brief.discard}
+              >Discard</Button
+            >
+            <span class="ml-auto type-xs text-muted-foreground" role="status">Unsaved changes</span
+            >{/if}
+        </div>
+      </Card.Content>
+    </Card.Root>
+    <BriefDetails {brief} template={idea.template} />
   </form>
 {/if}

@@ -38,10 +38,10 @@
   })
 </script>
 
-<div bind:this={region} tabindex="-1" class="grid gap-3 outline-none empty:hidden">
+<div bind:this={region} tabindex="-1" class="grid gap-item outline-none empty:hidden">
   {#each waiting.value ?? [] as note (note.id)}
     <section
-      class="flex flex-col gap-2 rounded-xl border border-primary/40 bg-highlight p-4 sm:flex-row sm:items-center"
+      class="flex flex-col gap-related rounded-lg border border-primary/40 bg-secondary p-inset sm:flex-row sm:items-center"
       aria-labelledby="shared-{note.id}"
       data-testid="shared-with-you"
     >
@@ -50,7 +50,7 @@
         <h2 id="shared-{note.id}" class="font-medium">
           {note.authorName} shared something with you
         </h2>
-        <p class="text-sm text-muted-foreground">Take your time.</p>
+        <p class="type-sm text-muted-foreground">Take your time.</p>
       </div>
       <Button class="min-h-11" onclick={() => open(note)}>Open when you're ready</Button>
     </section>

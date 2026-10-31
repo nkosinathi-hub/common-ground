@@ -10,6 +10,11 @@ export class TitleFormState {
   synopsis = $state("")
   note = $state("")
 
+  /** Empty again, for the next title added by hand. */
+  reset(): void {
+    Object.assign(this, { title: "", mediaType: "movie", year: "", synopsis: "", note: "" })
+  }
+
   fill(item: WatchItem): void {
     this.title = item.title
     this.mediaType = item.mediaType

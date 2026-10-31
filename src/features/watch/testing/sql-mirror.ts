@@ -1,5 +1,5 @@
 import type { WatchCursor, WatchFilters, WatchItem, WatchSort } from "../domain/types"
-import { normaliseSearch } from "../domain/filters"
+import { countTypes, normaliseSearch } from "../domain/filters"
 
 /** In-memory mirrors of list_watch_items (where, order, keyset) and the watch_items unique rules. */
 
@@ -43,3 +43,9 @@ export function isDuplicate(items: readonly WatchItem[], extra: Partial<WatchIte
         i.mediaType === extra.mediaType,
   )
 }
+
+/** The library's type counts: the space's titles, archived ones left out. */
+export const typeCounts = (items: readonly WatchItem[], spaceId: string) =>
+  countTypes(
+    items.filter((i) => i.spaceId === spaceId && i.intent !== "archived").map((i) => i.mediaType),
+  )

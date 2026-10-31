@@ -2,6 +2,8 @@
   import { useMembers } from "../composition/members"
   import { spacePeople } from "../composition/people.svelte"
   import { AttachmentsPanel } from "@/features/attachments"
+  import { BudgetGlance } from "@/features/budget"
+  import { PlanGlance } from "@/features/tasks"
   import { CommentThread } from "@/features/comments"
   import { IdeaDetail, IdeasPage } from "@/features/ideas"
   import type { Space } from "@/features/spaces"
@@ -41,11 +43,18 @@
           authors={people.authors}
         />
       {/snippet}
+      {#snippet glance(idea)}
+        <PlanGlance
+          ideaId={idea.id}
+          tasksHref={buildHash({ name: "idea", spaceId: space.id, ideaId: idea.id, tab: "tasks" })}
+        />
+        <BudgetGlance ideaId={idea.id} currency={idea.currency} />
+      {/snippet}
       {#snippet attachments(idea)}
         <AttachmentsPanel spaceId={space.id} ideaId={idea.id} {me} {isOwner} />
       {/snippet}
     </IdeaDetail>
   {/key}
 {:else}
-  <IdeasPage spaceId={space.id} {me} {ideaHref} />
+  <IdeasPage spaceId={space.id} {me} {ideaHref} authors={people.authors} />
 {/if}

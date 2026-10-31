@@ -28,7 +28,7 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
   await expect(benPage.getByRole("link", { name: /Studio Ghibli marathon/ }).first()).toBeVisible()
 
   const calPage = await inviteMember(page, browser, spaceId, cal!)
-  await benPage.goto(`./#/s/${spaceId}/settings`)
+  await benPage.goto(`./#/s/${spaceId}/settings/members`)
   await expect(benPage.getByText("cal", { exact: true })).toBeVisible()
 
   await page.goto(`./#/s/${spaceId}/watch/${itemId}`)
@@ -38,7 +38,9 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
   await expect(inbox.getByRole("link", { name: "Spirited Away" })).toBeVisible()
   await expect(inbox).toContainText("Bring tissues")
   await inbox.getByRole("button", { name: "Acknowledge Spirited Away" }).click()
-  await expect(inbox.getByRole("link", { name: "Spirited Away" })).toBeHidden()
+  // Answered, it leaves the inbox; For you may still suggest the title from the space's list.
+  await expect(inbox.getByRole("button", { name: "Acknowledge Spirited Away" })).toBeHidden()
+  await expect(inbox).not.toContainText("Bring tissues")
 
   await benPage.goto(`./#/s/${spaceId}/watch/${itemId}`)
   await comment(benPage, "The bathhouse scene is the best part")
@@ -47,7 +49,7 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
 
   await openIdeaTab(page, spaceId, ideaId, "tasks")
   await addTask(page, "Buy snacks", daysFromNow(20).iso)
-  await setTaskField(page, "Buy snacks", "Assignee", "ben")
+  await setTaskField(page, "Buy snacks", "Assigned to", "ben")
   await benPage.reload()
   await expectNotification(benPage, /ana assigned you a task/)
   await expectNotification(benPage, /ana recommended something for you/)

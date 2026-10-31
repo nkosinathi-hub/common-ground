@@ -35,8 +35,8 @@
   })
 </script>
 
-<div class="grid gap-2" role="group" aria-labelledby="gentle-heading">
-  <h3 id="gentle-heading" class="text-sm font-medium">When you're ready</h3>
+<div class="grid gap-related" role="group" aria-labelledby="gentle-heading">
+  <h3 id="gentle-heading" class="type-label">When you're ready</h3>
   {#each RESPONSES as response (response.value)}
     <Button
       variant="outline"
@@ -47,9 +47,13 @@
     >
   {/each}
   {#if asking}
-    <div class="grid gap-2 rounded-lg bg-muted p-3" role="group" aria-labelledby="reminder-ask">
-      <p id="reminder-ask" class="text-sm">Want a gentle reminder?</p>
-      <div class="flex flex-wrap gap-2">
+    <div
+      class="grid gap-related rounded-lg bg-muted p-item"
+      role="group"
+      aria-labelledby="reminder-ask"
+    >
+      <p id="reminder-ask" class="type-sm">Want a gentle reminder?</p>
+      <div class="flex flex-wrap gap-related">
         {#each REMINDERS as reminder (reminder.label)}
           <Button
             size="sm"
@@ -61,7 +65,7 @@
       </div>
     </div>
   {/if}
-  <p role="status" class="text-sm text-muted-foreground">
+  <p role="status" class="type-sm text-muted-foreground">
     {sent ? `Sent: ${responseLabel(sent)}` : ""}
   </p>
   <FormError message={error} />

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { item } from "../testing/fixtures"
 import { compareFor, isAfter, matches, sortKeyOf } from "../testing/sql-mirror"
-import { DEFAULT_FILTERS, hasActiveFilters, pageOf } from "./filters"
+import { countTypes, DEFAULT_FILTERS, hasActiveFilters, pageOf } from "./filters"
 
 const dune = item(1, "Dune", { mediaType: "movie", intent: "watch_together", myStatus: "watching" })
 const frieren = item(2, "Frieren", { mediaType: "anime", intent: "want_to_watch" })
@@ -52,5 +52,9 @@ describe("watch filters", () => {
     expect(pageOf(rows, 1)).toEqual({ items: [dune], next: { key: "k1", id: dune.id } })
     expect(pageOf(rows, 2)).toEqual({ items: [dune, frieren], next: null })
     expect(pageOf([], 2)).toEqual({ items: [], next: null })
+  })
+
+  it("counts titles of each type, with zero for a type the library lacks", () => {
+    expect(countTypes(["series", "movie", "series"])).toEqual({ movie: 1, series: 2, anime: 0 })
   })
 })

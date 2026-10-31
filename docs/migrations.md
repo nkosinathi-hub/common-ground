@@ -15,7 +15,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   | `remove_member`                             | `20261015 000700`, `20261016 000400`                              |
   | `change_idea_currency`                      | `20261015 200700`, `200900`                                       |
   | `tasks_notify_assignee`                     | `20261015 200600`, `200900`, `20261016 200400`                    |
-  | `export_space`                              | `20261015 400200`, `20261016 400300`                              |
+  | `export_space`                              | `20261015 400200`, `20261016 400300`, `20261029 000300`           |
   | `export_me`                                 | `20261015 400300`, `20261022 000420`                              |
   | `export_table_names`, `export_table_filter` | `20261015 400100`, `20261016 400100`, `400400`, `20261022 001700` |
   | `export_table_rows`                         | `20261015 400100`, `20261016 400200`, `400500`                    |
@@ -50,3 +50,21 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `001600` Realtime policies for `party:<id>` topics, `001700` export, `001900` grants (last).
   `002000-002099` Netflix parties (#66): `002000` adds the `netflix` party source and lets
   `start_party` accept any `party_source`.
+
+- v0.6 files are dated `20261029`: `000100-000999` the space look (#75). `000100` the `look`
+  JSON on `spaces` with `is_valid_space_look` (theme and accent_color stay for older builds and
+  are mapped into the look once), `000200` the `background` space-media slot
+  (`background_path`; redefines `space_media_space`, `set_space_media` and
+  `space_media_cleanup_candidates`), `000300` `export_space` with the look, `000400` the
+  `on_your_mind` Home card (#76; redefines `is_valid_home_cards` and the `home_cards` default),
+  `000500` `episode_statuses` for the Episodes tab (#77; security invoker, so RLS scopes it),
+  `000600` `watch_opinions` (private like / dislike; drops `watch_progress.rating` and
+  redefines `save_watch_progress` without it), `000700` comment threads (`reply_to`, the
+  `season`/`episode` tag, `comment_reactions`), `000710` `post_comment` with replies and the tag, `000800` party
+  sessions (the range and `party_id` on `watch_sessions`; redefines `finish_party`), `000900`
+  `export_table_names` and `export_table_filter` with the two new tables, `001000` For you
+  (`genres` and `streamable` on `watch_items`, `set_watch_features` for the service role only,
+  `watch_for_you`), `001100` `list_watch_items` with the `for_you` sort and its reason, `001200` the update grant on
+  `ideas.template` (#78, D06 Template card), `001300` `list_calendar` with each row's place,
+  people, priority, milestone and idea (#80; dropped and made again for the new return type),
+  `001400` member invites (#81; members create and see links, revoke their own, the owner any).

@@ -13,7 +13,6 @@ const PROGRESS = {
   status: "watching",
   season: 1,
   episode: 3,
-  rating: null,
   completed_on: null,
   updated_at: "2026-10-15T10:00:00Z",
 }
@@ -50,13 +49,13 @@ describe("SupabaseWatchProgress", () => {
 
   it("saves my progress through the RPC with nulls for empty fields", async () => {
     const { progress, calls } = progressFor([{ data: null, error: null }])
-    const input = { status: "completed", season: null, episode: null, rating: 8 } as const
+    const input = { status: "completed", season: null, episode: null } as const
     const saved = await progress.saveProgress("i1", { ...input, completedOn: null })
     expect(saved).toEqual({ ok: true, value: undefined })
     expect(calls[0]).toEqual([
       "rpc",
       "save_watch_progress",
-      expect.objectContaining({ item: "i1", new_status: "completed", new_rating: 8 }),
+      expect.objectContaining({ item: "i1", new_status: "completed" }),
     ])
   })
 

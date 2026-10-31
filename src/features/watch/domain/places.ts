@@ -33,6 +33,10 @@ export function parseTogether(json: unknown): Place | null {
 export const placeLabel = (p: Place): string | null =>
   p.season !== null && p.episode !== null ? `S${p.season}E${p.episode}` : null
 
+/** "S1 E2", the title page's larger reading of a place (D03a). */
+export const placeHeading = (p: Place): string | null =>
+  p.season !== null && p.episode !== null ? `S${p.season} E${p.episode}` : null
+
 /** Watched further alone than the space has together (or nothing together yet). */
 export function aheadOf(p: Place, together: Place | null): boolean {
   if (p.season === null || p.episode === null) return false

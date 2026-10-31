@@ -1,3 +1,4 @@
+import { GENRE_NAMES } from "../../../../supabase/functions/_shared/catalog/genres.ts"
 import { appError, err, ok, type Result } from "@/shared/domain"
 import type { Availability, CatalogTitle, MediaKind, Region } from "./types"
 
@@ -49,3 +50,7 @@ export const catalogKey = (title: Pick<CatalogTitle, "type" | "id">): string =>
 
 /** Where a search result stands in the caller's flow: not added yet, being added, or added. */
 export type PickStatus = "idle" | "adding" | "added"
+
+/** "Drama" for a canonical genre key; an unknown key reads as itself. */
+export const genreName = (key: string): string =>
+  (GENRE_NAMES as Record<string, string>)[key] ?? key

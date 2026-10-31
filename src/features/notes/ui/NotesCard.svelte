@@ -1,7 +1,5 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Button } from "$lib/components/ui/button"
-  import { PenLine } from "@lucide/svelte"
   import { ErrorState, Loading, LoadMore, Resource } from "@/shared/ui"
   import type { Draft } from "../domain"
   import { useNotes } from "./context"
@@ -12,14 +10,18 @@
 
   interface Props {
     spaceId: string
+    /** Opens the composer; the Write a note button lives in the card's header. */
+    writing?: boolean
+    /** Home shows the newest few beside each other; the notes page shows them all. */
+    limit?: number
   }
 
-  let { spaceId }: Props = $props()
+  let { spaceId, writing = $bindable(false), limit }: Props = $props()
   const { service, drafts, hardTalk, arrivals, changes, me } = useNotes()
   const notes = new NotesState(service, () => spaceId, hardTalk)
   const list = notes.list
+  const shown = $derived(limit ? notes.visible.slice(0, limit) : notes.visible)
   const myDrafts = new Resource(() => drafts.list(spaceId))
-  let writing = $state(false)
   let resuming = $state<Draft | null>(null)
   // Loads on mount and when the space changes; a new note or reply reloads the card.
   $effect(() => {
@@ -31,6 +33,9 @@
     untrack(() => void myDrafts.load())
   })
   $effect(() => arrivals.subscribe(() => void notes.load()))
+  $effect(() => {
+    if (!writing) resuming = null
+  })
   $effect(() => changes.subscribe(() => void (notes.load(), myDrafts.load())))
 
   function write(draft: Draft | null) {
@@ -39,26 +44,24 @@
   }
 </script>
 
-<div class="flex flex-col gap-3">
-  <Button size="sm" variant="outline" class="self-end" onclick={() => write(null)}
-    ><PenLine aria-hidden="true" />Write a note</Button
-  >
+<div class="flex flex-col gap-stack">
   <DraftsList drafts={myDrafts.value ?? []} onOpen={write} />
   {#if list.error && list.items.length === 0}
     <ErrorState error={list.error} onRetry={notes.load} />
   {:else if list.loading && list.items.length === 0}
     <Loading label="Loading notes" />
   {:else}
-    <ul class="flex flex-col gap-2" aria-label="Notes">
-      {#each notes.visible as note (note.id)}
+    <ul class="grid items-start gap-stack md:grid-cols-2" aria-label="Notes">
+      {#each shown as note (note.id)}
         <NoteItem {note} {notes} me={me()} />
       {:else}
-        <li class="text-sm text-muted-foreground">No notes yet.</li>
+        <li class="type-sm text-muted-foreground md:col-span-2">No notes yet.</li>
       {/each}
     </ul>
-    <LoadMore {list} />
+    {#if !limit}<LoadMore {list} />{/if}
   {/if}
 </div>
 {#if writing}
+  <!-- Opened from the header starts a new note; a draft row sets what to resume. -->
   <NoteComposer bind:open={writing} {spaceId} me={me()} {notes} draft={resuming} />
 {/if}

@@ -17,6 +17,8 @@ export interface IdeaPlace {
 export interface NewTask extends IdeaPlace {
   readonly title: string
   readonly dueDate: DateOnly | null
+  /** Added from a Kanban column, it starts in that column. */
+  readonly status?: TaskStatus
 }
 
 export interface TaskPatch {
@@ -51,6 +53,8 @@ export interface TasksRepository {
   list(ideaId: string, after: Cursor | null): Promise<Result<Page<Task>>>
   create(input: NewTask): Promise<Result<Task>>
   update(id: string, patch: TaskPatch): Promise<Result<Task>>
+  /** The editor's one save; fails with kind "conflict" when someone saved in between. */
+  save(id: string, expectedUpdatedAt: string, patch: TaskPatch): Promise<Result<Task>>
   remove(id: string): Promise<Result<void>>
   /** Open tasks with a due date in a space, soonest first. */
   upcoming(spaceId: string, limit: number): Promise<Result<UpcomingTask[]>>

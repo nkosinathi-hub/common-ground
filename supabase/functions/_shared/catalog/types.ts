@@ -1,3 +1,4 @@
+import type { GenreKey } from "./genres.ts"
 /** Wire types of the catalog Edge Function; src/features/catalog/domain re-exports them. */
 export type CatalogType = "movie" | "tv"
 export type MediaKind = "movie" | "series" | "anime"
@@ -10,6 +11,8 @@ export interface CatalogTitle {
   readonly mediaKind: MediaKind
   readonly posterPath: string | null
   readonly synopsis: string
+  /** Canonical genre keys (genres.ts); older cached copies may lack them. */
+  readonly genres?: readonly GenreKey[]
 }
 
 export interface SearchPage {

@@ -43,6 +43,19 @@ describe("CatalogService", () => {
     expect((await service.refresh(SPACE_ID, { type: "movie", id: 1 })).ok).toBe(true)
     expect(gateway.calls.map((c) => c.method)).toEqual(["details", "refresh"])
   })
+
+  it("shares one details request for a minute, then asks again", async () => {
+    const { gateway } = setup()
+    let clock = 0
+    const service = new CatalogService(gateway, () => clock)
+    gateway.listings.set("movie:1", listing([region("ZA", "South Africa", "Showmax")], false))
+    const ref = { type: "movie", id: 1 } as const
+    await Promise.all([service.details(SPACE_ID, ref), service.details(SPACE_ID, ref)])
+    expect(gateway.calls).toHaveLength(1)
+    clock = 60_001
+    await service.details(SPACE_ID, ref)
+    expect(gateway.calls).toHaveLength(2)
+  })
 })
 
 describe("LatestRequest", () => {

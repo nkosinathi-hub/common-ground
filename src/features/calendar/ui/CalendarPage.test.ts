@@ -74,10 +74,10 @@ describe("CalendarPage", () => {
 
   it("lists the agenda by day and remembers the choice", async () => {
     await renderPage()
-    await fireEvent.click(screen.getByRole("tab", { name: "Agenda" }))
+    await fireEvent.click(screen.getByRole("radio", { name: "Agenda" }))
     expect(await screen.findByRole("heading", { name: "Friday 16 October" })).toBeVisible()
     expect(
-      within(screen.getByTestId("agenda")).getByRole("link", { name: "Event: Dinner" }),
+      within(screen.getByTestId("agenda")).getByRole("link", { name: /Event: Dinner/ }),
     ).toBeVisible()
     expect(localStorage.getItem("common-ground:calendar.view")).toBe("agenda")
   })

@@ -1,56 +1,58 @@
 <script lang="ts">
   import { AppearanceCard } from "@/features/account"
+  import * as Tabs from "$lib/components/ui/tabs"
+  import type { SettingsTab } from "@/shared/domain"
+  import { navigate } from "@/shared/ui"
+  import { SETTINGS_TAB_LABELS, settingsTabOf, settingsTabsFor } from "../domain/settings-tabs"
   import type { Space } from "../domain/space"
-  import DangerZone from "./DangerZone.svelte"
-  import InvitesCard from "./InvitesCard.svelte"
-  import MembersCard from "./MembersCard.svelte"
+  import LookSettings from "./look/LookSettings.svelte"
+  import MembersTab from "./members/MembersTab.svelte"
   import GeneralCard from "./settings/GeneralCard.svelte"
   import HomeLayoutCard from "./settings/HomeLayoutCard.svelte"
-  import LookCard from "./settings/LookCard.svelte"
   import MediaCard from "./settings/MediaCard.svelte"
   import PreferencesCard from "./settings/PreferencesCard.svelte"
-  import SectionNav from "./settings/SectionNav.svelte"
 
   interface Props {
     space: Space
     /** The signed-in user's id, so their own row is marked and cannot be removed. */
     me: string
+    /** From the link; a bare /settings opens the viewer's first tab. */
+    tab?: SettingsTab
   }
 
-  let { space, me }: Props = $props()
+  let { space, me, tab }: Props = $props()
   const owner = $derived(space.role === "owner")
-  const OWNER_SECTIONS = [
-    { id: "settings-general", label: "Name and feel" },
-    { id: "settings-look", label: "Look" },
-    { id: "settings-pictures", label: "Pictures" },
-    { id: "settings-home", label: "Home layout" },
-    { id: "settings-preferences", label: "Preferences" },
-  ]
-  const sections = $derived([
-    ...(owner ? OWNER_SECTIONS : []),
-    { id: "settings-appearance", label: "Appearance" },
-    ...(owner ? [{ id: "settings-invites", label: "Invites" }] : []),
-    { id: "settings-members", label: "Members" },
-    { id: "settings-danger", label: owner ? "Danger zone" : "Leave" },
-  ])
+  const tabs = $derived(settingsTabsFor(space.role))
+  const current = $derived(settingsTabOf(space.role, tab))
+  const open = (next: string) =>
+    navigate({ name: "settings", spaceId: space.id, tab: next as SettingsTab })
 </script>
 
-<div class="grid gap-6">
-  <h1 class="text-2xl font-semibold">Space settings</h1>
-  <div class="grid gap-6 md:grid-cols-[11rem_1fr]">
-    <SectionNav {sections} />
-    <div class="grid min-w-0 gap-6">
-      {#if owner}
-        <GeneralCard {space} />
-        <LookCard {space} />
-        <MediaCard {space} />
-        <HomeLayoutCard {space} />
-        <PreferencesCard {space} />
-      {/if}
-      <div id="settings-appearance" tabindex="-1"><AppearanceCard /></div>
-      {#if owner}<div id="settings-invites" tabindex="-1"><InvitesCard {space} /></div>{/if}
-      <div id="settings-members" tabindex="-1"><MembersCard {space} {me} /></div>
-      <div id="settings-danger" tabindex="-1"><DangerZone {space} /></div>
-    </div>
+<!-- D15a to D17: the page header, then four underline tabs, each a link of its own. -->
+<div class="flex flex-col gap-section">
+  <div class="flex flex-col gap-related">
+    <h1 class="type-h1">Space settings</h1>
+    <p class="type-sm text-muted-foreground">
+      Make {space.name} feel like yours, without losing your way.
+    </p>
   </div>
+  <Tabs.Root value={current} onValueChange={open} class="flex flex-col gap-section">
+    <Tabs.List variant="line" aria-label="Settings" class="w-full justify-start overflow-x-auto">
+      {#each tabs as id (id)}<Tabs.Trigger value={id}>{SETTINGS_TAB_LABELS[id]}</Tabs.Trigger
+        >{/each}
+    </Tabs.List>
+    {#if owner}
+      <Tabs.Content value="identity" class="flex flex-col gap-section">
+        <GeneralCard {space} /><MediaCard {space} />
+      </Tabs.Content>
+      <Tabs.Content value="look"><LookSettings {space} /></Tabs.Content>
+    {/if}
+    <Tabs.Content value="home" class="flex flex-col gap-section">
+      {#if owner}<HomeLayoutCard {space} /><PreferencesCard {space} />{/if}
+      <AppearanceCard />
+    </Tabs.Content>
+    <Tabs.Content value="members" class="flex flex-col gap-section">
+      <MembersTab {space} {me} />
+    </Tabs.Content>
+  </Tabs.Root>
 </div>

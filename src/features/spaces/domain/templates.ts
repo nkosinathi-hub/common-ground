@@ -15,7 +15,7 @@ export interface SpaceTemplate {
 const TEMPLATES: Readonly<Record<SpaceTemplateId, SpaceTemplate>> = {
   couple: {
     id: "couple",
-    label: "Couples",
+    label: "Couple",
     audience: "You and your partner",
     description: "Date nights, shared dreams, and your own little world.",
     suggestedName: "Our little world",

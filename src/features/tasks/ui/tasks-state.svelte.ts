@@ -2,7 +2,7 @@ import type { AppError, Cursor, MemberRef, Result } from "@/shared/domain"
 import { PagedList } from "@/shared/ui"
 import type { IdeaPlace } from "../application/ports"
 import type { TasksContext } from "./context"
-import type { Milestone, Task } from "../domain"
+import type { Milestone, Task, TaskDraft } from "../domain"
 
 type View = "list" | "kanban"
 
@@ -34,6 +34,22 @@ export class TasksState {
   /** Adds a new task at the top; returns the error for the form to show. */
   create(title: string, dueDate: string | null): Promise<AppError | null> {
     return this.list.add(this.services.tasks.create(this.place(), { title, dueDate }))
+  }
+
+  /** The editor's one save; a conflict comes back for the editor to explain. */
+  save(task: Task, draft: TaskDraft): Promise<AppError | null> {
+    return this.list.replace(this.services.tasks.save(task, draft))
+  }
+
+  /** A new task from the editor: created in its column, then given the rest of its fields. */
+  async createFull(draft: TaskDraft): Promise<AppError | null> {
+    const created = await this.services.tasks.create(
+      this.place(),
+      { title: draft.title, dueDate: draft.dueDate },
+      draft.status,
+    )
+    if (!created.ok) return created.error
+    return this.list.add(this.services.tasks.save(created.value, draft))
   }
 
   /** Applies an edit to one task; returns the error for the card to show. */

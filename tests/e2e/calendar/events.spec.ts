@@ -54,20 +54,22 @@ test("events are planned, edited, answered and exported", async ({ page, browser
     /\/ideas\/.+\/overview$/,
   )
 
-  await page.getByRole("button", { name: "Edit" }).click()
+  await page.getByRole("button", { name: "Edit", exact: true }).click()
   const edit = page.getByRole("dialog", { name: "Edit event" })
-  await expect(edit.getByLabel("Start time")).toHaveValue("19:00")
   await edit.getByLabel("Title").fill("Market dinner and drinks")
-  await edit.getByLabel("Where").fill("The night market; stall 4")
-  await edit.getByRole("button", { name: "Save" }).click()
+  await edit.getByLabel("Place").fill("The night market; stall 4")
+  await edit.getByRole("tab", { name: "When" }).click()
+  await expect(edit.getByLabel("Start time")).toHaveValue("19:00")
+  await edit.getByRole("button", { name: "Save changes" }).click()
   await expect(
     page.getByRole("heading", { level: 1, name: "Market dinner and drinks" }),
   ).toBeVisible()
 
   await benPage.goto(`./#/s/${spaceId}/calendar/${dinner}`)
-  await expect(benPage.getByTestId("rsvp-names")).toContainText("Not answered: ben")
-  await benPage.getByRole("radio", { name: "Maybe (0)" }).click()
-  await expect(benPage.getByTestId("rsvp-names")).toContainText("Maybe: ben")
+  const benRow = benPage.getByTestId("rsvp-names").getByRole("listitem").filter({ hasText: "ben" })
+  await expect(benRow).toContainText("Not answered")
+  await benPage.getByRole("radio", { name: "Maybe · 0" }).click()
+  await expect(benRow).toContainText("Maybe")
   await benPage.context().close()
 
   await page.reload()

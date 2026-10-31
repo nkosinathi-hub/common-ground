@@ -1,7 +1,8 @@
 <script lang="ts">
   import { untrack } from "svelte"
   import type { AppError } from "@/shared/domain"
-  import { AsyncView, FormError, Resource } from "@/shared/ui"
+  import * as Card from "$lib/components/ui/card"
+  import { AsyncView, FormError, PhoneAdd, Resource } from "@/shared/ui"
   import { budgetTotals, type BudgetEntry, type EntryForm as Form } from "../domain"
   import BudgetSummary from "./BudgetSummary.svelte"
   import BudgetTable from "./BudgetTable.svelte"
@@ -61,15 +62,35 @@
   }
 </script>
 
-<section aria-labelledby="budget-heading" class="flex flex-col gap-3">
-  <h2 id="budget-heading" class="text-lg font-semibold">Budget</h2>
-  <CurrencyControl {ideaId} {currency} entryCount={entries().length} onChanged={currencyChanged} />
-  <AsyncView resource={lines}>
-    {#snippet children(list)}
-      <BudgetSummary {totals} />
-      <EntryForm {currency} onSubmit={add} />
-      <BudgetTable entries={list} {currency} {canDelete} onEdit={edit} onRemove={remove} />
-    {/snippet}
-  </AsyncView>
-  <FormError message={notice} />
-</section>
+<!-- D10 right column: the budget at a glance with its items, then add one. -->
+<div class="flex flex-col gap-stack">
+  <Card.Root role="region" aria-labelledby="budget-heading">
+    <Card.Header>
+      <Card.Title id="budget-heading">Budget</Card.Title>
+      <Card.Action>
+        <CurrencyControl
+          {ideaId}
+          {currency}
+          entryCount={entries().length}
+          onChanged={currencyChanged}
+        />
+      </Card.Action>
+    </Card.Header>
+    <Card.Content class="flex flex-col gap-stack">
+      <AsyncView resource={lines}>
+        {#snippet children(list)}
+          <BudgetSummary {totals} />
+          <BudgetTable entries={list} {currency} {canDelete} onEdit={edit} onRemove={remove} />
+        {/snippet}
+      </AsyncView>
+      <FormError message={notice} />
+    </Card.Content>
+  </Card.Root>
+  <PhoneAdd label="Add budget item" variant="block">
+    <EntryForm
+      {currency}
+      categories={[...new Set(entries().map((e) => e.category))]}
+      onSubmit={add}
+    />
+  </PhoneAdd>
+</div>

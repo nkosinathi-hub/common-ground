@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test"
 import type { SupabaseClient } from "@supabase/supabase-js"
 import { signedInClient } from "../support/clients"
 import { captureIdea, ideaSection, inviteMember, openIdeaTab } from "../support/fixtures"
-import { askDelete, ITEM_KINDS, type ItemKind } from "../support/idea-items"
+import { askDelete, findDelete, ITEM_KINDS, type ItemKind } from "../support/idea-items"
 import { createSpace, projectPage, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
 
@@ -77,9 +77,8 @@ for (const kind of ITEM_KINDS) {
     // Ben is not offered the delete, and the server refuses it when he asks directly.
     await visit(ben, kind)
     await expect(kind.row(ben, theirs)).toBeVisible()
-    await expect(
-      kind.row(ben, theirs).getByRole("button", { name: kind.deleteLabel(theirs) }),
-    ).toHaveCount(0)
+    await expect(await findDelete(ben, kind, theirs)).toHaveCount(0)
+    await ben.keyboard.press("Escape")
     const [table, column] = STORED[kind.name]!
     const refused = await benApi.from(table).delete().eq(column, theirs).select("id")
     expect(refused).toMatchObject({ error: null, data: [] })

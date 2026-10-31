@@ -26,6 +26,7 @@ describe("space rules", () => {
       createdAt: "2026-10-14T00:00:00Z",
       redeemedAt: null,
       revokedAt: null,
+      createdBy: "ana",
       expiresAt: "2026-10-20T00:00:00Z",
     }
     expect(inviteStatus(base, now)).toBe("open")
@@ -52,7 +53,7 @@ describe("space rules", () => {
 
   it("lists templates in order and falls back to the blank one", () => {
     expect(SPACE_TEMPLATES.map((t) => t.id)).toEqual(["couple", "friends", "family", "blank"])
-    expect(templateFor("couple").label).toBe("Couples")
+    expect(templateFor("couple").label).toBe("Couple")
     expect(templateFor("weird").id).toBe("blank")
     expect(templateFor(null).id).toBe("blank")
   })

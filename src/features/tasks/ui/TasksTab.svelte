@@ -1,91 +1,100 @@
 <script lang="ts">
-  import { TITLE_MAX } from "@/shared/domain"
   import { untrack } from "svelte"
+  import { MediaQuery } from "svelte/reactivity"
+  import { Plus } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { Input } from "$lib/components/ui/input"
-  import { Columns3, List, Plus } from "@lucide/svelte"
-  import { ErrorState, FormError, Loading, LoadMore, ViewToggle } from "@/shared/ui"
-  import { groupByStatus } from "../domain"
+  import { ErrorState, Fab, Loading, LoadMore } from "@/shared/ui"
+  import { filterTasks, tasksSummary, type Task, type TaskFilter, type TaskStatus } from "../domain"
   import { useTasks } from "./context"
-  import { STATUS_LABELS } from "./labels"
-  import TaskCard from "./TaskCard.svelte"
+  import NewTaskRow from "./NewTaskRow.svelte"
+  import TaskBoard from "./TaskBoard.svelte"
+  import TaskEditor from "./TaskEditor.svelte"
+  import TaskList from "./TaskList.svelte"
+  import TaskToolbar from "./TaskToolbar.svelte"
   import { TasksState } from "./tasks-state.svelte"
 
   interface Props {
     spaceId: string
     ideaId: string
+    /** For the editor's "Part of …" line and the dates callout. */
+    ideaTitle: string
     /** Whether the viewer may delete a row by this author (the author or the space owner). */
     canDelete: (createdBy: string | null) => boolean
   }
 
-  let { spaceId, ideaId, canDelete }: Props = $props()
+  let { spaceId, ideaId, ideaTitle, canDelete }: Props = $props()
   const board = new TasksState(useTasks(), () => ({ spaceId, ideaId }))
   const list = board.list
+  const wide = new MediaQuery("min-width: 768px")
+  let filter = $state<TaskFilter>({})
+  let editing = $state<{ task: Task | null; status?: TaskStatus } | null>(null)
+  let editorOpen = $state(false)
+  const shown = $derived(filterTasks(list.items, filter))
+  const edit = (task: Task | null, status?: TaskStatus) => (
+    (editing = { task, status }),
+    (editorOpen = true)
+  )
+  const move = (task: Task, status: TaskStatus) =>
+    board.update(board.services.tasks.move(task.id, status))
+
   // Loads on mount and again when the idea changes.
   $effect(() => {
     void [spaceId, ideaId]
     untrack(() => void board.load())
   })
-
-  let title = $state("")
-  let due = $state("")
-  let error = $state<string | null>(null)
-  async function add(event: SubmitEvent) {
-    event.preventDefault()
-    const failure = await board.create(title, due || null)
-    error = failure?.message ?? null
-    if (failure) return
-    title = ""
-    due = ""
-  }
-  const VIEWS = [
-    { value: "list", label: "List", icon: List },
-    { value: "kanban", label: "Kanban", icon: Columns3 },
-  ] as const
 </script>
 
-<div class="flex flex-col gap-4">
-  <div class="flex flex-wrap items-end justify-between gap-2">
-    <form class="flex flex-wrap items-end gap-2" onsubmit={add} aria-label="Add a task">
-      <Input
-        class="w-56"
-        aria-label="Task title"
-        placeholder="New task"
-        maxlength={TITLE_MAX}
-        bind:value={title}
-      />
-      <label class="flex flex-col text-xs"
-        >Due <Input type="date" class="h-8" bind:value={due} /></label
-      >
-      <Button type="submit" size="sm" disabled={!title.trim()}><Plus />Add task</Button>
-    </form>
-    <ViewToggle value={board.view} options={VIEWS} onchange={(view) => (board.view = view)} />
+<!-- D08 list and D09 Kanban (M04 on phones): add, filter, then the tasks themselves. -->
+<div class="flex flex-col gap-section">
+  {#if board.view === "list" && wide.current}<NewTaskRow {board} />{/if}
+  <div class="flex items-center gap-related">
+    <div class="min-w-0 flex-1">
+      <TaskToolbar {board} bind:filter summary={tasksSummary(shown)} />
+    </div>
+    {#if board.view === "kanban"}<Button
+        size="icon"
+        aria-label="New task"
+        onclick={() => edit(null, "todo")}><Plus /></Button
+      >{/if}
   </div>
-  <FormError message={error} />
-
   {#if list.error && list.items.length === 0}
     <ErrorState error={list.error} onRetry={() => board.load()} />
   {:else if list.loading && list.items.length === 0}
     <Loading label="Loading tasks" />
   {:else if board.view === "kanban"}
-    <div class="flex snap-x gap-3 overflow-x-auto pb-2">
-      {#each groupByStatus(list.items) as column (column.status)}
-        <section
-          class="flex w-72 shrink-0 snap-start flex-col gap-2 rounded-lg bg-muted/40 p-2"
-          aria-label={STATUS_LABELS[column.status]}
-        >
-          <h3 class="text-sm font-semibold">
-            {STATUS_LABELS[column.status]} ({column.tasks.length})
-          </h3>
-          {#each column.tasks as task (task.id)}<TaskCard {task} {board} {canDelete} />{/each}
-        </section>
-      {/each}
-    </div>
+    <TaskBoard
+      tasks={shown}
+      {board}
+      {canDelete}
+      onopen={(t) => edit(t)}
+      onadd={(s) => edit(null, s)}
+      onmove={move}
+    />
   {:else}
-    <div class="grid gap-2 md:grid-cols-2">
-      {#each list.items as task (task.id)}<TaskCard {task} {board} {canDelete} />
-      {:else}<p class="text-sm text-muted-foreground">No tasks yet.</p>{/each}
-    </div>
+    <TaskList
+      tasks={shown}
+      {board}
+      {canDelete}
+      {ideaTitle}
+      compact={!wide.current}
+      onedit={(t) => edit(t)}
+    />
   {/if}
   <LoadMore {list} />
 </div>
+{#if !wide.current}<Fab
+    icon={Plus}
+    label="New task"
+    onclick={() => edit(null, "todo")}
+    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
+  />{/if}
+{#if editing}
+  <TaskEditor
+    bind:open={editorOpen}
+    task={editing.task}
+    status={editing.status}
+    {board}
+    {ideaTitle}
+    {canDelete}
+  />
+{/if}

@@ -3,26 +3,53 @@ import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
 import { done, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { CommentsGateway, NewComment, ThreadPageRequest } from "../application/ports"
-import type { Comment } from "../domain/comment"
-import { COMMENT_COLUMNS, parentColumn, toComment } from "./comment-row"
+import type { Comment, ParentRef } from "../domain/comment"
+import type { EpisodeTag } from "../domain/episodes"
+import { COMMENT_COLUMNS, parentColumn, THREAD_COLUMNS, toComment } from "./comment-row"
+import { filtered, pastPlace } from "./thread-filter"
 
-/** Reads through RLS; every write goes through the comment RPCs. */
+/** Reads through RLS; comment writes go through the RPCs, hearts straight to their table. */
 export class SupabaseCommentsGateway implements CommentsGateway {
   constructor(private readonly db: Db) {}
 
-  list({ spaceId, parent, after }: ThreadPageRequest): Promise<Result<Page<Comment>>> {
-    const query = this.db
+  private async me(): Promise<string | undefined> {
+    return (await this.db.auth.getUser()).data.user?.id
+  }
+
+  async list(request: ThreadPageRequest): Promise<Result<Page<Comment>>> {
+    const { spaceId, parent, after, filter, replyTo } = request
+    const base = this.db
       .from("comments")
-      .select(`${COMMENT_COLUMNS}, comment_mentions(user_id)`)
+      .select(THREAD_COLUMNS)
       .eq("space_id", spaceId)
       .eq(parentColumn(parent), parent.id)
+    const scoped = replyTo ? base.eq("reply_to", replyTo) : base.is("reply_to", null)
+    const me = await this.me()
     return settle(
-      newestFirst(query, after),
-      pageOf((row) => toComment(row)),
+      newestFirst(filtered(scoped, filter), after),
+      pageOf((row) => toComment(row, undefined, me)),
     )
   }
 
-  post(input: NewComment): Promise<Result<Comment>> {
+  hidden(spaceId: string, parent: ParentRef, upTo: EpisodeTag | null) {
+    const query = this.db
+      .from("comments")
+      .select(COMMENT_COLUMNS)
+      .eq("space_id", spaceId)
+      .eq(parentColumn(parent), parent.id)
+      .is("reply_to", null)
+      .or(pastPlace(upTo))
+    return settle(query, (rows) => rows.map((row) => toComment(row)))
+  }
+
+  heart(commentId: string, on: boolean): Promise<Result<void>> {
+    const table = this.db.from("comment_reactions")
+    return done(
+      on ? table.insert({ comment_id: commentId }) : table.delete().eq("comment_id", commentId),
+    )
+  }
+
+  async post(input: NewComment): Promise<Result<Comment>> {
     const reply = this.db.rpc("post_comment", {
       target_space: input.spaceId,
       parent_kind: input.parent.kind,
@@ -30,6 +57,9 @@ export class SupabaseCommentsGateway implements CommentsGateway {
       body: input.body,
       spoiler: input.spoiler,
       mention_ids: [...input.mentionIds],
+      in_reply_to: input.replyTo ?? undefined,
+      tag_season: input.tag?.season,
+      tag_episode: input.tag?.episode,
     })
     return settle(reply, (row) => toComment(row, input.mentionIds))
   }

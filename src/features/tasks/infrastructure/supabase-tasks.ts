@@ -1,6 +1,6 @@
 import type { Cursor, Page, Result } from "@/shared/domain"
 import { newestFirst, pageOf } from "@/shared/infrastructure/paging"
-import { removed, settle } from "@/shared/infrastructure/query"
+import { current, removed, settle } from "@/shared/infrastructure/query"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { NewTask, TaskPatch, TasksRepository } from "../application/ports"
 import type { Task, UpcomingTask } from "../domain"
@@ -19,14 +19,22 @@ export class SupabaseTasks implements TasksRepository {
   }
 
   create(input: NewTask): Promise<Result<Task>> {
-    const { spaceId, ideaId, title, dueDate } = input
-    const row = { space_id: spaceId, idea_id: ideaId, title, due_date: dueDate }
+    const { spaceId, ideaId, title, dueDate, status } = input
+    const row = { space_id: spaceId, idea_id: ideaId, title, due_date: dueDate, status }
     return settle(this.tasks.insert(row).select(rows.TASK_COLUMNS).single(), rows.toTask)
   }
 
   update(id: string, patch: TaskPatch): Promise<Result<Task>> {
     const query = this.tasks.update(rows.taskPatchRow(patch)).eq("id", id)
     return settle(query.select(rows.TASK_COLUMNS).single(), rows.toTask)
+  }
+
+  save(id: string, expectedUpdatedAt: string, patch: TaskPatch): Promise<Result<Task>> {
+    const query = this.tasks
+      .update(rows.taskPatchRow(patch))
+      .eq("id", id)
+      .eq("updated_at", expectedUpdatedAt)
+    return current(query.select(rows.TASK_COLUMNS), rows.toTask)
   }
 
   remove(id: string): Promise<Result<void>> {

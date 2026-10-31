@@ -1,4 +1,4 @@
-export const MEDIA_SLOTS = ["avatar", "cover"] as const
+export const MEDIA_SLOTS = ["avatar", "cover", "background"] as const
 export type MediaSlot = (typeof MEDIA_SLOTS)[number]
 
 export interface Size {
@@ -11,10 +11,11 @@ export interface Crop extends Size {
   readonly y: number
 }
 
-/** Pictures are re-encoded to these sizes: a square avatar and a 3:1 cover. */
+/** Pictures are re-encoded to these sizes: a square avatar, a 3:1 cover, a 16:9 background. */
 export const MEDIA_SIZE: Readonly<Record<MediaSlot, Size>> = {
   avatar: { width: 512, height: 512 },
   cover: { width: 1800, height: 600 },
+  background: { width: 2400, height: 1350 },
 }
 
 /** The bucket's limit per file. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { aheadOf, parsePlaces, parseTogether, placeLabel } from "./places"
+import { aheadOf, parsePlaces, parseTogether, placeHeading, placeLabel } from "./places"
 
 describe("places", () => {
   it("reads every member's place from the list row, skipping anything malformed", () => {
@@ -26,6 +26,11 @@ describe("places", () => {
   it("labels a place as S1E3, and a place with no episode as nothing", () => {
     expect(placeLabel({ season: 1, episode: 3 })).toBe("S1E3")
     expect(placeLabel({ season: null, episode: null })).toBeNull()
+  })
+
+  it("spaces the title page's heading as S1 E3", () => {
+    expect(placeHeading({ season: 1, episode: 3 })).toBe("S1 E3")
+    expect(placeHeading({ season: 1, episode: null })).toBeNull()
   })
 
   it("knows who is ahead of where you are together", () => {

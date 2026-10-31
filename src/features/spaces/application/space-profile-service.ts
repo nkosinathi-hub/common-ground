@@ -1,13 +1,9 @@
 import { appError, err, ok, type HomeCardId, type Result } from "@/shared/domain"
-import type { DefaultWatchIntent, SpacePreset, WeekStart } from "../domain/look"
+import { storedLook, type DefaultWatchIntent, type WeekStart } from "../domain/look"
 import { MEDIA_BYTES_MAX, mediaPath, type MediaSlot } from "../domain/media"
-import {
-  validateAccent,
-  validateDescription,
-  validateIcon,
-  validateTagline,
-} from "../domain/profile"
+import { validateDescription, validateIcon, validateTagline } from "../domain/profile"
 import { validateSpaceName } from "../domain/space"
+import type { SpaceLook } from "../domain/space-look"
 import type { SpaceTemplateId } from "../domain/templates"
 import type { SpaceProfileGateway } from "./ports"
 
@@ -17,11 +13,6 @@ export interface GeneralFields {
   readonly tagline: string
   readonly description: string
   readonly icon: string | null
-}
-
-export interface LookFields {
-  readonly theme: SpacePreset | null
-  readonly accent: string | null
 }
 
 export interface PreferenceFields {
@@ -57,11 +48,9 @@ export class SpaceProfileService {
     })
   }
 
-  async saveLook(spaceId: string, fields: LookFields): Promise<Result<void>> {
-    const accent = validateAccent(fields.accent)
-    if (!accent.ok) return accent
-    return this.gateway.updateProfile(spaceId, { theme: fields.theme, accent: accent.value })
-  }
+  /** The look as chosen; parseLook already normalised it, and the database checks it again. */
+  saveLook = (spaceId: string, look: SpaceLook) =>
+    this.gateway.updateProfile(spaceId, { look: storedLook(look) })
 
   saveHomeCards = (spaceId: string, homeCards: readonly HomeCardId[]) =>
     this.gateway.updateProfile(spaceId, { homeCards })

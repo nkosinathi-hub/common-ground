@@ -1,4 +1,7 @@
 import type { Result } from "@/shared/domain"
+import type { EpisodeStatus } from "../domain/episodes"
+import type { ForYouScore } from "../domain/for-you"
+import type { Opinion } from "../domain/progress-types"
 import type {
   CatalogPick,
   ManualTitleInput,
@@ -12,6 +15,7 @@ import type {
   WatchItemView,
   WatchPage,
   WatchSession,
+  MediaType,
 } from "../domain/types"
 
 export interface ListRequest {
@@ -24,6 +28,8 @@ export interface ListRequest {
 /** Watchlist persistence. Duplicate adds fail with kind "conflict" and copy "Already on your list". */
 export interface WatchGateway {
   list(request: ListRequest): Promise<Result<WatchPage>>
+  /** How many titles of each type the library holds, archived ones left out. */
+  countByType(spaceId: string): Promise<Result<Record<MediaType, number>>>
   get(spaceId: string, itemId: string): Promise<Result<WatchItemView>>
   addCatalog(spaceId: string, pick: CatalogPick, intent: SharedIntent): Promise<Result<string>>
   addManual(spaceId: string, input: ManualTitleInput): Promise<Result<string>>
@@ -52,4 +58,14 @@ export interface WatchHistoryGateway {
     tick: EpisodeTick | null,
     source: HistorySource,
   ): Promise<Result<void>>
+  /** Each watched episode of a title, for the Episodes tab (episode_statuses). */
+  statuses(itemId: string): Promise<Result<EpisodeStatus[]>>
+}
+
+/** Like / dislike, private to the signed-in person. Null clears it. */
+export interface WatchOpinionGateway {
+  opinion(itemId: string): Promise<Result<Opinion | null>>
+  setOpinion(spaceId: string, itemId: string, opinion: Opinion | null): Promise<Result<void>>
+  /** Every title in the space with your personal score (watch_for_you). */
+  forYou(spaceId: string): Promise<Result<ForYouScore[]>>
 }

@@ -11,7 +11,12 @@ import { composeParties, providePartiesFeature } from "./parties"
 import { composePlaybackFeature, providePlaybackFeature } from "./playback-feature"
 import { catalogTmdb } from "./catalog-tmdb"
 import { ActivePlayer } from "./player-bridge"
-import { composeWatch, composeWatchHistory, provideWatchFeature } from "./watch"
+import {
+  composeWatch,
+  composeWatchHistory,
+  composeWatchOpinions,
+  provideWatchFeature,
+} from "./watch"
 
 /** The Android app keeps its session in Preferences; the website in browser storage. */
 function createDb(): Db {
@@ -25,6 +30,7 @@ export function compose(db: Db = createDb()) {
   const members = memberDirectory(core.spaces)
   const authors = authorDirectory(core.spaces)
   const watch = composeWatch(db)
+  const watchHistory = composeWatchHistory(db)
   const ideas = composeIdeas(db, members, authors)
   return {
     ...core,
@@ -36,9 +42,11 @@ export function compose(db: Db = createDb()) {
     calendar: composeCalendar(db, watch, ideas.ideas, members, authors),
     notes: composeNotes(db, members, authors),
     parties: composeParties(db),
+    watchHistory,
+    watchOpinions: composeWatchOpinions(db),
     playback: composePlaybackFeature(
       watch,
-      composeWatchHistory(db),
+      watchHistory,
       core.catalog,
       catalogTmdb(core.catalog, () => core.spacesStore.active?.id ?? null),
     ),
@@ -52,7 +60,16 @@ export function provideServices(services: Services): void {
   provideCore(services)
   provideMembers({ members: services.members, authors: services.authors })
   provideCollaboration(services.collaboration)
-  provideWatchFeature(services.watch, services.members, services.authors)
+  provideWatchFeature(
+    {
+      service: services.watch,
+      members: services.members,
+      authors: services.authors,
+      history: services.watchHistory,
+      opinions: services.watchOpinions,
+    },
+    services.catalog,
+  )
   provideIdeasFeatures(services.ideas)
   provideCalendarFeature(services.calendar)
   provideNotesFeature(services.notes, services.session)

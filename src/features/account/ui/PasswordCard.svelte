@@ -22,26 +22,33 @@
 <Card.Root>
   <Card.Header><Card.Title>Password</Card.Title></Card.Header>
   <Card.Content>
-    <form class="grid max-w-sm gap-3" onsubmit={submit} novalidate>
-      <FormField
-        id="current-password"
-        label="Current password"
-        type="password"
-        autocomplete="current-password"
-        bind:value={current}
-        error={form.fieldError("currentPassword")}
-      />
-      <FormField
-        id="new-password"
-        label="New password"
-        type="password"
-        autocomplete="new-password"
-        bind:value={next}
-        error={form.fieldError("password")}
-        hint={`At least ${MIN_PASSWORD} characters.`}
-      />
+    <form class="flex flex-col gap-stack" onsubmit={submit} novalidate>
+      <div class="grid gap-stack sm:grid-cols-2">
+        <FormField
+          id="current-password"
+          label="Current password"
+          type="password"
+          autocomplete="current-password"
+          bind:value={current}
+          error={form.fieldError("currentPassword")}
+          placeholder="Enter your current password"
+        />
+        <FormField
+          id="new-password"
+          label="New password"
+          type="password"
+          autocomplete="new-password"
+          bind:value={next}
+          error={form.fieldError("password")}
+          placeholder={`At least ${MIN_PASSWORD} characters`}
+        />
+      </div>
       <FormError message={form.formError} />
-      <Button type="submit" class="w-fit" disabled={form.pending}>Change password</Button>
+      <div class="flex justify-end border-t border-border pt-stack">
+        <Button type="submit" variant="outline" disabled={form.pending || !current || !next}
+          >Change password</Button
+        >
+      </div>
     </form>
   </Card.Content>
 </Card.Root>

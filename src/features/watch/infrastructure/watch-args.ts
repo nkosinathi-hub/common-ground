@@ -39,7 +39,6 @@ export const progressArgs = (itemId: string, input: T.ProgressInput) => ({
   new_status: input.status,
   new_season: sqlNull(input.season),
   new_episode: sqlNull(input.episode),
-  new_rating: sqlNull(input.rating),
   new_completed_on: sqlNull<string>(input.completedOn),
 })
 

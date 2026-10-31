@@ -13,9 +13,12 @@
   const jump = (by: number) => room.seek(positionAt(view.state.timeline, room.now()) + by)
 </script>
 
-<section aria-label="Playback" class="space-y-3 rounded-xl border p-4">
+<section
+  aria-label="Playback"
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+>
   <PhaseLine {view} />
-  <div class="flex flex-wrap gap-2">
+  <div class="flex flex-wrap gap-related">
     {#if !view.ready}
       <Button onclick={() => room.ready()}>I am ready</Button>
     {/if}

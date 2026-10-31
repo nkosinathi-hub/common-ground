@@ -1,3 +1,4 @@
+import { anyOf, matches } from "./query-filter"
 import type { DemoRow } from "./tables"
 
 const text = (value: unknown): string =>
@@ -9,22 +10,10 @@ const text = (value: unknown): string =>
 export function selectRows(rows: DemoRow[], params: URLSearchParams): DemoRow[] {
   let result = rows.filter((row) =>
     [...params].every(([column, filter]) => {
-      if (
-        ["select", "order", "limit", "offset", "or", "and"].includes(column) ||
-        column.includes(".")
-      )
+      if (column === "or") return anyOf(row, filter)
+      if (["select", "order", "limit", "offset", "and"].includes(column) || column.includes("."))
         return true
-      const value = row[column]
-      if (filter.startsWith("eq.")) return text(value) === filter.slice(3)
-      if (filter.startsWith("is.")) return text(value) === filter.slice(3)
-      if (filter === "not.is.null") return value != null
-      if (filter.startsWith("in.(")) return filter.slice(4, -1).split(",").includes(text(value))
-      if (filter.startsWith("ilike."))
-        return text(value).toLowerCase().includes(filter.slice(6).replaceAll("%", "").toLowerCase())
-      if (filter.startsWith("gte.")) return text(value) >= filter.slice(4)
-      if (filter.startsWith("lte.")) return text(value) <= filter.slice(4)
-      if (filter.startsWith("neq.")) return text(value) !== filter.slice(4)
-      return true
+      return matches(row[column], filter)
     }),
   )
   const order = params.get("order")?.split(",") ?? []

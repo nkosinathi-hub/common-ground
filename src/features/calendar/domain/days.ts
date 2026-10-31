@@ -41,3 +41,9 @@ export const monthOf = (day: DateOnly): YearMonth => ({
   year: Number(day.slice(0, 4)),
   month: Number(day.slice(5, 7)),
 })
+
+/** The last day of the month a day falls in. */
+export function monthEnd(day: DateOnly): DateOnly {
+  const next = addMonths(monthOf(day), 1)
+  return addDays(dateOf(next.year, next.month, 1), -1)
+}

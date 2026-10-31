@@ -27,14 +27,14 @@
   <Button
     {...props}
     variant="ghost"
-    size="icon"
-    class="relative"
+    size="icon-sm"
+    class="relative max-md:size-11"
     aria-label={store.unread > 0 ? `Notifications, ${store.unread} unread` : "Notifications"}
   >
-    <Bell class="size-5" aria-hidden="true" />
+    <Bell aria-hidden="true" />
     {#if store.unread > 0}
       <span
-        class="absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground"
+        class="absolute -top-0.5 -right-0.5 grid min-w-4 place-items-center rounded-full bg-primary px-1 type-label-sm text-primary-foreground"
       >
         {badge}
       </span>
@@ -55,9 +55,9 @@
     <Popover.Trigger>
       {#snippet child({ props })}{@render bell(props)}{/snippet}
     </Popover.Trigger>
-    <Popover.Content align="end" class="w-80 p-0">
-      <div class="flex items-center justify-between border-b px-3 py-2">
-        <h2 class="text-sm font-semibold">Notifications</h2>
+    <Popover.Content align="end" class="w-90 overflow-hidden rounded-lg p-0">
+      <div class="flex items-center justify-between border-b border-border px-inset py-related">
+        <h2 class="type-label text-foreground">Notifications</h2>
         {@render markAll()}
       </div>
       <NotificationList onFollow={follow} class="max-h-96" />
@@ -73,8 +73,8 @@
       side="bottom"
       class="h-dvh w-full max-w-none gap-0 p-0 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] [&>[data-dialog-close]]:hidden"
     >
-      <div class="flex items-center gap-2 border-b px-3 py-1">
-        <Sheet.Title class="flex-1 text-base">Notifications</Sheet.Title>
+      <div class="flex items-center gap-related border-b border-border px-inset py-hairline">
+        <Sheet.Title class="flex-1 type-h3">Notifications</Sheet.Title>
         {@render markAll()}
         <Sheet.Close>
           {#snippet child({ props })}

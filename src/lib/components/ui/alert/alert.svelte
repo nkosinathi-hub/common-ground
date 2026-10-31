@@ -2,11 +2,12 @@
 	import { type VariantProps, tv } from "tailwind-variants";
 
 	export const alertVariants = tv({
-		base: "grid gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 group/alert relative w-full",
+		base: "grid gap-0.5 rounded-lg px-inset py-item text-left type-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-item *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4 group/alert relative w-full",
 		variants: {
 			variant: {
-				default: "bg-card text-card-foreground",
-				destructive: "text-destructive bg-card *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+				default: "bg-muted text-foreground",
+				secondary: "bg-secondary text-secondary-foreground",
+				destructive: "border border-destructive/40 bg-card text-destructive *:data-[slot=alert-description]:text-destructive *:[svg]:text-current",
 			},
 		},
 		defaultVariants: {

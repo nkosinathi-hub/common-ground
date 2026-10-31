@@ -13,7 +13,7 @@
 </script>
 
 <nav
-  class="flex items-center justify-between text-xs text-muted-foreground"
+  class="flex items-center justify-between type-xs text-muted-foreground"
   aria-label="Search pages"
 >
   <Button

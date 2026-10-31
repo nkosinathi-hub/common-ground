@@ -1,4 +1,5 @@
 import { isUuid } from "../http/request.ts"
+import { parseDiscover, type DiscoverRequest } from "./discover-request.ts"
 import type { CatalogType } from "./types.ts"
 
 export type CatalogRequest =
@@ -20,6 +21,7 @@ export type CatalogRequest =
       readonly id: number
       readonly season: number
     }
+  | DiscoverRequest
 
 type Parsed = { ok: true; value: CatalogRequest } | { ok: false; message: string }
 
@@ -68,6 +70,7 @@ export function parseRequest(raw: unknown): Parsed {
   const spaceId = body.spaceId
   if (body.action === "search") return parseSearch(body, spaceId)
   if (body.action === "season") return parseSeason(body, spaceId)
+  if (body.action === "discover") return parseDiscover(body, spaceId)
   if (body.action !== "details" && body.action !== "refresh") return fail("Unknown catalog action")
   const id = parseId(body.id)
   if ((body.type !== "movie" && body.type !== "tv") || id === null)

@@ -231,16 +231,42 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"comments": {
+                },"comment_reactions": {
                   Row: {
-                    "author_id": string | null,"body": string,"created_at": string,"edited": boolean,"id": string,"idea_id": string | null,"space_id": string,"spoiler": boolean,"updated_at": string,"watch_item_id": string | null
+                    "comment_id": string,"created_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "author_id"?: string | null,"body": string,"created_at"?: string,"edited"?: boolean,"id"?: string,"idea_id"?: string | null,"space_id": string,"spoiler"?: boolean,"updated_at"?: string,"watch_item_id"?: string | null
+                    "comment_id": string,"created_at"?: string,"user_id"?: string
                   }
                   Update: {
-                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"edited"?: boolean,"id"?: string,"idea_id"?: string | null,"space_id"?: string,"spoiler"?: boolean,"updated_at"?: string,"watch_item_id"?: string | null
+                    "comment_id"?: string,"created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "comment_reactions_comment_id_fkey"
+      columns: ["comment_id"]
+isOneToOne: false
+      referencedRelation: "comments"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "comment_reactions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"comments": {
+                  Row: {
+                    "author_id": string | null,"body": string,"created_at": string,"edited": boolean,"episode": number | null,"id": string,"idea_id": string | null,"reply_to": string | null,"season": number | null,"space_id": string,"spoiler": boolean,"updated_at": string,"watch_item_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string | null,"body": string,"created_at"?: string,"edited"?: boolean,"episode"?: number | null,"id"?: string,"idea_id"?: string | null,"reply_to"?: string | null,"season"?: number | null,"space_id": string,"spoiler"?: boolean,"updated_at"?: string,"watch_item_id"?: string | null
+                  }
+                  Update: {
+                    "author_id"?: string | null,"body"?: string,"created_at"?: string,"edited"?: boolean,"episode"?: number | null,"id"?: string,"idea_id"?: string | null,"reply_to"?: string | null,"season"?: number | null,"space_id"?: string,"spoiler"?: boolean,"updated_at"?: string,"watch_item_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -255,6 +281,12 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "ideas"
       referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "comments_reply_to_fkey"
+      columns: ["reply_to"]
+isOneToOne: false
+      referencedRelation: "comments"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "comments_space_id_fkey"
       columns: ["space_id"]
@@ -835,14 +867,14 @@ isOneToOne: false
                   ]
                 },"spaces": {
                   Row: {
-                    "accent_color": string | null,"avatar_path": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_watch_intent": Database["public"]['Enums']["watch_intent"],"description": string,"home_cards": (string)[],"icon": string | null,"id": string,"name": string,"tagline": string,"template": Database["public"]['Enums']["space_template"],"theme": Database["public"]['Enums']["space_theme"] | null,"updated_at": string,"week_starts_on": number
+                    "accent_color": string | null,"avatar_path": string | null,"background_path": string | null,"cover_path": string | null,"created_at": string,"created_by": string | null,"default_watch_intent": Database["public"]['Enums']["watch_intent"],"description": string,"home_cards": (string)[],"icon": string | null,"id": string,"look": NonNullable<Json>,"name": string,"tagline": string,"template": Database["public"]['Enums']["space_template"],"theme": Database["public"]['Enums']["space_theme"] | null,"updated_at": string,"week_starts_on": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name": string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"background_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"look"?: NonNullable<Json>,"name": string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
                   }
                   Update: {
-                    "accent_color"?: string | null,"avatar_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"name"?: string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
+                    "accent_color"?: string | null,"avatar_path"?: string | null,"background_path"?: string | null,"cover_path"?: string | null,"created_at"?: string,"created_by"?: string | null,"default_watch_intent"?: Database["public"]['Enums']["watch_intent"],"description"?: string,"home_cards"?: (string)[],"icon"?: string | null,"id"?: string,"look"?: NonNullable<Json>,"name"?: string,"tagline"?: string,"template"?: Database["public"]['Enums']["space_template"],"theme"?: Database["public"]['Enums']["space_theme"] | null,"updated_at"?: string,"week_starts_on"?: number
                   }
                   Relationships: [
                     {
@@ -939,14 +971,14 @@ isOneToOne: false
                   ]
                 },"watch_items": {
                   Row: {
-                    "catalog_id": number | null,"catalog_type": Database["public"]['Enums']["watch_catalog_type"] | null,"created_at": string,"created_by": string | null,"id": string,"manual_availability_note": string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path": string | null,"release_year": number | null,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string | null,"space_id": string,"synopsis": string,"title": string,"updated_at": string
+                    "catalog_id": number | null,"catalog_type": Database["public"]['Enums']["watch_catalog_type"] | null,"created_at": string,"created_by": string | null,"genres": (string)[],"id": string,"manual_availability_note": string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path": string | null,"release_year": number | null,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string | null,"space_id": string,"streamable": boolean,"synopsis": string,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"manual_availability_note"?: string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id": string,"synopsis"?: string,"title": string,"updated_at"?: string
+                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"genres"?: (string)[],"id"?: string,"manual_availability_note"?: string | null,"media_type": Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id": string,"streamable"?: boolean,"synopsis"?: string,"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"id"?: string,"manual_availability_note"?: string | null,"media_type"?: Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id"?: string,"synopsis"?: string,"title"?: string,"updated_at"?: string
+                    "catalog_id"?: number | null,"catalog_type"?: Database["public"]['Enums']["watch_catalog_type"] | null,"created_at"?: string,"created_by"?: string | null,"genres"?: (string)[],"id"?: string,"manual_availability_note"?: string | null,"media_type"?: Database["public"]['Enums']["watch_media_type"],"poster_path"?: string | null,"release_year"?: number | null,"shared_intent"?: Database["public"]['Enums']["watch_intent"],"sort_key"?: never,"space_id"?: string,"streamable"?: boolean,"synopsis"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -960,6 +992,32 @@ isOneToOne: false
       columns: ["space_id"]
 isOneToOne: false
       referencedRelation: "spaces"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"watch_opinions": {
+                  Row: {
+                    "opinion": Database["public"]['Enums']["watch_opinion"],"space_id": string,"updated_at": string,"user_id": string,"watch_item_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "opinion": Database["public"]['Enums']["watch_opinion"],"space_id": string,"updated_at"?: string,"user_id"?: string,"watch_item_id": string
+                  }
+                  Update: {
+                    "opinion"?: Database["public"]['Enums']["watch_opinion"],"space_id"?: string,"updated_at"?: string,"user_id"?: string,"watch_item_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "watch_opinions_space_id_watch_item_id_fkey"
+      columns: ["space_id","watch_item_id"]
+isOneToOne: false
+      referencedRelation: "watch_items"
+      referencedColumns: ["space_id","id"]
+    },{
+      foreignKeyName: "watch_opinions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -1017,14 +1075,14 @@ isOneToOne: false
                   ]
                 },"watch_progress": {
                   Row: {
-                    "completed_on": string | null,"episode": number | null,"rating": number | null,"season": number | null,"space_id": string,"status": Database["public"]['Enums']["watch_status"],"updated_at": string,"user_id": string,"watch_item_id": string
+                    "completed_on": string | null,"episode": number | null,"season": number | null,"space_id": string,"status": Database["public"]['Enums']["watch_status"],"updated_at": string,"user_id": string,"watch_item_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "completed_on"?: string | null,"episode"?: number | null,"rating"?: number | null,"season"?: number | null,"space_id": string,"status"?: Database["public"]['Enums']["watch_status"],"updated_at"?: string,"user_id"?: string,"watch_item_id": string
+                    "completed_on"?: string | null,"episode"?: number | null,"season"?: number | null,"space_id": string,"status"?: Database["public"]['Enums']["watch_status"],"updated_at"?: string,"user_id"?: string,"watch_item_id": string
                   }
                   Update: {
-                    "completed_on"?: string | null,"episode"?: number | null,"rating"?: number | null,"season"?: number | null,"space_id"?: string,"status"?: Database["public"]['Enums']["watch_status"],"updated_at"?: string,"user_id"?: string,"watch_item_id"?: string
+                    "completed_on"?: string | null,"episode"?: number | null,"season"?: number | null,"space_id"?: string,"status"?: Database["public"]['Enums']["watch_status"],"updated_at"?: string,"user_id"?: string,"watch_item_id"?: string
                   }
                   Relationships: [
                     {
@@ -1069,14 +1127,14 @@ isOneToOne: false
                   ]
                 },"watch_sessions": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"id": string,"note": string | null,"space_id": string,"watch_item_id": string,"watched_on": string
+                    "created_at": string,"created_by": string | null,"from_episode": number | null,"from_season": number | null,"id": string,"note": string | null,"party_id": string | null,"space_id": string,"to_episode": number | null,"to_season": number | null,"watch_item_id": string,"watched_on": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"note"?: string | null,"space_id": string,"watch_item_id": string,"watched_on"?: string
+                    "created_at"?: string,"created_by"?: string | null,"from_episode"?: number | null,"from_season"?: number | null,"id"?: string,"note"?: string | null,"party_id"?: string | null,"space_id": string,"to_episode"?: number | null,"to_season"?: number | null,"watch_item_id": string,"watched_on"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"note"?: string | null,"space_id"?: string,"watch_item_id"?: string,"watched_on"?: string
+                    "created_at"?: string,"created_by"?: string | null,"from_episode"?: number | null,"from_season"?: number | null,"id"?: string,"note"?: string | null,"party_id"?: string | null,"space_id"?: string,"to_episode"?: number | null,"to_season"?: number | null,"watch_item_id"?: string,"watched_on"?: string
                   }
                   Relationships: [
                     {
@@ -1084,6 +1142,12 @@ isOneToOne: false
       columns: ["created_by"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "watch_sessions_party_id_fkey"
+      columns: ["party_id"]
+isOneToOne: false
+      referencedRelation: "watch_parties"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "watch_sessions_space_id_watch_item_id_fkey"
@@ -1170,8 +1234,11 @@ isOneToOne: false
 "body": string,
 "created_at": string,
 "edited": boolean,
+"episode": number | null,
 "id": string,
 "idea_id": string | null,
+"reply_to": string | null,
+"season": number | null,
 "space_id": string,
 "spoiler": boolean,
 "updated_at": string,
@@ -1183,6 +1250,11 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"episode_statuses":
+{ Args: { "target_item": string }; Returns: {
+              "episode": number,"season": number,"together_on": string,"watched_by": (string)[]
+            }[]
+                           },
 "expire_watch_parties":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
@@ -1251,6 +1323,9 @@ isOneToOne: false
 "is_valid_note_sections":
 { Args: { "allow_empty": boolean,"sections": Json }; Returns: boolean
                            },
+"is_valid_space_look":
+{ Args: { "look": Json }; Returns: boolean
+                           },
 "join_party":
 { Args: { "party": string }; Returns: undefined
                            },
@@ -1259,12 +1334,12 @@ isOneToOne: false
                            },
 "list_calendar":
 { Args: { "from_date": string,"target_space": string,"to_date": string,"tz": string }; Returns: {
-              "all_day": boolean,"end_date": string,"ends_at": string,"id": string,"idea_id": string,"kind": string,"my_rsvp": Database["public"]['Enums']["event_rsvp"],"start_date": string,"starts_at": string,"status": string,"title": string
+              "all_day": boolean,"end_date": string,"ends_at": string,"id": string,"idea_id": string,"idea_title": string,"kind": string,"milestone_title": string,"my_rsvp": Database["public"]['Enums']["event_rsvp"],"people": (string)[],"place": string,"priority": string,"start_date": string,"starts_at": string,"status": string,"title": string
             }[]
                            },
 "list_watch_items":
 { Args: { "after_id"?: string,"after_key"?: string,"intent"?: Database["public"]['Enums']["watch_intent"],"media"?: Database["public"]['Enums']["watch_media_type"],"my_status"?: string,"page_size"?: number,"search"?: string,"sort_by"?: string,"target_space": string }; Returns: {
-              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"places": Json,"poster_path": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"together": Json,"updated_at": string
+              "catalog_id": number,"catalog_type": Database["public"]['Enums']["watch_catalog_type"],"created_at": string,"created_by": string,"id": string,"manual_availability_note": string,"media_type": Database["public"]['Enums']["watch_media_type"],"my_progress": string,"places": Json,"poster_path": string,"reason": string,"release_year": number,"shared_intent": Database["public"]['Enums']["watch_intent"],"sort_key": string,"space_id": string,"synopsis": string,"title": string,"together": Json,"updated_at": string
             }[]
                            },
 "log_watch_session":
@@ -1337,13 +1412,16 @@ isOneToOne: false
         isSetofReturn: false
       } },
 "post_comment":
-{ Args: { "body": string,"mention_ids": (string)[],"parent_id": string,"parent_kind": string,"spoiler": boolean,"target_space": string }; Returns: {
+{ Args: { "body": string,"in_reply_to"?: string,"mention_ids": (string)[],"parent_id": string,"parent_kind": string,"spoiler": boolean,"tag_episode"?: number,"tag_season"?: number,"target_space": string }; Returns: {
               "author_id": string | null,
 "body": string,
 "created_at": string,
 "edited": boolean,
+"episode": number | null,
 "id": string,
 "idea_id": string | null,
+"reply_to": string | null,
+"season": number | null,
 "space_id": string,
 "spoiler": boolean,
 "updated_at": string,
@@ -1449,7 +1527,7 @@ isOneToOne: false
 { Args: { "event": string,"response": Database["public"]['Enums']["event_rsvp"] }; Returns: undefined
                            },
 "save_watch_progress":
-{ Args: { "item": string,"new_completed_on": string,"new_episode": number,"new_rating": number,"new_season": number,"new_status": Database["public"]['Enums']["watch_status"] }; Returns: undefined
+{ Args: { "item": string,"new_completed_on": string,"new_episode": number,"new_season": number,"new_status": Database["public"]['Enums']["watch_status"] }; Returns: undefined
                            },
 "send_note_draft":
 { Args: { "draft": string }; Returns: {
@@ -1481,6 +1559,9 @@ isOneToOne: false
                            },
 "set_space_media":
 { Args: { "object_path": string,"slot": string,"target_space": string }; Returns: string
+                           },
+"set_watch_features":
+{ Args: { "kind": Database["public"]['Enums']["watch_catalog_type"],"new_genres": (string)[],"new_streamable": boolean,"target_space": string,"tmdb_id": number }; Returns: undefined
                            },
 "shares_space_with":
 { Args: { "other_user": string }; Returns: boolean
@@ -1529,10 +1610,15 @@ isOneToOne: false
         to: "space_notes"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"watch_for_you":
+{ Args: { "target_space": string }; Returns: {
+              "item_id": string,"opinion": Database["public"]['Enums']["watch_opinion"],"reason": string,"score": number
+            }[]
+                           }
           }
           Enums: {
-            "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","note_kind": "note"|"hard_talk","note_response_kind": "here"|"time"|"talk"|"thanks","note_response_wish": "talk"|"write"|"read"|"any","note_support_wish": "listen"|"solve","party_source": "jellyfin"|"external"|"netflix","party_status": "planned"|"live"|"ended"|"cancelled","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_status": "not_started"|"watching"|"completed"|"dropped"
+            "attachment_status": "pending"|"ready"|"rejected","event_rsvp": "pending"|"going"|"maybe"|"declined","hypothesis_status": "untested"|"validated"|"invalidated","idea_stage": "inbox"|"exploring"|"planning"|"building"|"launched"|"paused"|"archived","idea_template": "blank"|"business"|"creative","note_kind": "note"|"hard_talk","note_response_kind": "here"|"time"|"talk"|"thanks","note_response_wish": "talk"|"write"|"read"|"any","note_support_wish": "listen"|"solve","party_source": "jellyfin"|"external"|"netflix","party_status": "planned"|"live"|"ended"|"cancelled","space_role": "owner"|"member","space_template": "couple"|"friends"|"family"|"blank","space_theme": "blank"|"couple"|"friends"|"family"|"ocean"|"meadow"|"dusk"|"berry","task_priority": "low"|"medium"|"high"|"urgent","task_status": "backlog"|"todo"|"in_progress"|"done","watch_catalog_type": "movie"|"tv","watch_intent": "want_to_watch"|"watch_together"|"archived","watch_media_type": "movie"|"series"|"anime","watch_opinion": "liked"|"disliked","watch_status": "not_started"|"watching"|"completed"|"dropped"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1648,7 +1734,7 @@ export type CompositeTypes<
 export const Constants = {
   "public": {
           Enums: {
-            "attachment_status": ["pending", "ready", "rejected"],"event_rsvp": ["pending", "going", "maybe", "declined"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"note_kind": ["note", "hard_talk"],"note_response_kind": ["here", "time", "talk", "thanks"],"note_response_wish": ["talk", "write", "read", "any"],"note_support_wish": ["listen", "solve"],"party_source": ["jellyfin", "external", "netflix"],"party_status": ["planned", "live", "ended", "cancelled"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"space_theme": ["blank", "couple", "friends", "family", "ocean", "meadow", "dusk", "berry"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_status": ["not_started", "watching", "completed", "dropped"]
+            "attachment_status": ["pending", "ready", "rejected"],"event_rsvp": ["pending", "going", "maybe", "declined"],"hypothesis_status": ["untested", "validated", "invalidated"],"idea_stage": ["inbox", "exploring", "planning", "building", "launched", "paused", "archived"],"idea_template": ["blank", "business", "creative"],"note_kind": ["note", "hard_talk"],"note_response_kind": ["here", "time", "talk", "thanks"],"note_response_wish": ["talk", "write", "read", "any"],"note_support_wish": ["listen", "solve"],"party_source": ["jellyfin", "external", "netflix"],"party_status": ["planned", "live", "ended", "cancelled"],"space_role": ["owner", "member"],"space_template": ["couple", "friends", "family", "blank"],"space_theme": ["blank", "couple", "friends", "family", "ocean", "meadow", "dusk", "berry"],"task_priority": ["low", "medium", "high", "urgent"],"task_status": ["backlog", "todo", "in_progress", "done"],"watch_catalog_type": ["movie", "tv"],"watch_intent": ["want_to_watch", "watch_together", "archived"],"watch_media_type": ["movie", "series", "anime"],"watch_opinion": ["liked", "disliked"],"watch_status": ["not_started", "watching", "completed", "dropped"]
           }
         }
 } as const

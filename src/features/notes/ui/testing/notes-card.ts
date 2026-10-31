@@ -13,18 +13,27 @@ import NotesCard from "../NotesCard.svelte"
 export type Dialog = BoundFunctions<typeof queries>
 
 /** Renders the notes card in space "s" with these services (a notesHarness's `services`). */
-export function renderNotesCard(services: NotesContext): void {
+export function renderNotesCard(services: NotesContext, writing = false): void {
+  const props = { spaceId: "s", writing }
   render(Provided, {
-    props: { provide: () => provideNotes(services), component: NotesCard, props: { spaceId: "s" } },
+    props: { provide: () => provideNotes(services), component: NotesCard, props },
   })
 }
 
-/** Renders the card and opens the composer; returns its dialog. */
+/** Renders the card with the composer open, as the header's Write a note does; returns it. */
 export async function openComposer(services: NotesContext): Promise<Dialog> {
-  renderNotesCard(services)
-  await fireEvent.click(await screen.findByRole("button", { name: "Write a note" }))
-  return within(await screen.findByRole("dialog", { name: "Write a note" }))
+  renderNotesCard(services, true)
+  return within(await screen.findByRole("dialog", { name: COMPOSER }))
 }
 
-/** One of the composer's mode radios ("A quick note", "Something on my mind"). */
+/** The composer is named for the kind of note it holds (S01, S02a). */
+export const COMPOSER = /Leave a little note|Something on my mind/
+
+/** One of the composer's kind choices ("Quick note", "Something on my mind"). */
 export const mode = (dialog: Dialog, name: string) => dialog.getByRole("radio", { name })
+
+/** Moves "Something on my mind" on by its Next button, `times` steps. */
+export async function next(dialog: Dialog, times = 1): Promise<void> {
+  for (let i = 0; i < times; i++)
+    await fireEvent.click(dialog.getByRole("button", { name: "Next" }))
+}

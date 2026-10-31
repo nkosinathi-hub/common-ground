@@ -11,8 +11,12 @@ test("add a title manually, track progress and comment", async ({ page }) => {
 
   await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
-  await expect(page.getByText(/no verified provider data/i)).toBeVisible()
+  const where = page.getByRole("region", { name: "Where to watch" })
+  await expect(where.getByText(/not a provider listing/i)).toBeVisible()
 
+  // Phones put the discussion on its own tab; wide screens show it beside progress.
+  const discussion = page.getByRole("tab", { name: "Discussion" })
+  if (await discussion.isVisible()) await discussion.click()
   await page.getByLabel("Add a comment").fill("Episode 10 made me cry")
   await page.getByRole("button", { name: /^(Post|Comment|Send)$/ }).click()
   await expect(page.getByText("Episode 10 made me cry")).toBeVisible()
@@ -29,9 +33,7 @@ test("capture an idea and open every tab", async ({ page }) => {
   await captureIdea(page, spaceId, "Night market stall")
   for (const tab of ["research", "tasks", "milestones", "discussion", "overview"]) {
     await page.goto(page.url().replace(/\/[a-z]+$/, `/${tab}`))
-    await expect(page.getByLabel("Title", { exact: true }).first()).toHaveValue(
-      "Night market stall",
-    )
+    await expect(page.getByRole("heading", { level: 1, name: "Night market stall" })).toBeVisible()
   }
 })
 

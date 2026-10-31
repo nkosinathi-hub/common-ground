@@ -15,7 +15,7 @@
   {:else if list.loading}
     <Loading rows={2} />
   {:else}
-    <p class="text-sm text-muted-foreground">{empty}</p>
+    <p class="type-sm text-muted-foreground">{empty}</p>
   {/if}
 {/if}
 <LoadMore {list} />

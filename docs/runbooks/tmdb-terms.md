@@ -5,7 +5,10 @@ comes from JustWatch. Both require attribution.
 
 ## What the app must show
 
-Implemented in `src/features/catalog/ui/Attribution.svelte`, rendered wherever catalog data is.
+Implemented in `src/features/catalog/ui/Attribution.svelte`, rendered once in Account and data
+(`src/app/pages/account/CatalogCredits.svelte`), beside the data export (Nkosi, 2026-10-29). The
+title page carries one quiet line instead: "Listings from TMDB and JustWatch, checked …"
+(`ListingsNote.svelte`), which credits and links both sources where the data shows.
 
 - The TMDB logo (`public/tmdb-logo.svg`), linking to https://www.themoviedb.org/, less prominent
   than the app's own branding.
@@ -24,3 +27,11 @@ Implemented in `src/features/catalog/ui/Attribution.svelte`, rendered wherever c
 ## Before a public release
 
 Re-read the current TMDB API terms and logo guidelines and update this page if they changed.
+
+## For you features
+
+The catalog Edge Function stores each catalog title's canonical genres and whether it streams in
+South Africa (`set_watch_features`, service role only) whenever it serves the title's details.
+Titles saved before v0.6 fill on their next visit, or all at once with
+`pnpm catalog:backfill` (needs `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and
+`TMDB_ACCESS_TOKEN`; idempotent, so it is safe to run again).

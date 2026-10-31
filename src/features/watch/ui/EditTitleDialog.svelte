@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button"
-  import * as Dialog from "$lib/components/ui/dialog"
-  import { FormError, FormState, toast } from "@/shared/ui"
+  import { DialogShell, FormError, FormState, toast } from "@/shared/ui"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
   import { TitleFormState } from "./title-form-state.svelte"
@@ -22,8 +20,7 @@
     if (open) fields.fill(item)
   })
 
-  async function submit(event: SubmitEvent) {
-    event.preventDefault()
+  async function submit() {
     const saved = await submission.run(async () => {
       const input = fields.toInput()
       return input.ok ? service.updateDetails(item.id, input.value) : input
@@ -35,19 +32,15 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Content class="max-h-[90dvh] overflow-y-auto">
-    <Dialog.Header>
-      <Dialog.Title>Edit this title</Dialog.Title>
-      <Dialog.Description>Changes show for everyone in this space.</Dialog.Description>
-    </Dialog.Header>
-    <form class="grid gap-4" onsubmit={submit} novalidate>
-      <TitleFields form={fields} prefix="edit" errorFor={(f) => submission.fieldError(f)} />
-      <FormError message={submission.formError} />
-      <Dialog.Footer>
-        <Button type="button" variant="ghost" onclick={() => (open = false)}>Cancel</Button>
-        <Button type="submit" disabled={submission.pending}>Save</Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
+<!-- Edit a title's details, in the shared dialog; the same fields as adding one by hand (S04). -->
+<DialogShell
+  bind:open
+  title="Edit this title"
+  description="Changes show for everyone in this space."
+  primary="Save changes"
+  busy={submission.pending}
+  onsubmit={submit}
+>
+  <TitleFields form={fields} prefix="edit" errorFor={(f) => submission.fieldError(f)} />
+  <FormError message={submission.formError} />
+</DialogShell>

@@ -58,6 +58,12 @@ export class EventFormState {
     Object.assign(this, { allDay: false, startTime: "20:00", endTime: "22:00" })
   }
 
+  /** Every year means a single all-day date, such as a birthday. */
+  setYearly(on: boolean): void {
+    if (on) Object.assign(this, { allDay: true, endDate: this.startDate })
+    this.repeatsYearly = on
+  }
+
   toggleAttendee(userId: string, on: boolean): void {
     const others = this.attendees.filter((id) => id !== userId)
     this.attendees = on ? [...others, userId] : others

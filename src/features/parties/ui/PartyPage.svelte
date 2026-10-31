@@ -1,8 +1,8 @@
 <script lang="ts">
   import { untrack, type Snippet } from "svelte"
-  import { ArrowLeft } from "@lucide/svelte"
+  import { ChevronLeft } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { ErrorState, FormError, FormState, Loading, Resource } from "@/shared/ui"
+  import { ErrorState, FormError, FormState, Loading, Resource, TextLink } from "@/shared/ui"
   import { describeRange } from "../domain/episode-range"
   import { isOpen, type Party } from "../domain/party"
   import CoWatchPanel from "./CoWatchPanel.svelte"
@@ -37,32 +37,38 @@
   })
 </script>
 
-<article class="mx-auto max-w-3xl space-y-6">
+<!-- No frame: back to the title, the party, then who is in beside the controls (as D03a). -->
+<article class="flex flex-col gap-section">
   {#if room.error}
     <ErrorState error={room.error} />
   {:else if !room.party}
     <Loading />
   {:else}
     {@const party = room.party}
-    <Button variant="ghost" size="sm" href={itemHref(party.watchItemId)}>
-      <ArrowLeft aria-hidden="true" />
-      Back to the title
-    </Button>
-    <header class="space-y-1">
-      <h1 class="text-2xl font-semibold">Watch party</h1>
-      {#if party.range}<p class="text-muted-foreground">{describeRange(party.range)}</p>{/if}
+    <header class="flex flex-col gap-stack">
+      <TextLink href={itemHref(party.watchItemId)} icon={ChevronLeft} class="w-fit flex-row-reverse"
+        >Back to the title</TextLink
+      >
+      <div class="flex flex-col gap-related">
+        <h1 class="type-h1 text-foreground">Watch party</h1>
+        {#if party.range}<p class="type-body text-muted-foreground">
+            {describeRange(party.range)}
+          </p>{/if}
+      </div>
     </header>
     {#if isOpen(party) && room.view}
       {#if party.source === "jellyfin" && player}{@render player(party)}{/if}
-      <PartyPeople {party} view={room.view} names={names.value ?? []} />
-      {#if party.source === "external"}
-        <CoWatchPanel {room} />
-      {:else if party.source === "netflix"}
-        <NetflixPanel {room} title={party.title} />
-      {:else}
-        <LiveControls {room} view={room.view} />
-      {/if}
-      <div class="flex flex-wrap gap-2">
+      <div class="grid items-start gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
+        {#if party.source === "external"}
+          <CoWatchPanel {room} />
+        {:else if party.source === "netflix"}
+          <NetflixPanel {room} title={party.title} />
+        {:else}
+          <LiveControls {room} view={room.view} />
+        {/if}
+        <PartyPeople {party} view={room.view} names={names.value ?? []} />
+      </div>
+      <div class="flex flex-wrap gap-related">
         {#if room.view.ready || (party.source === "netflix" && room.view.state.phase !== "lobby")}
           <Button onclick={() => action.run(() => room.finish())}>We finished</Button>
         {/if}
@@ -74,7 +80,7 @@
       </div>
       <FormError message={action.formError} />
     {:else}
-      <p class="rounded-xl border p-4 text-sm">
+      <p class="rounded-lg bg-muted p-inset type-sm text-foreground">
         {party.status === "cancelled"
           ? "This party was cancelled. Nobody's progress moved."
           : "This party has ended. Everyone who confirmed has it in their history."}

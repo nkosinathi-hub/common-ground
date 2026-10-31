@@ -1,5 +1,5 @@
 begin;
-select plan(11);
+select plan(9);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -19,19 +19,15 @@ insert into public.space_members (space_id, user_id)
 select tests.act_as('ana');
 update ids set item_id = public.add_catalog_title((select space_id from ids), 'tv', 1, 'Show',
   'series', 2020, '', null, 'watch_together');
-select public.save_watch_progress((select item_id from ids), 'watching', 1, 3, null, null);
+select public.save_watch_progress((select item_id from ids), 'watching', 1, 3, null);
 select tests.act_as('ben');
-select public.save_watch_progress((select item_id from ids), 'completed', 2, 10, 5, '2026-10-01');
+select public.save_watch_progress((select item_id from ids), 'completed', 2, 10, '2026-10-01');
 
 select is((select status::text from public.watch_progress where user_id = tests.user_id('ana')),
   'watching', 'completing alone never changes another member');
 select is((select count(*) from public.watch_progress)::int, 2, 'members read everyone''s progress');
-select throws_ok($$ select public.save_watch_progress((select item_id from ids), 'watching', 1, 1,
-  6, null) $$, '23514', null, 'rating above 5 rejected');
-select throws_ok($$ select public.save_watch_progress((select item_id from ids), 'watching', 1, 1,
-  0, null) $$, '23514', null, 'rating below 1 rejected');
 select throws_ok($$ select public.save_watch_progress((select item_id from ids), 'watching', 1, -1,
-  null, null) $$, '23514', null, 'negative episode rejected');
+  null) $$, '23514', null, 'negative episode rejected');
 select throws_ok($$ insert into public.watch_progress (watch_item_id, space_id, user_id, status)
   values ((select item_id from ids), (select space_id from ids), tests.user_id('ana'), 'dropped') $$,
   '42501', null, 'cannot write another member''s progress');
@@ -43,7 +39,7 @@ select is((select status::text from public.watch_progress where user_id = tests.
 select tests.act_as('eve');
 select is((select count(*) from public.watch_progress)::int, 0, 'nonmember reads no progress');
 select throws_ok($$ select public.save_watch_progress((select item_id from ids), 'watching', 1, 1,
-  null, null) $$, 'P0002', null, 'nonmember cannot save progress on a guessed item');
+  null) $$, 'P0002', null, 'nonmember cannot save progress on a guessed item');
 select throws_ok($$ insert into public.watch_progress (watch_item_id, space_id, status)
   values ((select item_id from ids), (select other_space from ids), 'watching') $$, '23503', null,
   'cross-space parent rejected by the composite key');

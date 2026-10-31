@@ -30,30 +30,36 @@ async function setup(author: string) {
   if (!task.ok) throw new Error("create failed")
   await services.checklist.add(task.value, "Sign", [])
   await services.milestones.add(place, { title: "Open", targetDate: null })
-  const props = { ...place, canDelete: mineOnly }
+  const props = { ...place, ideaTitle: "Flat", canDelete: mineOnly }
   const provide = () => provideTasks(services)
   render(Provided, { props: { provide, component: TasksTab, props } })
   render(Provided, { props: { provide, component: MilestonesPanel, props } })
   await screen.findByText("Open")
-  await fireEvent.click(await screen.findByRole("button", { name: "Checklist" }))
   await screen.findByText("Sign")
 }
 
-const deletes = () =>
-  ["Delete task Lease", "Remove Sign", "Delete milestone Open"].map((name) =>
-    screen.queryByRole("button", { name }),
-  )
+/** The checklist item keeps its button; the milestone's waits in its editor; the task's in its menu. */
+async function deletes() {
+  const sign = screen.queryByRole("button", { name: "Remove Sign" })
+  await fireEvent.click(screen.getByRole("button", { name: "Edit milestone Open" }))
+  const milestone = screen.queryByRole("button", { name: "Delete milestone Open" })
+  await fireEvent.keyDown(screen.getByRole("button", { name: "Actions for Lease" }), {
+    key: "Enter",
+  })
+  await screen.findByRole("menu")
+  return [screen.queryByRole("menuitem", { name: "Delete task" }), sign, milestone]
+}
 
 afterEach(cleanup)
 
 describe("task, checklist and milestone delete buttons", () => {
   it("show for what the viewer may delete", async () => {
     await setup("ana")
-    expect(deletes().every(Boolean)).toBe(true)
+    expect((await deletes()).every(Boolean)).toBe(true)
   })
 
   it("are hidden for someone else's work", async () => {
     await setup("ben")
-    expect(deletes()).toEqual([null, null, null])
+    expect(await deletes()).toEqual([null, null, null])
   })
 })

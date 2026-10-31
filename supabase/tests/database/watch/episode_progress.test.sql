@@ -39,7 +39,7 @@ select is((select (season, episode) from public.watch_progress
 select is((select count(*)::int from public.episode_watches
   where watch_item_id = (select show from ids)), 4, 'every tick is kept as history');
 
-select public.save_watch_progress((select show from ids), 'watching', 1, 1, null, null);
+select public.save_watch_progress((select show from ids), 'watching', 1, 1, null);
 select is((select season from public.watch_progress
   where watch_item_id = (select show from ids) and user_id = tests.user_id('ep_ana')),
   1, 'moving back is still possible by saving the place by hand');

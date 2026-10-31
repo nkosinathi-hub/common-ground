@@ -20,6 +20,7 @@ describe("mapTitle", () => {
       mediaKind: "movie",
       posterPath: "/d5NXSklXo0qyIYkgV94XAgMIckC.jpg",
       synopsis: "Paul Atreides...",
+      genres: ["adventure", "scifi"],
     })
   })
 

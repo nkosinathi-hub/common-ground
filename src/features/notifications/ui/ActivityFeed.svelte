@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import { History } from "@lucide/svelte"
   import { formatDay, type Cursor } from "@/shared/domain"
-  import { EmptyState, ErrorState, Loading, LoadMore, PagedList } from "@/shared/ui"
+  import { EmptyState, ErrorState, Loading, LoadMore, PagedList, InitialAvatar } from "@/shared/ui"
   import { describeActivity, type ActivityEvent } from "../domain/notification"
   import { useNotifications } from "./context"
 
@@ -26,13 +26,17 @@
 </script>
 
 {#if list.items.length > 0}
-  <ol class="grid gap-2">
+  <!-- Figma List row with an avatar: who did what, and when. -->
+  <ol class="flex flex-col">
     {#each list.items as event (event.id)}
-      <li class="flex justify-between gap-3 text-sm">
-        <span>{describeActivity(event)}</span>
-        <time class="shrink-0 text-xs text-muted-foreground" datetime={event.createdAt}>
-          {formatDay(event.createdAt)}
-        </time>
+      <li class="flex items-center gap-item py-item">
+        <InitialAvatar name={event.byMe ? "You" : (event.actorName ?? "?")} decorative />
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span class="type-label text-foreground">{describeActivity(event)}</span>
+          <time class="type-xs text-muted-foreground" datetime={event.createdAt}>
+            {formatDay(event.createdAt)}
+          </time>
+        </span>
       </li>
     {/each}
   </ol>

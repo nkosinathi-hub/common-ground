@@ -37,6 +37,7 @@ describe("SupabaseCommentsGateway", () => {
     expect(calls.slice(2)).toEqual([
       ["eq", "space_id", "s"],
       ["eq", "watch_item_id", "w"],
+      ["is", "reply_to", null],
       ["or", expect.stringContaining('created_at.lt."2026-10-15T09:00:00+00:00"')],
       ["order", "created_at", { ascending: false }],
       ["order", "id", { ascending: false }],

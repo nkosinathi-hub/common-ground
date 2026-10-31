@@ -1,8 +1,14 @@
 <script lang="ts">
-  import { DoorOpen } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import * as Card from "$lib/components/ui/card"
-  import { AsyncView, FormError, FormState, navigate, Resource } from "@/shared/ui"
+  import {
+    AsyncView,
+    AuthCard,
+    FormError,
+    FormState,
+    navigate,
+    PublicLayout,
+    Resource,
+  } from "@/shared/ui"
   import type { InvitePreviewStatus } from "../domain/space"
   import { useSpaces } from "./context"
 
@@ -13,7 +19,7 @@
   const COPY: Record<Exclude<InvitePreviewStatus, "valid">, string> = {
     invalid: "This invitation link is not valid. Ask for a new one.",
     used: "This invitation was already used. Each link works once.",
-    revoked: "This invitation was cancelled by the space owner.",
+    revoked: "This invitation was cancelled.",
     expired: "This invitation expired. Links last seven days.",
     member: "You are already in this space.",
   }
@@ -32,29 +38,25 @@
   }
 </script>
 
-<main class="flex min-h-dvh items-center justify-center px-4">
-  <Card.Root class="w-full max-w-md">
-    <AsyncView resource={preview}>
-      {#snippet children(info)}
-        <Card.Header>
-          <DoorOpen class="size-6 text-primary" aria-hidden="true" />
-          <Card.Title level={1}
-            >{info.status === "valid" ? `Join ${info.spaceName}` : "Invitation"}</Card.Title
-          >
-          {#if info.status === "valid" && info.inviterName}
-            <Card.Description>{info.inviterName} invited you.</Card.Description>
-          {/if}
-        </Card.Header>
-        <Card.Content class="grid gap-3">
-          {#if info.status === "valid"}
-            <FormError message={form.formError} />
-            <Button onclick={accept} disabled={form.pending}>Accept and join</Button>
-          {:else}
-            <p>{COPY[info.status]}</p>
-            <Button variant="outline" href="#/">Go to my spaces</Button>
-          {/if}
-        </Card.Content>
-      {/snippet}
-    </AsyncView>
-  </Card.Root>
-</main>
+<!-- No frame: joining from a link, on the sign-in layout (D21), one primary action. -->
+<PublicLayout hero="Good things have a place here.">
+  <AsyncView resource={preview}>
+    {#snippet children(info)}
+      <AuthCard
+        title={info.status === "valid" ? `Join ${info.spaceName}` : "Invitation"}
+        description={info.status === "valid" && info.inviterName
+          ? `${info.inviterName} invited you.`
+          : info.status === "valid"
+            ? undefined
+            : COPY[info.status]}
+      >
+        {#if info.status === "valid"}
+          <FormError message={form.formError} />
+          <Button onclick={accept} disabled={form.pending}>Accept and join</Button>
+        {:else}
+          <Button variant="outline" href="#/">Go to my spaces</Button>
+        {/if}
+      </AuthCard>
+    {/snippet}
+  </AsyncView>
+</PublicLayout>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { spacesSetup } from "../testing/spaces-setup"
 import type { GeneralFields } from "./space-profile-service"
+import { DEFAULT_LOOK } from "../domain/space-look"
 
 const setup = async () => {
   const spaces = spacesSetup()
@@ -36,11 +37,12 @@ describe("SpaceProfileService words, look and layout", () => {
     expect(gateway.spaces[0]).toMatchObject({ name: "Us two", tagline: "Hi", icon: "heart" })
   })
 
-  it("normalises the accent and saves it with the preset", async () => {
+  it("saves only the parts of the look that differ from the default", async () => {
     const { gateway, profile } = await setup()
-    expect((await profile.saveLook("space-1", { theme: "ocean", accent: "red" })).ok).toBe(false)
-    expect((await profile.saveLook("space-1", { theme: "ocean", accent: "#ABC" })).ok).toBe(true)
-    expect(gateway.spaces[0]).toMatchObject({ theme: "ocean", accent: "#aabbcc" })
+    const look = { ...DEFAULT_LOOK, button: "#1e6b66", corners: "rounded" as const }
+    expect((await profile.saveLook("space-1", look)).ok).toBe(true)
+    expect(gateway.patches.at(-1)).toEqual({ look: { button: "#1e6b66", corners: "rounded" } })
+    expect(gateway.spaces[0]!.look).toEqual(look)
   })
 
   it("saves the Home layout and preferences as given", async () => {

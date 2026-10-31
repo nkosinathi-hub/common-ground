@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PartyPage } from "@/features/parties"
-  import { PlayButton } from "@/features/playback"
+  import { PlayerSlot, PlaySplitButton, TitlePlaybackScope } from "@/features/playback"
   import { buildHash } from "@/shared/domain"
   import { useCatalog } from "@/features/catalog/ui/context"
   import { playbackCatalog } from "../composition/playback-catalog"
@@ -22,13 +22,16 @@
     {#snippet player(party)}
       <!-- The party drives this player's video (src/app/composition/player-bridge.ts). -->
       {#if party.catalog}
-        <PlayButton
+        <TitlePlaybackScope
           target={{ spaceId, itemId: party.watchItemId, catalog: party.catalog }}
-          title={party.title}
           {catalog}
-        />
+        >
+          <div class="flex flex-col gap-stack">
+            <PlaySplitButton /><PlayerSlot title={party.title} />
+          </div>
+        </TitlePlaybackScope>
       {:else}
-        <p class="rounded-xl border p-4 text-sm text-muted-foreground">
+        <p class="rounded-lg border p-inset type-sm text-muted-foreground">
           This title has no catalog entry, so nothing can play it in the app.
         </p>
       {/if}

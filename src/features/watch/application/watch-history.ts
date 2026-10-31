@@ -16,4 +16,6 @@ export class WatchHistory {
       return Promise.resolve(err(appError("validation", "Choose a real season and episode")))
     return this.gateway.markWatched(itemId, tick, source)
   }
+
+  statuses = (itemId: string) => this.gateway.statuses(itemId)
 }

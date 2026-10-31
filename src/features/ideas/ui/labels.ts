@@ -32,6 +32,6 @@ export const TAB_LABELS: Record<IdeaTab, string> = {
   overview: "Overview",
   research: "Research",
   tasks: "Tasks",
-  milestones: "Milestones",
+  milestones: "Milestones & budget",
   discussion: "Discussion",
 }

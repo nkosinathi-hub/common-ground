@@ -3,8 +3,8 @@ import { expect, type Page } from "@playwright/test"
 /** On a title page, recommends it to one member with a note. */
 export async function recommend(page: Page, to: string, note: string): Promise<void> {
   await page.getByRole("button", { name: "Recommend" }).click()
-  const dialog = page.getByRole("dialog", { name: "Recommend this title" })
-  await dialog.getByRole("checkbox", { name: to, exact: true }).check()
+  const dialog = page.getByRole("dialog", { name: "Recommend a title" })
+  await dialog.getByRole("button", { name: to, exact: true }).click()
   await dialog.getByLabel("Note (optional)").fill(note)
   await dialog.getByRole("button", { name: "Send" }).click()
   // The dialog closes only once the send succeeds; an earlier toast may still be showing.

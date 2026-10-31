@@ -26,7 +26,7 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
   const ideaId = await captureIdea(ana, spaceId, "Garden club")
   await expect(ana.getByText("Started by ana")).toBeVisible()
 
-  await ana.getByRole("button", { name: "People" }).click()
+  await ana.getByRole("button", { name: "Manage people" }).click()
   const dialog = ana.getByRole("dialog", { name: "People on this idea" })
   await expect(dialog.getByRole("checkbox", { name: "ana (started it)" })).toBeDisabled()
   await dialog.getByRole("checkbox", { name: "ben" }).check()
@@ -41,17 +41,17 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
   await expect(invitation).toContainText("ana invited you to work on this idea")
   await invitation.getByRole("button", { name: "Accept" }).click()
   await expect(invitation).toBeHidden()
-  await expect(ben.getByText("Our idea")).toBeVisible()
+  await expect(ben.getByText(/Shared with ben/)).toBeVisible()
   await expect(ben.getByRole("img", { name: "On this idea: ana, ben" })).toBeVisible()
   await expectNotification(ana, /ben joined your idea/)
 
   // Ours is server-filtered: the idea is Ben's too, but not his own.
   await ben.goto(`./#/s/${spaceId}/ideas`)
-  const whose = ben.getByRole("combobox", { name: "Whose" })
-  await whose.selectOption({ label: "Ours" })
+  const whose = ben.getByRole("group", { name: "Whose" })
+  await whose.getByRole("radio", { name: "Ours" }).click()
   const card = ben.getByTestId("idea-card").filter({ hasText: "Garden club" })
-  await expect(card.getByText("Our idea")).toBeVisible()
-  await whose.selectOption({ label: "Mine" })
+  await expect(card.getByText(/Shared with/)).toBeVisible()
+  await whose.getByRole("radio", { name: "Mine" }).click()
   await expect(ben.getByText("No ideas match these filters.")).toBeVisible()
 
   // A comment by Ana reaches Ben as a follower of the idea.

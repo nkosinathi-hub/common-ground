@@ -31,7 +31,7 @@ export const searchKey = (query: string, page: number): string =>
   `search:${query.trim().replace(/\s+/g, " ").toLowerCase()}:${page}`
 
 /** Versioned: bump when a details response gains fields, so older cached rows are not served. */
-const DETAILS_VERSION = "v2"
+const DETAILS_VERSION = "v3"
 export const detailsKey = (type: CatalogType, id: number): string =>
   `details:${DETAILS_VERSION}:${type}:${id}`
 export const seasonKey = (id: number, season: number): string => `season:tv:${id}:${season}`

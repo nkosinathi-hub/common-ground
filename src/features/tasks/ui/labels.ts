@@ -12,4 +12,3 @@ export const PRIORITY_LABELS: Record<TaskPriority, string> = {
   high: "High",
   urgent: "Urgent",
 }
-export const SELECT = "border-input bg-background h-7 rounded-md border px-1 text-xs"

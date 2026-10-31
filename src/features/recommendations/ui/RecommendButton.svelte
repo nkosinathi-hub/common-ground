@@ -1,21 +1,23 @@
 <script lang="ts">
-  import { Send } from "@lucide/svelte"
+  import { BellRing, Send } from "@lucide/svelte"
+  import * as Alert from "$lib/components/ui/alert"
   import { Button } from "$lib/components/ui/button"
-  import * as Dialog from "$lib/components/ui/dialog"
-  import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
+  import { TitleSummary, type SummaryTitle } from "@/features/catalog"
   import type { MemberRef } from "@/shared/domain"
-  import { FormError, FormState, toast } from "@/shared/ui"
+  import { DialogShell, FormError, FormField, FormState, toast } from "@/shared/ui"
   import { NOTE_MAX, recipientOptions } from "../domain/recommendation"
   import { useRecommendations } from "./context"
+  import RecipientChips from "./RecipientChips.svelte"
 
   interface Props {
     spaceId: string
     itemId: string
     members: readonly MemberRef[]
     me: string
+    title?: SummaryTitle
   }
-  let { spaceId, itemId, members, me }: Props = $props()
+  let { spaceId, itemId, members, me, title }: Props = $props()
 
   const { service } = useRecommendations()
   const form = new FormState()
@@ -25,12 +27,17 @@
   let open = $state(false)
   let chosen = $state<string[]>([])
   let note = $state("")
+  const primary = $derived(chosen.length > 1 ? `Send to ${chosen.length} people` : "Send")
 
-  const toggle = (id: string, on: boolean) =>
-    (chosen = on ? [...chosen, id] : chosen.filter((c) => c !== id))
+  /** Each time it opens, the dialog starts with nobody chosen and no note. */
+  function start() {
+    chosen = []
+    note = ""
+    form.error = null
+    open = true
+  }
 
-  async function submit(event: SubmitEvent) {
-    event.preventDefault()
+  async function submit() {
     const sent = await form.run(() => service.send({ itemId, recipientIds: chosen, note, me }))
     if (!sent.ok) return
     const names = options.filter((m) => chosen.includes(m.id)).map((m) => m.displayName)
@@ -41,43 +48,51 @@
   }
 </script>
 
-<Button variant="outline" size="sm" onclick={() => (open = true)} disabled={options.length === 0}>
-  <Send aria-hidden="true" />Recommend
+<Button
+  variant="outline"
+  size="icon"
+  aria-label="Recommend"
+  onclick={start}
+  disabled={options.length === 0}
+>
+  <Send />
 </Button>
 
-<Dialog.Root bind:open>
-  <Dialog.Content>
-    <Dialog.Header>
-      <Dialog.Title>Recommend this title</Dialog.Title>
-      <Dialog.Description
-        >They get a notification and can acknowledge or dismiss it.</Dialog.Description
-      >
-    </Dialog.Header>
-    <form class="grid gap-4" onsubmit={submit} novalidate>
-      <fieldset class="grid gap-2">
-        <legend class="mb-1 text-sm font-medium">Send to</legend>
-        {#each options as member (member.id)}
-          <label class="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              class="accent-primary"
-              checked={chosen.includes(member.id)}
-              onchange={(e) => toggle(member.id, e.currentTarget.checked)}
-            />
-            {member.displayName}
-          </label>
-        {/each}
-        <FormError message={form.fieldError("recipients")} />
-      </fieldset>
-      <div class="grid gap-1.5">
-        <Label for={noteId}>Note (optional)</Label>
-        <Textarea id={noteId} bind:value={note} maxlength={NOTE_MAX} />
-        <FormError message={form.fieldError("note")} alert={false} />
-      </div>
-      <FormError message={form.formError} />
-      <Dialog.Footer>
-        <Button type="submit" disabled={form.pending}>Send</Button>
-      </Dialog.Footer>
-    </form>
-  </Dialog.Content>
-</Dialog.Root>
+<!-- Figma S09: the title, who to send it to as chips, a note, then send. -->
+<DialogShell
+  bind:open
+  title="Recommend a title"
+  description="Share a good find with someone in your space."
+  {primary}
+  busy={form.pending}
+  onsubmit={submit}
+>
+  {#if title}<TitleSummary {title} />{/if}
+  <RecipientChips
+    {options}
+    {chosen}
+    error={form.fieldError("recipients")}
+    ontoggle={(id) =>
+      (chosen = chosen.includes(id) ? chosen.filter((c) => c !== id) : [...chosen, id])}
+  />
+  <FormField id={noteId} label="Note" optional error={form.fieldError("note")}>
+    {#snippet control({ id, describedby })}
+      <Textarea
+        {id}
+        rows={3}
+        maxlength={NOTE_MAX}
+        placeholder="Why do you think they'd love it?"
+        aria-describedby={describedby}
+        bind:value={note}
+      />
+    {/snippet}
+  </FormField>
+  <Alert.Root role="note">
+    <BellRing aria-hidden="true" />
+    <Alert.Description>
+      Each person gets a notification. It won't change their progress or add a watched-together
+      entry.
+    </Alert.Description>
+  </Alert.Root>
+  <FormError message={form.formError} />
+</DialogShell>

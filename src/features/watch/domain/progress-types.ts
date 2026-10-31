@@ -1,12 +1,14 @@
 import type { DateOnly } from "@/shared/domain"
 
+/** Like or dislike: private to whoever gives it (watch_opinions). */
+export type Opinion = "liked" | "disliked"
+
 export type ProgressStatus = "not_started" | "watching" | "completed" | "dropped"
 
 export interface ProgressInput {
   readonly status: ProgressStatus
   readonly season: number | null
   readonly episode: number | null
-  readonly rating: number | null
   readonly completedOn: DateOnly | null
 }
 
@@ -33,6 +35,8 @@ export interface WatchSession {
   readonly watchedOn: DateOnly
   readonly note: string | null
   readonly memberIds: readonly string[]
+  /** The episodes a watch party covered; absent for a night logged by hand. */
+  readonly range?: { readonly from: Place; readonly to: Place } | null
 }
 
 /** Where someone is in a series: the last episode watched. A film has no season or episode. */

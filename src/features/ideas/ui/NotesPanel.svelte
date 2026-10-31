@@ -1,9 +1,19 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { canDelete, type Cursor, type Viewer } from "@/shared/domain"
+  import { Badge } from "$lib/components/ui/badge"
+  import * as Card from "$lib/components/ui/card"
+  import { Label } from "$lib/components/ui/label"
+  import {
+    canDelete,
+    formatDay,
+    memberName,
+    type Cursor,
+    type MemberRef,
+    type Viewer,
+  } from "@/shared/domain"
   import { Button } from "$lib/components/ui/button"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { DeleteButton, FormError, PagedList } from "@/shared/ui"
+  import { DeleteButton, FormError, InitialAvatar, PagedList, PhoneAdd } from "@/shared/ui"
   import { NOTE_MAX, type Idea, type IdeaNote } from "../domain"
   import { useResearch } from "./context"
   import ListFooter from "./ListFooter.svelte"
@@ -11,9 +21,11 @@
   interface Props {
     idea: Idea
     viewer: Viewer
+    /** Names for who wrote each note, including removed people still visible. */
+    authors: readonly MemberRef[]
   }
 
-  let { idea, viewer }: Props = $props()
+  let { idea, viewer, authors }: Props = $props()
   const research = useResearch().service
   const list = new PagedList<IdeaNote, Cursor>((after) => research.notes(idea.id, after))
   // Loads on mount and when the idea id changes; edits to the idea replace the prop, not the id.
@@ -37,29 +49,45 @@
   }
 </script>
 
-<section aria-labelledby="notes-heading" class="flex flex-col gap-3">
-  <h2 id="notes-heading" class="text-lg font-semibold">Notes</h2>
-  <form class="flex flex-col gap-2" onsubmit={add}>
-    <label class="sr-only" for="note-body">New note</label>
-    <Textarea
-      id="note-body"
-      bind:value={body}
-      maxlength={NOTE_MAX}
-      placeholder="Jot something down"
-      rows={2}
-    />
-    <FormError message={error} />
-    <Button type="submit" size="sm" class="self-start" disabled={!body.trim()}>Add note</Button>
-  </form>
-  <ul class="flex flex-col gap-2">
-    {#each list.items as note (note.id)}
-      <li class="flex items-start justify-between gap-2 rounded-lg border p-3" data-testid="note">
-        <p class="text-sm whitespace-pre-wrap">{note.body}</p>
-        {#if canDelete(note.createdBy, viewer)}
-          <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
-        {/if}
-      </li>
-    {/each}
-  </ul>
-  <ListFooter {list} empty="No notes yet." />
-</section>
+<!-- D07 Notes: who jotted what and when, then a box to add one. -->
+<Card.Root role="region" aria-labelledby="notes-heading">
+  <Card.Header>
+    <Card.Title id="notes-heading">Notes</Card.Title>
+    {#if list.items.length}<Card.Action
+        ><Badge variant="outline">{list.items.length}</Badge></Card.Action
+      >{/if}
+  </Card.Header>
+  <Card.Content class="flex flex-col gap-stack">
+    <ul class="flex flex-col gap-stack">
+      {#each list.items as note (note.id)}
+        <li class="flex items-start gap-item" data-testid="note">
+          <InitialAvatar name={memberName(authors, note.createdBy)} size="sm" decorative />
+          <div class="flex min-w-0 flex-1 flex-col gap-hairline">
+            <p class="type-label whitespace-pre-wrap text-foreground">{note.body}</p>
+            <p class="type-xs text-muted-foreground">
+              {memberName(authors, note.createdBy)} · {formatDay(note.createdAt)}
+            </p>
+          </div>
+          {#if canDelete(note.createdBy, viewer)}
+            <DeleteButton label="Delete note" what="this note" onConfirm={() => remove(note.id)} />
+          {/if}
+        </li>
+      {/each}
+    </ul>
+    <ListFooter {list} empty="No notes yet." />
+    <PhoneAdd label="Add note">
+      <form class="flex flex-col gap-related" onsubmit={add}>
+        <Label for="note-body">Add a research note</Label>
+        <Textarea
+          id="note-body"
+          bind:value={body}
+          maxlength={NOTE_MAX}
+          placeholder="Jot something down…"
+          rows={3}
+        />
+        <FormError message={error} />
+        <Button type="submit" class="self-start" disabled={!body.trim()}>Add note</Button>
+      </form>
+    </PhoneAdd>
+  </Card.Content>
+</Card.Root>

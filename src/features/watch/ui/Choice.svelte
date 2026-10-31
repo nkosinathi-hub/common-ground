@@ -1,4 +1,5 @@
 <script lang="ts" generics="T extends string">
+  import { NativeSelect } from "$lib/components/ui/native-select"
   import { Label } from "$lib/components/ui/label"
   import { cn } from "$lib/utils"
 
@@ -10,23 +11,34 @@
     /** When set, an extra first option with value "" (for example "All lists"). */
     anyLabel?: string
     hideLabel?: boolean
+    /** Set to "w-full" to fill the field's column; it fits its options otherwise. */
+    class?: string
     onchange: (value: T | "") => void
   }
 
-  let { id, label, value, options, anyLabel, hideLabel = false, onchange }: Props = $props()
+  let {
+    id,
+    label,
+    value,
+    options,
+    anyLabel,
+    hideLabel = false,
+    class: className,
+    onchange,
+  }: Props = $props()
 </script>
 
-<div class="grid gap-1.5">
+<div class="grid gap-related">
   <Label for={id} class={cn(hideLabel && "sr-only")}>{label}</Label>
-  <select
+  <NativeSelect
     {id}
     {value}
-    class="h-9 rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+    class={className}
     onchange={(event) => onchange(event.currentTarget.value as T | "")}
   >
     {#if anyLabel}<option value="">{anyLabel}</option>{/if}
     {#each options as option (option.value)}
       <option value={option.value}>{option.label}</option>
     {/each}
-  </select>
+  </NativeSelect>
 </div>

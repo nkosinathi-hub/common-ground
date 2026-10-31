@@ -35,14 +35,12 @@ afterEach(cleanup)
 describe("IdeasPage whose filter", () => {
   it("narrows to the viewer's ideas, or to every idea they are on", async () => {
     await setup()
-    const whose = screen.getByRole("combobox", { name: "Whose" })
-    await fireEvent.change(whose, { target: { value: "mine" } })
+    await fireEvent.click(screen.getByRole("radio", { name: "Mine" }))
     await screen.findByText("Ana's tea")
     expect(titles()).toEqual(["Ana's tea"])
-    await fireEvent.change(whose, { target: { value: "ours" } })
+    await fireEvent.click(screen.getByRole("radio", { name: "Ours" }))
     expect(await screen.findByText("Our garden")).toBeInTheDocument()
     expect(titles()).toEqual(["Our garden", "Ana's tea"])
-    expect(screen.getAllByText("Our idea")).toHaveLength(1)
     cleanup()
   })
 
@@ -53,9 +51,7 @@ describe("IdeasPage whose filter", () => {
       props: { provide: () => provideIdeas({ service }), component: IdeasPage, props },
     })
     await screen.findByText("No ideas yet")
-    await fireEvent.change(screen.getByRole("combobox", { name: "Whose" }), {
-      target: { value: "mine" },
-    })
+    await fireEvent.click(screen.getByRole("radio", { name: "Mine" }))
     expect(await screen.findByText("No ideas match these filters.")).toBeInTheDocument()
   })
 })

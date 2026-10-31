@@ -24,7 +24,7 @@ function setup() {
       target: { value: confirmation },
     })
   }
-  const button = () => screen.getByRole("button", { name: "Delete my account" })
+  const button = () => screen.getByRole("button", { name: "Delete account…" })
   return { repo, onDeleted, fill, button }
 }
 

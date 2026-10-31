@@ -4,6 +4,9 @@ const EXEMPT = [
   /^pnpm-lock\.yaml$/,
   /(^|\/)database\.types\.ts$/,
   /^supabase\/config\.toml$/,
+  // Generated from the Figma export by scripts/design/tokens.ts, drift-checked by its test.
+  /^src\/styles\/generated\//,
+  /(^|\/)figma-export\.json$/,
   /\.(svg|png|jpg|jpeg|webp|ico|pdf|woff2?)$/,
 ]
 

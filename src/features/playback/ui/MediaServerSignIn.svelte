@@ -34,7 +34,11 @@
 {#if signedIn === false}
   {#if open}
     <!-- The token Jellyfin returns stays on this device; it is never sent to Common Ground. -->
-    <form class="flex flex-wrap items-end gap-2" onsubmit={submit} aria-label="Sign in to Jellyfin">
+    <form
+      class="flex flex-wrap items-end gap-related"
+      onsubmit={submit}
+      aria-label="Sign in to Jellyfin"
+    >
       <div class="grid gap-1">
         <Label for="jf-user">Jellyfin user</Label>
         <Input id="jf-user" autocomplete="username" bind:value={username} required />
@@ -49,7 +53,7 @@
         />
       </div>
       <Button type="submit" size="sm">Sign in</Button>
-      {#if error}<p class="w-full text-sm text-destructive" role="alert">{error}</p>{/if}
+      {#if error}<p class="w-full type-sm text-destructive" role="alert">{error}</p>{/if}
     </form>
   {:else}
     <Button variant="outline" size="sm" onclick={() => (open = true)}>

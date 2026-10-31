@@ -31,9 +31,11 @@ describe("SpaceBanner", () => {
     expect(screen.getByText(/A place for everyone/)).toBeInTheDocument()
   })
 
-  it("puts the signed cover behind the text", async () => {
+  it("shows the signed cover above the greeting", async () => {
     await show(SpaceBanner, { coverPath: "s1/cover/c.webp" })
-    expect(screen.getByTestId("space-banner").style.backgroundImage).toContain("s1/cover/c.webp")
+    expect(screen.getByTestId("space-banner").querySelector("img")?.src).toContain(
+      "s1/cover/c.webp",
+    )
   })
 })
 

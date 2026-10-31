@@ -1,9 +1,9 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { X } from "@lucide/svelte"
+  import { Search, X } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { Input } from "$lib/components/ui/input"
-  import * as Tabs from "$lib/components/ui/tabs"
+  import { ViewToggle } from "@/shared/ui"
   import type { LinkOption } from "../application/ports"
   import type { LinkKind } from "../domain"
   import { useCalendar } from "./context"
@@ -13,6 +13,9 @@
     { value: "idea", label: "Idea" },
     { value: "task", label: "Task" },
   ]
+  // The space before "(optional)" survives only inside an expression.
+  const LEGEND = "Link to something "
+  const PLACEHOLDER = { watch_item: "your Watch library", idea: "your ideas", task: "your tasks" }
 
   interface Props {
     spaceId: string
@@ -31,49 +34,67 @@
     const found = await service.linkSearch(spaceId, k, q)
     if (mine === generation) results = found.ok ? found.value : []
   }
-
-  // Searches again whenever the tab or the text changes; only the newest answer is shown.
+  // Searches again whenever the kind or the text changes; only the newest answer is shown.
   $effect(() => {
     const [k, q] = [kind, query]
     untrack(() => void search(k, q))
   })
 </script>
 
-<fieldset class="grid gap-2">
-  <legend class="mb-1.5 text-sm font-medium">Link to</legend>
+<!-- S06c "Link to something": the kind as a segmented choice, then search it. -->
+<fieldset class="flex flex-col gap-related">
+  <legend class="mb-related type-label text-foreground">
+    {LEGEND}<span class="font-normal text-muted-foreground">(optional)</span>
+  </legend>
   {#if value}
-    <div class="flex items-center justify-between gap-2 rounded-lg border p-2 text-sm">
+    <div
+      class="flex items-center justify-between gap-related rounded-md border border-border p-related type-sm"
+    >
       <span>Linked to <strong>{value.label}</strong></span>
       <Button
         variant="ghost"
-        size="icon-xs"
+        size="icon-sm"
         aria-label="Remove link"
         onclick={() => (value = null)}
       >
-        <X />
+        <X aria-hidden="true" />
       </Button>
     </div>
   {:else}
-    <Tabs.Root bind:value={kind}>
-      <Tabs.List aria-label="Link type">
-        {#each KINDS as option (option.value)}
-          <Tabs.Trigger value={option.value}>{option.label}</Tabs.Trigger>
+    <ViewToggle
+      label="Link type"
+      class="w-full! [&>*]:flex-1"
+      value={kind}
+      options={KINDS}
+      onchange={(next) => (kind = next)}
+    />
+    <div class="relative">
+      <Search
+        class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <Input
+        type="search"
+        class="pl-9"
+        aria-label="Search to link"
+        placeholder="Search {PLACEHOLDER[kind]}…"
+        bind:value={query}
+      />
+    </div>
+    {#if query.trim() || results.length}
+      <ul class="flex max-h-40 flex-col overflow-y-auto" aria-label="Matches">
+        {#each results as option (option.id)}
+          <li>
+            <button
+              type="button"
+              class="w-full truncate rounded-md p-related text-left type-sm hover:bg-muted"
+              onclick={() => (value = option)}>{option.label}</button
+            >
+          </li>
+        {:else}
+          <li class="p-related type-sm text-muted-foreground">No matches</li>
         {/each}
-      </Tabs.List>
-    </Tabs.Root>
-    <Input type="search" aria-label="Search to link" placeholder="Search" bind:value={query} />
-    <ul class="flex max-h-40 flex-col overflow-y-auto" aria-label="Matches">
-      {#each results as option (option.id)}
-        <li>
-          <button
-            type="button"
-            class="w-full truncate rounded-md p-2 text-left text-sm hover:bg-muted"
-            onclick={() => (value = option)}>{option.label}</button
-          >
-        </li>
-      {:else}
-        <li class="p-2 text-sm text-muted-foreground">No matches</li>
-      {/each}
-    </ul>
+      </ul>
+    {/if}
   {/if}
 </fieldset>

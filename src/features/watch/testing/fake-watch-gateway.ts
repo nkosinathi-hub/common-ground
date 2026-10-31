@@ -2,7 +2,7 @@ import { appError, err, ok, type AppError, type Result } from "@/shared/domain"
 import type { ListRequest, WatchGateway } from "../application/ports"
 import { pageOf } from "../domain/filters"
 import type * as T from "../domain/types"
-import { compareFor, isAfter, isDuplicate, matches, sortKeyOf } from "./sql-mirror"
+import { compareFor, isAfter, isDuplicate, matches, sortKeyOf, typeCounts } from "./sql-mirror"
 import { ME, item as makeItem } from "./fixtures"
 
 const DUPLICATE = appError("conflict", "Already on your list")
@@ -21,6 +21,8 @@ export class FakeWatchGateway implements WatchGateway {
   private run<V>(value: () => Result<V>): Promise<Result<V>> {
     return Promise.resolve(this.failWith ? err(this.failWith) : value())
   }
+
+  countByType = (spaceId: string) => this.run(() => ok(typeCounts(this.items, spaceId)))
 
   list(request: ListRequest) {
     this.lists.push(request)
@@ -65,12 +67,10 @@ export class FakeWatchGateway implements WatchGateway {
     this.items = this.items.map((i) => (i.id === itemId ? { ...i, ...change } : i))
     return ok(undefined)
   }
-  updateDetails(itemId: string, input: T.TitleDetailsInput) {
-    return this.run(() => this.patch(itemId, input))
-  }
-  setIntent(itemId: string, intent: T.SharedIntent) {
-    return this.run(() => this.patch(itemId, { intent }))
-  }
+  updateDetails = (itemId: string, input: T.TitleDetailsInput) =>
+    this.run(() => this.patch(itemId, input))
+  setIntent = (itemId: string, intent: T.SharedIntent) =>
+    this.run(() => this.patch(itemId, { intent }))
   remove(itemId: string) {
     return this.run(() => {
       this.items = this.items.filter((i) => i.id !== itemId)

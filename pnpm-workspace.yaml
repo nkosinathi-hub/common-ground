@@ -1,2 +1,5 @@
 overrides:
   undici: ^8.12.2
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm

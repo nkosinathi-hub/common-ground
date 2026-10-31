@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { untrack } from "svelte"
+  import { untrack, type Snippet } from "svelte"
   import { Check, Inbox, X } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { EmptyState, ErrorState, Loading, LoadMore, toast } from "@/shared/ui"
@@ -11,12 +11,21 @@
   interface Props {
     spaceId: string
     itemHref: (itemId: string) => string
+    /** Offered when nothing waits, so finding something to share is one tap away. */
+    libraryHref?: string
+    /** Your For you score per title: the inbox shows the best fit first. */
+    rank?: (itemId: string) => number
+    /** Shown instead of the empty state, e.g. For you picks from the space's list. */
+    empty?: Snippet
   }
-  let { spaceId, itemHref }: Props = $props()
+  let { spaceId, itemHref, libraryHref, rank, empty }: Props = $props()
 
   const { service } = useRecommendations()
   const inbox = $derived(new InboxState(service, spaceId))
   const list = $derived(inbox.list)
+  const items = $derived(
+    rank ? [...list.items].sort((a, b) => rank(b.itemId) - rank(a.itemId)) : list.items,
+  )
   $effect(() => {
     void inbox
     untrack(() => void inbox.load())
@@ -28,17 +37,17 @@
   }
 </script>
 
-<section class="grid gap-3" aria-label="Recommended to you">
-  {#if list.items.length > 0}
-    <ul class="grid gap-2">
-      {#each list.items as rec (rec.id)}
-        <li class="grid gap-1 rounded-lg border p-3">
+<section class="grid gap-item" aria-label="Recommended to you">
+  {#if items.length > 0}
+    <ul class="grid gap-related">
+      {#each items as rec (rec.id)}
+        <li class="grid gap-1 rounded-lg border p-item">
           <a class="font-medium underline-offset-4 hover:underline" href={itemHref(rec.itemId)}
             >{rec.itemTitle ?? "A saved title"}</a
           >
-          <p class="text-xs text-muted-foreground">From {rec.senderName ?? FORMER_MEMBER}</p>
-          {#if rec.note}<p class="text-sm break-words whitespace-pre-wrap">{rec.note}</p>{/if}
-          <div class="flex gap-2">
+          <p class="type-xs text-muted-foreground">From {rec.senderName ?? FORMER_MEMBER}</p>
+          {#if rec.note}<p class="type-sm break-words whitespace-pre-wrap">{rec.note}</p>{/if}
+          <div class="flex gap-related">
             <Button
               size="sm"
               aria-label={`Acknowledge ${rec.itemTitle ?? "recommendation"}`}
@@ -59,12 +68,17 @@
     <ErrorState error={list.error} onRetry={inbox.load} />
   {:else if list.loading}
     <Loading />
+  {:else if empty}
+    {@render empty()}
   {:else}
     <EmptyState
       icon={Inbox}
       title="Nothing waiting for you"
       description="When someone recommends a title to you, it shows up here."
-    />
+    >
+      {#if libraryHref}<Button variant="outline" size="sm" href={libraryHref}>Browse library</Button
+        >{/if}
+    </EmptyState>
   {/if}
   <LoadMore {list} label="Show more" />
 </section>

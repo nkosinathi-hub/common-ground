@@ -31,8 +31,8 @@ function setup(props: { me?: string; isOwner?: boolean } = {}) {
   }
   const provide = () => provideAttachments({ service })
   render(Provided, { props: { provide, component: AttachmentsPanel, props: panel } })
-  const input = screen.getByLabelText<HTMLInputElement>("Choose a file to attach")
-  const choose = (file: File) => fireEvent.change(input, { target: { files: [file] } })
+  const input = () => screen.getByLabelText<HTMLInputElement>("Choose a file to attach")
+  const choose = (file: File) => fireEvent.change(input(), { target: { files: [file] } })
   return { gateway, uploader, input, choose }
 }
 
@@ -43,7 +43,7 @@ describe("AttachmentsPanel", () => {
 
   it("accepts only the four types and lists previews and PDF rows", async () => {
     const { gateway, input } = setup()
-    expect(input.accept).toContain("image/webp")
+    expect(input().accept).toContain("image/webp")
     const image = await screen.findByRole("img", { name: "Sketch <b>.png" })
     await waitFor(() =>
       expect(image).toHaveAttribute("src", expect.stringContaining("/signed/pic")),

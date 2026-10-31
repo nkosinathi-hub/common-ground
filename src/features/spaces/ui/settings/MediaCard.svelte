@@ -1,6 +1,5 @@
 <script lang="ts">
-  import * as Card from "$lib/components/ui/card"
-  import { toast } from "@/shared/ui"
+  import { SettingsSection, toast } from "@/shared/ui"
   import type { Result } from "@/shared/domain"
   import type { MediaSlot } from "../../domain/media"
   import type { Space } from "../../domain/space"
@@ -40,29 +39,25 @@
     run(slot, () => service.profile.clearMedia(space.id, slot), "Picture removed")
 </script>
 
-<Card.Root id="settings-pictures" tabindex={-1}>
-  <Card.Header>
-    <Card.Title>Pictures</Card.Title>
-    <Card.Description>
-      Pictures are cropped and saved again without their metadata, such as location.
-    </Card.Description>
-  </Card.Header>
-  <Card.Content class="grid gap-6 sm:grid-cols-[auto_1fr]">
-    <ImageUpload
-      kind="avatar"
-      label="Picture"
-      url={store.mediaUrl(space.avatarPath)}
-      busy={busy === "avatar"}
-      onPick={pick("avatar")}
-      onRemove={remove("avatar")}
-    />
-    <ImageUpload
-      kind="cover"
-      label="Cover"
-      url={store.mediaUrl(space.coverPath)}
-      busy={busy === "cover"}
-      onPick={pick("cover")}
-      onRemove={remove("cover")}
-    />
-  </Card.Content>
-</Card.Root>
+<!-- Figma D15a Pictures: the space picture, then the cover. -->
+<SettingsSection
+  id="settings-pictures"
+  title="Pictures"
+  description="A picture and a cover make the space easy to recognise."
+>
+  <ImageUpload
+    kind="avatar"
+    icon={space.icon}
+    url={store.mediaUrl(space.avatarPath)}
+    busy={busy === "avatar"}
+    onPick={pick("avatar")}
+    onRemove={remove("avatar")}
+  />
+  <ImageUpload
+    kind="cover"
+    url={store.mediaUrl(space.coverPath)}
+    busy={busy === "cover"}
+    onPick={pick("cover")}
+    onRemove={remove("cover")}
+  />
+</SettingsSection>

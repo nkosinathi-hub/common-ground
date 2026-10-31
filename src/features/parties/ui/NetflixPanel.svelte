@@ -17,7 +17,10 @@
   const players = $derived(hasPlayer(view.state.people))
 </script>
 
-<section aria-label="On Netflix" class="space-y-3 rounded-xl border p-4">
+<section
+  aria-label="On Netflix"
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+>
   <Button
     variant="outline"
     href={netflixSearchUrl(title)}
@@ -27,15 +30,18 @@
     <ExternalLink aria-hidden="true" />
     Open {title} on Netflix
   </Button>
-  <p class="text-sm text-muted-foreground">
+  <p class="type-sm text-muted-foreground">
     Each of you plays it on netflix.com in Chrome or Edge with the Common Ground extension, signed
     in to your own Netflix account, and presses Ready there. A phone is the remote.
   </p>
 </section>
 {#if players}
-  <section aria-label="Remote" class="space-y-3 rounded-xl border p-4">
+  <section
+    aria-label="Remote"
+    class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+  >
     <PhaseLine {view} />
-    <div class="flex flex-wrap gap-2">
+    <div class="flex flex-wrap gap-related">
       {#if phase === "lobby" && view.isHost}
         <Button disabled={!canStart(view.state)} onclick={() => room.play()}>
           <Play aria-hidden="true" />

@@ -10,8 +10,8 @@ insert into public.space_members (space_id, user_id, role) values
   ('c5000000-0000-4000-8000-000000000001', tests.user_id('cus_ben'), 'member');
 
 select is((select home_cards from public.spaces where id = 'c5000000-0000-4000-8000-000000000001'),
-  array['notes', 'calendar', 'continue_watching', 'coming_up', 'recommended', 'activity'],
-  'new spaces show the default Home cards');
+  array['notes', 'on_your_mind', 'calendar', 'continue_watching', 'coming_up', 'recommended',
+    'activity'], 'new spaces show the default Home cards, with Something on your mind? after Notes');
 select is((select (theme, week_starts_on, default_watch_intent, tagline)::text from public.spaces
   where id = 'c5000000-0000-4000-8000-000000000001'), '(,1,want_to_watch,"")',
   'theme follows the template, weeks start on Monday');
@@ -19,11 +19,12 @@ select is((select (theme, week_starts_on, default_watch_intent, tagline)::text f
 select tests.act_as('cus_ana');
 select lives_ok($$ update public.spaces set tagline = 'Our place', description = 'Movies and plans',
   theme = 'ocean', accent_color = '#1a2b3c', icon = 'heart-handshake',
-  home_cards = '{calendar,notes}', default_watch_intent = 'watch_together', week_starts_on = 0
+  home_cards = '{calendar,notes,on_your_mind}', default_watch_intent = 'watch_together', week_starts_on = 0
   where id = 'c5000000-0000-4000-8000-000000000001' $$, 'the owner customises the space');
 select is((select (tagline, theme, accent_color, icon, home_cards)::text from public.spaces
   where id = 'c5000000-0000-4000-8000-000000000001'),
-  '("Our place",ocean,#1a2b3c,heart-handshake,"{calendar,notes}")', 'the changes are stored');
+  '("Our place",ocean,#1a2b3c,heart-handshake,"{calendar,notes,on_your_mind}")',
+  'the changes are stored');
 
 select throws_ok($$ update public.spaces set accent_color = '#ABC'
   where id = 'c5000000-0000-4000-8000-000000000001' $$, '23514', null, 'short hex is rejected');

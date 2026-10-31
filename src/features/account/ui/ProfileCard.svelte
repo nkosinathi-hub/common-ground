@@ -26,10 +26,12 @@
 <Card.Root>
   <Card.Header>
     <Card.Title>Profile</Card.Title>
-    <Card.Description>Members of your spaces see this name.</Card.Description>
+    <Card.Description
+      >Only people in your spaces see your name. Your email is never shown to other members.</Card.Description
+    >
   </Card.Header>
   <Card.Content>
-    <form class="grid max-w-sm gap-3" onsubmit={submit} novalidate>
+    <form class="flex flex-col gap-stack" onsubmit={submit} novalidate>
       <FormField
         id="display-name"
         label="Display name"
@@ -37,7 +39,9 @@
         error={form.fieldError("displayName")}
       />
       <FormError message={form.formError} />
-      <Button type="submit" class="w-fit" disabled={form.pending}>Save name</Button>
+      <div class="flex justify-end border-t border-border pt-stack">
+        <Button type="submit" disabled={form.pending}>Save name</Button>
+      </div>
     </form>
   </Card.Content>
 </Card.Root>

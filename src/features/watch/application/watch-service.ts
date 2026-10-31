@@ -26,6 +26,8 @@ export class WatchService {
     private readonly pageSize = PAGE_SIZE,
   ) {}
 
+  countByType = (spaceId: string) => this.gateway.countByType(spaceId)
+
   list(spaceId: string, filters: WatchFilters, cursor: WatchCursor | null = null) {
     const clean = { ...filters, search: normaliseSearch(filters.search) }
     return this.gateway.list({ spaceId, filters: clean, cursor, size: this.pageSize })

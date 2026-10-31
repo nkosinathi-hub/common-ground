@@ -18,8 +18,8 @@ describe("describePlaces", () => {
     )
     expect(summary).toEqual({
       people: [
-        { name: "Ana", label: "S1E4", ahead: true },
-        { name: "Ben", label: "S1E2", ahead: false },
+        { userId: "a", name: "Ana", label: "S1E4", ahead: true },
+        { userId: "b", name: "Ben", label: "S1E2", ahead: false },
       ],
       together: "S1E2",
     })

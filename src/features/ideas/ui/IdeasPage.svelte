@@ -1,23 +1,29 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { Columns3, Lightbulb, List } from "@lucide/svelte"
-  import { EmptyState, ErrorState, FormError, Loading, LoadMore, ViewToggle } from "@/shared/ui"
+  import { MediaQuery } from "svelte/reactivity"
+  import { Lightbulb, Plus } from "@lucide/svelte"
+  import { ok, type MemberRef } from "@/shared/domain"
+  import { EmptyState, ErrorState, Fab, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
-  import IdeaCard from "./IdeaCard.svelte"
+  import IdeaList from "./IdeaList.svelte"
   import IdeaFilters from "./IdeaFilters.svelte"
   import { IdeasState } from "./ideas-state.svelte"
-  import QuickCapture from "./QuickCapture.svelte"
+  import { openCapture } from "./capture-request.svelte"
+  import { onCaptured } from "./captured"
 
   interface Props {
     spaceId: string
     /** The signed-in user, for the Mine and Ours filters. */
     me: string
     ideaHref: (ideaId: string) => string
+    /** Names for who started and shares each idea. */
+    authors?: readonly MemberRef[]
   }
 
-  let { spaceId, me, ideaHref }: Props = $props()
+  let { spaceId, me, ideaHref, authors = [] }: Props = $props()
+  const wide = new MediaQuery("min-width: 768px")
 
   const board = new IdeasState(
     useIdeas().service,
@@ -29,20 +35,28 @@
     void spaceId
     untrack(() => void board.load())
   })
-  const VIEWS = [
-    { value: "list", label: "List", icon: List },
-    { value: "board", label: "Board", icon: Columns3 },
-  ] as const
+  // An idea saved from the capture dialog joins the list at once.
+  $effect(() => onCaptured((idea) => void board.list.add(Promise.resolve(ok(idea)))))
 </script>
 
-<div class="flex flex-col gap-4">
-  <header class="flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-2xl font-semibold">Ideas</h1>
-    <ViewToggle value={board.view} options={VIEWS} onchange={(view) => (board.view = view)} />
+<div class="flex flex-col gap-section">
+  <header class="flex flex-col gap-related">
+    <h1 class="type-h1">
+      {board.view === "board" ? "Ideas, finding their shape." : "Room for what could be."}
+    </h1>
+    <p class="type-body text-muted-foreground">
+      {board.view === "board"
+        ? "The same ideas, arranged by where they are now."
+        : "Small sparks, shared plans, and things you are making together."}
+    </p>
   </header>
 
-  <QuickCapture onCapture={(title, template) => board.capture({ title, template })} />
-  <IdeaFilters bind:filter={board.filter} tags={allTags(board.list.items)} />
+  <IdeaFilters
+    bind:filter={board.filter}
+    tags={allTags(board.list.items)}
+    view={board.view}
+    onview={(view) => (board.view = view)}
+  />
 
   <FormError message={board.moveError?.message} />
   {#if board.list.error && board.list.items.length === 0}
@@ -56,16 +70,26 @@
       description="A business, a creative project, a wild little thought. There is room for it here."
     />
   {:else if board.view === "board"}
-    <IdeaBoard ideas={board.visible} {ideaHref} onMove={(id, stage) => board.move(id, stage)} />
+    <IdeaBoard
+      ideas={board.visible}
+      {ideaHref}
+      {authors}
+      onMove={(id, stage) => board.move(id, stage)}
+    />
   {:else}
-    <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-      {#each board.visible as idea (idea.id)}
-        <IdeaCard {idea} href={ideaHref(idea.id)} onMove={(stage) => board.move(idea.id, stage)} />
-      {:else}
-        <p class="text-sm text-muted-foreground">No ideas match these filters.</p>
-      {/each}
-    </div>
+    <IdeaList
+      ideas={board.visible}
+      {ideaHref}
+      {authors}
+      onMove={(id, stage) => board.move(id, stage)}
+    />
   {/if}
 
   <LoadMore list={board.list} />
 </div>
+{#if !wide.current}<Fab
+    icon={Plus}
+    label="Capture idea"
+    onclick={openCapture}
+    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
+  />{/if}

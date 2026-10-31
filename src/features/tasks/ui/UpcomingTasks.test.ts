@@ -25,7 +25,9 @@ describe("UpcomingTasks", () => {
     render(Provided, {
       props: { provide: () => provideTasks(services), component: UpcomingTasks, props },
     })
-    expect(await screen.findByRole("link", { name: /Lease/ })).toHaveAttribute("href", "#/i")
+    expect(await screen.findByText("Lease")).toBeVisible()
+    expect(screen.getByRole("link", { name: "Open its idea" })).toHaveAttribute("href", "#/i")
+    expect(screen.getByRole("checkbox", { name: "Done: Lease" })).toBeInTheDocument()
     expect(screen.queryByRole("heading")).toBeNull()
   })
 })

@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte"
   import { ExternalLink, RefreshCw } from "@lucide/svelte"
+  import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
   import * as Card from "$lib/components/ui/card"
   import { formatDateTime } from "@/shared/domain"
@@ -19,17 +20,21 @@
 
 <Card.Root>
   <Card.Header>
-    <Card.Title>Watch history from Simkl</Card.Title>
+    <Card.Title>Simkl</Card.Title>
+    <Card.Action
+      ><Badge variant="outline">{state.kind === "connected" ? "Connected" : "Not connected"}</Badge
+      ></Card.Action
+    >
     <Card.Description>
-      Optional. Bring in what you have watched on Simkl: episodes and films already on your lists
-      are ticked as yours in every space. Simkl never sees your spaces.
+      Tick titles you have already watched. Reads your history; never sends Simkl your activity.
+      Keys are deleted when you disconnect.
     </Card.Description>
   </Card.Header>
-  <Card.Content class="grid gap-3">
+  <Card.Content class="grid gap-item">
     {#if state.kind === "loading"}
       <Loading label="Checking Simkl" />
     {:else if state.kind === "failed"}
-      <p role="alert" class="text-sm text-destructive">{state.message}</p>
+      <p role="alert" class="type-sm text-destructive">{state.message}</p>
     {:else if state.kind === "disconnected"}
       <Button
         class="w-fit"
@@ -46,7 +51,7 @@
       >
         <ExternalLink class="size-4" aria-hidden="true" />Open Simkl to approve</a
       >
-      <p class="text-sm text-muted-foreground">
+      <p class="type-sm text-muted-foreground">
         Or go to
         <a
           href={state.pin.verificationUri}
@@ -58,15 +63,15 @@
         and enter
         <span class="font-mono font-semibold tracking-widest">{state.pin.userCode}</span>
       </p>
-      <p class="text-sm text-muted-foreground">Waiting for you to approve it on Simkl.</p>
+      <p class="type-sm text-muted-foreground">Waiting for you to approve it on Simkl.</p>
       <Button class="w-fit" variant="ghost" onclick={() => connection.cancel()}>Cancel</Button>
     {:else}
-      <p class="text-sm">
+      <p class="type-sm">
         {state.link.lastSyncedAt
           ? `Last synced ${formatDateTime(state.link.lastSyncedAt)}`
           : "Connected. Not synced yet"}
       </p>
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-related">
         <Button variant="outline" disabled={connection.busy} onclick={() => connection.syncNow()}>
           <RefreshCw aria-hidden="true" /> Sync now
         </Button>
@@ -76,7 +81,7 @@
       </div>
     {/if}
     {#if note}
-      <p role="status" class="text-sm text-muted-foreground">{note}</p>
+      <p role="status" class="type-sm text-muted-foreground">{note}</p>
     {/if}
   </Card.Content>
 </Card.Root>

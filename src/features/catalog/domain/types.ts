@@ -31,3 +31,11 @@ export interface TitleRef {
   readonly type: CatalogType
   readonly id: number
 }
+
+/** What a dialog shows of the title it is about (Figma Title summary). */
+export interface SummaryTitle {
+  readonly title: string
+  readonly posterPath: string | null
+  /** A second line, e.g. the year or what is up next. */
+  readonly meta?: string
+}

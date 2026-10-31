@@ -29,19 +29,44 @@ export async function join(
 /** Opens the composer as "Something on my mind" to `to`. */
 export async function startSharing(page: Page, to: string): Promise<Locator> {
   await page.getByRole("button", { name: "Write a note" }).click()
-  const dialog = page.getByRole("dialog", { name: "Write a note" })
+  const dialog = page.getByRole("dialog", { name: COMPOSER })
   await dialog.getByRole("radio", { name: "Something on my mind" }).click()
   await dialog.getByLabel("To", { exact: true }).selectOption({ label: to })
   return dialog
 }
 
+/** The note composer, named for the kind of note it holds. */
+export const COMPOSER = /Leave a little note|Something on my mind/
+
+/** Moves "Something on my mind" on by its Next button. */
+export async function next(dialog: Locator, times = 1): Promise<void> {
+  for (let i = 0; i < times; i++) await dialog.getByRole("button", { name: "Next" }).click()
+}
+
 /** The Home activity card. */
-export const feed = (page: Page): Locator =>
+/** Recent activity: a Home card on wide screens, inside the folded group on phones. */
+const feed = (page: Page): Locator =>
   page
-    .locator('[data-slot="card"]')
+    .locator('[data-slot="card"], section')
     .filter({ has: page.getByRole("heading", { name: /^Recently in/ }) })
 
 /** The calm card at the top of Home for an unopened note. */
+/** Opens the folded activity group on phones; wide screens show the feed as a card. */
+async function showFeed(page: Page): Promise<Locator> {
+  const fold = page.getByRole("button", { name: /Activity and recommendations/ })
+  await expect(fold.or(feed(page)).first()).toBeVisible()
+  if (await fold.isVisible()) await fold.click()
+  return feed(page)
+}
+
+/** Reloads Home and checks the feed holds `shown` and none of `hidden`. */
+export async function expectFeed(page: Page, shown: string[], hidden: string[] = []) {
+  await page.reload()
+  const list = await showFeed(page)
+  for (const text of shown) await expect(list).toContainText(text)
+  for (const text of hidden) await expect(list).not.toContainText(text)
+}
+
 export const waiting = (page: Page): Locator => page.getByTestId("shared-with-you")
 
 export async function closeDialog(page: Page, dialog: Locator): Promise<void> {

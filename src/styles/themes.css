@@ -1,3 +1,0 @@
-/* Per-space palettes: a preset (or the template) sets [data-space-theme] on the root. */
-@import "./themes-light.css";
-@import "./themes-dark.css";

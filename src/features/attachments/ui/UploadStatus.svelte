@@ -19,8 +19,8 @@
   const PENDING_PERCENT = 15
 </script>
 
-<div class="space-y-2 rounded-xl border p-3" aria-live="polite">
-  <div class="flex items-center gap-2 text-sm">
+<div class="flex flex-col gap-related rounded-lg border p-item" aria-live="polite">
+  <div class="flex items-center gap-related type-sm">
     <LoaderCircle class="size-4 animate-spin text-muted-foreground" aria-hidden="true" />
     <span class="min-w-0 flex-1 truncate">{label} {upload.filename}</span>
     {#if upload.progress?.phase !== "verifying"}

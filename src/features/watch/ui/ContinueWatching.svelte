@@ -1,11 +1,11 @@
 <script lang="ts">
   import { Clapperboard } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { AsyncView, EmptyState, Resource } from "@/shared/ui"
+  import { AsyncView, EmptyState, Resource, ScrollRow } from "@/shared/ui"
   import { DEFAULT_FILTERS } from "../domain/filters"
   import { useWatch } from "./context"
   import { spaceNames } from "./space-names.svelte"
-  import WatchCard from "./WatchCard.svelte"
+  import ContinueCard from "./ContinueCard.svelte"
 
   /** Home shows only the first few titles in progress. */
   const SHOWN = 8
@@ -14,9 +14,11 @@
     spaceId: string
     itemHref: (id: string) => string
     listHref: string
+    /** The signed-in person, drawn in the brand tone on each card. */
+    me?: string
   }
 
-  let { spaceId, itemHref, listHref }: Props = $props()
+  let { spaceId, itemHref, listHref, me }: Props = $props()
   const { service } = useWatch()
   const watching = new Resource(() =>
     service.list(spaceId, { ...DEFAULT_FILTERS, myStatus: "watching", sort: "recent" }),
@@ -36,11 +38,13 @@
         <Button variant="outline" href={listHref}>Open your list</Button>
       </EmptyState>
     {:else}
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <ScrollRow label="Titles in progress">
         {#each page.items.slice(0, SHOWN) as item (item.id)}
-          <WatchCard {item} href={itemHref(item.id)} names={names.value ?? []} />
+          <li class="w-[85%] max-w-72 shrink-0 snap-start sm:w-72">
+            <ContinueCard {item} href={itemHref(item.id)} names={names.value ?? []} {me} />
+          </li>
         {/each}
-      </div>
+      </ScrollRow>
     {/if}
   {/snippet}
 </AsyncView>

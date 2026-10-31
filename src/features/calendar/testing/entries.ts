@@ -18,5 +18,13 @@ export function entryOf(event: CalendarEvent, me: string): CalendarEntry {
     ideaId,
     status: null,
     myRsvp,
+    place: event.location,
+    people: event.attendees.filter((a) => a.rsvp !== "declined").map((a) => a.userId),
+    priority: null,
+    milestone: null,
+    ideaTitle: null,
   }
 }
+
+/** The card detail a plain test entry leaves empty. */
+export const noDetail = { place: "", people: [], priority: null, milestone: null, ideaTitle: null }
