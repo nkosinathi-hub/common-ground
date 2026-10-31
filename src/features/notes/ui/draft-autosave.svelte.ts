@@ -1,3 +1,4 @@
+import { savedStamp } from "../domain/draft"
 import type { Result } from "@/shared/domain"
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error"
@@ -13,6 +14,8 @@ export const RETRY_MS = 4000
  */
 export class DraftAutosave {
   status = $state<SaveStatus>("idle")
+  /** When the last save landed, for "Draft saved 14:32". */
+  savedAt = $state<string | null>(null)
   private timer: ReturnType<typeof setTimeout> | null = null
   private chain: Promise<void> = Promise.resolve()
   private dirty = false
@@ -22,6 +25,15 @@ export class DraftAutosave {
     private readonly save: (id: string | null) => Promise<Result<string>>,
     public id: string | null = null,
   ) {}
+
+  /** What the Autosave status shows. */
+  get shown() {
+    return {
+      savedAt: this.savedAt,
+      saving: this.status === "saving",
+      failed: this.status === "error",
+    }
+  }
 
   /** Something changed: save now if the draft does not exist yet, otherwise after a pause. */
   changed(): void {
@@ -57,6 +69,7 @@ export class DraftAutosave {
     const saved = await this.save(this.id)
     if (saved.ok) {
       this.id = saved.value
+      this.savedAt = savedStamp()
       this.status = this.dirty ? "saving" : "saved"
       return
     }

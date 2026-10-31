@@ -83,10 +83,3 @@ export const REMINDERS: readonly { days: RemindIn | null; label: string }[] = [
 
 export const TALK_TIP =
   "When you talk, take turns listening first. If it gets heated, it's okay to pause for 20 minutes or so and come back."
-
-export const SAVE_STATUS = {
-  idle: "",
-  saving: "Saving…",
-  saved: "Saved",
-  error: "Couldn't save. Trying again",
-}

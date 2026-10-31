@@ -29,7 +29,7 @@ interface SimklConfig {
 
 export const DEFAULT_SIMKL_BASE_URL = "https://api.simkl.com"
 /** Kept equal to package.json's version by simkl-client.test.ts. */
-export const APP = { name: "common-ground", version: "0.5.4" }
+export const APP = { name: "common-ground", version: "0.6.0" }
 const SIMKL_TIMEOUT_MS = 20_000
 
 export function createSimklClient(config: SimklConfig): SimklClient {

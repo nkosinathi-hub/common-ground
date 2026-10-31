@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { DialogShell, FormError, Resource, toast, ViewToggle } from "@/shared/ui"
+  import { AutosaveStatus, DialogShell, FormError, Resource, toast, ViewToggle } from "@/shared/ui"
   import { COMPOSER_COPY, MODES, type Draft, type NoteKind } from "../domain"
   import { sendHardTalk, sendQuick } from "./composer-actions"
   import { autosaveWhileOpen } from "./composer-effects.svelte"
@@ -10,7 +10,6 @@
   import HardTalkFooter from "./HardTalkFooter.svelte"
   import type { NotesState } from "./notes-state.svelte"
   import QuickNoteFields from "./QuickNoteFields.svelte"
-  import SaveStatus from "./SaveStatus.svelte"
 
   interface Props {
     open: boolean
@@ -72,7 +71,7 @@
   onsubmit={send}
   footer={hard ? hardFooter : undefined}
 >
-  {#snippet status()}{#if hard}<SaveStatus {composer} />{/if}{/snippet}
+  {#snippet status()}{#if hard}<AutosaveStatus {...composer.autosave.shown} />{/if}{/snippet}
   {#snippet header()}
     {#if step === 1}
       <ViewToggle

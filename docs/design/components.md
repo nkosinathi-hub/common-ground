@@ -28,29 +28,30 @@ is `SquarePen` and `icon/lock-keyhole` is `LockKeyhole`. No other icon source is
 
 ## Shared components (`src/shared/ui`)
 
-| Figma                              | Id                      | Code                                                                  |
-| ---------------------------------- | ----------------------- | --------------------------------------------------------------------- |
-| Logo                               | `216:7026`              | `Logo.svelte` (and `src/assets/logo.svg` for generated icons)         |
-| Avatar (initial)                   | `198:2428`              | `InitialAvatar.svelte`                                                |
-| Avatar stack                       | `198:2429`              | `AvatarStack.svelte`                                                  |
-| FAB                                | `198:2467`              | `Fab.svelte`                                                          |
-| Chip                               | `199:2489`              | `Chip.svelte`                                                         |
-| Link                               | `200:2477`              | `TextLink.svelte`                                                     |
-| Section header                     | `200:2478`              | `SectionHeader.svelte`                                                |
-| List row                           | `200:2512`              | `ListRow.svelte`                                                      |
-| Step indicator                     | `200:2513`              | `StepIndicator.svelte`                                                |
-| Collapsible                        | `208:3138`              | `CollapsibleGroup.svelte`                                             |
-| Empty state                        | `211:6430`              | `EmptyState.svelte`                                                   |
-| Dropzone                           | `210:4444`              | `Dropzone.svelte`                                                     |
-| Radio card                         | `210:4463`              | `RadioCard.svelte`                                                    |
-| Action row                         | `210:4470`              | `ActionRow.svelte`                                                    |
-| Detail row, Detail row / With icon | `211:4836`, `211:6444`  | `DetailRow.svelte`                                                    |
-| Settings section                   | `211:4765`              | `SettingsSection.svelte`                                              |
-| Contents link                      | `211:9107`              | `ContentsNav.svelte`                                                  |
-| Autosave status                    | `230:7867`              | `AutosaveStatus.svelte`                                               |
-| Dialogs (`162:2026`)               |                         | `DialogShell.svelte`                                                  |
-| Board card                         | `208:7726`              | `board/BoardCard.svelte`                                              |
-| Kanban column, Kanban empty        | `208:7756`, `211:10858` | `board/KanbanColumn.svelte`, moved by drag or `board/MoveMenu.svelte` |
+| Figma                               | Id                      | Code                                                                  |
+| ----------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| Logo                                | `216:7026`              | `Logo.svelte` (and `src/assets/logo.svg` for generated icons)         |
+| Avatar (initial)                    | `198:2428`              | `InitialAvatar.svelte`                                                |
+| Avatar stack                        | `198:2429`              | `AvatarStack.svelte`                                                  |
+| FAB                                 | `198:2467`              | `Fab.svelte`                                                          |
+| Chip                                | `199:2489`              | `Chip.svelte`                                                         |
+| Link                                | `200:2477`              | `TextLink.svelte`                                                     |
+| Section header                      | `200:2478`              | `SectionHeader.svelte`                                                |
+| List row                            | `200:2512`              | `ListRow.svelte`                                                      |
+| Step indicator                      | `200:2513`              | `StepIndicator.svelte`                                                |
+| Collapsible                         | `208:3138`              | `CollapsibleGroup.svelte`                                             |
+| Empty state                         | `211:6430`              | `EmptyState.svelte`                                                   |
+| Dropzone                            | `210:4444`              | `Dropzone.svelte`                                                     |
+| Radio card                          | `210:4463`              | `RadioCard.svelte`                                                    |
+| Action row                          | `210:4470`              | `ActionRow.svelte`                                                    |
+| Detail row, Detail row / With icon  | `211:4836`, `211:6444`  | `DetailRow.svelte`                                                    |
+| Settings section                    | `211:4765`              | `SettingsSection.svelte`                                              |
+| Contents link                       | `211:9107`              | `ContentsNav.svelte`                                                  |
+| Autosave status                     | `230:7867`              | `AutosaveStatus.svelte` (in `DialogShell`'s `status`)                 |
+| Add form on phones (M04 "Add item") |                         | `PhoneAdd.svelte`                                                     |
+| Dialogs (`162:2026`)                |                         | `DialogShell.svelte`                                                  |
+| Board card                          | `208:7726`              | `board/BoardCard.svelte`                                              |
+| Kanban column, Kanban empty         | `208:7756`, `211:10858` | `board/KanbanColumn.svelte`, moved by drag or `board/MoveMenu.svelte` |
 
 ## Shell (`src/app/shell`, #73)
 
@@ -74,6 +75,7 @@ Swatch `229:7948`, Option tile `229:7959`, Look preview `230:7804` with Thumb/* 
 | Note card                                                | `211:4794`                                     | notes                       | #76   |
 | Watch title card, Star rating                            | `211:4823`, `211:6831`                         | watch                       | #77   |
 | Catalog add action                                       | `230:7864`                                     | catalog                     | #84   |
+| Title summary (S05, S09, S10)                            |                                                | catalog `TitleSummary`      | #84   |
 | Idea header, Idea toolbar, Idea list card                | `208:7505`, `211:10826`, `211:10844`           | ideas                       | #78   |
 | Comment, Comment composer                                | `210:4396`, `210:4418`                         | comments                    | #78   |
 | Task row, Task card, Stat tile                           | `210:4494`, `211:7776`, `211:8951`             | tasks, budget               | #79   |

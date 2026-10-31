@@ -27,3 +27,6 @@ export const EMPTY_DRAFT: DraftFields = {
 /** "To Ben · edited 2h ago". */
 export const draftLabel = (draft: Pick<Draft, "recipientName" | "updatedAt">, now: Date) =>
   `${draft.recipientName ? `To ${draft.recipientName}` : "No one chosen yet"} · edited ${editedAgo(draft.updatedAt, now)}`
+
+/** The moment a draft save landed, as stored for "Draft saved 14:32". */
+export const savedStamp = (): string => new Date().toISOString()

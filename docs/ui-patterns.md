@@ -55,3 +55,16 @@ How feature UI loads, reloads and shows data. [Conventions](CONVENTIONS.md) has 
   can still see it (they share another space), otherwise `FORMER_MEMBER`. A deleted account is
   always "Former member". Server-joined names (recommendations, notifications, activity) follow
   the same rule because profiles RLS decides what the join returns.
+
+## Dialogs, phones and classes
+
+- Every dialog is `DialogShell` (shared/ui): title, description, Close, then optional `header`
+  (tabs or a segmented control), `status` (beside Close, e.g. `AutosaveStatus`), the body, and a
+  footer of Cancel then one primary. `footerStart` holds a destructive action ("Delete event…");
+  `footer` replaces the footer for steps (Back, Next) or a credit line. Below 640 px it is a
+  bottom sheet. A dialog about a title starts with the catalog's `TitleSummary`.
+- On phones each screen that creates something has one `Fab` above the tab bar; add forms that
+  sit open on desktop wait behind `PhoneAdd` ("+ Add note") so the content keeps the height.
+- `cn` knows the generated `type-*` text styles and the `container/*` widths, so a later
+  `type-h2` or `max-w-dialog-wide` replaces a component's own `text-lg` or `max-w-lg`. A label's
+  "(optional)" comes from `FormField optional`, never typed into the label.
