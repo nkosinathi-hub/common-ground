@@ -1,66 +1,88 @@
 <script lang="ts">
   import { TITLE_MAX } from "@/shared/domain"
   import { Input } from "$lib/components/ui/input"
-  import { Label } from "$lib/components/ui/label"
   import { Textarea } from "$lib/components/ui/textarea"
-  import { FormError } from "@/shared/ui"
+  import { CollapsibleGroup, FormField, SelectField } from "@/shared/ui"
   import { MEDIA_TYPES } from "../domain/labels"
   import { NOTE_MAX, SYNOPSIS_MAX, YEAR_DIGITS } from "../domain/validation"
-  import Choice from "./Choice.svelte"
   import type { TitleFormState } from "./title-form-state.svelte"
 
   interface Props {
     form: TitleFormState
     prefix: string
     errorFor: (field: string) => string | undefined
+    /** Synopsis and where to watch wait under "More details" (S04); open when editing. */
+    folded?: boolean
   }
 
-  let { form, prefix, errorFor }: Props = $props()
+  let { form, prefix, errorFor, folded = false }: Props = $props()
   const id = (name: string) => `${prefix}-${name}`
 </script>
 
-{#snippet problem(field: string)}
-  <FormError id={id(`${field}-error`)} message={errorFor(field)} alert={false} />
+{#snippet details()}
+  <FormField id={id("synopsis")} label="Synopsis" optional error={errorFor("synopsis")}>
+    {#snippet control({ id: control, describedby })}
+      <Textarea
+        id={control}
+        rows={3}
+        maxlength={SYNOPSIS_MAX}
+        aria-describedby={describedby}
+        bind:value={form.synopsis}
+      />
+    {/snippet}
+  </FormField>
+  <FormField
+    id={id("note")}
+    label="Where to watch"
+    optional
+    maxlength={NOTE_MAX}
+    placeholder="For example: DVD on the shelf"
+    hint="Your own note. No verified provider data."
+    bind:value={form.note}
+    error={errorFor("availabilityNote")}
+  />
 {/snippet}
 
-<div class="grid gap-1.5">
-  <Label for={id("title")}>Title</Label>
-  <Input
-    id={id("title")}
-    bind:value={form.title}
-    maxlength={TITLE_MAX}
-    required
-    aria-invalid={errorFor("title") ? true : undefined}
-  />
-  {@render problem("title")}
-</div>
-<div class="grid grid-cols-2 gap-3">
-  <Choice
+<!-- Figma S04: the title, its type and year, then the rest folded away. -->
+<FormField
+  id={id("title")}
+  label="Title"
+  maxlength={TITLE_MAX}
+  placeholder="Enter the title"
+  bind:value={form.title}
+  error={errorFor("title")}
+/>
+<div class="grid grid-cols-2 gap-stack">
+  <SelectField
     id={id("type")}
     label="Type"
     value={form.mediaType}
     options={MEDIA_TYPES}
-    onchange={(value) => (form.mediaType = value || "movie")}
+    onchange={(value) => (form.mediaType = value)}
   />
-  <div class="grid gap-1.5">
-    <Label for={id("year")}>Release year</Label>
-    <Input id={id("year")} inputmode="numeric" maxlength={YEAR_DIGITS} bind:value={form.year} />
-  </div>
+  <FormField
+    id={id("year")}
+    label="Release year"
+    optional
+    placeholder="e.g. 2016"
+    error={errorFor("releaseYear")}
+  >
+    {#snippet control({ id: control, describedby })}
+      <Input
+        id={control}
+        inputmode="numeric"
+        maxlength={YEAR_DIGITS}
+        placeholder="e.g. 2016"
+        aria-describedby={describedby}
+        bind:value={form.year}
+      />
+    {/snippet}
+  </FormField>
 </div>
-{@render problem("releaseYear")}
-<div class="grid gap-1.5">
-  <Label for={id("synopsis")}>Synopsis</Label>
-  <Textarea id={id("synopsis")} rows={3} maxlength={SYNOPSIS_MAX} bind:value={form.synopsis} />
-  {@render problem("synopsis")}
-</div>
-<div class="grid gap-1.5">
-  <Label for={id("note")}>Where to watch (your note)</Label>
-  <Input
-    id={id("note")}
-    maxlength={NOTE_MAX}
-    placeholder="For example: DVD on the shelf"
-    bind:value={form.note}
-  />
-  <p class="text-xs text-muted-foreground">Member-entered note. No verified provider data.</p>
-  {@render problem("availabilityNote")}
-</div>
+{#if folded}
+  <CollapsibleGroup title="More details" meta="Synopsis, where to watch">
+    <div class="flex flex-col gap-stack pt-stack">{@render details()}</div>
+  </CollapsibleGroup>
+{:else}
+  {@render details()}
+{/if}

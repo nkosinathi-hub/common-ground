@@ -72,9 +72,9 @@ describe("WatchPage", () => {
   it("adds a title manually from the add dialog", async () => {
     const { gateway } = setup()
     await fireEvent.click(await screen.findByRole("button", { name: "Add a title" }))
-    await fireEvent.click(await screen.findByRole("button", { name: /add a title manually/i }))
+    await fireEvent.click(await screen.findByRole("radio", { name: "Enter manually" }))
     await fireEvent.input(screen.getByLabelText("Title"), { target: { value: "Home video" } })
-    await fireEvent.click(screen.getByRole("button", { name: "Add to your list" }))
+    await fireEvent.click(screen.getByRole("button", { name: "Add title" }))
     await waitFor(() => expect(gateway.items.map((i) => i.title)).toEqual(["Home video"]))
     expect(await screen.findByRole("link", { name: /Home video/ })).toBeInTheDocument()
   })

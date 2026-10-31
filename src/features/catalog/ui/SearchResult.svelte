@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Check, LoaderCircle, Plus } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { mediaKindLabel, type PickStatus } from "../domain/rules"
+  import { type PickStatus } from "../domain/rules"
   import type { CatalogTitle } from "../domain/types"
   import Poster from "./Poster.svelte"
 
@@ -14,38 +14,31 @@
   let { item, onPick, status = "idle" }: Props = $props()
 </script>
 
-<article class="flex gap-4 py-4">
-  <Poster path={item.posterPath} title={item.title} />
-  <div class="min-w-0 flex-1">
-    <h3 class="text-sm font-medium">{item.title}</h3>
-    <p class="mt-1 text-xs text-muted-foreground">
-      {mediaKindLabel(item.mediaKind)}{item.year ? ` · ${item.year}` : ""}
-    </p>
-    <p class="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+<!-- Figma S03 result row: poster, title, year and story, then Add or the added tick. -->
+<article class="flex items-center gap-inset px-inset py-item">
+  <Poster path={item.posterPath} title={item.title} class="h-15 w-10 shrink-0 rounded-sm" />
+  <div class="flex min-w-0 flex-1 flex-col">
+    <h3 class="type-label text-foreground">{item.title}</h3>
+    {#if item.year}<p class="type-sm text-muted-foreground">{item.year}</p>{/if}
+    <p class="line-clamp-2 type-sm text-foreground">
       {item.synopsis || "A story waiting to be discovered."}
     </p>
-    {#if status === "added"}
-      <p class="mt-2 flex h-8 items-center gap-2 text-sm font-medium text-primary">
-        <Check aria-hidden="true" class="size-4" />
-        Added to your space
-      </p>
-    {:else}
-      <Button
-        variant="ghost"
-        size="sm"
-        class="mt-2 px-0"
-        aria-label={`Add ${item.title}`}
-        disabled={status === "adding"}
-        onclick={() => onPick(item)}
-      >
-        {#if status === "adding"}
-          <LoaderCircle aria-hidden="true" class="animate-spin" />
-          Adding
-        {:else}
-          <Plus aria-hidden="true" />
-          Add to your space
-        {/if}
-      </Button>
-    {/if}
   </div>
+  {#if status === "added"}
+    <p class="flex shrink-0 items-center gap-related type-label-sm text-foreground">
+      <Check aria-hidden="true" class="size-4 text-primary" />Added to your space
+    </p>
+  {:else}
+    <Button
+      variant="outline"
+      size="sm"
+      class="shrink-0"
+      aria-label={`Add ${item.title}`}
+      disabled={status === "adding"}
+      onclick={() => onPick(item)}
+    >
+      {#if status === "adding"}<LoaderCircle aria-hidden="true" class="animate-spin" />Adding
+      {:else}<Plus aria-hidden="true" />Add{/if}
+    </Button>
+  {/if}
 </article>

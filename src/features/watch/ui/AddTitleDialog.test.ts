@@ -47,9 +47,9 @@ function setup(extra: Record<string, unknown> = {}) {
 const search = () => screen.getByRole<HTMLInputElement>("searchbox")
 
 async function addManually(title: string) {
-  await fireEvent.click(await screen.findByRole("button", { name: /add a title manually/i }))
+  await fireEvent.click(await screen.findByRole("radio", { name: "Enter manually" }))
   await fireEvent.input(screen.getByLabelText("Title"), { target: { value: title } })
-  await fireEvent.click(screen.getByRole("button", { name: "Add to your list" }))
+  await fireEvent.click(screen.getByRole("button", { name: "Add title" }))
 }
 
 /** Searches "dune" and adds the first result, waiting for it to be saved. */

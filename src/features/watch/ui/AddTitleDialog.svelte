@@ -1,17 +1,16 @@
 <script lang="ts">
   import { tick, untrack } from "svelte"
-  import { Button } from "$lib/components/ui/button"
-  import * as Dialog from "$lib/components/ui/dialog"
-  import { CatalogSearch } from "@/features/catalog"
   import { buildHash, type Result } from "@/shared/domain"
-  import { toast } from "@/shared/ui"
-  import { INTENTS } from "../domain/labels"
-  import type { SharedIntent, TitleDetailsInput } from "../domain/types"
+  import { DialogShell, toast, ViewToggle } from "@/shared/ui"
+  import type { SharedIntent } from "../domain/types"
   import { AddTitleState } from "./add-title-state.svelte"
+  import { ADD_COPY, ADD_MODES, type AddMode } from "./add-title-copy"
   import AddedList from "./AddedList.svelte"
-  import Choice from "./Choice.svelte"
+  import AddTitleFooter from "./AddTitleFooter.svelte"
+  import CatalogPanel from "./CatalogPanel.svelte"
   import { useWatch } from "./context"
-  import ManualTitleForm from "./ManualTitleForm.svelte"
+  import { ManualAdd } from "./manual-add.svelte"
+  import ManualTitlePanel from "./ManualTitlePanel.svelte"
 
   interface Props {
     open: boolean
@@ -27,13 +26,14 @@
     onAdded,
     defaultIntent = "want_to_watch",
   }: Props = $props()
-  let mode = $state<"search" | "manual">("search")
+  let mode = $state<AddMode>("search")
   let intent = $state<SharedIntent>(untrack(() => defaultIntent))
   const adds = new AddTitleState(
     useWatch().service,
     () => spaceId,
     () => intent,
   )
+  const manual = new ManualAdd((input) => adds.addManual(input))
   let body = $state<HTMLElement>()
   const href = (itemId: string) => buildHash({ name: "watch-item", spaceId, itemId })
 
@@ -52,45 +52,46 @@
     body?.querySelector<HTMLInputElement>('input[type="search"]')?.focus()
   }
 
-  async function addManual(input: TitleDetailsInput): Promise<Result<string>> {
-    const result = await adds.addManual(input)
-    if (result.ok) await settle(result)
-    return result
+  async function addManual() {
+    if (mode === "manual") await settle(await manual.submit())
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Content class="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
-    <Dialog.Header>
-      <Dialog.Title>Add a title</Dialog.Title>
-      <Dialog.Description>
-        Find it in the catalog, or add it by hand if it is not listed.
-      </Dialog.Description>
-    </Dialog.Header>
-    <Choice
-      id="add-intent"
-      label="Add to"
-      value={intent}
-      options={INTENTS}
-      onchange={(value) => (intent = value || "want_to_watch")}
+<!-- Figma S03 (search, add several) and S04 (by hand), one dialog with both. -->
+<DialogShell
+  bind:open
+  wide
+  title={ADD_COPY[mode].title}
+  description={ADD_COPY[mode].description}
+  onsubmit={addManual}
+>
+  {#snippet header()}
+    <ViewToggle
+      label="How to add"
+      class="w-full! [&>*]:flex-1"
+      value={mode}
+      options={ADD_MODES}
+      onchange={(v) => (mode = v)}
     />
-    <div bind:this={body}>
-      <!-- Hidden, not unmounted, while adding by hand, so the search is still there after. -->
-      <div class={mode === "search" ? "" : "hidden"}>
-        <CatalogSearch
-          {spaceId}
-          onPick={async (title) => settle(await adds.pick(title))}
-          onManual={() => (mode = "manual")}
-          statusOf={(title) => adds.statusOf(title)}
-        />
-      </div>
-      {#if mode === "manual"}
-        <ManualTitleForm onSubmit={addManual} onBack={() => (mode = "search")} />
-      {/if}
+  {/snippet}
+  <div bind:this={body} class="flex flex-col gap-stack">
+    <!-- Hidden, not unmounted, while adding by hand, so the search is still there after. -->
+    <div class={mode === "search" ? "flex flex-col gap-stack" : "hidden"}>
+      <CatalogPanel {spaceId} {adds} bind:intent onresult={settle} />
     </div>
+    {#if mode === "manual"}<ManualTitlePanel
+        fields={manual.fields}
+        submission={manual.submission}
+        bind:intent
+      />{/if}
     <AddedList items={adds.added} {href} />
-    <Dialog.Footer>
-      <Button onclick={() => (open = false)}>Done</Button>
-    </Dialog.Footer>
-  </Dialog.Content>
-</Dialog.Root>
+  </div>
+  {#snippet footer()}
+    <AddTitleFooter
+      {mode}
+      canAdd={manual.canAdd}
+      ondone={() => (open = false)}
+      oncancel={() => (mode = "search")}
+    />
+  {/snippet}
+</DialogShell>

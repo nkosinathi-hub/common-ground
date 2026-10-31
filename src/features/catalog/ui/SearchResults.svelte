@@ -16,7 +16,7 @@
   <p class="text-xs text-muted-foreground">Saved results: the catalog could not be reached.</p>
 {/if}
 {#if page.results.length > 0}
-  <ul class="divide-y">
+  <ul class="flex flex-col divide-y divide-border rounded-lg border border-border">
     {#each page.results as item (catalogKey(item))}
       <li><SearchResult {item} {onPick} status={statusOf(item)} /></li>
     {/each}

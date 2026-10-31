@@ -15,8 +15,27 @@ const TYPE_STYLES = [
   "label-sm",
   "overline",
 ]
+// The generated container widths (max-w-dialog-wide, w-field-date) replace a component's own.
+const CONTAINERS = [
+  "content",
+  "aside",
+  "prose",
+  "form",
+  "auth",
+  "auth-field",
+  "dialog",
+  "dialog-wide",
+  "public",
+  "field-date",
+  "field-time",
+  "field-select",
+  "field-number",
+  "field-hex",
+  "field-search",
+]
 const twMerge = extendTailwindMerge<"type-style">({
   extend: {
+    theme: { container: CONTAINERS },
     classGroups: { "type-style": [{ type: TYPE_STYLES }] },
     conflictingClassGroups: {
       "type-style": ["font-size", "font-weight", "leading", "font-family"],

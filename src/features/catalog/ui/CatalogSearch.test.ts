@@ -18,13 +18,12 @@ function setup() {
   const gateway = new FakeCatalogGateway()
   gateway.titles = [title(1, "Dune"), title(2, "Dune: Part Two"), title(3, "Arrival")]
   const onPick = vi.fn()
-  const onManual = vi.fn()
   const provide = () => provideCatalog({ service: new CatalogService(gateway) })
-  const props = { spaceId: SPACE_ID, onPick, onManual }
+  const props = { spaceId: SPACE_ID, onPick }
   render(Provided, { props: { provide, component: CatalogSearch, props } })
   const input = screen.getByRole<HTMLInputElement>("searchbox")
   const type = (value: string) => fireEvent.input(input, { target: { value } })
-  return { gateway, onPick, onManual, input, type }
+  return { gateway, onPick, input, type }
 }
 
 describe("CatalogSearch", () => {
@@ -88,13 +87,11 @@ describe("CatalogSearch", () => {
     expect(screen.getByText("Dune")).toBeInTheDocument()
   })
 
-  it("hands picked titles and manual adds to the caller", async () => {
-    const { onPick, onManual, type } = setup()
+  it("hands picked titles to the caller", async () => {
+    const { onPick, type } = setup()
     await type("arrival")
     await settle(300)
     await fireEvent.click(screen.getByRole("button", { name: "Add Arrival" }))
     expect(onPick).toHaveBeenCalledWith(expect.objectContaining({ id: 3, title: "Arrival" }))
-    await fireEvent.click(screen.getByRole("button", { name: /add a title manually instead/i }))
-    expect(onManual).toHaveBeenCalledOnce()
   })
 })
