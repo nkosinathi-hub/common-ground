@@ -1,5 +1,5 @@
 begin;
-select plan(13);
+select plan(15);
 
 select tests.create_user('ana');
 select tests.create_user('ben');
@@ -38,7 +38,7 @@ select throws_ok($$ select public.delete_my_account() $$, 'P0001',
   'please confirm your password again', 'a stale sign-in must reauthenticate');
 select pg_temp.act_fresh('ana', 5);
 select throws_ok($$ select public.delete_my_account() $$, 'P0001',
-  'transfer ownership or delete your shared spaces first', 'owner of a shared space is blocked');
+  'make someone else an owner or delete your shared spaces first', 'owner of a shared space is blocked');
 
 select pg_temp.act_fresh('cal', 5);
 select lives_ok($$ select public.delete_my_account() $$, 'a solo owner deletes the account');
@@ -62,6 +62,16 @@ select ok(exists (select 1 from public.activity_events where event_type = 'membe
 select tests.reset_role();
 select is((select count(*) from auth.users where id = (select id from who where handle = 'ben'))::int,
   0, 'deleted member auth user is gone');
+
+-- A co-owned space keeps going without the one who leaves (v0.6.1 co-owners).
+select tests.create_user('dee');
+insert into public.space_members (space_id, user_id, role)
+  select id, tests.user_id('dee'), 'owner' from public.spaces where name = 'Shared';
+select pg_temp.act_fresh('ana', 5);
+select lives_ok($$ select public.delete_my_account() $$, 'an owner with a co-owner deletes the account');
+select tests.reset_role();
+select is((select count(*)::int from public.spaces where name = 'Shared'), 1,
+  'the co-owned space stays with the other owner');
 
 select * from finish();
 rollback;

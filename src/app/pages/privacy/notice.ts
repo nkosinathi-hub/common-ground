@@ -58,7 +58,7 @@ export const NOTICE: readonly NoticeSection[] = [
     title: "Deleting your account",
     paragraphs: [
       "You confirm with your password and by typing DELETE. It cannot be undone.",
-      "If you own a space other people still belong to, make someone else the owner or delete that space first. Spaces where you are the only member are deleted with your account.",
+      "If you are the only owner of a space other people still belong to, make someone else an owner or delete that space first. Spaces where you are the only member are deleted with your account.",
       "Your profile, sign-in details and memberships are removed straight away. What you wrote in shared spaces stays for the other members, without your name.",
     ],
   },

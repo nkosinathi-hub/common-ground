@@ -4,7 +4,7 @@
   import type { Member } from "../../domain/space"
 
   interface Props {
-    /** Everyone but the owner. */
+    /** Members who are not owners yet. */
     others: readonly Member[]
     onReview: (member: Member) => void
   }
@@ -18,16 +18,16 @@
   const member = $derived(others.find((m) => m.userId === chosen))
 </script>
 
-<!-- D17 Transfer ownership: pick the new owner, then confirm in a dialog. -->
+<!-- D17 owners: pick a member to make an owner too, then confirm in a dialog. -->
 <SelectField
   id="new-owner"
-  label="New owner"
+  label="Member"
   value={chosen}
   {options}
   onchange={(value) => (chosen = value)}
 />
 <div class="flex justify-end border-t border-border pt-stack">
   <Button variant="outline" disabled={!member} onclick={() => member && onReview(member)}
-    >Review transfer</Button
+    >Make owner</Button
   >
 </div>

@@ -13,9 +13,8 @@
   let { mode, canAdd, ondone, oncancel }: Props = $props()
 </script>
 
-<!-- S03: where the data comes from, then Done; S04: Cancel back to the search, then Add title. -->
+<!-- S03: Done; S04: Cancel back to the search, then Add title. Sources are credited under Account. -->
 {#if mode === "search"}
-  <p class="mr-auto type-xs text-muted-foreground">Title data from TMDB</p>
   <Button onclick={ondone}>Done</Button>
 {:else}
   <Button variant="outline" onclick={oncancel}>Cancel</Button>

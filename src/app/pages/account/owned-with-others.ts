@@ -6,14 +6,16 @@ interface Owned {
   readonly role: string
 }
 
-/** The names of spaces this person owns with other members: account deletion waits on them. */
+/** Spaces where this person is the last owner and others still belong: deletion waits on them. */
 export async function ownedWithOthers(service: SpacesService, spaces: readonly Owned[]) {
   const owned = spaces.filter((space) => space.role === "owner")
   const counts = await Promise.all(owned.map((space) => service.members(space.id)))
   return owned
     .filter((_, i) => {
       const members = counts[i]!
-      return members.ok && members.value.length > 1
+      if (!members.ok) return false
+      const owners = members.value.filter((m) => m.role === "owner").length
+      return members.value.length > 1 && owners === 1
     })
     .map((space) => space.name)
 }

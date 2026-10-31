@@ -49,8 +49,8 @@ export class SpacesService {
   revokeInvite = (inviteId: string) => this.deps.gateway.revokeInvite(inviteId)
   removeMember = (spaceId: string, userId: string) =>
     this.deps.gateway.removeMember(spaceId, userId)
-  transferOwnership = (spaceId: string, userId: string) =>
-    this.deps.gateway.transferOwnership(spaceId, userId)
+  makeOwner = (spaceId: string, userId: string) => this.deps.gateway.makeOwner(spaceId, userId)
+  removeOwner = (spaceId: string, userId: string) => this.deps.gateway.removeOwner(spaceId, userId)
   previewInvite = (token: string) => this.deps.gateway.previewInvite(token)
 
   async invites(spaceId: string): Promise<Result<Invite[]>> {

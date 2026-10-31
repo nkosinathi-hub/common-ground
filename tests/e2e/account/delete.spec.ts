@@ -16,7 +16,7 @@ test("deleting an account keeps shared content without the author", async ({ pag
   await page.getByLabel("Type DELETE to confirm").fill("DELETE")
   await page.getByRole("button", { name: "Delete account…" }).click()
   await expect(page.getByRole("alert")).toHaveText(
-    "transfer ownership or delete your shared spaces first",
+    "make someone else an owner or delete your shared spaces first",
   )
 
   const benPage = await secondMember(browser, ben)

@@ -38,8 +38,12 @@ export class FakeSpacesGateway extends FakeSpaceProfile implements SpacesGateway
     this.calls.push(`remove:${userId}`)
     return ok(undefined)
   }
-  async transferOwnership(_space: string, userId: string) {
-    this.calls.push(`transfer:${userId}`)
+  async makeOwner(_space: string, userId: string) {
+    this.calls.push(`owner:${userId}`)
+    return ok(undefined)
+  }
+  async removeOwner(_space: string, userId: string) {
+    this.calls.push(`member:${userId}`)
     return ok(undefined)
   }
   async delete(spaceId: string, confirmName: string) {

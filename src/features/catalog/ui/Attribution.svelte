@@ -6,7 +6,7 @@
   const logo = `${import.meta.env.BASE_URL}tmdb-logo.svg`
 </script>
 
-<!-- Required by the TMDB and JustWatch terms wherever catalog data shows (docs/runbooks/tmdb-terms.md). -->
+<!-- The TMDB and JustWatch credit, shown once under Account (docs/runbooks/tmdb-terms.md). -->
 <footer
   class={cn(
     "flex flex-col gap-hairline type-xs text-muted-foreground",

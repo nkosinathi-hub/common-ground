@@ -1,4 +1,4 @@
-export type MemberAction = "remove" | "transfer"
+export type MemberAction = "remove" | "makeOwner" | "removeOwner"
 
 export interface MemberActionCopy {
   readonly title: (name: string) => string
@@ -8,7 +8,7 @@ export interface MemberActionCopy {
   readonly done: (name: string) => string
 }
 
-/** What the owner is asked, and told afterwards, for each change to a member. */
+/** What an owner is asked, and told afterwards, for each change to a member. */
 export const MEMBER_ACTIONS: Readonly<Record<MemberAction, MemberActionCopy>> = {
   remove: {
     title: (name) => `Remove ${name}?`,
@@ -18,12 +18,19 @@ export const MEMBER_ACTIONS: Readonly<Record<MemberAction, MemberActionCopy>> = 
     destructive: true,
     done: (name) => `${name} was removed`,
   },
-  transfer: {
-    title: (name) => `Hand ownership to ${name}?`,
+  makeOwner: {
+    title: (name) => `Make ${name} an owner?`,
     description:
-      "You become a regular member. Only the owner manages members and can delete the space.",
-    confirmLabel: "Transfer",
+      "Owners manage members, invitations and settings, and can delete the space. You stay an owner too.",
+    confirmLabel: "Make owner",
     destructive: false,
-    done: (name) => `${name} now owns this space`,
+    done: (name) => `${name} is now an owner`,
+  },
+  removeOwner: {
+    title: (name) => `Remove ${name} as an owner?`,
+    description: "They stay in the space as a member. The space always keeps at least one owner.",
+    confirmLabel: "Remove as owner",
+    destructive: false,
+    done: (name) => `${name} is now a member`,
   },
 }

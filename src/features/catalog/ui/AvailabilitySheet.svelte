@@ -8,10 +8,10 @@
     spaceId: string
     type: CatalogType
     id: number
-    onchecked?: (checkedAt: string) => void
+    title?: string
   }
 
-  let { spaceId, type, id, onchecked }: Props = $props()
+  let { spaceId, type, id, title = "" }: Props = $props()
   let open = $state(false)
   let first = $state<string | null>(null)
 </script>
@@ -29,16 +29,11 @@
   <ChevronRight class="size-4 text-muted-foreground" aria-hidden="true" />
 </button>
 <div class="hidden">
-  <Availability
-    {spaceId}
-    {type}
-    {id}
-    onloaded={(listing) => ((first = listing.firstProvider), onchecked?.(listing.checkedAt))}
-  />
+  <Availability {spaceId} {type} {id} onloaded={(listing) => (first = listing.firstProvider)} />
 </div>
 <Sheet.Root bind:open>
   <Sheet.Content side="bottom" class="max-h-[85dvh] overflow-y-auto p-inset">
     <Sheet.Title class="sr-only">Where to watch</Sheet.Title>
-    <Availability {spaceId} {type} {id} />
+    <Availability {spaceId} {type} {id} {title} />
   </Sheet.Content>
 </Sheet.Root>

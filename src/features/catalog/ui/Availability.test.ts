@@ -7,11 +7,11 @@ import Provided from "@/shared/ui/testing/Provided.svelte"
 import Availability from "./Availability.svelte"
 import { provideCatalog } from "./context"
 
-function setup(configure: (gateway: FakeCatalogGateway) => void) {
+function setup(configure: (gateway: FakeCatalogGateway) => void, title?: string) {
   const gateway = new FakeCatalogGateway()
   configure(gateway)
   const provide = () => provideCatalog({ service: new CatalogService(gateway) })
-  const props = { spaceId: SPACE_ID, type: "movie", id: 1 }
+  const props = { spaceId: SPACE_ID, type: "movie", id: 1, title }
   const view = render(Provided, { props: { provide, component: Availability, props } })
   return { gateway, view }
 }
@@ -40,6 +40,17 @@ describe("Availability", () => {
     expect(
       within(others as HTMLElement).getByText(/other countries \(1 country\)/i),
     ).toBeInTheDocument()
+  })
+
+  it("opens a known service's own search for the title, others keep the listing page", async () => {
+    setup(
+      (g) => g.listings.set("movie:1", listing([region("ZA", "South Africa", "Netflix")], false)),
+      "Ted Lasso",
+    )
+    expect(await screen.findByRole("link", { name: /Netflix.*open Netflix/ })).toHaveAttribute(
+      "href",
+      "https://www.netflix.com/search?q=Ted%20Lasso",
+    )
   })
 
   it("labels the fallback disclosure when South Africa has no listings", async () => {

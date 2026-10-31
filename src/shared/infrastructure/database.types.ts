@@ -1345,6 +1345,9 @@ isOneToOne: false
 "log_watch_session":
 { Args: { "item": string,"member_ids": (string)[],"note"?: string,"watched_on": string }; Returns: string
                            },
+"make_owner":
+{ Args: { "member": string,"target_space": string }; Returns: undefined
+                           },
 "mark_episode_watched":
 { Args: { "item": string,"origin": string,"watched_episode": number,"watched_season": number }; Returns: undefined
                            },
@@ -1382,6 +1385,9 @@ isOneToOne: false
       } },
 "ours":
 { Args: { "": Database["public"]['Tables']["ideas"]['Row'] }; Returns: { error: true } & "the function public.ours with parameter or with a single unnamed json/jsonb parameter, but no matches were found in the schema cache"
+                           },
+"owner_count":
+{ Args: { "target_space": string }; Returns: number
                            },
 "party_episodes":
 { Args: { "counts": (number)[],"e1": number,"e2": number,"s1": number,"s2": number }; Returns: {
@@ -1481,6 +1487,9 @@ isOneToOne: false
 "remove_member":
 { Args: { "member": string,"target_space": string }; Returns: undefined
                            },
+"remove_owner":
+{ Args: { "member": string,"target_space": string }; Returns: undefined
+                           },
 "reply_to_note":
 { Args: { "body": string,"note": string }; Returns: {
               "author_id": string | null,
@@ -1562,6 +1571,9 @@ isOneToOne: false
                            },
 "set_watch_features":
 { Args: { "kind": Database["public"]['Enums']["watch_catalog_type"],"new_genres": (string)[],"new_streamable": boolean,"target_space": string,"tmdb_id": number }; Returns: undefined
+                           },
+"set_watch_opinion":
+{ Args: { "choice"?: Database["public"]['Enums']["watch_opinion"],"target_item": string }; Returns: undefined
                            },
 "shares_space_with":
 { Args: { "other_user": string }; Returns: boolean

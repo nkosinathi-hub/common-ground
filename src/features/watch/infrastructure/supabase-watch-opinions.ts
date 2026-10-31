@@ -29,10 +29,10 @@ export class SupabaseWatchOpinions implements WatchOpinionGateway {
     )
   }
 
-  setOpinion(spaceId: string, itemId: string, opinion: Opinion | null) {
-    if (opinion === null)
-      return done(this.db.from("watch_opinions").delete().eq("watch_item_id", itemId))
-    const row = { space_id: spaceId, watch_item_id: itemId, opinion }
-    return done(this.db.from("watch_opinions").upsert(row, { onConflict: "user_id,watch_item_id" }))
+  /** set_watch_opinion finds the title's space and updates only the opinion; null clears it. */
+  setOpinion(_spaceId: string, itemId: string, opinion: Opinion | null) {
+    return done(
+      this.db.rpc("set_watch_opinion", { target_item: itemId, choice: opinion ?? undefined }),
+    )
   }
 }

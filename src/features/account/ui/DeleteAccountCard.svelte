@@ -41,7 +41,8 @@
         <Alert.Root role="note">
           <Lock aria-hidden="true" />
           <Alert.Description>
-            You own {blockers.join(", ")}. Transfer ownership or delete {blockers.length === 1
+            You are the only owner of {blockers.join(", ")}. Make someone else an owner or delete {blockers.length ===
+            1
               ? "that space"
               : "those spaces"} first.
           </Alert.Description>

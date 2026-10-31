@@ -6,9 +6,10 @@
     regions: readonly Region[]
     /** True when South Africa has no listings and these countries are the fallback. */
     fallback: boolean
+    title: string
   }
 
-  let { regions, fallback }: Props = $props()
+  let { regions, fallback, title }: Props = $props()
 
   const count = $derived(`${regions.length} ${regions.length === 1 ? "country" : "countries"}`)
 </script>
@@ -27,7 +28,7 @@
       {#each regions as region (region.code)}
         <section aria-label={region.name}>
           <h4 class="mb-3 type-label">{region.name}</h4>
-          <RegionListing {region} />
+          <RegionListing {region} {title} />
         </section>
       {/each}
     </div>

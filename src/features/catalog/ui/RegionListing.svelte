@@ -1,10 +1,13 @@
 <script lang="ts">
   import { ArrowUpRight, Tv } from "@lucide/svelte"
   import type { ProviderCategoryKey, Region } from "../domain/types"
+  import { providerLink } from "../domain/provider-links"
   import { safeHref } from "./safe-href"
 
-  let { region }: { region: Region } = $props()
-  const href = $derived(safeHref(region.link))
+  let { region, title = "" }: { region: Region; title?: string } = $props()
+  const listing = $derived(safeHref(region.link))
+  // A known service opens its own search for the title; others keep the region's listing page.
+  const hrefFor = (provider: string) => (title && providerLink(provider, title)) || listing
   const HOW: Record<ProviderCategoryKey, string> = {
     flatrate: "Stream with subscription",
     free: "Stream free",
@@ -14,8 +17,8 @@
   }
 </script>
 
-<!-- Provider row (287:9578): the whole row is the link to the region's watch options. -->
-{#snippet row(provider: string, how: string)}
+<!-- Provider row (287:9578): the whole row opens the service, or the region's listing page. -->
+{#snippet row(provider: string, how: string, href: string | null)}
   <span class="flex size-10 shrink-0 items-center justify-center rounded-md bg-foreground">
     <Tv class="size-5 text-background" aria-hidden="true" />
   </span>
@@ -31,18 +34,23 @@
     <ul aria-label={`${category.label} in ${region.name}`}>
       {#each category.providers as provider (provider)}
         {@const how = HOW[category.key] ?? category.label}
+        {@const href = hrefFor(provider)}
         <li>
           {#if href}
             <a
               {href}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="{provider}, {how}: watch options in {region.name}"
+              aria-label={href === listing
+                ? `${provider}, ${how}: watch options in ${region.name}`
+                : `${provider}, ${how}: open ${provider}`}
               class="flex min-h-14 items-center gap-item rounded-md outline-none hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/20"
-              >{@render row(provider, how)}</a
+              >{@render row(provider, how, href)}</a
             >
           {:else}
-            <div class="flex min-h-14 items-center gap-item">{@render row(provider, how)}</div>
+            <div class="flex min-h-14 items-center gap-item">
+              {@render row(provider, how, href)}
+            </div>
           {/if}
         </li>
       {/each}

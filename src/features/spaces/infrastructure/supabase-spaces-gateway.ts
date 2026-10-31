@@ -62,8 +62,10 @@ export class SupabaseSpacesGateway implements SpacesGateway {
   leave = (spaceId: string) => done(this.db.rpc("leave_space", { target_space: spaceId }))
   removeMember = (spaceId: string, userId: string) =>
     done(this.db.rpc("remove_member", { target_space: spaceId, member: userId }))
-  transferOwnership = (spaceId: string, userId: string) =>
-    done(this.db.rpc("transfer_ownership", { target_space: spaceId, new_owner: userId }))
+  makeOwner = (spaceId: string, userId: string) =>
+    done(this.db.rpc("make_owner", { target_space: spaceId, member: userId }))
+  removeOwner = (spaceId: string, userId: string) =>
+    done(this.db.rpc("remove_owner", { target_space: spaceId, member: userId }))
   delete = (spaceId: string, confirmName: string) =>
     done(this.db.rpc("delete_space", { target_space: spaceId, confirm_name: confirmName }))
 

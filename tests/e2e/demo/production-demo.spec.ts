@@ -16,6 +16,8 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await page.getByRole("link", { name: /Ted Lasso poster/ }).click()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
   await expect(page.getByRole("button", { name: "Play an episode" }).first()).toBeVisible()
+  // Sources and freshness are credited under Account, not on the title page.
+  await expect(page.getByText(/Listings from/)).toHaveCount(0)
   // Phones put the discussion on its own tab; wide screens show it beside progress.
   const discussion = page.getByRole("tab", { name: "Discussion" })
   if (await discussion.isVisible()) await discussion.click()

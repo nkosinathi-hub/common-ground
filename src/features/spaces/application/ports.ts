@@ -38,7 +38,10 @@ export interface SpacesGateway extends SpaceProfileGateway {
   knownPeople(): Promise<Result<MemberRef[]>>
   leave(spaceId: string): Promise<Result<void>>
   removeMember(spaceId: string, userId: string): Promise<Result<void>>
-  transferOwnership(spaceId: string, userId: string): Promise<Result<void>>
+  /** Adds an owner; a space can have several (v0.6.1). */
+  makeOwner(spaceId: string, userId: string): Promise<Result<void>>
+  /** Makes an owner a member again, while another owner remains. */
+  removeOwner(spaceId: string, userId: string): Promise<Result<void>>
   delete(spaceId: string, confirmName: string): Promise<Result<void>>
   invites(spaceId: string): Promise<Result<InviteRecord[]>>
   createInvite(spaceId: string): Promise<Result<string>>

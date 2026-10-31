@@ -15,18 +15,19 @@
     spaceId: string
     type: CatalogType
     id: number
-    /** Once loaded: when TMDB was asked (the page's listings line) and the first provider here. */
-    onloaded?: (listing: { checkedAt: string; firstProvider: string | null }) => void
+    /** The title, so each service row can search its own site for it. */
+    title?: string
+    /** Once loaded: the first provider here, for the phone's "Where to watch" row. */
+    onloaded?: (listing: { firstProvider: string | null }) => void
   }
 
-  let { spaceId, type, id, onloaded }: Props = $props()
+  let { spaceId, type, id, title = "", onloaded }: Props = $props()
 
   const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
   $effect(() => {
-    const checkedAt = listing.details?.checkedAt
     const firstProvider = split?.home?.categories[0]?.providers[0] ?? null
-    if (checkedAt) untrack(() => onloaded?.({ checkedAt, firstProvider }))
+    if (listing.details) untrack(() => onloaded?.({ firstProvider }))
   })
 
   $effect(() => {
@@ -70,8 +71,8 @@
       </p>
     {/if}
     {#if listing.details && split}
-      {#if split.home}<RegionListing region={split.home} />{/if}
-      <OtherCountries regions={split.others} fallback={split.fallback} />
+      {#if split.home}<RegionListing region={split.home} {title} />{/if}
+      <OtherCountries regions={split.others} fallback={split.fallback} {title} />
       {#if listing.details.stale}
         <p class="flex flex-wrap items-center gap-related type-xs text-muted-foreground">
           <Badge variant="outline">Stale</Badge>
