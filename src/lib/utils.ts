@@ -1,5 +1,28 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+// Local change: the generated type-* text styles set size, weight, leading and family together,
+// so a later type-* replaces a component's default text-lg or font-semibold.
+const TYPE_STYLES = [
+  "display",
+  "h1",
+  "h2",
+  "h3",
+  "body",
+  "sm",
+  "xs",
+  "label",
+  "label-sm",
+  "overline",
+]
+const twMerge = extendTailwindMerge<"type-style">({
+  extend: {
+    classGroups: { "type-style": [{ type: TYPE_STYLES }] },
+    conflictingClassGroups: {
+      "type-style": ["font-size", "font-weight", "leading", "font-family"],
+    },
+  },
+})
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

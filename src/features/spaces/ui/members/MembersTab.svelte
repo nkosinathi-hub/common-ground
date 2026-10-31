@@ -20,6 +20,7 @@
 
 <!-- Figma D17 (owner) and D17b (member): members, invitations, then transfer and danger. -->
 <SettingsSection
+  id="settings-members"
   title="Members"
   description={owner
     ? "Only current members can see this space. Removing someone takes effect immediately."
