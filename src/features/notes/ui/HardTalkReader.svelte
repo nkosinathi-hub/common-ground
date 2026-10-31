@@ -1,6 +1,7 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import * as Dialog from "$lib/components/ui/dialog"
+  import { Button } from "$lib/components/ui/button"
+  import { DialogShell } from "@/shared/ui"
   import {
     authorStatus,
     filledSections,
@@ -15,7 +16,6 @@
   import GentleResponses from "./GentleResponses.svelte"
   import HardTalkThread from "./HardTalkThread.svelte"
   import type { NotesState } from "./notes-state.svelte"
-  import { SHEET } from "./sheet"
 
   interface Props {
     open: boolean
@@ -52,30 +52,28 @@
   }
 </script>
 
-<Dialog.Root bind:open>
-  <Dialog.Content class={SHEET}>
-    <Dialog.Header>
-      <Dialog.Title>{mine ? `What you shared with ${to}` : `From ${note.authorName}`}</Dialog.Title>
-      <Dialog.Description>
-        {mine ? authorStatus(note) : "Take your time. There's no rush to respond."}
-      </Dialog.Description>
-    </Dialog.Header>
-    <div class="grid gap-4">
-      {#each filledSections(note.sections) as [key, text] (key)}
-        <section class="grid gap-1">
-          <h3 class="text-sm font-medium text-muted-foreground">{SECTION_COPY[key].label}</h3>
-          <p class="whitespace-pre-wrap">{text}</p>
-        </section>
-      {/each}
-      {#each lines as line (line)}<p class="text-sm italic">{line}</p>{/each}
-      {#if !mine}
-        <GentleResponses
-          respond={(kind, days) => respond(note, kind, days)}
-          onResponded={(k) => (latest = k)}
-        />
-      {/if}
-      {#if latest === "talk"}<p class="rounded-lg bg-secondary p-3 text-sm">{TALK_TIP}</p>{/if}
-      <HardTalkThread {note} {notes} {mine} />
-    </div>
-  </Dialog.Content>
-</Dialog.Root>
+<!-- The reader of "Something on my mind": each part, what they hope for, then gentle answers. -->
+<DialogShell
+  bind:open
+  wide
+  title={mine ? `What you shared with ${to}` : `From ${note.authorName}`}
+  description={mine ? authorStatus(note) : "Take your time. There's no rush to respond."}
+>
+  {#each filledSections(note.sections) as [key, text] (key)}
+    <section class="flex flex-col gap-hairline">
+      <h3 class="type-label-sm text-muted-foreground">{SECTION_COPY[key].label}</h3>
+      <p class="type-body whitespace-pre-wrap text-foreground">{text}</p>
+    </section>
+  {/each}
+  {#each lines as line (line)}<p class="type-sm text-muted-foreground italic">{line}</p>{/each}
+  {#if !mine}
+    <GentleResponses
+      respond={(kind, days) => respond(note, kind, days)}
+      onResponded={(k) => (latest = k)}
+    />
+  {/if}
+  {#if latest === "talk"}<p class="rounded-md bg-secondary p-item type-sm">{TALK_TIP}</p>{/if}
+  <HardTalkThread {note} {notes} {mine} />
+  {#snippet footer()}<Button variant="outline" onclick={() => (open = false)}>Close</Button
+    >{/snippet}
+</DialogShell>
