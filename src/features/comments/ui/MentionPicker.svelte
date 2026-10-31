@@ -34,7 +34,7 @@
   }
 </script>
 
-<div class="grid gap-2 rounded-lg border p-2" role="group" aria-label="Mention a member">
+<div class="grid gap-related rounded-lg border p-2" role="group" aria-label="Mention a member">
   <Input
     bind:ref={input}
     type="search"
@@ -44,7 +44,7 @@
     onkeydown={keydown}
   />
   {#if options.length === 0}
-    <p class="px-2 text-sm text-muted-foreground">No one else to mention</p>
+    <p class="px-2 type-sm text-muted-foreground">No one else to mention</p>
   {:else}
     <ul class="grid" aria-label="Members">
       {#each options as member (member.id)}

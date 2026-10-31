@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { InitialAvatar } from "@/shared/ui"
   import { Badge } from "$lib/components/ui/badge"
   import { memberName, type MemberRef } from "@/shared/domain"
   import type { SessionView } from "../application/party-session"
@@ -26,16 +27,20 @@
   }
 </script>
 
-<section aria-labelledby="party-people" class="space-y-2 rounded-xl border p-4">
-  <h2 id="party-people" class="font-semibold">Who is in</h2>
-  <ul class="space-y-1">
+<section
+  aria-labelledby="party-people"
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+>
+  <h2 id="party-people" class="type-h3 text-foreground">Who is in</h2>
+  <ul class="flex flex-col">
     {#each everyone as userId (userId)}
-      <li class="flex items-center justify-between gap-2 text-sm">
-        <span class="flex items-center gap-2">
+      <li class="flex items-center gap-item py-related">
+        <InitialAvatar name={memberName(names, userId)} size="sm" decorative />
+        <span class="flex min-w-0 flex-1 items-center gap-related type-label text-foreground">
           {memberName(names, userId)}
           {#if view.state.hostId === userId}<Badge variant="secondary">Host</Badge>{/if}
         </span>
-        <span class="text-muted-foreground">{status(userId)}</span>
+        <span class="type-sm text-muted-foreground">{status(userId)}</span>
       </li>
     {/each}
   </ul>

@@ -25,14 +25,17 @@
   const left = $derived(phase === "playing" ? countdownAt(view.state.timeline.at, now) : 0)
 </script>
 
-<section aria-label="Watching elsewhere" class="space-y-3 rounded-xl border p-4">
+<section
+  aria-label="Watching elsewhere"
+  class="flex flex-col gap-stack rounded-lg border border-border bg-card p-card"
+>
   <PhaseLine {view} />
   {#if left > 0}
-    <p role="status" class="text-center text-5xl font-semibold tabular-nums">{left}</p>
+    <p role="status" class="text-center type-display text-primary tabular-nums">{left}</p>
   {:else if phase === "playing"}
-    <p role="status" class="text-center text-lg font-semibold">Press play now</p>
+    <p role="status" class="text-center type-h3 text-foreground">Press play now</p>
   {/if}
-  <div class="flex flex-wrap gap-2">
+  <div class="flex flex-wrap gap-related">
     {#if !view.ready}
       <Button onclick={() => room.ready()}>We are on {what}</Button>
     {/if}

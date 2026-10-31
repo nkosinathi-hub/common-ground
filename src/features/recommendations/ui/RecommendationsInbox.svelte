@@ -37,17 +37,17 @@
   }
 </script>
 
-<section class="grid gap-3" aria-label="Recommended to you">
+<section class="grid gap-item" aria-label="Recommended to you">
   {#if items.length > 0}
-    <ul class="grid gap-2">
+    <ul class="grid gap-related">
       {#each items as rec (rec.id)}
-        <li class="grid gap-1 rounded-lg border p-3">
+        <li class="grid gap-1 rounded-lg border p-item">
           <a class="font-medium underline-offset-4 hover:underline" href={itemHref(rec.itemId)}
             >{rec.itemTitle ?? "A saved title"}</a
           >
-          <p class="text-xs text-muted-foreground">From {rec.senderName ?? FORMER_MEMBER}</p>
-          {#if rec.note}<p class="text-sm break-words whitespace-pre-wrap">{rec.note}</p>{/if}
-          <div class="flex gap-2">
+          <p class="type-xs text-muted-foreground">From {rec.senderName ?? FORMER_MEMBER}</p>
+          {#if rec.note}<p class="type-sm break-words whitespace-pre-wrap">{rec.note}</p>{/if}
+          <div class="flex gap-related">
             <Button
               size="sm"
               aria-label={`Acknowledge ${rec.itemTitle ?? "recommendation"}`}

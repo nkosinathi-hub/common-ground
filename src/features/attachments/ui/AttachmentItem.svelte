@@ -53,7 +53,7 @@
   }
 </script>
 
-<li class="flex items-center gap-3 py-2">
+<li class="flex items-center gap-item py-related">
   {#if kindOf(attachment.mime) === "image"}
     <div class="size-16 shrink-0 overflow-hidden rounded-lg bg-muted">
       {#if preview}
@@ -71,9 +71,9 @@
     </div>
   {/if}
   <div class="min-w-0 flex-1">
-    <p class="truncate text-sm font-medium">{attachment.filename}</p>
-    <p class="text-xs text-muted-foreground">{formatBytes(attachment.bytes)}</p>
-    {#if failed}<p class="text-xs text-destructive">
+    <p class="truncate type-label">{attachment.filename}</p>
+    <p class="type-xs text-muted-foreground">{formatBytes(attachment.bytes)}</p>
+    {#if failed}<p class="type-xs text-destructive">
         Could not open this file. Try again later.
       </p>{/if}
   </div>

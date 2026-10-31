@@ -20,7 +20,7 @@
 
 <div class="relative aspect-video w-full flex-1 overflow-hidden rounded-md bg-black">
   {#if !source}
-    <p class="grid h-full place-items-center p-4 text-center text-sm text-white" role="alert">
+    <p class="grid h-full place-items-center p-inset text-center type-sm text-white" role="alert">
       None of the sources for this title would play. Try again later.
     </p>
   {:else}

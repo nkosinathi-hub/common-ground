@@ -80,7 +80,7 @@
   bind:this={container}
   aria-label={`Player: ${title}`}
   tabindex="-1"
-  class={theatre ? "fixed inset-0 z-50 flex flex-col bg-black p-2" : "space-y-2"}
+  class={theatre ? "fixed inset-0 z-50 flex flex-col bg-black p-2" : "flex flex-col gap-related"}
   {onkeydown}
 >
   <PlayerSurface {source} {captions} {title} bind:video onfail={fail} />

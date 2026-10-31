@@ -31,7 +31,7 @@
           </div>
         </TitlePlaybackScope>
       {:else}
-        <p class="rounded-xl border p-4 text-sm text-muted-foreground">
+        <p class="rounded-lg border p-inset type-sm text-muted-foreground">
           This title has no catalog entry, so nothing can play it in the app.
         </p>
       {/if}

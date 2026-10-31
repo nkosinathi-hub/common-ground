@@ -27,7 +27,9 @@
     </div>
   </header>
   <main
-    class="mx-auto flex w-full max-w-[calc(var(--container-public)+2*var(--gutter))] flex-1 items-start justify-center gap-section px-gutter py-stack sm:items-center sm:py-16 lg:justify-between"
+    class="mx-auto flex w-full max-w-[calc(var(--container-public)+2*var(--gutter))] flex-1 items-start justify-center gap-section px-gutter py-stack sm:items-center sm:py-16 {hero
+      ? 'lg:justify-between'
+      : ''}"
   >
     {#if hero}
       <p class="hidden max-w-100 type-display text-foreground lg:block">{hero}</p>

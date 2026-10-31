@@ -26,13 +26,13 @@
   }
 </script>
 
-<form class="grid gap-2" onsubmit={save}>
+<form class="grid gap-related" onsubmit={save}>
   <Textarea aria-label="Edit comment" bind:value={draft} maxlength={BODY_MAX} />
-  <label class="flex items-center gap-2 text-sm">
+  <label class="flex items-center gap-related type-sm">
     <input type="checkbox" class="accent-primary" bind:checked={draftSpoiler} />
     Contains spoilers
   </label>
-  <div class="flex gap-2">
+  <div class="flex gap-related">
     <Button type="submit" size="sm">Save</Button>
     <Button size="sm" variant="ghost" onclick={onDone}>Cancel</Button>
   </div>

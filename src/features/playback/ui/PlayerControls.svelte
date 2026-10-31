@@ -26,7 +26,7 @@
 </script>
 
 <!-- Overlay controls live in the page, so theatre mode keeps them visible (iOS fullscreen hides them). -->
-<div class="flex flex-wrap items-center gap-2">
+<div class="flex flex-wrap items-center gap-related">
   <SkipButton segments={props.source?.segments ?? []} time={props.time} onskip={props.onskip} />
   {#if props.next}
     <NextUpCountdown next={props.next} due={props.due} onplay={props.onnext} />

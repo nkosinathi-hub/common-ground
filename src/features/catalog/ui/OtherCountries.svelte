@@ -14,8 +14,8 @@
 </script>
 
 {#if regions.length > 0}
-  <details class="rounded-lg border bg-background p-3">
-    <summary class="cursor-pointer text-xs font-medium text-primary">
+  <details class="rounded-lg border bg-background p-item">
+    <summary class="cursor-pointer type-label-sm text-primary">
       {#if fallback}
         No availability listed for South Africa
         <span class="font-normal text-muted-foreground">(listings in {count})</span>
@@ -23,10 +23,10 @@
         Other countries ({count})
       {/if}
     </summary>
-    <div class="mt-4 max-h-72 space-y-5 overflow-y-auto">
+    <div class="mt-4 flex max-h-72 flex-col gap-related overflow-y-auto">
       {#each regions as region (region.code)}
         <section aria-label={region.name}>
-          <h4 class="mb-3 text-sm font-medium">{region.name}</h4>
+          <h4 class="mb-3 type-label">{region.name}</h4>
           <RegionListing {region} />
         </section>
       {/each}
@@ -34,8 +34,8 @@
   </details>
 {:else if fallback}
   <div>
-    <p class="text-sm font-medium">No availability listed for South Africa</p>
-    <p class="text-xs text-muted-foreground">
+    <p class="type-label">No availability listed for South Africa</p>
+    <p class="type-xs text-muted-foreground">
       The source has no provider listings for this title yet.
     </p>
   </div>

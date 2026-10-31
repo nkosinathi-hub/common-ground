@@ -14,7 +14,7 @@
 
 {#if drafts.length > 0}
   <section class="grid gap-1" aria-labelledby="your-drafts">
-    <h3 id="your-drafts" class="text-sm font-medium">Your drafts ({drafts.length})</h3>
+    <h3 id="your-drafts" class="type-label">Your drafts ({drafts.length})</h3>
     <ul class="grid gap-1">
       {#each drafts as draft (draft.id)}
         <li>

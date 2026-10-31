@@ -46,7 +46,7 @@
     <DropdownMenu.Label>Your spaces</DropdownMenu.Label>
     {#each store.spaces as space (space.id)}
       <DropdownMenu.Item onSelect={() => navigate({ name: "home", spaceId: space.id })}>
-        <SpaceAvatar {space} class="size-6 text-xs" />
+        <SpaceAvatar {space} class="size-6 type-xs" />
         <span class="flex-1 truncate">{space.name}</span>
         {#if space.id === active?.id}<Check class="size-4" aria-label="Current" />{/if}
       </DropdownMenu.Item>

@@ -37,20 +37,22 @@
 
 <!-- An envelope: who and how it stands, never a word of what it says. -->
 <li
-  class="flex flex-col gap-2 rounded-lg border p-3 {unread ? 'border-primary/40 bg-secondary' : ''}"
+  class="flex flex-col gap-related rounded-lg border p-item {unread
+    ? 'border-primary/40 bg-secondary'
+    : ''}"
   data-testid="home-note"
 >
-  <div class="flex flex-wrap items-center gap-2 text-sm">
+  <div class="flex flex-wrap items-center gap-related type-sm">
     <Mail class="size-4 text-muted-foreground" aria-hidden="true" />
     <span class="font-medium">{hardTalkTitle(note, me)}</span>
     {#if unread}<Badge>New</Badge><span class="sr-only">Unread</span>{/if}
   </div>
-  <p class="text-sm text-muted-foreground">
+  <p class="type-sm text-muted-foreground">
     {#if mine}{authorStatus(note)}{:else if latest}You: {responseLabel(latest.kind)}{:else}Take your
       time.{/if}
   </p>
-  {#if latest?.kind === "talk"}<p class="text-xs text-muted-foreground">{TALK_TIP}</p>{/if}
-  <div class="flex flex-wrap gap-2">
+  {#if latest?.kind === "talk"}<p class="type-xs text-muted-foreground">{TALK_TIP}</p>{/if}
+  <div class="flex flex-wrap gap-related">
     <Button size="sm" variant="outline" class="min-h-11" onclick={() => (reading = true)}
       >{mine ? "Read what you shared" : "Open"}</Button
     >

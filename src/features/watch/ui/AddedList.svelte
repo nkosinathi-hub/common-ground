@@ -10,7 +10,7 @@
 </script>
 
 <!-- One live region announces each add; it stays mounted so the first add is heard too. -->
-<p role="status" class="text-sm text-muted-foreground empty:hidden">
+<p role="status" class="type-sm text-muted-foreground empty:hidden">
   {#if items.length > 0}
     Added:
     {#each items as item, index (item.id)}

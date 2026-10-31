@@ -25,9 +25,9 @@
 </script>
 
 {#if due && !dismissed}
-  <div class="rounded-md bg-background/90 p-3 text-sm shadow" role="status" aria-live="polite">
+  <div class="rounded-md bg-background/90 p-item type-sm shadow" role="status" aria-live="polite">
     <p>Next up, {label}{countdown.running ? `, in ${countdown.remaining} s` : ""}</p>
-    <div class="mt-2 flex gap-2">
+    <div class="mt-2 flex gap-related">
       <Button size="sm" onclick={() => onplay(next)}>Play now</Button>
       <Button
         size="sm"

@@ -9,8 +9,11 @@ create temp table ctx (a uuid, b uuid, revoked text, used text, invite uuid);
 grant all on ctx to authenticated;
 insert into ctx (a) select public.create_space('Ana space', 'blank');
 update ctx set revoked = public.create_invite(a), used = public.create_invite(a);
-update ctx set invite = (select id from public.space_invites where revoked_at is null
-  order by created_at limit 1);
+-- Both links share one transaction's now(), so pick the one to revoke by its token, not its time.
+select tests.reset_role();
+update ctx set invite = (select id from public.space_invites
+  where token_hash = public.hash_invite_token((select revoked from ctx)));
+select tests.act_as('inv_ana');
 select tests.act_as('inv_bob');
 update ctx set b = public.create_space('Bob space', 'blank');
 

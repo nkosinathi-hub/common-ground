@@ -13,7 +13,7 @@
 </script>
 
 {#if page.stale}
-  <p class="text-xs text-muted-foreground">Saved results: the catalog could not be reached.</p>
+  <p class="type-xs text-muted-foreground">Saved results: the catalog could not be reached.</p>
 {/if}
 {#if page.results.length > 0}
   <ul class="flex flex-col divide-y divide-border rounded-lg border border-border">
@@ -22,5 +22,5 @@
     {/each}
   </ul>
 {:else}
-  <p class="py-10 text-center text-sm text-muted-foreground">No titles found on this page.</p>
+  <p class="py-10 text-center type-sm text-muted-foreground">No titles found on this page.</p>
 {/if}

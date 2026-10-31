@@ -40,12 +40,12 @@
       >Choose which version to keep for each field that differs. Nothing is lost.</Card.Description
     >
   </Card.Header>
-  <Card.Content class="flex flex-col gap-4">
+  <Card.Content class="flex flex-col gap-stack">
     {#each fields as field (field)}
-      <fieldset class="flex flex-col gap-2">
-        <legend class="text-sm font-medium">{BRIEF_LABELS[field]}</legend>
+      <fieldset class="flex flex-col gap-related">
+        <legend class="type-label">{BRIEF_LABELS[field]}</legend>
         {#each sides(field) as [key, label, text] (key)}
-          <label class="flex items-start gap-2 rounded-md border p-2 text-sm">
+          <label class="flex items-start gap-related rounded-md border p-2 type-sm">
             <input
               type="radio"
               name={field}
@@ -59,7 +59,7 @@
       </fieldset>
     {/each}
   </Card.Content>
-  <Card.Footer class="gap-2">
+  <Card.Footer class="gap-related">
     <Button onclick={resolve}>Save merged overview</Button>
     <Button variant="outline" onclick={onCancel}>Keep editing</Button>
   </Card.Footer>

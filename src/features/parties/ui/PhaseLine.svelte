@@ -16,7 +16,7 @@
   } as const
 </script>
 
-<p class="text-sm font-medium" aria-live="polite">
+<p class="type-label text-foreground" aria-live="polite">
   {LABELS[view.state.phase]}
   {#if !view.connected}<span class="text-muted-foreground"> (reconnecting)</span>{/if}
 </p>
