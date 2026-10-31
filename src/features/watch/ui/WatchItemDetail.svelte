@@ -2,7 +2,6 @@
   import { untrack, type Snippet } from "svelte"
   import { MediaQuery } from "svelte/reactivity"
   import * as Tabs from "$lib/components/ui/tabs"
-  import { ListingsNote } from "@/features/catalog"
   import { buildHash, type TitleTab } from "@/shared/domain"
   import { AsyncView, navigate, pageTitle } from "@/shared/ui"
   import type { DiscussionFrame } from "../domain/title-facts"
@@ -33,7 +32,6 @@
   let { spaceId, itemId, backHref, tab, ...slots }: Props = $props()
   const page = untrack(() => new TitlePage(useWatch(), spaceId, itemId))
   const wide = new MediaQuery("min-width: 768px")
-  let checkedAt = $state<string | null>(null)
   const shown = $derived(tab === "discussion" ? "discussion" : "progress")
   const open = (next: string) =>
     navigate(buildHash({ name: "watch-item", spaceId, itemId, tab: next as TitleTab }))
@@ -59,10 +57,9 @@
     <div class="grid items-start gap-columns lg:grid-cols-[minmax(0,1fr)_var(--measure-aside)]">
       <div class="min-w-0">{@render slots.discussion?.(page.frame)}</div>
       <aside class="flex min-w-0 flex-col gap-stack" aria-label="Progress and where to watch">
-        <TitleAside {page} {item} wide onchecked={(at) => (checkedAt = at)} />
+        <TitleAside {page} {item} wide />
       </aside>
     </div>
-    <ListingsNote {checkedAt} />
   {:else}
     <Tabs.Root value={shown} onValueChange={open} class="flex flex-col gap-stack">
       <Tabs.List variant="line" aria-label="Title" class="w-full justify-start">
@@ -70,7 +67,7 @@
         <Tabs.Trigger value="discussion">Discussion</Tabs.Trigger>
       </Tabs.List>
       <Tabs.Content value="progress" class="flex flex-col gap-stack">
-        <TitleAside {page} {item} wide={false} onchecked={(at) => (checkedAt = at)} />
+        <TitleAside {page} {item} wide={false} />
       </Tabs.Content>
       <Tabs.Content value="discussion">{@render slots.discussion?.(page.frame)}</Tabs.Content>
     </Tabs.Root>

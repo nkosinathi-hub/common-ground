@@ -6,9 +6,10 @@ comes from JustWatch. Both require attribution.
 ## What the app must show
 
 Implemented in `src/features/catalog/ui/Attribution.svelte`, rendered once in Account and data
-(`src/app/pages/account/CatalogCredits.svelte`), beside the data export (Nkosi, 2026-10-29). The
-title page carries one quiet line instead: "Listings from TMDB and JustWatch, checked …"
-(`ListingsNote.svelte`), which credits and links both sources where the data shows.
+(`src/app/pages/account/DataTab.svelte`), beside the data export (Nkosi, 2026-10-29). Source and
+freshness lines stay off the screens that show catalog data, the title page and the add-title
+dialog included; they all live in that one credit under Account (Nkosi, 2026-10-31). A stale
+listing still says so where it shows.
 
 - The TMDB logo (`public/tmdb-logo.svg`), linking to https://www.themoviedb.org/, less prominent
   than the app's own branding.

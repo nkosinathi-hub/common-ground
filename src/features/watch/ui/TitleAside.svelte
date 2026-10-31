@@ -9,10 +9,9 @@
     page: TitlePage
     item: WatchItem
     wide: boolean
-    onchecked: (checkedAt: string) => void
   }
 
-  let { page, item, wide, onchecked }: Props = $props()
+  let { page, item, wide }: Props = $props()
 </script>
 
 <!-- D03a aside: progress above the fold, then where to watch (a row with a sheet on phones). -->
@@ -33,7 +32,6 @@
     type={item.catalog.type}
     id={item.catalog.id}
     title={item.title}
-    onloaded={(listing) => onchecked(listing.checkedAt)}
   />
 {:else}
   <AvailabilitySheet
@@ -41,6 +39,5 @@
     type={item.catalog.type}
     id={item.catalog.id}
     title={item.title}
-    {onchecked}
   />
 {/if}

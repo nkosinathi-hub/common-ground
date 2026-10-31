@@ -17,8 +17,8 @@
     id: number
     /** The title, so each service row can search its own site for it. */
     title?: string
-    /** Once loaded: when TMDB was asked (the page's listings line) and the first provider here. */
-    onloaded?: (listing: { checkedAt: string; firstProvider: string | null }) => void
+    /** Once loaded: the first provider here, for the phone's "Where to watch" row. */
+    onloaded?: (listing: { firstProvider: string | null }) => void
   }
 
   let { spaceId, type, id, title = "", onloaded }: Props = $props()
@@ -26,9 +26,8 @@
   const listing = new AvailabilityState(useCatalog().service)
   const split = $derived(listing.details ? splitAvailability(listing.details.availability) : null)
   $effect(() => {
-    const checkedAt = listing.details?.checkedAt
     const firstProvider = split?.home?.categories[0]?.providers[0] ?? null
-    if (checkedAt) untrack(() => onloaded?.({ checkedAt, firstProvider }))
+    if (listing.details) untrack(() => onloaded?.({ firstProvider }))
   })
 
   $effect(() => {
