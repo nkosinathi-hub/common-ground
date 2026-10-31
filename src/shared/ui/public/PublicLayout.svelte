@@ -16,7 +16,9 @@
 <!-- Figma Public header (211:8883) over the welcome layout of D19 and D21 to D23. -->
 <div class="flex min-h-dvh flex-col bg-background">
   <header class="border-b border-border">
-    <div class="mx-auto box-content flex h-18 max-w-public items-center gap-item px-gutter">
+    <div
+      class="mx-auto flex h-18 max-w-[calc(var(--container-public)+2*var(--gutter))] items-center gap-item px-gutter"
+    >
       <a href={buildHash({ name: "entry" })} class="flex min-w-0 flex-1 items-center gap-item">
         <Logo size={32} />
         <span class="type-h3 text-foreground">Common Ground</span>
@@ -25,7 +27,7 @@
     </div>
   </header>
   <main
-    class="mx-auto box-content flex w-full max-w-public flex-1 items-center justify-center gap-section px-gutter py-section md:py-16 lg:justify-between"
+    class="mx-auto flex w-full max-w-[calc(var(--container-public)+2*var(--gutter))] flex-1 items-start justify-center gap-section px-gutter py-stack sm:items-center sm:py-16 lg:justify-between"
   >
     {#if hero}
       <p class="hidden max-w-100 type-display text-foreground lg:block">{hero}</p>

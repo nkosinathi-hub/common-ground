@@ -18,7 +18,7 @@
 
 <!-- Figma Auth card (211:8929): 480 wide, 32 inside; the footer line sits under a rule. -->
 <section
-  class="flex w-full max-w-auth flex-col gap-stack rounded-lg border border-border bg-card p-card-auth shadow-sm"
+  class="flex w-full max-w-auth flex-col gap-stack rounded-lg border border-border bg-card p-card shadow-sm sm:p-card-auth"
 >
   {#if backHref}<TextLink href={backHref} icon={ChevronLeft} class="-my-1 w-fit flex-row-reverse"
       >{backLabel}</TextLink
