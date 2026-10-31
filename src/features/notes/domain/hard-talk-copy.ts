@@ -1,13 +1,9 @@
 import type { RemindIn, ResponseKind, ResponseWish, SectionKey, SupportWish } from "./hard-talk"
 
 export const MODES = [
-  { value: "note", label: "A quick note" },
+  { value: "note", label: "Quick note" },
   { value: "hard_talk", label: "Something on my mind" },
 ] as const
-
-export const COMPOSER_INTRO =
-  "Write as much or as little as you like. Every part is optional. Only you can see this until you send it."
-export const TO_HINT = "Write it however it comes, in any language."
 
 export const SECTION_COPY: Record<SectionKey, { label: string; placeholder: string }> = {
   happened: {

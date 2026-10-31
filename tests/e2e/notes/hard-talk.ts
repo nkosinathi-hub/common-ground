@@ -29,10 +29,18 @@ export async function join(
 /** Opens the composer as "Something on my mind" to `to`. */
 export async function startSharing(page: Page, to: string): Promise<Locator> {
   await page.getByRole("button", { name: "Write a note" }).click()
-  const dialog = page.getByRole("dialog", { name: "Write a note" })
+  const dialog = page.getByRole("dialog", { name: COMPOSER })
   await dialog.getByRole("radio", { name: "Something on my mind" }).click()
   await dialog.getByLabel("To", { exact: true }).selectOption({ label: to })
   return dialog
+}
+
+/** The note composer, named for the kind of note it holds. */
+export const COMPOSER = /Leave a little note|Something on my mind/
+
+/** Moves "Something on my mind" on by its Next button. */
+export async function next(dialog: Locator, times = 1): Promise<void> {
+  for (let i = 0; i < times; i++) await dialog.getByRole("button", { name: "Next" }).click()
 }
 
 /** The Home activity card. */

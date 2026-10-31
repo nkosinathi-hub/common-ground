@@ -14,10 +14,12 @@ let cy: Page
 
 async function write(page: Page, to: string, body: string) {
   await page.getByRole("button", { name: "Write a note" }).click()
-  const dialog = page.getByRole("dialog", { name: "Write a note" })
-  await dialog.getByLabel("To", { exact: true }).selectOption({ label: to })
-  await dialog.getByLabel("Note", { exact: true }).fill(body)
-  await dialog.getByRole("button", { name: "Send" }).click()
+  const dialog = page.getByRole("dialog", { name: "Leave a little note" })
+  await dialog
+    .getByRole("radio", { name: to === "Everyone" ? "Everyone" : to, exact: true })
+    .click()
+  await dialog.getByLabel("Your note").fill(body)
+  await dialog.getByRole("button", { name: "Send note" }).click()
   await expect(dialog).toBeHidden()
 }
 

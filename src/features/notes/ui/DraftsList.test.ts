@@ -2,7 +2,7 @@ import { cleanup, fireEvent, screen, waitFor, within } from "@testing-library/sv
 import { afterEach, describe, expect, it } from "vitest"
 import { EMPTY_DRAFT } from "../domain"
 import { notesHarness } from "../testing/notes-harness"
-import { mode, openComposer, renderNotesCard } from "./testing/notes-card"
+import { COMPOSER, mode, next, openComposer, renderNotesCard } from "./testing/notes-card"
 
 async function withDraft() {
   const harness = notesHarness("ana")
@@ -19,12 +19,13 @@ describe("Your drafts", () => {
     const { draftsRepo } = await withDraft()
     const drafts = within(await screen.findByRole("region", { name: "Your drafts (1)" }))
     await fireEvent.click(drafts.getByRole("button", { name: /^To Ben · edited/ }))
-    const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
+    const dialog = within(await screen.findByRole("dialog", { name: COMPOSER }))
     expect(dialog.getByRole("radio", { name: "Something on my mind" })).toHaveAttribute(
       "aria-checked",
       "true",
     )
     expect(dialog.getByLabelText("What's on my mind")).toHaveValue("Sunday")
+    await next(dialog, 2)
     await fireEvent.input(dialog.getByLabelText("What would help"), { target: { value: "Time" } })
     await fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" })
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull())
@@ -35,7 +36,7 @@ describe("Your drafts", () => {
   it("deletes a draft after asking", async () => {
     const { draftsRepo } = await withDraft()
     await fireEvent.click(await screen.findByRole("button", { name: /^To Ben/ }))
-    const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
+    const dialog = within(await screen.findByRole("dialog", { name: COMPOSER }))
     await fireEvent.click(dialog.getByRole("button", { name: "Delete draft" }))
     const confirm = within(await screen.findByRole("alertdialog", { name: "Delete this draft?" }))
     expect(confirm.getByText("It can't be brought back.")).toBeInTheDocument()
@@ -47,9 +48,9 @@ describe("Your drafts", () => {
   it("sending a quick note from a draft takes the draft with it", async () => {
     const { draftsRepo } = await withDraft()
     await fireEvent.click(await screen.findByRole("button", { name: /^To Ben/ }))
-    const dialog = within(await screen.findByRole("dialog", { name: "Write a note" }))
-    await fireEvent.click(dialog.getByRole("radio", { name: "A quick note" }))
-    await fireEvent.click(dialog.getByRole("button", { name: "Send" }))
+    const dialog = within(await screen.findByRole("dialog", { name: COMPOSER }))
+    await fireEvent.click(dialog.getByRole("radio", { name: "Quick note" }))
+    await fireEvent.click(dialog.getByRole("button", { name: "Send note" }))
     expect(await screen.findByText("Sunday")).toBeInTheDocument()
     expect(draftsRepo.rows).toEqual([])
   })
@@ -59,7 +60,8 @@ describe("Your drafts", () => {
     harness.draftsRepo.failSaves = true
     const dialog = await openComposer(harness.services)
     await fireEvent.click(mode(dialog, "Something on my mind"))
-    await fireEvent.input(dialog.getByLabelText("How I feel"), { target: { value: "sad" } })
+    await next(dialog)
+    await fireEvent.click(dialog.getByRole("button", { name: "sad" }))
     await waitFor(() =>
       expect(dialog.getByRole("status")).toHaveTextContent("Couldn't save. Trying again"),
     )

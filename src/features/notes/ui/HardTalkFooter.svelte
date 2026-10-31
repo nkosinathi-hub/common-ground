@@ -1,39 +1,39 @@
 <script lang="ts">
-  import { Lock } from "@lucide/svelte"
+  import { ChevronLeft, ChevronRight, Trash2 } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { ConfirmDialog } from "@/shared/ui"
-  import { SAVE_STATUS } from "../domain"
   import type { ComposerState } from "./composer-state.svelte"
 
   interface Props {
     composer: ComposerState
-    /** Who it goes to, for the button; empty until someone is chosen. */
+    /** Who it goes to, for the last button; empty until someone is chosen. */
     name: string
+    step: number
+    onstep: (step: number) => void
     onDelete: () => void
   }
 
-  let { composer, name, onDelete }: Props = $props()
+  let { composer, name, step, onstep, onDelete }: Props = $props()
   let confirming = $state(false)
 </script>
 
-<div class="flex flex-wrap items-center justify-end gap-2">
-  <p
-    role="status"
-    class="mr-auto flex min-h-5 items-center gap-1.5 text-xs text-muted-foreground"
-    title="Only you can see this"
+<!-- Figma S02 footer: delete the draft, where you are, then Back and Next, or send. -->
+{#if composer.autosave.id}
+  <Button variant="ghost" class="text-destructive" onclick={() => (confirming = true)}
+    ><Trash2 aria-hidden="true" />Delete draft</Button
   >
-    <Lock class="size-3" aria-hidden="true" /><span class="sr-only">Only you can see this.</span>
-    {SAVE_STATUS[composer.autosave.status]}
-  </p>
-  {#if composer.autosave.id}
-    <Button variant="ghost" class="min-h-11" onclick={() => (confirming = true)}
-      >Delete draft</Button
-    >
-  {/if}
-  <Button type="submit" class="min-h-11" disabled={composer.sending}
-    >{name ? `Send to ${name}` : "Send"}</Button
+{/if}
+<p class="mr-auto type-sm text-muted-foreground">Step {step} of 3</p>
+{#if step > 1}
+  <Button variant="outline" onclick={() => onstep(step - 1)}
+    ><ChevronLeft aria-hidden="true" />Back</Button
   >
-</div>
+{/if}
+{#if step < 3}
+  <Button onclick={() => onstep(step + 1)}>Next<ChevronRight aria-hidden="true" /></Button>
+{:else}
+  <Button type="submit" disabled={composer.sending}>{name ? `Send to ${name}` : "Send"}</Button>
+{/if}
 <ConfirmDialog
   bind:open={confirming}
   title="Delete this draft?"

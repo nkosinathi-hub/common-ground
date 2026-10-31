@@ -14,6 +14,8 @@
     wide?: boolean
     /** Under the title, e.g. the dialog's tabs. */
     header?: Snippet
+    /** Beside Close, e.g. an autosave line. */
+    status?: Snippet
     children: Snippet
     /** The one primary action; Cancel always sits before it. Submits the form. */
     primary?: string
@@ -34,6 +36,7 @@
     description,
     wide = false,
     header,
+    status,
     children,
     primary,
     destructive = false,
@@ -65,7 +68,7 @@
       "max-sm:top-auto max-sm:bottom-0 max-sm:max-w-full max-sm:translate-y-0 max-sm:rounded-b-none",
     )}
   >
-    <DialogShellHeader {title} {description} {header} />
+    <DialogShellHeader {title} {description} {header} {status} />
     <form class="flex min-h-0 flex-1 flex-col" onsubmit={submit}>
       <div bind:this={body} class="flex min-h-0 flex-1 flex-col gap-card overflow-y-auto p-6">
         {@render children()}
