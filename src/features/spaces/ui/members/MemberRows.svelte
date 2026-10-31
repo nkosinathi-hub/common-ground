@@ -16,9 +16,12 @@
   }
 
   let { members, me, manage, onAction }: Props = $props()
+  const owners = $derived(members.filter((m) => m.role === "owner").length)
+  // Owners manage everyone else; an owner may also step down while another owner remains.
+  const menuFor = (member: Member) => manage && (member.userId !== me || owners > 1)
 </script>
 
-<!-- D17 Members: avatar, name, role; the owner's menu on everyone else. -->
+<!-- D17 Members: avatar, name, role; an owner's menu adds or removes owners and members. -->
 <ul class="flex flex-col">
   {#each members as member (member.userId)}
     <li class="flex items-center gap-item py-related">
@@ -34,7 +37,7 @@
       <Badge variant={member.role === "owner" ? "default" : "secondary"}
         >{member.role === "owner" ? "Owner" : "Member"}</Badge
       >
-      {#if manage && member.userId !== me}
+      {#if menuFor(member)}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger>
             {#snippet child({ props })}
@@ -47,12 +50,22 @@
             {/snippet}
           </DropdownMenu.Trigger>
           <DropdownMenu.Content align="end">
-            <DropdownMenu.Item onSelect={() => onAction(member, "transfer")}
-              >Make owner</DropdownMenu.Item
-            >
-            <DropdownMenu.Item variant="destructive" onSelect={() => onAction(member, "remove")}
-              >Remove</DropdownMenu.Item
-            >
+            {#if member.role === "owner"}
+              <DropdownMenu.Item onSelect={() => onAction(member, "removeOwner")}
+                >{member.userId === me
+                  ? "Stop being an owner"
+                  : "Remove as owner"}</DropdownMenu.Item
+              >
+            {:else}
+              <DropdownMenu.Item onSelect={() => onAction(member, "makeOwner")}
+                >Make owner</DropdownMenu.Item
+              >
+            {/if}
+            {#if member.userId !== me}
+              <DropdownMenu.Item variant="destructive" onSelect={() => onAction(member, "remove")}
+                >Remove</DropdownMenu.Item
+              >
+            {/if}
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       {/if}

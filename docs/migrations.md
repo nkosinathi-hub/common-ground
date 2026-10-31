@@ -68,3 +68,7 @@ How migration files relate to each other. Ranges and naming are in CONVENTIONS.m
   `ideas.template` (#78, D06 Template card), `001300` `list_calendar` with each row's place,
   people, priority, milestone and idea (#80; dropped and made again for the new return type),
   `001400` member invites (#81; members create and see links, revoke their own, the owner any).
+- v0.6.1 files are dated `20261031`: `000100` `set_watch_opinion` (liking saved by upsert, which
+  also rewrote columns only insert may set), `000200` co-owners (drops `space_members_one_owner`;
+  adds `owner_count`, `make_owner`, `remove_owner`; redefines `leave_space` and `delete_my_account`
+  so they wait only on the last owner).

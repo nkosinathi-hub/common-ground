@@ -8,10 +8,11 @@
     spaceId: string
     type: CatalogType
     id: number
+    title?: string
     onchecked?: (checkedAt: string) => void
   }
 
-  let { spaceId, type, id, onchecked }: Props = $props()
+  let { spaceId, type, id, title = "", onchecked }: Props = $props()
   let open = $state(false)
   let first = $state<string | null>(null)
 </script>
@@ -39,6 +40,6 @@
 <Sheet.Root bind:open>
   <Sheet.Content side="bottom" class="max-h-[85dvh] overflow-y-auto p-inset">
     <Sheet.Title class="sr-only">Where to watch</Sheet.Title>
-    <Availability {spaceId} {type} {id} />
+    <Availability {spaceId} {type} {id} {title} />
   </Sheet.Content>
 </Sheet.Root>

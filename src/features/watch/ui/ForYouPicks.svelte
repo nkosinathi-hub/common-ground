@@ -30,7 +30,7 @@
 
 <!-- Home's Recommended card when nothing waits: For you from the space's own list. -->
 {#if picks.length > 0}
-  <section class="flex flex-col" aria-labelledby="for-you-heading">
+  <section class="flex min-w-0 flex-col" aria-labelledby="for-you-heading">
     <h3 id="for-you-heading" class="type-label-sm text-muted-foreground">For you</h3>
     <ul>
       {#each picks as item (item.id)}
@@ -45,7 +45,7 @@
                 path={item.posterPath}
                 title={item.title}
                 size="w92"
-                class="aspect-2/3 w-10 shrink-0 rounded-sm object-cover"
+                class="h-15 w-10 shrink-0 rounded-sm"
               />
             {/snippet}
           </ListRow>

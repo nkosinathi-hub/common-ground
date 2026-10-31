@@ -4,7 +4,7 @@
   import DangerRow from "./DangerRow.svelte"
   import DeleteSpaceDialog from "./DeleteSpaceDialog.svelte"
   import type { MembersState } from "./members-state.svelte"
-  import TransferCard from "./TransferCard.svelte"
+  import OwnerCard from "./OwnerCard.svelte"
 
   interface Props {
     space: Space
@@ -14,18 +14,21 @@
   }
 
   let { space, people, others }: Props = $props()
+  const candidates = $derived(others.filter((m) => m.role === "member"))
+  // An owner can leave only while another owner keeps the space.
+  const coOwned = $derived(others.some((m) => m.role === "owner"))
   let deleting = $state(false)
   let leaving = $state(false)
 </script>
 
-<!-- D17: the owner transfers or deletes; D17b: a member can only leave. -->
+<!-- D17: owners add owners, leave while another owner remains, or delete; D17b: a member leaves. -->
 {#if space.role === "owner"}
-  {#if others.length}
+  {#if candidates.length}
     <SettingsSection
-      title="Transfer ownership"
-      description="Only the owner can transfer. You will confirm before you give up owner access."
+      title="Owners"
+      description="Owners manage members, invitations and settings. A space can have more than one."
     >
-      <TransferCard {others} onReview={(member) => people.ask(member, "transfer")} />
+      <OwnerCard others={candidates} onReview={(member) => people.ask(member, "makeOwner")} />
     </SettingsSection>
   {/if}
   <SettingsSection title="Danger zone" description="These actions cannot be undone." danger>
@@ -36,6 +39,14 @@
           .displayName} loses access immediately. What they shared stays in the space."
         action="Remove member…"
         onclick={() => people.ask(others[0]!, "remove")}
+      />
+    {/if}
+    {#if coOwned}
+      <DangerRow
+        title="Leave {space.name}"
+        description="Another owner keeps the space. What you shared stays."
+        action="Leave space…"
+        onclick={() => (leaving = true)}
       />
     {/if}
     <DangerRow
@@ -60,11 +71,11 @@
       onclick={() => (leaving = true)}
     />
   </SettingsSection>
-  <ConfirmDialog
-    bind:open={leaving}
-    title="Leave {space.name}?"
-    description="You lose access right away. You can rejoin only with a new invitation."
-    confirmLabel="Leave"
-    onConfirm={people.leave}
-  />
 {/if}
+<ConfirmDialog
+  bind:open={leaving}
+  title="Leave {space.name}?"
+  description="You lose access right away. You can rejoin only with a new invitation."
+  confirmLabel="Leave"
+  onConfirm={people.leave}
+/>

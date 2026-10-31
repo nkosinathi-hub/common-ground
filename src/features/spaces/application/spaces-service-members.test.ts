@@ -15,8 +15,9 @@ describe("SpacesService membership operations", () => {
   it("delegates member management to the gateway", async () => {
     const { gateway, service } = spacesSetup()
     await service.removeMember("s", "u1")
-    await service.transferOwnership("s", "u2")
-    expect(gateway.calls).toEqual(["remove:u1", "transfer:u2"])
+    await service.makeOwner("s", "u2")
+    await service.removeOwner("s", "u2")
+    expect(gateway.calls).toEqual(["remove:u1", "owner:u2", "member:u2"])
     expect((await service.members("s")).ok).toBe(true)
     expect((await service.revokeInvite("i")).ok).toBe(true)
   })

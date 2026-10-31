@@ -31,10 +31,12 @@ export class MembersState {
     if (!this.pending) return
     const { member, action } = this.pending
     const id = this.space().id
-    const result =
-      action === "remove"
-        ? await this.service.removeMember(id, member.userId)
-        : await this.service.transferOwnership(id, member.userId)
+    const run = {
+      remove: this.service.removeMember,
+      makeOwner: this.service.makeOwner,
+      removeOwner: this.service.removeOwner,
+    }[action]
+    const result = await run(id, member.userId)
     if (!result.ok) return void toast.error(result.error.message)
     toast.success(MEMBER_ACTIONS[action].done(member.displayName))
     await Promise.all([this.members.load(), this.store.refresh()])

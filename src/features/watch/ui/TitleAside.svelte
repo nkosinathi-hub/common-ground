@@ -32,6 +32,7 @@
     spaceId={item.spaceId}
     type={item.catalog.type}
     id={item.catalog.id}
+    title={item.title}
     onloaded={(listing) => onchecked(listing.checkedAt)}
   />
 {:else}
@@ -39,6 +40,7 @@
     spaceId={item.spaceId}
     type={item.catalog.type}
     id={item.catalog.id}
+    title={item.title}
     {onchecked}
   />
 {/if}
