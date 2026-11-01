@@ -12,6 +12,7 @@ vi.mock("@capacitor/app", () => ({
 }))
 vi.mock("@capacitor/push-notifications", () => ({ PushNotifications: { addListener: listen } }))
 vi.mock("./check-update", () => ({ checkForUpdate: () => Promise.resolve() }))
+vi.mock("./system-bars", () => ({ startSystemBars: () => {} }))
 
 const { prepareLaunch, startNative } = await import("./index")
 const site = "https://site.example/cg/"
