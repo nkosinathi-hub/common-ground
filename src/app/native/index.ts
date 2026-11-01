@@ -4,6 +4,7 @@ import { deviceStore } from "@/shared/ui"
 import { checkForUpdate } from "./check-update"
 import { firstTime } from "./launch"
 import { backAction, inAppPath, pushRoute } from "./links"
+import { startSystemBars } from "./system-bars"
 
 const opened = deviceStore("session")
 
@@ -19,8 +20,9 @@ export async function prepareLaunch(siteUrl: string): Promise<void> {
   if (path) history.replaceState(null, "", path)
 }
 
-/** Android back button, App Links that arrive while the app is open, and update checks. */
+/** Android back button, App Links that arrive while the app is open, update checks, bar colours. */
 export function startNative(siteUrl: string): void {
+  startSystemBars()
   void checkForUpdate(siteUrl)
   void App.addListener("resume", () => void checkForUpdate(siteUrl))
   void App.addListener("appUrlOpen", ({ url }) => {
