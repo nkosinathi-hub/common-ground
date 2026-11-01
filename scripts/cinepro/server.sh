@@ -13,6 +13,7 @@ root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 port=8443
 local_url=http://127.0.0.1:3000
 unit=common-ground-cinepro.service
+cinepro_user=${USER:-$(id -un)}
 
 compose() {
   if command -v podman >/dev/null 2>&1; then podman compose -f "$root/cinepro/compose.yml" "$@"
@@ -76,8 +77,8 @@ EOF
   systemctl --user enable "$unit"
   systemctl --user restart "$unit"
   if command -v loginctl >/dev/null 2>&1; then
-    loginctl enable-linger "$USER" || {
-      echo "cinepro: installed, but boot startup needs lingering; run: sudo loginctl enable-linger $USER" >&2
+    loginctl enable-linger "$cinepro_user" || {
+      echo "cinepro: installed, but boot startup needs lingering; run: sudo loginctl enable-linger $cinepro_user" >&2
       exit 1
     }
   fi

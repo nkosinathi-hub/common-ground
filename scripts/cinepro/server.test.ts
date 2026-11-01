@@ -29,12 +29,13 @@ function setup() {
       { mode: 0o755 },
     )
   }
-  const env = {
+  const env: NodeJS.ProcessEnv = {
     ...process.env,
     PATH: `${dir}:${process.env.PATH}`,
     XDG_CONFIG_HOME: dir,
     CINEPRO_TEST_LOG: log,
   }
+  delete env.USER // Noninteractive runners and services may omit it.
   const run = (action: string) =>
     execFileSync("bash", [script, action, "funnel"], { env, encoding: "utf8" })
   return { dir, log, run }
