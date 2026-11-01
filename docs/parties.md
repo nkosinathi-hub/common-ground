@@ -24,6 +24,11 @@ a member's personal pointer forward only, through the same trigger as any other 
 
 ## Realtime: private channel `party:<id>`
 
+Presence tracks connected membership once per join; readiness and buffering use private
+`party-presence` broadcasts keyed by connection. The roster overlays only matching live members,
+refreshes newcomers, and removes departed connections. This avoids the separate per-client
+presence-call quota during playback and seeking.
+
 RLS on `realtime.messages` lets only members of that open party receive (select) and send
 (insert), separately for broadcast and presence (`20261022001600_party_realtime.sql`, tested in
 `supabase/tests/database/parties/party_realtime.test.sql`). Deploy: in the project's Realtime

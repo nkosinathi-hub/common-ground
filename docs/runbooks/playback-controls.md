@@ -41,7 +41,8 @@ latency. Frontend resolution collects fast playable results without waiting for 
   Supabase Realtime. Both MP4 and HLS exercise native start, pause, forward/reverse seeks,
   participant controls, shared progression and watch history for both members. Ten consecutive
   two-browser party runs (five per format) also cover rapid seek/buffering bursts without
-  exceeding Realtime presence limits.
+  exceeding Realtime presence limits. Membership uses one presence track per join; fast player
+  state travels on private broadcasts, with duplicate suppression and buffering coalescing.
 - A multi-audio HLS fixture declares Spanish as its default; the player selects English and can
   switch to Spanish. MP4 and HLS load local SRT captions, show cues and deduplicate re-selection.
 - These deterministic browser checks do not certify a third-party provider's availability or

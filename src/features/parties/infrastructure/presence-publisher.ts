@@ -1,6 +1,6 @@
 import type { Presence } from "../domain/party-machine"
 
-/** Coalesce buffering bursts so rapid HLS seeks cannot exceed Realtime presence limits. */
+/** Coalesce private player-state broadcasts; Ready is published before controls. */
 export class PresencePublisher {
   private latest: Presence | null = null
   private sent = ""
