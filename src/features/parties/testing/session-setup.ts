@@ -37,7 +37,15 @@ export function partyRoom(skews: Record<string, number> = { host: 0, guest: 700 
     const player = withPlayer ? new FakePlayer(clock) : null
     joined += 1
     const joinedAt = `2026-10-22T20:00:0${joined}Z`
-    const deps = { me, joinedAt, party, channel: hub, player, clock, service, role }
+    const current = {
+      ...party,
+      source: role
+        ? ("netflix" as const)
+        : withPlayer
+          ? ("jellyfin" as const)
+          : ("external" as const),
+    }
+    const deps = { me, joinedAt, party: current, channel: hub, player, clock, service, role }
     const session = new PartySession(deps)
     session.open()
     return { session, player: player!, clock }

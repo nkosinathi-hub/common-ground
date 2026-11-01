@@ -22,11 +22,10 @@ describe("PartySession clock and start", () => {
     expect(host.session.view.ready).toBe(true)
   })
 
-  it("will not start until everyone tapped Ready", () => {
+  it("will not start before the caller is ready", () => {
     const room = partyRoom()
     const host = room.member("host")
     room.member("guest")
-    void host.session.ready()
     host.session.play()
     expect(host.session.view.state.phase).toBe("lobby")
   })
@@ -54,12 +53,12 @@ describe("PartySession controls", () => {
     expect(host.player.playing).toBe(false)
   })
 
-  it("follows only the host's seeks", async () => {
+  it("follows seeks from either ready member", async () => {
     const { host, guest } = await readyRoom()
     host.session.play()
     vi.advanceTimersByTime(1000)
     guest.session.seek(600)
-    expect(host.player.currentTime()).toBeLessThan(5)
+    expect(host.player.currentTime()).toBeCloseTo(600)
     host.session.seek(60)
     vi.advanceTimersByTime(SYNC.scheduleLeadMs)
     expect(guest.player.currentTime()).toBeCloseTo(60, 1)

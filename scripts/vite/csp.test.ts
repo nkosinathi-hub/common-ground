@@ -6,7 +6,9 @@ describe("contentSecurityPolicy", () => {
 
   it("allows only this origin, Supabase (https and wss) and TMDB images", () => {
     expect(policy).toContain("default-src 'self'")
-    expect(policy).toContain("connect-src 'self' https://abc.supabase.co wss://abc.supabase.co")
+    expect(policy).toContain(
+      "connect-src 'self' blob: https://abc.supabase.co wss://abc.supabase.co",
+    )
     expect(policy).toContain(
       "img-src 'self' data: blob: https://image.tmdb.org https://abc.supabase.co",
     )
@@ -26,7 +28,7 @@ describe("contentSecurityPolicy", () => {
   it("lets the Android app read the website's version.json, and nothing else of it", () => {
     const app = contentSecurityPolicy("https://abc.supabase.co", "https://site.example/cg/")
     expect(app).toContain(
-      "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co https://site.example/cg/app/version.json",
+      "connect-src 'self' blob: https://abc.supabase.co wss://abc.supabase.co https://site.example/cg/app/version.json",
     )
   })
 
@@ -55,10 +57,10 @@ describe("contentSecurityPolicy with playback origins", () => {
 
   it("adds the plugins' origins to connect-src, media-src (with blob: for MSE) and frame-src", () => {
     expect(policy).toContain(
-      "connect-src 'self' https://abc.supabase.co wss://abc.supabase.co https://jf.example.org https://query.wikidata.org",
+      "connect-src 'self' blob: https://abc.supabase.co wss://abc.supabase.co https://jf.example.org https://query.wikidata.org",
     )
     expect(policy).toContain(
-      "media-src 'self' blob: https://jf.example.org https://*.us.archive.org",
+      "media-src 'self' blob: data: https://jf.example.org https://*.us.archive.org",
     )
     expect(policy).toContain("frame-src https://www.youtube-nocookie.com")
   })
@@ -71,7 +73,7 @@ describe("contentSecurityPolicy with playback origins", () => {
 
   it("frames nothing and plays only own and blob media without playback plugins", () => {
     const bare = contentSecurityPolicy("https://abc.supabase.co")
-    expect(bare).toContain("media-src 'self' blob:;")
+    expect(bare).toContain("media-src 'self' blob: data:;")
     expect(bare).toContain("frame-src 'none'")
   })
 })

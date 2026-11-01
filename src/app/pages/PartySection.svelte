@@ -1,6 +1,6 @@
 <script lang="ts">
   import { PartyPage } from "@/features/parties"
-  import { PlayerSlot, PlaySplitButton, TitlePlaybackScope } from "@/features/playback"
+  import { PartyPlayer, TitlePlaybackScope } from "@/features/playback"
   import { buildHash } from "@/shared/domain"
   import { useCatalog } from "@/features/catalog/ui/context"
   import { playbackCatalog } from "../composition/playback-catalog"
@@ -27,7 +27,7 @@
           {catalog}
         >
           <div class="flex flex-col gap-stack">
-            <PlaySplitButton /><PlayerSlot title={party.title} />
+            <PartyPlayer title={party.title} episode={party.range?.from} />
           </div>
         </TitlePlaybackScope>
       {:else}

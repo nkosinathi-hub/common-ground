@@ -10,9 +10,9 @@ describe("party lobby", () => {
     expect(initialParty("host")).toMatchObject({ phase: "lobby", timeline: pausedAt(0, 0) })
   })
 
-  it("can start only when everyone present tapped Ready and nobody is buffering", () => {
+  it("starts ready members without waiting for unready members", () => {
     expect(canStart(lobby())).toBe(true)
-    expect(canStart(lobby(both({ ready: false })))).toBe(false)
+    expect(canStart(lobby(both({ ready: false, buffering: true })))).toBe(true)
     expect(canStart(lobby(both({ buffering: true })))).toBe(false)
     expect(canStart(initialParty("host"))).toBe(false)
   })
@@ -21,9 +21,9 @@ describe("party lobby", () => {
     expect(reduce(lobby(), command("guest", "pause", 0, 500)).phase).toBe("lobby")
   })
 
-  it("lets only the host start, and only when everyone is ready", () => {
-    expect(reduce(lobby(), play("guest", 0, 1000)).phase).toBe("lobby")
-    expect(reduce(lobby(both({ ready: false })), play("host", 0, 1000)).phase).toBe("lobby")
+  it("lets any ready member start and rejects unready members", () => {
+    expect(reduce(lobby(), play("guest", 0, 1000)).phase).toBe("playing")
+    expect(reduce(lobby(both({ ready: false })), play("guest", 0, 1000)).phase).toBe("lobby")
     expect(live()).toMatchObject({ phase: "playing", timeline: playingFrom(0, 1000) })
   })
 })

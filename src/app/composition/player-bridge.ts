@@ -1,25 +1,6 @@
 import type { PlayerControl } from "@/features/parties"
 
-/** A media element as a party's PlayerControl: the sync engine plays, seeks and nudges it. */
-function controlOf(video: HTMLVideoElement): PlayerControl {
-  return {
-    play: () => video.play(),
-    pause: () => video.pause(),
-    seek: (seconds) => void (video.currentTime = seconds),
-    setRate: (rate) => void (video.playbackRate = rate),
-    currentTime: () => video.currentTime,
-    onBuffering: (listener) => {
-      const waiting = () => listener(true)
-      const playing = () => listener(false)
-      video.addEventListener("waiting", waiting)
-      video.addEventListener("playing", playing)
-      return () => {
-        video.removeEventListener("waiting", waiting)
-        video.removeEventListener("playing", playing)
-      }
-    },
-  }
-}
+import { partyVideo } from "./party-video"
 
 /**
  * The video the in-app player is showing, handed to watch parties. Playback and parties never
@@ -30,7 +11,7 @@ export class ActivePlayer {
 
   /** The player calls this when its video element appears; the result detaches it. */
   attach(video: HTMLVideoElement): () => void {
-    const entry = { video, control: controlOf(video) }
+    const entry = { video, control: partyVideo(video) }
     this.current = entry
     return () => {
       if (this.current === entry) this.current = null

@@ -34,7 +34,6 @@ export class PlayerSync {
     const player = this.player
     this.applied = player
     if (!player) return
-    this.rate = 1
     const { timeline } = state
     const wait = state.phase === "playing" ? (startsIn(timeline, this.now()) ?? 0) : null
     if (wait === null) {
@@ -45,11 +44,11 @@ export class PlayerSync {
       player.seek(timeline.position)
       this.timer = setTimeout(() => {
         this.timer = null
-        void player.play()
+        void player.play().catch(() => undefined)
       }, wait)
     } else {
       player.seek(positionAt(timeline, this.now()))
-      void player.play()
+      void player.play().catch(() => undefined)
     }
     this.setRate(1)
   }

@@ -1,22 +1,17 @@
-import type { Result } from "@/shared/domain"
+import { appError, err, type Result } from "@/shared/domain"
 import { countdownStart } from "../domain/countdown"
 import { canStart } from "../domain/party-machine"
 import { SYNC } from "../domain/sync-constants"
 import { positionAt, scheduledStart } from "../domain/timeline"
-import type { PlayerControl } from "./ports"
+import { PlayerEvents, preparePlayer } from "./player-events"
 import { SessionNetwork } from "./session-network"
 
 export type { SessionDeps, SessionView } from "./session-core"
 
-/**
- * One member's live party: the host's clock is the reference, the host owns seeks and keeps
- * everyone's state, anyone pauses. Host-only rules hold client-side over broadcast; progress is
- * credited only by the server (finish_party). docs/parties.md has the protocol.
- */
+/** One member on the shared timeline; ready members control each other. */
 export class PartySession extends SessionNetwork {
   private interval: ReturnType<typeof setInterval> | null = null
-  private unbuffer: (() => void) | null = null
-  private buffered: PlayerControl | null = null
+  private readonly events = new PlayerEvents()
 
   open(): void {
     const { channel, party } = this.deps
@@ -33,32 +28,42 @@ export class PartySession extends SessionNetwork {
     }, SYNC.stateIntervalMs)
   }
 
-  /** Follows the current player's buffering, re-subscribing when the player changes. */
   private watchBuffering(): void {
     const player = this.currentPlayer()
-    if (player === this.buffered) return
-    this.unbuffer?.()
-    this.buffered = player
-    this.unbuffer = player?.onBuffering((buffering) => this.setPresence({ buffering })) ?? null
+    if (!player && this.deps.party.source === "jellyfin" && this.mine.ready)
+      this.setPresence({ ready: false, buffering: false })
+    this.events.bind(
+      player,
+      (buffering) => this.setPresence({ buffering }),
+      (action, position) => {
+        if (!this.mine.ready) return
+        if (action === "play") this.play()
+        else if (action === "pause") this.pause()
+        else this.seek(position)
+      },
+    )
   }
 
   close(): void {
     if (this.interval) clearInterval(this.interval)
     this.playerSync.stop()
-    this.unbuffer?.()
+    this.events.close()
     this.conn?.leave()
     this.conn = null
   }
 
-  /** The Ready tap: unlocks playback inside the gesture, confirms, then shows ready. */
   async ready(): Promise<Result<void>> {
     const player = this.currentPlayer()
-    if (player) {
-      void player.play().catch(() => undefined)
-      player.pause()
-    }
+    if (this.deps.party.source === "jellyfin" && (!player || player.isReady?.() === false))
+      return err(appError("validation", "Wait for the video to load, then tap Ready"))
+    this.watchBuffering()
+    const armed = await preparePlayer(player)
+    if (!armed.ok) return armed
     const confirmed = await this.deps.service.confirm(this.deps.party.id)
-    if (confirmed.ok) this.setPresence({ ready: true })
+    if (confirmed.ok) {
+      this.setPresence({ ready: true, buffering: false })
+      this.playerSync.apply(this.state)
+    }
     return confirmed
   }
 
@@ -69,18 +74,19 @@ export class PartySession extends SessionNetwork {
     this.command("play", start.position, start.at)
   }
 
-  /** Co-watch: a shared 3-2-1 to pressing play on the TV together. */
   countdown(): void {
-    if (this.mayStart())
+    if (this.isHost && this.mayStart())
       this.command("play", positionAt(this.state.timeline, this.now()), countdownStart(this.now()))
   }
 
-  private mayStart = () => this.state.phase !== "lobby" || (this.isHost && canStart(this.state))
+  private mayStart = () =>
+    (this.mine.ready || this.deps.role === "remote") &&
+    (this.state.phase !== "lobby" || canStart(this.state))
 
   pause = (): void => this.command("pause", positionAt(this.state.timeline, this.now()), this.now())
 
   seek(seconds: number): void {
-    if (!this.isHost) return
+    if (!this.mine.ready || !Number.isFinite(seconds)) return
     this.command("seek", Math.max(0, seconds), this.now() + SYNC.scheduleLeadMs)
   }
 

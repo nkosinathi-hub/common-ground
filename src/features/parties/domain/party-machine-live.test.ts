@@ -18,10 +18,10 @@ describe("live party", () => {
     expect(reduce(paused, play("guest", 5, 7000))).toMatchObject({ phase: "playing" })
   })
 
-  it("lets only the host seek, keeping play or pause", () => {
+  it("lets ready members seek, keeping play or pause", () => {
     const seek = (by: string) =>
       ({ type: "command", by, action: "seek", position: 60, at: 2000 }) as const
-    expect(reduce(live(), seek("guest")).timeline).toEqual(playingFrom(0, 1000))
+    expect(reduce(live(), seek("guest")).timeline).toEqual(playingFrom(60, 2000))
     expect(reduce(live(), seek("host")).timeline).toEqual(playingFrom(60, 2000))
     const paused = reduce(live(), {
       type: "command",

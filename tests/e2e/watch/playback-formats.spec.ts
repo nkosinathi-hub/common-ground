@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test"
-import { MEDIA_ORIGIN, MediaServer, type CatalogEntry } from "../support/media-server"
-import { createSpace, signIn } from "../support/session"
-import { admin, createUser, requireStack } from "../support/stack"
+import { MEDIA_ORIGIN, MediaServer } from "../support/media-server"
+import { openFixtureFilm } from "../support/fixture-film"
+import { requireStack } from "../support/stack"
 
 requireStack()
 
@@ -17,22 +17,6 @@ test.beforeEach(({ page }) => {
   page.on("console", (m) => /Content.Security.Policy/i.test(m.text()) && violations.push(m.text()))
 })
 test.afterEach(() => expect(violations).toEqual([]))
-
-async function openFilm(page: Page, sources: CatalogEntry[]) {
-  media.catalog = sources
-  media.requests.length = 0
-  await signIn(page, await createUser("formats"))
-  const spaceId = await createSpace(page, "Formats")
-  const row = { space_id: spaceId, title: "Fixture film", media_type: "movie" }
-  const { data, error } = await admin()
-    .from("watch_items")
-    .insert({ ...row, catalog_type: "movie", catalog_id: 603 })
-    .select("id")
-    .single()
-  if (error) throw error
-  await page.goto(`./#/s/${spaceId}/watch/${String(data.id)}`)
-  await page.getByRole("button", { name: "Play", exact: true }).click()
-}
 
 /** Starts playback with the player's own shortcut, then waits for the one-second clip to end. */
 async function played(page: Page) {
@@ -50,7 +34,7 @@ for (const [kind, path] of [
   ["dash", "/dash/manifest.mpd"],
 ] as const) {
   test(`${kind} plays through shaka in the browser`, async ({ page }) => {
-    await openFilm(page, [{ path, kind }])
+    await openFixtureFilm(page, media, [{ path, kind }])
     const result = await played(page)
     expect(result.src.startsWith("blob:")).toBe(true) // Media Source Extensions, not a file URL
     expect(result.width).toBeGreaterThan(0)
@@ -59,14 +43,14 @@ for (const [kind, path] of [
 }
 
 test("a direct file plays in the video element", async ({ page }) => {
-  await openFilm(page, [{ path: "/sample.mp4", kind: "file" }])
+  await openFixtureFilm(page, media, [{ path: "/sample.mp4", kind: "file" }])
   const result = await played(page)
   expect(result.src).toBe(`${MEDIA_ORIGIN}/sample.mp4`)
   expect(result.width).toBeGreaterThan(0)
 })
 
 test("a broken stream falls back to the next source on its own", async ({ page }) => {
-  await openFilm(page, [
+  await openFixtureFilm(page, media, [
     { path: "/missing.m3u8", kind: "hls", quality: 1080 },
     { path: "/sample.mp4", kind: "file", quality: 360 },
   ])

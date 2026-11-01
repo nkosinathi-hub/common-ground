@@ -12,6 +12,7 @@ const TYPES: Record<string, string> = {
   ".mpd": "application/dash+xml",
   ".mp4": "video/mp4",
   ".m4s": "video/iso.segment",
+  ".mpegts": "video/mp2t",
 }
 
 export interface CatalogEntry {
@@ -46,12 +47,18 @@ export class MediaServer {
       } catch {
         return void res.writeHead(404).end()
       }
-      res.writeHead(200, {
+      const range = /^bytes=(\d+)-(\d*)$/.exec(req.headers.range ?? "")
+      const start = range ? Number(range[1]) : 0
+      const end = range?.[2] ? Math.min(Number(range[2]), body.length - 1) : body.length - 1
+      if (start > end || start >= body.length) return void res.writeHead(416).end()
+      const bytes = body.subarray(start, end + 1)
+      res.writeHead(range ? 206 : 200, {
+        ...(range ? { "content-range": `bytes ${start}-${end}/${body.length}` } : {}),
         "content-type": TYPES[extname(file)] ?? "application/octet-stream",
-        "content-length": body.length,
-        "accept-ranges": "none",
+        "content-length": bytes.length,
+        "accept-ranges": "bytes",
       })
-      res.end(body)
+      res.end(bytes)
     })
     return new Promise((done) => this.server!.listen(MEDIA_PORT, "127.0.0.1", done))
   }

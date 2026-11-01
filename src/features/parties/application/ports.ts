@@ -49,6 +49,9 @@ export interface PlayerControl {
   seek(seconds: number): void
   setRate(rate: number): void
   currentTime(): number
+  isReady?(): boolean
+  /** User controls only; session-applied changes must not echo. */
+  onAction?(listener: (action: "play" | "pause" | "seek", position: number) => void): () => void
   /** Called with true when playback stalls to load and false when it can play; returns unsubscribe. */
   onBuffering(listener: (buffering: boolean) => void): () => void
 }

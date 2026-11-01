@@ -5,6 +5,7 @@ interface RawSource {
   readonly url?: unknown
   readonly type?: unknown
   readonly quality?: unknown
+  readonly audioTracks?: unknown
   readonly provider?: { readonly id?: unknown; readonly name?: unknown }
 }
 
@@ -52,12 +53,19 @@ export function toPlayableSources(
     const quality = sourceQuality(item.quality)
     const mime = sourceMime(item.type)
     const data = providerData(payload, item)
+    const audioLanguages = Array.isArray(item.audioTracks)
+      ? item.audioTracks.flatMap((track: unknown) => {
+          const language = text(record(track)?.language)
+          return language ? [language] : []
+        })
+      : []
     return [
       {
         kind,
         url,
         ...(mime ? { mime } : {}),
         ...(quality ? { quality } : {}),
+        ...(audioLanguages.length ? { audioLanguages } : {}),
         subtitles,
         segments: [],
         providerId,

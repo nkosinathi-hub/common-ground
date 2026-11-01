@@ -1,21 +1,25 @@
 <script lang="ts">
   import type { PlayableSource } from "../domain/source.types"
-  import type { CaptionChoice } from "./caption-pref"
+  import type { EngineHandle } from "./media-tracks"
+  import { nativeTracks } from "./native-tracks"
 
   interface Props {
     source: PlayableSource
-    captions: CaptionChoice
+    handle?: EngineHandle | null
     video?: HTMLVideoElement | null
     onfail: () => void
   }
 
-  let { source, captions, video = $bindable(null), onfail }: Props = $props()
+  let { source, handle = $bindable(null), video = $bindable(null), onfail }: Props = $props()
 
   $effect(() => {
     if (!video) return
-    const tracks = Array.from(video.textTracks)
-    const chosen = tracks.find((t) => t.language === captions.language) ?? tracks[0]
-    for (const track of tracks) track.mode = captions.on && track === chosen ? "showing" : "hidden"
+    const current = nativeTracks(video)
+    handle = current
+    return () => {
+      if (handle === current) handle = null
+      current.destroy()
+    }
   })
 
   function resume() {

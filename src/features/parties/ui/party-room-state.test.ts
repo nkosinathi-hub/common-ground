@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { FakeMemberDirectory } from "@/shared/domain/testing/fake-members"
+import { FakePlayer } from "../testing/fake-player"
 import { PartyService } from "../application/party-service"
 import { FakePartyGateway, partyOf } from "../testing/fake-party-gateway"
 import { FakePartyHub } from "../testing/fake-party-hub"
@@ -17,7 +18,7 @@ function room(status: "planned" | "ended" = "planned") {
     channel: hub,
     members: new FakeMemberDirectory([]),
     clock: { now: () => Date.now() },
-    player: () => null,
+    player: () => new FakePlayer({ now: () => Date.now() }),
   }
   return { gateway, hub, state: new PartyRoomState(context, "p1", "guest") }
 }

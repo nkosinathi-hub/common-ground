@@ -1,4 +1,5 @@
 import type { PlayableSource } from "./source.types"
+import { audioRank } from "./language"
 
 /**
  * Best first: sources this device can play, then the provider's priority (lower is preferred),
@@ -14,12 +15,14 @@ export function rankSources(
     index,
     playable: canPlay(source) ? 0 : 1,
     priority: priority[source.providerId] ?? Number.POSITIVE_INFINITY,
+    audio: audioRank(source.audioLanguages),
     quality: source.quality ?? -1,
   }))
   keyed.sort(
     (a, b) =>
       a.playable - b.playable ||
       a.priority - b.priority ||
+      a.audio - b.audio ||
       b.quality - a.quality ||
       a.index - b.index,
   )

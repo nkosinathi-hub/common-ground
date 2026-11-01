@@ -40,12 +40,15 @@ Every member runs the same state machine (`domain/party-machine.ts`) on the same
 
 - Clock: the host's clock is the reference. Members ping the host each second and keep the eight
   latest samples; the offset is the median of the fastest half (NTP-style, `domain/clock.ts`).
-- Start: everyone taps Ready (this also arms playback inside the tap, for iOS Safari), then the
-  host plays. Play is scheduled at least 300 ms (or one round trip) ahead.
+- In-app start: the party episode loads automatically. Each viewer taps Ready to arm playback;
+  any ready member starts the ready viewers, at least 300 ms (or one round trip) ahead.
+  Unready viewers stay paused; tapping Ready later joins the current party position.
 - Drift (`domain/drift.ts`, Syncplay-like): within 0.1 s nothing; up to 2 s the rate moves by
   5%; up to 4 s by 10%; beyond 4 s a seek.
 - Buffering: while anyone buffers, everyone waits; the host resumes once nobody does.
-- The host owns seeks; anyone pauses and plays. The host broadcasts the state every second, so a
+- Ready members can seek, pause or play from the video or party controls. Remote changes do not
+  echo as new commands. Unchanged buffering presence is never retransmitted. The host sends
+  the state every second, so a
   late joiner (or a rejoin) gets a snapshot at once.
 - Handover: a host missing from presence for 15 s is replaced by the earliest-joined member
   present (ties by user id), which every client computes alike; that member calls
@@ -61,8 +64,8 @@ Every member runs the same state machine (`domain/party-machine.ts`) on the same
 
 Constants live in `domain/sync-constants.ts`.
 
-Host-only rules (seeks, starting) are enforced client-side over broadcast. That is enough for
-members of one space who trust each other; the RPCs stay authoritative for membership and progress.
+Commands require ready presence; private-channel RLS restricts participation to party members.
+The RPCs stay authoritative for membership and progress. Co-watch countdowns remain host-led.
 
 ## Player contract
 

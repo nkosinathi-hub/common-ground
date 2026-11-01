@@ -1,17 +1,15 @@
 <script lang="ts">
   import type { PlayableSource } from "../domain/source.types"
-  import type { CaptionChoice } from "./caption-pref"
   import { attachShaka, type EngineHandle } from "./shaka"
 
   interface Props {
     source: PlayableSource
-    captions: CaptionChoice
+    handle?: EngineHandle | null
     video?: HTMLVideoElement | null
     onfail: () => void
   }
 
-  let { source, captions, video = $bindable(null), onfail }: Props = $props()
-  let handle = $state<EngineHandle | null>(null)
+  let { source, handle = $bindable(null), video = $bindable(null), onfail }: Props = $props()
 
   $effect(() => {
     const element = video
@@ -25,11 +23,10 @@
     })
     return () => {
       live = false
+      if (handle === attached) handle = null
       attached?.destroy()
     }
   })
-
-  $effect(() => handle?.setCaptions(captions.on, captions.language))
 </script>
 
 <!-- playsinline keeps iOS from taking over the screen, so the skip and party overlays stay. -->
