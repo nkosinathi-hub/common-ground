@@ -20,6 +20,8 @@ export interface PlayableSource {
   readonly mime?: string
   /** Vertical resolution in lines, e.g. 1080; higher ranks first among equals. */
   readonly quality?: number
+  /** Languages advertised by the source; an unknown or original label is not English. */
+  readonly audioLanguages?: readonly string[]
   /** Text tracks as WebVTT; image subtitles are burned in by the server instead. */
   readonly subtitles: readonly Subtitle[]
   readonly segments: readonly Segment[]

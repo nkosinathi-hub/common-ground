@@ -2,10 +2,14 @@ import { FakeMemberDirectory } from "@/shared/domain/testing/fake-members"
 import { PartyService } from "../application/party-service"
 import type { PlayerControl } from "../application/ports"
 import { FakePartyGateway } from "./fake-party-gateway"
+import { FakePlayer } from "./fake-player"
 import { FakePartyHub } from "./fake-party-hub"
 
 /** Everything provideParties needs, as fakes; the signed-in member is `me`. */
-export function partiesFakes(me = "me", player: PlayerControl | null = null) {
+export function partiesFakes(
+  me = "me",
+  player: PlayerControl | null = new FakePlayer({ now: () => Date.now() }),
+) {
   const gateway = new FakePartyGateway(me)
   const hub = new FakePartyHub()
   const members = new FakeMemberDirectory([

@@ -35,8 +35,8 @@ export function contentSecurityPolicy(
     "script-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: blob: https://image.tmdb.org ${http}`,
-    `connect-src 'self' ${http} ${socket}${release}${list(playback.connect)}`,
-    `media-src 'self' blob:${list(playback.media)}`,
+    `connect-src 'self' blob: ${http} ${socket}${release}${list(playback.connect)}`,
+    `media-src 'self' blob: data:${list(playback.media)}`,
     `frame-src ${frames}`,
     "font-src 'self'",
     // Realtime runs its heartbeat in a worker made from a blob (the party channel's keepalive).

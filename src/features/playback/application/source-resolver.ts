@@ -8,6 +8,7 @@ import type { HealthMonitor } from "./health-monitor"
 import type { RegisteredProvider } from "./plugin-registry"
 import { attemptProvider } from "./provider-attempt"
 import { abortableSleep } from "./with-timeout"
+import { gatherSources } from "./gather-sources"
 
 export interface Resolution {
   readonly best: PlayableSource
@@ -55,21 +56,26 @@ export class SourceResolver {
         e.plugin.capabilities.media.includes(ref.kind) &&
         e.provider.supports(ref),
     )
-    const found = await Promise.all(
-      capable.map(async (entry) => {
+    const found = await gatherSources(
+      capable.map((entry) => async (signal: AbortSignal) => {
         const id = entry.config.id
         if (!(await health.admit(entry, signal))) {
           log.record({ providerId: id, outcome: "skipped", ms: 0, reason: "circuit open" })
           return []
         }
-        const outcome = await attemptProvider(entry, ref, ctx)
-        if (outcome.unhealthy) health.failure(id)
-        else health.success(id)
+        const outcome = await attemptProvider(entry, ref, { ...ctx, signal })
+        if (!signal.aborted) {
+          if (outcome.unhealthy) health.failure(id)
+          else health.success(id)
+        }
         return outcome.sources
       }),
+      this.deps.canPlay,
+      signal,
     )
     const priority = Object.fromEntries(this.providers.map((e) => [e.config.id, e.config.priority]))
-    const [best, ...fallbacks] = rankSources(found.flat(), priority, this.deps.canPlay)
+    if (signal.aborted) return err(appError("network", "Cancelled"))
+    const [best, ...fallbacks] = rankSources(found, priority, this.deps.canPlay)
     if (!best) return err(appError("not_found", "Nothing can play this title right now"))
     return ok({ best, fallbacks })
   }

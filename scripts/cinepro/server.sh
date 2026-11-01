@@ -13,6 +13,7 @@ root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 port=8443
 local_url=http://127.0.0.1:3000
 unit=common-ground-cinepro.service
+cinepro_user=${USER:-$(id -un)}
 
 compose() {
   if command -v podman >/dev/null 2>&1; then podman compose -f "$root/cinepro/compose.yml" "$@"
@@ -73,18 +74,20 @@ ExecStart="$root/scripts/cinepro/server.sh" start $mode
 WantedBy=default.target
 EOF
   systemctl --user daemon-reload
-  systemctl --user enable --now "$unit"
+  systemctl --user enable "$unit"
+  systemctl --user restart "$unit"
   if command -v loginctl >/dev/null 2>&1; then
-    loginctl enable-linger "$USER" || {
-      echo "cinepro: installed, but boot startup needs lingering; run: sudo loginctl enable-linger $USER" >&2
+    loginctl enable-linger "$cinepro_user" || {
+      echo "cinepro: installed, but boot startup needs lingering; run: sudo loginctl enable-linger $cinepro_user" >&2
       exit 1
     }
   fi
   echo "cinepro: installed $mode to start at boot; use '$0 stop' to disable and stop it"
   exit 0
 fi
-# The site and the Android app are two origins and Core's CORS setting takes one, so "*".
-CINEPRO_PUBLIC_URL="https://$host:$port" CINEPRO_CORS_ORIGIN='*' compose up -d --remove-orphans
+# Recreate when mounted runtime changes; repeating the same install keeps the container.
+runtime=$(sha256sum "$root/cinepro/runtime/"*.mjs "$root/cinepro/"*.js | sha256sum | cut -d' ' -f1)
+CINEPRO_RUNTIME_VERSION="$runtime" CINEPRO_PUBLIC_URL="https://$host:$port" CINEPRO_CORS_ORIGIN='*' compose up -d --remove-orphans
 until curl -fsS -o /dev/null "$local_url/"; do sleep 2; done
 if [ "$mode" = funnel ]; then
   # systemd has no interactive terminal; --yes avoids waiting for CLI confirmation.

@@ -6,6 +6,7 @@ services:
     image: ghcr.io/cinepro-org/core:main-98ba005@sha256:47af79dc6a91e98221a4ac64914a2d4138e11a07a6bf23f577794d68e67ce381
     container_name: common-ground-cinepro-core
     restart: unless-stopped
+    command: ["node", "--import", "/app/common-ground/preload.mjs", "dist/server.js"]
     env_file:
       - ./.env
     environment:
@@ -13,6 +14,7 @@ services:
       PORT: 3000
       NODE_ENV: production
       CACHE_TYPE: memory
+      COMMON_GROUND_RUNTIME_VERSION: ${CINEPRO_RUNTIME_VERSION:-local}
       # The origin the app calls: Core builds the proxy links in its answers from it, and the
       # adapter drops a link on any other origin (localhost included).
       PUBLIC_URL: ${CINEPRO_PUBLIC_URL:-http://127.0.0.1:3000}
@@ -21,6 +23,8 @@ services:
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
+      # A repeatable preload bounds slow providers and coalesces concurrent identical lookups.
+      - ./runtime:/app/common-ground:ro,z
       # Every answer waits for the slowest provider, and Videasy waits 60 to 100 s on a hanging
       # upstream: an empty module in its place switches it off (podman logs shows each one's time).
       - ./no-provider.js:/app/dist/providers/videasy/videasy.js:ro,z

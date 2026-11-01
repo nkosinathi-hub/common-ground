@@ -21,6 +21,7 @@ export class PlayerSync {
   constructor(
     source: PlayerSource,
     private readonly now: () => number,
+    private readonly blocked: () => void = () => {},
   ) {
     this.current = typeof source === "function" ? source : () => source
   }
@@ -34,7 +35,6 @@ export class PlayerSync {
     const player = this.player
     this.applied = player
     if (!player) return
-    this.rate = 1
     const { timeline } = state
     const wait = state.phase === "playing" ? (startsIn(timeline, this.now()) ?? 0) : null
     if (wait === null) {
@@ -45,11 +45,11 @@ export class PlayerSync {
       player.seek(timeline.position)
       this.timer = setTimeout(() => {
         this.timer = null
-        void player.play()
+        this.play(player)
       }, wait)
     } else {
       player.seek(positionAt(timeline, this.now()))
-      void player.play()
+      this.play(player)
     }
     this.setRate(1)
   }
@@ -68,6 +68,17 @@ export class PlayerSync {
   stop(): void {
     if (this.timer) clearTimeout(this.timer)
     this.timer = null
+  }
+
+  private play(player: PlayerControl): void {
+    void player.play().catch((error: unknown) => {
+      if (
+        this.player === player &&
+        error instanceof DOMException &&
+        error.name === "NotAllowedError"
+      )
+        this.blocked()
+    })
   }
 
   private setRate(rate: number): void {

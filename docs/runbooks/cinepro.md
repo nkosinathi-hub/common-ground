@@ -35,10 +35,10 @@ loopback or the tailnet unless you intentionally choose the public Funnel deploy
 `PUBLIC_URL` in the compose file must be the origin the app calls: Core builds the proxy links in
 its answers from it, and the adapter drops a link on any other origin. The default matches step 5.
 
-Core answers only when its slowest provider has, and Videasy waits 60 to 100 s on a hanging
-upstream while the rest answer within 3 s, so `compose.yml` mounts `cinepro/no-provider.js` over
-its module: Core registers only exported classes and skips an empty one. Switch another
-provider off the same way when `podman logs common-ground-cinepro-core` shows it stalling.
+`compose.yml` loads `cinepro/runtime/preload.mjs`: provider aggregation returns shortly after
+validated English sources arrive, or after a 12 s provider budget, and cancels remaining fetches.
+Identical concurrent title/episode lookups share one request. The pinned framework still validates
+sources. See [playback controls and rollout](playback-controls.md); Videasy remains disabled.
 
 Core's proxy also rewrites every answer the upstream labels as text, to fix up playlists, and
 that destroys media a host disguises as `.html`: the bytes come back as UTF-8 replacement

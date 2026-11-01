@@ -36,10 +36,13 @@ export class SessionCore {
       ...role,
     }
     this.sync = new ClockSync(deps.clock, () => this.isAuthority)
-    this.playerSync = new PlayerSync(deps.player, () => this.sync.now())
+    this.playerSync = new PlayerSync(
+      () => (this.mine.ready ? this.currentPlayer() : null),
+      () => this.sync.now(),
+      () => this.setPresence({ ready: false, buffering: false }),
+    )
   }
 
-  /** The member's player now; the app may open it after the party page. */
   protected currentPlayer = (): PlayerControl | null =>
     typeof this.deps.player === "function" ? this.deps.player() : this.deps.player
 
@@ -47,10 +50,7 @@ export class SessionCore {
     return this.state.hostId === this.deps.me
   }
 
-  /**
-   * Keeps the party clock and speaks for the host: the host's session, unless it is a remote
-   * beside the host's own player (#66), which then follows that player like any guest.
-   */
+  /** The host's player keeps the clock; their Netflix remote follows it. */
   get isAuthority(): boolean {
     if (!this.isHost || this.deps.role !== "remote") return this.isHost
     return !hasPlayer(this.state.people, this.deps.me)
@@ -61,7 +61,6 @@ export class SessionCore {
     return { state, isHost, connected, ready: this.mine.ready }
   }
 
-  /** Shared party time in milliseconds. */
   now = (): number => this.sync.now()
 
   subscribe(listener: (view: SessionView) => void): () => void {
@@ -83,7 +82,6 @@ export class SessionCore {
     this.emit()
   }
 
-  /** Applies this member's own command and sends it to everyone else. */
   protected command(action: PartyCommand, position: number, at: number): void {
     const before = this.state
     this.apply({ type: "command", by: this.deps.me, action, position, at })
@@ -93,6 +91,8 @@ export class SessionCore {
   }
 
   protected setPresence(change: Partial<Presence>): void {
+    if (Object.entries(change).every(([key, value]) => this.mine[key as keyof Presence] === value))
+      return
     this.mine = { ...this.mine, ...change }
     this.conn?.track(this.mine)
     this.emit()

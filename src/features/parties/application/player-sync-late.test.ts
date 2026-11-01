@@ -51,3 +51,13 @@ describe("PlayerSync with a player that comes later", () => {
     expect(player.calls).toEqual(["seek:12", "play"])
   })
 })
+
+it("asks for readiness again when a browser blocks remote playback", async () => {
+  const player = new FakePlayer(clock)
+  vi.spyOn(player, "play").mockRejectedValue(new DOMException("gesture", "NotAllowedError"))
+  const blocked = vi.fn()
+  const sync = new PlayerSync(player, () => Date.now(), blocked)
+  sync.apply(playing)
+  await Promise.resolve()
+  expect(blocked).toHaveBeenCalledOnce()
+})

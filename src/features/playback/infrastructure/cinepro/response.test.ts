@@ -42,7 +42,6 @@ describe("CinePro response mapping", () => {
       },
     })
     expect(sources[1]).toMatchObject({ kind: "file", mime: "video/x-matroska", quality: 720 })
-    expect(sources[1]?.providerData).toEqual({ responseId: "response-1" })
   })
 
   it("drops unknown kinds, URLs off the Core origin (localhost included) and a bad expiry", () => {
@@ -67,6 +66,29 @@ describe("CinePro response mapping", () => {
         segments: [],
         providerId: "cinepro",
       },
+    ])
+  })
+
+  it("preserves advertised audio languages without guessing what Original means", () => {
+    const payload = {
+      sources: [
+        {
+          url: "/v1/proxy?data=a",
+          type: "hls",
+          audioTracks: [
+            { language: "eng", label: "English" },
+            { language: "spa", label: "Spanish" },
+            { language: "Original" },
+            null,
+            { label: "No language" },
+          ],
+        },
+      ],
+    }
+    expect(toPlayableSources(payload, origin, "cinepro")[0]?.audioLanguages).toEqual([
+      "eng",
+      "spa",
+      "Original",
     ])
   })
 

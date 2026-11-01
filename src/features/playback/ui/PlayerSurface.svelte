@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PlayableSource } from "../domain/source.types"
-  import type { CaptionChoice } from "./caption-pref"
+  import type { EngineHandle } from "./media-tracks"
   import EmbedEngine from "./EmbedEngine.svelte"
   import { engineFor } from "./player-logic"
   import ShakaEngine from "./ShakaEngine.svelte"
@@ -8,13 +8,13 @@
 
   interface Props {
     source: PlayableSource | null
-    captions: CaptionChoice
+    handle?: EngineHandle | null
     title: string
     video?: HTMLVideoElement | null
     onfail: () => void
   }
 
-  let { source, captions, title, video = $bindable(null), onfail }: Props = $props()
+  let { source, handle = $bindable(null), title, video = $bindable(null), onfail }: Props = $props()
   const engine = $derived(source ? engineFor(source) : null)
 </script>
 
@@ -28,9 +28,9 @@
       {#if engine === "embed"}
         <EmbedEngine {source} {title} />
       {:else if engine === "shaka"}
-        <ShakaEngine {source} {captions} bind:video {onfail} />
+        <ShakaEngine {source} bind:handle bind:video {onfail} />
       {:else}
-        <VideoEngine {source} {captions} bind:video {onfail} />
+        <VideoEngine {source} bind:handle bind:video {onfail} />
       {/if}
     {/key}
   {/if}

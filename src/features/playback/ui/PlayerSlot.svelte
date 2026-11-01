@@ -5,7 +5,7 @@
   import { useTitlePlayback } from "./title-playback.svelte"
 
   /** Names the player and its fullscreen view. */
-  let { title }: { title: string } = $props()
+  let { title, party = false }: { title: string; party?: boolean } = $props()
   const playback = useTitlePlayback()
   const { account } = usePlayback()
   const error = $derived(playback?.choices.error || playback?.play.error?.message || "")
@@ -24,9 +24,14 @@
         playing={playback.play.playing}
         target={playback.target()}
         {title}
+        {party}
         onclose={() => playback.play.close()}
         onnext={(next) => void playback.continueTo(next)}
         onwatched={() => void playback.watched()}
+        onretry={() =>
+          void playback.playEpisode(
+            playback.play.playing?.ref.kind === "episode" ? playback.play.playing.ref : undefined,
+          )}
       />
     {/if}
   </section>

@@ -15,6 +15,7 @@ export function fakeRealtime() {
       return channel
     },
     subscribe(callback: (status: string) => void) {
+      calls.push(["subscribe"])
       onStatus = callback
       return channel
     },
@@ -44,6 +45,7 @@ export function fakeRealtime() {
     status: (status: string) => onStatus(status),
     heartbeat: (status: string) => heartbeat(status),
     broadcast: (payload: unknown) => listeners.get("broadcast:party")?.({ payload }),
+    playerState: (payload: unknown) => listeners.get("broadcast:party-presence")?.({ payload }),
     presence: (state: Record<string, unknown[]>) => {
       for (const key of Object.keys(presence)) delete presence[key]
       Object.assign(presence, state)
