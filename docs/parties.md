@@ -47,7 +47,8 @@ Every member runs the same state machine (`domain/party-machine.ts`) on the same
   5%; up to 4 s by 10%; beyond 4 s a seek.
 - Buffering: while anyone buffers, everyone waits; the host resumes once nobody does.
 - Ready members can seek, pause or play from the video or party controls. Remote changes do not
-  echo as new commands. Unchanged buffering presence is never retransmitted. The host sends
+  echo as new commands. Unchanged buffering presence is never retransmitted; buffering bursts
+  are coalesced at 500 ms, while Ready is published immediately. The host sends
   the state every second, so a
   late joiner (or a rejoin) gets a snapshot at once.
 - Handover: a host missing from presence for 15 s is replaced by the earliest-joined member

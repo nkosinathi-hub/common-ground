@@ -39,7 +39,9 @@ latency. Frontend resolution collects fast playable results without waiting for 
   command stubs cover repeated service install/start without modifying a real daemon or route.
 - Browser tests use a seekable fixture server and two separate accounts/contexts on local
   Supabase Realtime. Both MP4 and HLS exercise native start, pause, forward/reverse seeks,
-  participant controls, shared progression and watch history for both members.
+  participant controls, shared progression and watch history for both members. Ten consecutive
+  two-browser party runs (five per format) also cover rapid seek/buffering bursts without
+  exceeding Realtime presence limits.
 - A multi-audio HLS fixture declares Spanish as its default; the player selects English and can
   switch to Spanish. MP4 and HLS load local SRT captions, show cues and deduplicate re-selection.
 - These deterministic browser checks do not certify a third-party provider's availability or

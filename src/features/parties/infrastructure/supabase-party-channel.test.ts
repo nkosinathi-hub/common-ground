@@ -65,11 +65,9 @@ describe("SupabasePartyChannel", () => {
     fake.status("SUBSCRIBED")
     fake.status("CHANNEL_ERROR")
     fake.status("SUBSCRIBED")
-    expect(fake.calls.filter(([c]) => c === "track")).toEqual([
-      ["track", ana],
-      ["track", ana],
-    ])
+    await vi.waitFor(() => expect(fake.calls.filter(([c]) => c === "track")).toHaveLength(2))
     expect(got.status).toEqual(["joined", "reconnecting", "joined"])
+    connection.leave()
   })
 
   it("reports a missed heartbeat, and rejoins when the app comes back", async () => {

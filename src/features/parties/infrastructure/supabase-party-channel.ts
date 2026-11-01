@@ -2,6 +2,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js"
 import type { Db } from "@/shared/infrastructure/supabase"
 import type { PartyChannel, PartyChannelHandlers, PartyConnection } from "../application/ports"
 import { parseMessage, parsePresence, type PartyMessage } from "../domain/messages"
+import { PresencePublisher } from "./presence-publisher"
 import type { Presence } from "../domain/party-machine"
 
 const EVENT = "party"
@@ -20,8 +21,7 @@ export class SupabasePartyChannel implements PartyChannel {
   connect(partyId: string, handlers: PartyChannelHandlers): PartyConnection {
     const config = { private: true, broadcast: { self: false }, presence: { key: "" } }
     const channel = this.db.channel(`party:${partyId}`, { config })
-    let mine: Presence | null = null
-    let joined = false
+    const publisher = new PresencePublisher((value) => void channel.track(value))
     channel
       .on("broadcast", { event: EVENT }, ({ payload }) => {
         const message = parseMessage(payload)
@@ -29,8 +29,8 @@ export class SupabasePartyChannel implements PartyChannel {
       })
       .on("presence", { event: "sync" }, () => handlers.onPresence(people(channel)))
     const onStatus = (status: string) => {
-      joined = status === "SUBSCRIBED"
-      if (joined && mine) void channel.track(mine)
+      const joined = status === "SUBSCRIBED"
+      publisher.online(joined)
       if (joined) handlers.onStatus("joined")
       else if (LOST.has(status)) handlers.onStatus("reconnecting")
     }
@@ -41,17 +41,15 @@ export class SupabasePartyChannel implements PartyChannel {
     const onVisible = () => {
       if (document.visibilityState !== "visible") return
       if (!this.db.realtime.isConnected()) this.db.realtime.connect()
-      if (channel.state === "joined") handlers.onStatus("joined")
+      if (channel.state === "joined") onStatus("SUBSCRIBED")
     }
     document.addEventListener("visibilitychange", onVisible)
     return {
       send: (message: PartyMessage) =>
         void channel.send({ type: "broadcast", event: EVENT, payload: message }),
-      track: (presence: Presence) => {
-        mine = presence
-        if (joined) void channel.track(presence)
-      },
+      track: (presence: Presence) => publisher.track(presence),
       leave: () => {
+        publisher.close()
         document.removeEventListener("visibilitychange", onVisible)
         this.db.realtime.onHeartbeat(() => undefined)
         void this.db.removeChannel(channel)
