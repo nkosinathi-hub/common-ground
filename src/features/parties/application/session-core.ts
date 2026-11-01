@@ -39,6 +39,7 @@ export class SessionCore {
     this.playerSync = new PlayerSync(
       () => (this.mine.ready ? this.currentPlayer() : null),
       () => this.sync.now(),
+      () => this.setPresence({ ready: false, buffering: false }),
     )
   }
 

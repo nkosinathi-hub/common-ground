@@ -21,6 +21,7 @@ export class PlayerSync {
   constructor(
     source: PlayerSource,
     private readonly now: () => number,
+    private readonly blocked: () => void = () => {},
   ) {
     this.current = typeof source === "function" ? source : () => source
   }
@@ -44,11 +45,11 @@ export class PlayerSync {
       player.seek(timeline.position)
       this.timer = setTimeout(() => {
         this.timer = null
-        void player.play().catch(() => undefined)
+        this.play(player)
       }, wait)
     } else {
       player.seek(positionAt(timeline, this.now()))
-      void player.play().catch(() => undefined)
+      this.play(player)
     }
     this.setRate(1)
   }
@@ -67,6 +68,17 @@ export class PlayerSync {
   stop(): void {
     if (this.timer) clearTimeout(this.timer)
     this.timer = null
+  }
+
+  private play(player: PlayerControl): void {
+    void player.play().catch((error: unknown) => {
+      if (
+        this.player === player &&
+        error instanceof DOMException &&
+        error.name === "NotAllowedError"
+      )
+        this.blocked()
+    })
   }
 
   private setRate(rate: number): void {
