@@ -30,6 +30,9 @@ select tests.reset_role();
 
 select is((select count(*)::int from cron.job where jobname = 'watch-party-expiry'), 1,
   'stale parties expire on a schedule');
+-- Expiry is global; end parties this test did not create so leftovers on a local stack do not count.
+update public.watch_parties set status = 'ended', ended_at = now()
+  where id not in (select id from p) and status in ('planned', 'live');
 update public.watch_parties set created_at = now() - interval '7 hours'
   where id = (select id from p where k = 'old');
 update public.watch_parties set status = 'live', started_at = now() - interval '1 hour'

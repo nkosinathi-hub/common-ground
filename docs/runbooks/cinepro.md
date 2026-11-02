@@ -73,10 +73,10 @@ with Tailscale Funnel on the next port:
 The app still requires sign-in and space membership to open a title. Those checks protect the
 workspace data; they do not authenticate requests made directly to the public CinePro endpoint.
 
-`scripts/cinepro/server.sh stop` disables the installed user service, removes the Tailscale route,
-and stops the container. `scripts/cinepro/server.sh install serve` installs the same boot startup
-using tailnet-only Tailscale Serve instead of public Funnel. To start it only for the current
-session, use `scripts/cinepro/server.sh start funnel`.
+`scripts/cinepro/server.sh stop` disables the user service, removes the route and stops Core. At
+boot the service waits up to two minutes for Tailscale and retries every 15 s if start fails
+(`systemctl --user status common-ground-cinepro`). `install serve` uses tailnet-only Serve, not
+public Funnel; `start funnel` runs Core for the current session only.
 
 ## Troubleshooting
 
