@@ -13,14 +13,13 @@ root=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 port=8443
 local_url=http://127.0.0.1:3000
 unit=common-ground-cinepro.service
+# shellcheck source=scripts/cinepro/tailnet.sh
+source "$root/scripts/cinepro/tailnet.sh"
 cinepro_user=${USER:-$(id -un)}
 
 compose() {
   if command -v podman >/dev/null 2>&1; then podman compose -f "$root/cinepro/compose.yml" "$@"
   else docker compose -f "$root/cinepro/compose.yml" "$@"; fi
-}
-tailnet() {
-  tailscale status --json | python3 -c "import sys,json;s=json.load(sys.stdin);print($1)"
 }
 
 stop_service() {
@@ -47,13 +46,7 @@ mode=${2:-funnel}
   echo "cinepro: copy cinepro/.env.example to cinepro/.env and set TMDB_API_KEY" >&2
   exit 1
 }
-# Without HTTPS certificates enabled for the tailnet, `tailscale serve` waits forever.
-certs=$(tailnet 'len(s.get("CertDomains") or [])')
-[ "$certs" -gt 0 ] || {
-  echo "cinepro: enable HTTPS Certificates at https://login.tailscale.com/admin/dns, then" \
-    "run this again" >&2
-  exit 1
-}
+wait_for_tailnet
 host=$(tailnet '"Self" in s and s["Self"]["DNSName"].rstrip(".")')
 
 if [ "$1" = install ]; then
@@ -63,12 +56,16 @@ if [ "$1" = install ]; then
   cat >"$unit_dir/$unit" <<EOF
 [Unit]
 Description=Common Ground CinePro playback service
+Wants=network-online.target
 After=network-online.target
+StartLimitIntervalSec=0
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
 ExecStart="$root/scripts/cinepro/server.sh" start $mode
+Restart=on-failure
+RestartSec=15
 
 [Install]
 WantedBy=default.target
