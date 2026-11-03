@@ -27,6 +27,7 @@ field across the full header; the utility icons fade away and become inert while
 Close, Escape or clicking outside restores the utility controls. Cmd/Ctrl+K focuses search.
 The bottom control remains available; page actions no longer compete for header space.
 More retains quick idea capture from every screen, even when its primary action is different.
+Notifications in More retain their live unread count; closing the drawer returns focus to More.
 
 ## Universal search
 

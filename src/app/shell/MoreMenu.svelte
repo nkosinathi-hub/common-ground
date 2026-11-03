@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as Popover from "$lib/components/ui/popover"
   import { openCapture } from "@/features/ideas"
-  import { NotificationsBell } from "@/features/notifications"
+  import { NotificationsBell, useNotifications } from "@/features/notifications"
   import { buildHash } from "@/shared/domain"
   import { RevealContent } from "@/shared/ui"
   let {
@@ -25,6 +25,7 @@
     open = false
   })
   const close = () => (open = false)
+  const { store } = useNotifications()
 </script>
 
 <Popover.Root bind:open>
@@ -72,7 +73,10 @@
       onclick={() => {
         close()
         notifications = true
-      }}><Bell aria-hidden="true" />Notifications</Button
+      }}
+      ><Bell aria-hidden="true" />{store.unread > 0
+        ? `Notifications, ${store.unread} unread`
+        : "Notifications"}</Button
     >
     <Button
       variant="ghost"

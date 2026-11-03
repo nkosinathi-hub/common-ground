@@ -1,3 +1,4 @@
+import { openNotifications } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { createSpace, signIn } from "../support/session"
 import { createUser, requireStack } from "../support/stack"
@@ -5,14 +6,12 @@ import { createUser, requireStack } from "../support/stack"
 requireStack()
 
 // #28: on a phone the notifications open as a sheet covering the whole screen.
-test("notifications fill a phone screen and Escape returns to the bell @mobile", async ({
-  page,
-}) => {
+test("notifications fill a phone screen and Escape returns to More @mobile", async ({ page }) => {
   test.skip(test.info().project.name !== "mobile", "phones only")
   await signIn(page, await createUser("phone"))
   await createSpace(page, "Phone space")
-  const bell = page.getByRole("button", { name: /^Notifications/ })
-  await bell.click()
+  const more = page.getByRole("button", { name: "More", exact: true })
+  await openNotifications(page)
 
   const sheet = page.getByRole("dialog", { name: "Notifications" })
   await expect(sheet).toBeVisible()
@@ -25,5 +24,5 @@ test("notifications fill a phone screen and Escape returns to the bell @mobile",
 
   await page.keyboard.press("Escape")
   await expect(sheet).toBeHidden()
-  await expect(bell).toBeFocused()
+  await expect(more).toBeFocused()
 })

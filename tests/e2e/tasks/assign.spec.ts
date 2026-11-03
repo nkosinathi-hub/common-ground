@@ -1,3 +1,4 @@
+import { openNotifications } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { captureIdea, inviteMember, openIdeaTab, removeMember } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
@@ -30,7 +31,7 @@ test("assigning a task notifies the member and removal unassigns them", async ({
   await expect(taskCard(page, "Book the stall")).toContainText(`Due ${due.shown}`)
 
   await benPage.reload()
-  await benPage.getByRole("button", { name: "Notifications, 1 unread" }).click()
+  await openNotifications(benPage)
   await expect(benPage.getByRole("link", { name: /ana assigned you a task/ })).toBeVisible()
   await benPage.keyboard.press("Escape")
 

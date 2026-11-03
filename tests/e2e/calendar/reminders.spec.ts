@@ -1,3 +1,4 @@
+import { openNotifications } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { createSpace, signIn } from "../support/session"
 import { admin, createUser, requireStack } from "../support/stack"
@@ -34,6 +35,6 @@ test("a due reminder notifies its attendee once", async ({ page }) => {
   await deliver()
   await deliver()
   await page.reload()
-  await page.getByRole("button", { name: "Notifications, 1 unread" }).click()
+  await openNotifications(page)
   await expect(page.getByRole("link", { name: /A plan is coming up/ })).toHaveCount(1)
 })

@@ -30,3 +30,15 @@ export async function quickCapture(page: Page) {
     .getByRole("button", { name: "Capture idea", exact: true })
     .click()
 }
+
+/** Notifications remain under More on every screen size. */
+export async function notificationControl(page: Page) {
+  await page.getByRole("button", { name: "More", exact: true }).click()
+  const control = page.getByRole("button", { name: /^Notifications/ })
+  await expect(control).toBeVisible()
+  return control
+}
+
+export async function openNotifications(page: Page) {
+  await (await notificationControl(page)).click()
+}
