@@ -50,7 +50,7 @@
     onCloseAutoFocus,
   }: Props = $props()
 
-  // Opens on the first field, so typing starts at once; Close is only the fallback.
+  // Desktop opens ready to type; touch opens on Close without summoning a keyboard.
   let body = $state<HTMLElement>()
 
   function submit(event: SubmitEvent) {

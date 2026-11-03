@@ -73,7 +73,7 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
     page.getByRole("button", { name: "Open search", exact: true }),
   )
   await page.keyboard.press("Escape")
-  const more = page.getByRole("button", { name: "More", exact: true })
+  const more = page.getByRole("button", { name: "Common Ground menu", exact: true })
   await more.click()
   await page.getByRole("button", { name: "Notifications", exact: true }).click()
   await expect(page.getByRole("dialog", { name: "Notifications" })).toBeVisible()

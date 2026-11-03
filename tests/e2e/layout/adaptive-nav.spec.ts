@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test"
-import { navigateSection, openNavigation, openSearch } from "../support/navigation"
+import {
+  activatePageAction,
+  navigateSection,
+  openNavigation,
+  openSearch,
+} from "../support/navigation"
 
 test("one universal search and contextual actions across all routes @mobile", async ({ page }) => {
   const errors: string[] = []
@@ -11,7 +16,7 @@ test("one universal search and contextual actions across all routes @mobile", as
     page.locator("header").first().getByRole("button", { name: "Add a title", exact: true }),
   ).toHaveCount(0)
   await expect(page.locator(".fan-trigger")).toBeVisible()
-  await page.getByRole("button", { name: "Add a title", exact: true }).click()
+  await activatePageAction(page, "Add a title")
   const search = page.getByRole("searchbox", { name: "Search everything" })
   await expect(search).toBeFocused()
   await search.fill("Ted")
@@ -19,18 +24,18 @@ test("one universal search and contextual actions across all routes @mobile", as
   await expect(page.getByRole("searchbox")).toHaveCount(1)
   await page.keyboard.press("Escape")
   await navigateSection(page, "Notes")
-  await page.getByRole("button", { name: "Write a note", exact: true }).click()
+  await activatePageAction(page, "Write a note")
   await expect(page.getByRole("dialog")).toBeVisible()
   await page.keyboard.press("Escape")
   await navigateSection(page, "Calendar")
-  await page.getByRole("button", { name: "New event", exact: true }).click()
+  await activatePageAction(page, "New event")
   await expect(page.getByRole("dialog", { name: "Make a little time" })).toBeVisible()
   await page.keyboard.press("Escape")
   await navigateSection(page, "Ideas")
-  await page.getByRole("button", { name: "Capture idea", exact: true }).click()
+  await activatePageAction(page, "Capture idea")
   await expect(page.getByRole("dialog", { name: "Catch it before it goes" })).toBeVisible()
   await page.keyboard.press("Escape")
-  await page.getByRole("button", { name: "More", exact: true }).click()
+  await page.getByRole("button", { name: "Common Ground menu", exact: true }).click()
   await page.getByRole("link", { name: "Account and data", exact: true }).click()
   await expect(page.getByRole("heading", { name: "Account and data", exact: true })).toBeVisible()
   expect(errors).toEqual([])
@@ -48,10 +53,12 @@ test("semicircle stays centred, clear and usable at every width @mobile", async 
       left: el.getBoundingClientRect().left + parseFloat(getComputedStyle(el).paddingLeft),
       right: el.getBoundingClientRect().right - parseFloat(getComputedStyle(el).paddingRight),
     }))
-    const space = (await page.getByRole("button", { name: "Switch space" }).boundingBox())!
-    const more = (await page.getByRole("button", { name: "More", exact: true }).boundingBox())!
-    expect(Math.abs(space.x - main.left)).toBeLessThan(1)
-    expect(Math.abs(more.x + more.width - main.right)).toBeLessThan(1)
+    const menu = (await page
+      .getByRole("button", { name: "Common Ground menu", exact: true })
+      .boundingBox())!
+    const search = (await page.getByRole("search", { name: "Workspace" }).boundingBox())!
+    expect(Math.abs(menu.x - main.left)).toBeLessThan(1)
+    expect(Math.abs(search.x + search.width - main.right)).toBeLessThan(1)
     const nav = await openNavigation(page)
     const center = (await page.locator(".fan-trigger").boundingBox())!
     expect(Math.abs(center.x + center.width / 2 - width / 2)).toBeLessThan(1)

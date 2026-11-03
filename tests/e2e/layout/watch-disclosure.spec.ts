@@ -11,7 +11,9 @@ test("Watch keeps filters quiet until requested, applies once and cancels safely
   await expect(controls.getByRole("button")).toHaveCount(2)
   await expect(page.getByRole("combobox")).toHaveCount(0)
   await expect(page.getByRole("radio")).toHaveCount(0)
-  await expect(page.locator(".fan-trigger")).toHaveAccessibleName("Add a title")
+  await expect(page.locator(".fan-trigger")).toHaveAccessibleName(
+    info.project.name === "desktop" ? "Add a title" : "Open navigation",
+  )
   await controls.getByRole("button", { name: "Filters", exact: true }).click()
   const dialog = page.getByRole("dialog", { name: "Your collection, your way" })
   await expect(dialog).toBeVisible()
@@ -63,8 +65,8 @@ test("open menu hints do not cover the menu and hover never changes control boun
   expect(label.y + label.height).toBeLessThanOrEqual((await pick.boundingBox())!.y)
   expect(label.x).toBeGreaterThanOrEqual(0)
   expect(label.x + label.width).toBeLessThanOrEqual(page.viewportSize()!.width)
-  const more = page.getByRole("button", { name: "More", exact: true })
+  const more = page.getByRole("button", { name: "Common Ground menu", exact: true })
   await more.click()
-  await expect(more.locator("[data-reveal-label]")).toHaveCSS("opacity", "0")
+  await expect(more).toHaveAttribute("aria-expanded", "true")
   await expect(page.getByRole("button", { name: "Navigate", exact: true })).toBeVisible()
 })

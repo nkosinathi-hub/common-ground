@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
+  import { MediaQuery } from "svelte/reactivity"
+  import { ChevronUp, Compass } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { RevealContent, type PageActionSpec } from "@/shared/ui"
-  import { FanGesture } from "./fan-gesture"
+  import { ActionInput } from "./action-input"
   let {
     action,
     open,
@@ -20,10 +22,16 @@
     onHover: () => void
     onActivate: () => void
   } = $props()
-  let pointer = false,
-    skipClick = false
-  const gesture = new FanGesture(() => onReveal())
-  onDestroy(() => gesture.cancel())
+  const touch = new MediaQuery("(pointer: coarse)")
+  const input = new ActionInput({
+    action: () => action,
+    open: () => open,
+    touch: () => touch.current,
+    reveal: () => onReveal(),
+    activate: () => onActivate(),
+  })
+  onDestroy(input.cancel)
+  const label = $derived(touch.current && !open ? "Open navigation" : action.label)
 </script>
 
 <Button
@@ -31,57 +39,32 @@
   variant="ghost"
   size="icon"
   class="reveal-trigger fan-trigger"
-  aria-label={action.label}
+  aria-label={label}
   aria-expanded={open}
   aria-controls={controls}
   aria-describedby={`${controls}-hint`}
-  aria-disabled={action.disabled || undefined}
+  aria-disabled={((open || !touch.current) && action.disabled) || undefined}
   onpointerenter={(event) => {
-    if (event.pointerType === "mouse") onHover()
+    if (event.pointerType === "mouse" && !touch.current) onHover()
   }}
-  onfocus={(event) => {
-    if (!pointer && event.currentTarget.matches(":focus-visible")) onReveal()
-  }}
-  onpointerdown={(event) => {
-    pointer = true
-    skipClick = false
-    gesture.down(event)
-  }}
-  onpointermove={(event) => gesture.move(event)}
-  onpointerup={(event) => {
-    pointer = false
-    if (event.pointerType === "mouse") {
-      gesture.cancel()
-      return
-    }
-    skipClick = true
-    if (gesture.finish(event) && !action.disabled) {
-      onActivate()
-      action.onclick()
-    }
-  }}
-  onpointercancel={() => {
-    pointer = false
-    gesture.cancel()
-  }}
-  oncontextmenu={(event) => {
-    event.preventDefault()
-    gesture.show()
-  }}
-  onclick={(event) => {
-    if (event.detail !== 0 && (skipClick || gesture.consume())) {
-      skipClick = false
-      return
-    }
-    if (!action.disabled) {
-      onActivate()
-      action.onclick()
-    }
-  }}
+  onfocus={input.focus}
+  onpointerdown={input.down}
+  onpointermove={input.move}
+  onpointerup={input.up}
+  onpointercancel={input.cancel}
+  oncontextmenu={input.context}
+  onclick={input.click}
 >
-  <RevealContent icon={action.icon} label={action.label} compact />
+  <RevealContent
+    icon={touch.current && !open ? Compass : action.icon}
+    label={action.label}
+    compact
+  />
+  <ChevronUp class="action-chevron" aria-hidden="true" />
+  <span class="touch-action-label" aria-hidden="true">{open ? action.label : "Navigate"}</span>
 </Button>
-<span id={`${controls}-hint`} class="sr-only"
-  >Activate for {action.label}. Hover, hold or swipe up for navigation. Keyboard: arrow keys for
-  routes, Escape to close. Navigation is also in More.</span
->
+<span id={`${controls}-hint`} class="sr-only">
+  Touch: tap to reveal routes, then use the centre for {action.label}. Mouse: hover for routes,
+  click for {action.label}. Arrow keys navigate; Escape closes. All tools are in the Common Ground
+  logo.
+</span>

@@ -1,4 +1,5 @@
 import { expect, type Page } from "@playwright/test"
+import { activatePageAction } from "../support/navigation"
 
 const UUID = "[0-9a-f-]{36}"
 
@@ -18,7 +19,7 @@ export interface EventInput {
 /** Adds an event through the calendar's dialog, opens it and returns its id. */
 export async function addEvent(page: Page, spaceId: string, input: EventInput): Promise<string> {
   await page.goto(`./#/s/${spaceId}/calendar`)
-  await page.getByRole("button", { name: "New event" }).click()
+  await activatePageAction(page, "New event")
   const dialog = page.getByRole("dialog", { name: "Make a little time" })
   await dialog.getByLabel("Title").fill(input.title)
   if (input.reminder) await dialog.getByLabel("Reminder").selectOption({ label: input.reminder })

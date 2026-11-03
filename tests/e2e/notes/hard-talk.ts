@@ -5,6 +5,7 @@ import { projectPage, signIn } from "../support/session"
 import { signedInClient } from "../support/clients"
 import { createSpace } from "../support/session"
 import { createUser, type TestUser } from "../support/stack"
+import { clickPageButton } from "../support/navigation"
 
 /** Joins `spaceId` through an invite, waiting until Home listens for arriving notes. */
 export async function join(
@@ -28,7 +29,7 @@ export async function join(
 
 /** Opens the composer as "Something on my mind" to `to`. */
 export async function startSharing(page: Page, to: string): Promise<Locator> {
-  await page.getByRole("button", { name: "Write a note" }).click()
+  await clickPageButton(page, "Write a note")
   const dialog = page.getByRole("dialog", { name: COMPOSER })
   await dialog.getByRole("radio", { name: "Something on my mind" }).click()
   await dialog.getByLabel("To", { exact: true }).selectOption({ label: to })

@@ -1,6 +1,26 @@
 /* One primary button; hover, hold and arrows reveal the surrounding destinations. */
 .radial-nav > .fan-trigger {
   touch-action: pan-x;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--background);
+  color: var(--primary-foreground);
+  background: var(--primary);
+  box-shadow:
+    0 0 0 4px color-mix(in oklab, var(--background) 70%, transparent),
+    0 8px 24px color-mix(in oklab, var(--foreground) 28%, transparent);
+  transition: box-shadow 240ms ease;
+}
+.radial-nav > .fan-trigger:is(:hover, :focus-visible, [aria-expanded="true"]) {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  box-shadow:
+    0 0 0 6px color-mix(in oklab, var(--primary) 20%, transparent),
+    0 10px 28px color-mix(in oklab, var(--foreground) 32%, transparent);
+}
+.radial-nav > .fan-trigger [data-reveal-surface] {
+  color: inherit;
+  background: transparent;
 }
 .radial-nav > .fan-trigger [data-reveal-surface][data-compact="true"] [data-reveal-label] {
   top: auto;
@@ -9,6 +29,34 @@
   left: 50%;
   transform: translateX(-50%);
 }
-.radial-nav[data-open="true"] > .fan-trigger [data-reveal-label] {
-  opacity: 0;
+.radial-nav[data-open="true"] > .fan-trigger:is(:hover, :focus-visible) [data-reveal-label] {
+  opacity: 1;
+}
+.action-chevron {
+  position: absolute;
+  top: 3px;
+  width: 12px;
+  height: 12px;
+  opacity: 0.8;
+}
+.touch-action-label {
+  display: none;
+}
+@media (pointer: coarse) {
+  .touch-action-label {
+    position: absolute;
+    top: calc(100% + 6px);
+    display: block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: var(--foreground);
+    background: var(--card);
+    font-size: 12px;
+    line-height: 16px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .radial-nav > .fan-trigger [data-reveal-label] {
+    display: none;
+  }
 }

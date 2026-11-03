@@ -50,10 +50,12 @@ export async function pickCustomButton(page: Page, hex: string) {
   await page.getByRole("button", { name: "Use colour" }).click()
 }
 
-/** The space's picture beside its name in the space switcher's menu (the rail shows the name only). */
+/** The space's picture beside its name inside the Common Ground logo menu. */
 export async function spacePicture(page: Page, name: string) {
-  await page.getByRole("button", { name: "Switch space" }).locator("visible=true").first().click()
-  const picture = page.getByRole("menuitem", { name }).locator("img")
+  await page.getByRole("button", { name: "Common Ground menu", exact: true }).click()
+  const menu = page.getByRole("dialog", { name: "Common Ground menu", exact: true })
+  await menu.getByText("Your spaces", { exact: true }).click()
+  const picture = menu.getByRole("link", { name }).locator("img")
   await expect(picture).toBeVisible()
   return picture
 }
