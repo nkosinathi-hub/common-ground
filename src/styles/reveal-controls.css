@@ -1,0 +1,94 @@
+/* Bare icons at rest; the same surface and label reveal on hover, keyboard focus or an open menu. */
+.reveal-trigger {
+  position: relative;
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted-foreground);
+}
+[data-reveal-surface] {
+  position: relative;
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 12px;
+  transition:
+    background-color 240ms ease,
+    color 240ms ease;
+}
+[data-reveal-label] {
+  max-width: 0;
+  margin-inline-start: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transform: translateX(-4px);
+  transition:
+    max-width 280ms ease,
+    margin 280ms ease,
+    opacity 220ms ease,
+    transform 280ms ease;
+}
+.reveal-trigger:is([aria-current="page"], [data-current="true"]) {
+  color: var(--primary);
+}
+.reveal-trigger[aria-current="page"]::after {
+  position: absolute;
+  bottom: 1px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  content: "";
+}
+.reveal-trigger:is(:focus-visible, [aria-expanded="true"]) [data-reveal-surface] {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+.reveal-trigger:is(:focus-visible, [aria-expanded="true"]) [data-reveal-label] {
+  max-width: 14rem;
+  margin-inline-start: 8px;
+  opacity: 1;
+  transform: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .reveal-trigger:hover [data-reveal-surface] {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+  }
+  .reveal-trigger:hover [data-reveal-label] {
+    max-width: 14rem;
+    margin-inline-start: 8px;
+    opacity: 1;
+    transform: none;
+  }
+}
+[data-reveal-surface][data-compact="true"] [data-reveal-label] {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  margin: 0;
+  border-radius: 8px;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  pointer-events: none;
+}
+.reveal-trigger:is(:hover, :focus-visible, [aria-expanded="true"])
+  [data-compact="true"]
+  [data-reveal-label] {
+  padding: 6px 10px;
+}
+
+.reveal-trigger[aria-expanded="true"] [data-compact="true"] [data-reveal-label] {
+  opacity: 0;
+}

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test"
+import { navigateSection } from "../support/navigation"
 
 test("sample demo uses the real pages, details and dialogs without login @mobile", async ({
   page,
@@ -11,7 +12,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await page.getByRole("button", { name: "Write a note", exact: true }).click()
   await expect(page.getByRole("dialog")).toBeVisible()
   await page.keyboard.press("Escape")
-  await page.getByRole("link", { name: "Watch", exact: true }).click()
+  await navigateSection(page, "Watch")
   await expect(page.getByRole("heading", { name: "Our next good watch." })).toBeVisible()
   await page.getByRole("link", { name: /Ted Lasso poster/ }).click()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
@@ -25,7 +26,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(page.getByText(/Ben is ahead/)).toBeVisible()
   await page.reload()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
-  await page.getByRole("link", { name: "Ideas", exact: true }).click()
+  await navigateSection(page, "Ideas")
   await page.getByRole("link", { name: /A weekend in the Cederberg/ }).click()
   await expect(
     page.getByRole("heading", { name: "A weekend in the Cederberg", exact: true }),
@@ -36,12 +37,12 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
       page.getByRole("heading", { name: "A weekend in the Cederberg", exact: true }),
     ).toBeVisible()
   }
-  await page.getByRole("link", { name: "Calendar", exact: true }).click()
+  await navigateSection(page, "Calendar")
   await expect(
     page.getByRole("heading", { level: 1, name: /Make time for each other|Time, together/ }),
   ).toBeVisible()
-  await page.getByRole("button", { name: "Switch space", exact: true }).click()
-  await page.getByRole("menuitem", { name: /Space settings/ }).click()
+  await page.getByRole("button", { name: "More", exact: true }).click()
+  await page.getByRole("link", { name: "Space settings", exact: true }).click()
   await expect(page.getByRole("heading", { name: "Space settings", exact: true })).toBeVisible()
   await page.getByRole("tab", { name: "Members & safety" }).click()
   await expect(

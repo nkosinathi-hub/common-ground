@@ -7,6 +7,7 @@ import type { SharedIntent, TitleDetailsInput } from "../domain/types"
 export interface AddedTitle {
   readonly id: string
   readonly title: string
+  readonly catalogKey?: string
 }
 
 /**
@@ -28,6 +29,10 @@ export class AddTitleState {
     return this.picked[catalogKey(title)] ?? "idle"
   }
 
+  idOf(title: CatalogTitle): string | undefined {
+    return this.added.find((item) => item.catalogKey === catalogKey(title))?.id
+  }
+
   /** Null when the title is already added or another add is still running. */
   async pick(title: CatalogTitle): Promise<Result<string> | null> {
     const key = catalogKey(title)
@@ -38,7 +43,7 @@ export class AddTitleState {
     // Already on the list counts as added: the tick is true either way.
     if (result.ok || result.error.kind === "conflict") this.picked[key] = "added"
     else delete this.picked[key]
-    this.record(title.title, result)
+    this.record(title.title, result, key)
     this.busy = false
     return result
   }
@@ -54,7 +59,7 @@ export class AddTitleState {
     this.picked = {}
   }
 
-  private record(title: string, result: Result<string>): void {
-    if (result.ok) this.added = [...this.added, { id: result.value, title }]
+  private record(title: string, result: Result<string>, key?: string): void {
+    if (result.ok) this.added = [...this.added, { id: result.value, title, catalogKey: key }]
   }
 }

@@ -65,21 +65,17 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
     dialog("Adjust my place"),
   )
   await page.goto(`./#/s/${spaceId}/watch`)
+  await page.getByRole("button", { name: "Add a title", exact: true }).click()
   await expectFocusTrap(
     page,
-    page.getByRole("button", { name: "Add a title", exact: true }),
-    dialog("Add something good"),
+    page.getByRole("button", { name: "Enter a title manually" }),
+    dialog("Add a title manually"),
   )
-  const trigger = page.getByRole("button", { name: "Add a title", exact: true })
-  await trigger.click()
-  await dialog("Add something good").getByRole("button", { name: "Done" }).click()
-  await expect(dialog("Add something good")).toBeHidden()
-  await expect(trigger).toBeFocused()
-  const bell = page.getByRole("button", { name: /^Notifications/ })
-  await bell.focus()
-  await page.keyboard.press("Enter")
-  await expect(bell).toHaveAttribute("aria-expanded", "true")
   await page.keyboard.press("Escape")
-  await expect(bell).toHaveAttribute("aria-expanded", "false")
-  await expect(bell).toBeFocused()
+  const more = page.getByRole("button", { name: "More", exact: true })
+  await more.click()
+  await page.getByRole("button", { name: "Notifications", exact: true }).click()
+  await expect(page.getByRole("dialog", { name: "Notifications" })).toBeVisible()
+  await page.keyboard.press("Escape")
+  await expect(more).toBeFocused()
 })

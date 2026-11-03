@@ -1,6 +1,5 @@
 <script lang="ts">
   import { useAuth } from "@/features/auth"
-  import { NotificationsBell } from "@/features/notifications"
   import { SettingsPage, useSpaces } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
   import { Loading } from "@/shared/ui"
@@ -12,7 +11,6 @@
   import WatchSection from "./pages/WatchSection.svelte"
   import AppShell from "./shell/AppShell.svelte"
   import CaptureDialog from "./shell/CaptureDialog.svelte"
-  import QuickCapture from "./shell/QuickCapture.svelte"
 
   type SpaceRoute = Extract<Route, { spaceId: string }>
   interface Props {
@@ -34,12 +32,10 @@
 {#if space && user}
   {#key space.id}
     <AppShell {space} {route} onSignOut={signOut}>
-      {#snippet actions()}<QuickCapture /><NotificationsBell />{/snippet}
-      {#snippet bell()}<QuickCapture compact /><NotificationsBell />{/snippet}
       {#if route.name === "home"}
         <HomePage {space} displayName={user.displayName} />
       {:else if route.name === "notes" || route.name === "note"}
-        <NotesPage spaceId={space.id} />
+        <NotesPage spaceId={space.id} noteId={route.name === "note" ? route.noteId : undefined} />
       {:else if route.name === "watch" || route.name === "watch-item"}
         <WatchSection
           {space}

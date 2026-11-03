@@ -1,23 +1,17 @@
 <script lang="ts">
   import { ChevronRight } from "@lucide/svelte"
-  import type { Snippet } from "svelte"
   import type { Crumb } from "./breadcrumbs"
 
   interface Props {
     crumbs: readonly Crumb[]
-    /** Capture idea and the bell. */
-    actions?: Snippet
   }
 
-  let { crumbs, actions }: Props = $props()
+  let { crumbs }: Props = $props()
 </script>
 
-<!-- Figma Top bar / Desktop (185:779). -->
-<!-- Sticky under the demo notice, if any (--chrome-top), so it never half-scrolls away. -->
-<header
-  class="sticky top-(--chrome-top) z-30 hidden h-16 items-center gap-related border-b border-border bg-background/95 px-gutter backdrop-blur md:flex"
->
-  <nav aria-label="Breadcrumb" class="min-w-0 flex-1">
+<!-- Detail pages keep their way back without a second fixed toolbar. -->
+{#if crumbs.length > 2}
+  <nav aria-label="Breadcrumb" class="min-w-0">
     <ol class="flex items-center gap-related">
       {#each crumbs as crumb, index (index)}
         <li class="flex min-w-0 items-center gap-related">
@@ -36,5 +30,4 @@
       {/each}
     </ol>
   </nav>
-  {@render actions?.()}
-</header>
+{/if}

@@ -19,11 +19,10 @@ function setup() {
   gateway.titles = [title(1, "Dune"), title(2, "Dune: Part Two"), title(3, "Arrival")]
   const onPick = vi.fn()
   const provide = () => provideCatalog({ service: new CatalogService(gateway) })
-  const props = { spaceId: SPACE_ID, onPick }
-  render(Provided, { props: { provide, component: CatalogSearch, props } })
-  const input = screen.getByRole<HTMLInputElement>("searchbox")
-  const type = (value: string) => fireEvent.input(input, { target: { value } })
-  return { gateway, onPick, input, type }
+  const props = { spaceId: SPACE_ID, onPick, query: "" }
+  const view = render(Provided, { props: { provide, component: CatalogSearch, props } })
+  const type = (query: string) => view.rerender({ props: { props: { ...props, query } } })
+  return { gateway, onPick, type }
 }
 
 describe("CatalogSearch", () => {
@@ -74,12 +73,12 @@ describe("CatalogSearch", () => {
   })
 
   it("shows the outage message, keeps the query and retries", async () => {
-    const { gateway, input, type } = setup()
+    const { gateway, type } = setup()
     gateway.failWith = { kind: "network", message: OUTAGE_MESSAGE }
     await type("dune")
     await settle(300)
     expect(screen.getByRole("alert")).toHaveTextContent(OUTAGE_MESSAGE)
-    expect(input.value).toBe("dune")
+    expect(gateway.calls.at(-1)?.request).toMatchObject({ query: "dune" })
     gateway.failWith = null
     await fireEvent.click(screen.getByRole("button", { name: "Try again" }))
     await settle()

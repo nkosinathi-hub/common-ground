@@ -1,0 +1,78 @@
+/* The magnifier is bare at rest; its field frosts over the shared header when revealed. */
+.search-reveal {
+  position: relative;
+  min-width: 2.75rem;
+  width: 2.75rem;
+}
+.search-reveal[data-expanded="true"] {
+  width: 100%;
+}
+.search-ice {
+  position: relative;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  border-radius: 1.5rem;
+  isolation: isolate;
+}
+.search-ice::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+  border-radius: inherit;
+  background: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--card) 88%, transparent),
+    color-mix(in oklab, var(--background) 72%, transparent)
+  );
+  box-shadow:
+    inset 0 1px color-mix(in oklab, var(--foreground) 8%, transparent),
+    0 8px 28px color-mix(in oklab, var(--foreground) 6%, transparent);
+  backdrop-filter: blur(0px) saturate(1);
+  opacity: 0;
+  transform: scaleX(0.8);
+  transform-origin: left;
+  transition:
+    opacity 360ms ease,
+    transform 420ms ease,
+    backdrop-filter 480ms ease;
+}
+.search-ice[data-expanded="true"]::before {
+  opacity: 1;
+  transform: scaleX(1);
+  backdrop-filter: blur(18px) saturate(1.25);
+}
+.search-opener[data-slot="button"] {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+.search-entry {
+  position: relative;
+  min-width: 0;
+  flex: 1;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity 260ms ease,
+    transform 360ms ease;
+}
+.search-ice[data-expanded="true"] .search-entry {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 70ms;
+}
+.search-clear[data-slot="button"] {
+  position: absolute;
+  inset: 0 0 auto auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+}
+.search-entry input::-webkit-search-cancel-button {
+  display: none;
+}

@@ -1,0 +1,14 @@
+/* One primary button; hover, hold and arrows reveal the surrounding destinations. */
+.radial-nav > .fan-trigger {
+  touch-action: pan-x;
+}
+.radial-nav > .fan-trigger [data-reveal-surface][data-compact="true"] [data-reveal-label] {
+  top: auto;
+  bottom: calc(100% + 8px);
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.radial-nav[data-open="true"] > .fan-trigger [data-reveal-label] {
+  opacity: 0;
+}

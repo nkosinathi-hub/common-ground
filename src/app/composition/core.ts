@@ -21,6 +21,8 @@ import { LocalActiveSpace } from "@/features/spaces/infrastructure/local-active-
 import { SupabaseSpacesGateway } from "@/features/spaces/infrastructure/supabase-spaces-gateway"
 import type { Db } from "@/shared/infrastructure/supabase"
 import { deviceStore } from "@/shared/ui"
+import { SearchService, provideSearch } from "@/features/search"
+import { SupabaseSearch } from "@/features/search/infrastructure/supabase-search"
 import { appAddress } from "./app-address"
 
 const clock = () => new Date()
@@ -34,6 +36,7 @@ export function composeCore(db: Db) {
   const appUrl = address.url
   const auth = new AuthService(new SupabaseAuthGateway(db), address)
   const session = new SessionStore(auth)
+  const search = new SearchService(new SupabaseSearch(db, () => session.user?.id ?? ""))
   const spaces = new SpacesService({
     gateway: new SupabaseSpacesGateway(db),
     active: new LocalActiveSpace(deviceStore()),
@@ -53,13 +56,14 @@ export function composeCore(db: Db) {
   const pushDevices = new SupabasePushDevices(db)
   const simkl = new SimklService(new SupabaseSimklGateway(db))
   return {
-    ...{ db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications },
+    ...{ db, auth, account, session, spaces, spacesStore, catalog, inbox, notifications, search },
     ...{ pushDevices, simkl },
   }
 }
 
 export function provideCore(services: ReturnType<typeof composeCore>): void {
   provideAuth({ service: services.auth, session: services.session })
+  provideSearch(services.search)
   provideAccount({ service: services.account })
   provideSimkl({ service: services.simkl })
   provideSpaces({ service: services.spaces, store: services.spacesStore })

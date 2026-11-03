@@ -3,7 +3,7 @@
   import { MediaQuery } from "svelte/reactivity"
   import * as Tabs from "$lib/components/ui/tabs"
   import { buildHash, type TitleTab } from "@/shared/domain"
-  import { AsyncView, navigate, pageTitle } from "@/shared/ui"
+  import { AsyncView, navigate, pageTitle, usePageActions } from "@/shared/ui"
   import type { DiscussionFrame } from "../domain/title-facts"
   import type { WatchItem } from "../domain/types"
   import { useWatch } from "./context"
@@ -31,6 +31,7 @@
 
   let { spaceId, itemId, backHref, tab, ...slots }: Props = $props()
   const page = untrack(() => new TitlePage(useWatch(), spaceId, itemId))
+  const shellActions = usePageActions()
   const wide = new MediaQuery("min-width: 768px")
   const shown = $derived(tab === "discussion" ? "discussion" : "progress")
   const open = (next: string) =>
@@ -61,6 +62,9 @@
       </aside>
     </div>
   {:else}
+    {#if shellActions}<div class="flex items-center gap-related">
+        {@render slots.play?.(false)}{@render slots.together?.(item, true)}
+      </div>{/if}
     <Tabs.Root value={shown} onValueChange={open} class="flex flex-col gap-stack">
       <Tabs.List variant="line" aria-label="Title" class="w-full justify-start">
         <Tabs.Trigger value="progress">Progress</Tabs.Trigger>
@@ -72,11 +76,11 @@
       <Tabs.Content value="discussion">{@render slots.discussion?.(page.frame)}</Tabs.Content>
     </Tabs.Root>
     <!-- One sticky action above the tab bar (M03c): play, and Watch together as an icon. -->
-    <div
-      class="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 flex gap-related border-t border-border bg-background/95 px-gutter py-related backdrop-blur"
-    >
-      {@render slots.play?.(true)}{@render slots.together?.(item, true)}
-    </div>
+    {#if !shellActions}<div
+        class="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 flex gap-related border-t border-border bg-background/95 px-gutter py-related backdrop-blur"
+      >
+        {@render slots.play?.(true)}{@render slots.together?.(item, true)}
+      </div>{/if}
   {/if}
 {/snippet}
 

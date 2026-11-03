@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { onDestroy, type Snippet } from "svelte"
-  import { Clapperboard, LoaderCircle, RefreshCw, Search } from "@lucide/svelte"
+  import { onDestroy, untrack, type Snippet } from "svelte"
+  import { Clapperboard, LoaderCircle, RefreshCw } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { Input } from "$lib/components/ui/input"
-  import { FormField } from "@/shared/ui"
-  import { QUERY_MAX, type PickStatus } from "../domain/rules"
+  import { type PickStatus } from "../domain/rules"
   import type { CatalogTitle } from "../domain/types"
   import { useCatalog } from "./context"
   import Pagination from "./Pagination.svelte"
@@ -12,44 +10,31 @@
   import { SearchState } from "./search-state.svelte"
 
   interface Props {
+    onOpen?: () => void
     spaceId: string
     onPick: (title: CatalogTitle) => void
     /** Beside the query, e.g. the list new titles go to. */
     beside?: Snippet
     /** Marks results the caller has added (or is adding), so the search can stay as it is. */
     statusOf?: (title: CatalogTitle) => PickStatus
+    /** A caller-owned query lets a collection and the catalog share one search field. */
+    query: string
+    hrefOf?: (title: CatalogTitle) => string | undefined
   }
 
-  let { spaceId, onPick, beside, statusOf }: Props = $props()
+  let { spaceId, onPick, beside, statusOf, query, hrefOf, onOpen }: Props = $props()
 
   const search = new SearchState(useCatalog().service, () => spaceId)
+  $effect(() => {
+    const value = query
+    untrack(() => search.input(value))
+  })
   onDestroy(() => search.dispose())
 </script>
 
 <!-- Figma S03 search: the query beside the caller's "Add to", then results as rows. -->
 <section class="flex flex-col gap-stack" aria-label="Catalog search">
   <div class="flex flex-col gap-stack sm:flex-row sm:items-end">
-    <div class="min-w-0 flex-1">
-      <FormField id="catalog-query" label="Search titles">
-        {#snippet control({ id })}
-          <span class="relative block">
-            <Search
-              class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              {id}
-              type="search"
-              class="pl-9"
-              maxlength={QUERY_MAX}
-              placeholder="Search movies, series and anime…"
-              value={search.query}
-              oninput={(event) => search.input(event.currentTarget.value)}
-            />
-          </span>
-        {/snippet}
-      </FormField>
-    </div>
     {@render beside?.()}
   </div>
 
@@ -70,7 +55,7 @@
         <LoaderCircle class="size-4 animate-spin" aria-hidden="true" />Looking for a good story
       </p>
     {:else if search.result}
-      <SearchResults page={search.result} {onPick} {statusOf} />
+      <SearchResults page={search.result} {onPick} {statusOf} {hrefOf} {onOpen} />
     {:else if !search.error}
       <p class="py-section text-center type-sm text-muted-foreground">
         <Clapperboard

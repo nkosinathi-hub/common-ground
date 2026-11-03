@@ -1,3 +1,4 @@
+import { progressRows } from "./watch-data"
 import { commentRows } from "./comment-data"
 import { ANA, BEN, SPACE, demoId, now } from "./identity"
 
@@ -31,7 +32,12 @@ export const socialTables = {
     body: "Let's make a plan together.",
     created_at: now,
   })),
-  comments: commentRows,
+  comments: commentRows.map((row) => ({
+    ...row,
+    watch_items: row.watch_item_id
+      ? { watch_progress: progressRows.filter((p) => p.watch_item_id === row.watch_item_id) }
+      : null,
+  })),
   activity_events: [
     {
       id: demoId(65),

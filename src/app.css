@@ -4,6 +4,12 @@
 @import "@fontsource-variable/lora/wght.css";
 @import "./styles/generated/variables.css";
 @import "./styles/generated/theme.css";
+@import "./styles/reveal-controls.css";
+@import "./styles/reveal-touch.css";
+@import "./styles/search-ice.css";
+@import "./styles/header-controls.css";
+@import "./styles/radial-navigation.css";
+@import "./styles/route-action.css";
 
 @custom-variant dark (&:is(.dark *));
 

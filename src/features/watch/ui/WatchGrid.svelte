@@ -18,8 +18,8 @@
   const names = spaceNames(() => spaceId)
 </script>
 
-<!-- D02 cards in columns on wide screens; M02 rows on phones. -->
-{#if wide.current}
+<!-- Search uses compact rows on every screen so saved matches leave room for discovery. -->
+{#if wide.current && !list.filters.search.trim()}
   <ul
     aria-label="Titles"
     class="grid grid-cols-2 gap-columns lg:grid-cols-3"

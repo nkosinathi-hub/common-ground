@@ -4,10 +4,12 @@
 
 <!--
   The app's only bar above the shell. It is one line at every width and exactly --chrome-top
-  tall (app.css), so every sticky bar below it (rail, top bar, phone app bar) sits at that offset.
+  tall (app.css), so the floating navigation sits at that offset.
 -->
 <div
   data-demo-notice
+  role="region"
+  aria-label="Sample demo"
   class="sticky top-0 z-50 flex h-(--chrome-top) items-center justify-center gap-related overflow-hidden border-b bg-muted px-3 type-sm whitespace-nowrap"
 >
   <strong>Sample demo</strong>

@@ -26,7 +26,6 @@ const PAGE_LABELS: Partial<Record<Route["name"], string>> = {
 function parentOf(route: Route): Route | null {
   if (!("spaceId" in route)) return route.name === "privacy" ? { name: "account" } : null
   const { spaceId } = route
-  if (route.name === "notes") return { name: "home", spaceId }
   if (route.name === "note") return { name: "notes", spaceId }
   if (route.name === "watch-item" || route.name === "party") return { name: "watch", spaceId }
   if (route.name === "idea") return { name: "ideas", spaceId }

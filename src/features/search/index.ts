@@ -1,0 +1,5 @@
+export { SearchService } from "./application/search-service"
+export { SearchState } from "./ui/search-state.svelte"
+export { provideSearch, useSearch } from "./ui/context"
+export { SEARCH_KINDS, SEARCH_MAX } from "./domain/search"
+export type { SearchHit, SearchPage } from "./domain/search"

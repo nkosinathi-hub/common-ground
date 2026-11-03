@@ -6,7 +6,7 @@
   import { RecommendationsInbox } from "@/features/recommendations"
   import { ContinueWatching } from "@/features/watch"
   import { buildHash, type HomeCardId } from "@/shared/domain"
-  import { CollapsibleGroup, Fab, SectionHeader } from "@/shared/ui"
+  import { CollapsibleGroup, PageAction, SectionHeader } from "@/shared/ui"
   import UpNext from "./UpNext.svelte"
 
   interface Props {
@@ -26,7 +26,7 @@
 <!-- M01: sections on the page, one card for what is next, the rest folded away. -->
 {#if has("notes")}
   <section class="flex flex-col gap-item">
-    <!-- The floating button writes a note, so the header offers the rest of them instead. -->
+    <!-- The shell's page action writes a note; the section links to the rest of them. -->
     <SectionHeader title="Notes for you" seeAll={buildHash({ name: "notes", spaceId })} />
     <NotesCard {spaceId} bind:writing limit={2} />
   </section>
@@ -64,11 +64,6 @@
     </div>
   </CollapsibleGroup>
 {/if}
-<!-- Above the tab bar, clear of the safe area. -->
-<Fab
-  icon={PenLine}
-  label="Write a note"
-  extended
-  onclick={() => (writing = true)}
-  class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
-/>
+{#if has("notes")}
+  <PageAction icon={PenLine} label="Write a note" onclick={() => (writing = true)} />
+{/if}

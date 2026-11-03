@@ -1,4 +1,5 @@
 import type { DemoRow } from "./tables"
+import { like } from "./like-filter"
 
 const text = (value: unknown): string =>
   typeof value === "string" || typeof value === "number" || typeof value === "boolean"
@@ -18,8 +19,7 @@ export function matches(value: unknown, filter: string): boolean {
   if (filter === "is.null") return value == null
   if (filter === "not.is.null") return value != null
   if (filter.startsWith("in.(")) return filter.slice(4, -1).split(",").includes(text(value))
-  if (filter.startsWith("ilike."))
-    return text(value).toLowerCase().includes(filter.slice(6).replaceAll("%", "").toLowerCase())
+  if (filter.startsWith("ilike.")) return like(value, filter.slice(6))
   const [op, ...rest] = filter.split(".")
   const wanted = rest.join(".")
   if (op === "eq") return value != null && compare(value, wanted) === 0
@@ -40,6 +40,10 @@ function terms(list: string): string[] {
   let start = 0
   for (let i = 0; i < list.length; i++) {
     const c = list[i]
+    if (c === "\\") {
+      i++
+      continue
+    }
     if (c === '"') quoted = !quoted
     else if (!quoted && c === "(") depth++
     else if (!quoted && c === ")") depth--
@@ -54,6 +58,7 @@ function terms(list: string): string[] {
 /** A term of an `or=(…)` list: `and(…)` or `column.op.value`. */
 function holds(row: DemoRow, term: string): boolean {
   if (term.startsWith("and(")) return terms(term.slice(4, -1)).every((t) => holds(row, t))
+  if (term.startsWith("or(")) return terms(term.slice(3, -1)).some((t) => holds(row, t))
   const dot = term.indexOf(".")
   return matches(row[term.slice(0, dot)], term.slice(dot + 1))
 }

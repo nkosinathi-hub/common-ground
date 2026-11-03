@@ -10,11 +10,15 @@
 
   /** The badge stops counting here; more reads as "9+". */
   const BADGE_MAX = 9
+  let {
+    hideTrigger = false,
+    open = $bindable(false),
+    restoreFocus,
+  }: { hideTrigger?: boolean; open?: boolean; restoreFocus?: () => void } = $props()
 
   const { store } = useNotifications()
   // Phones get a full-screen sheet; a popover is too cramped below the sm breakpoint.
   const wide = new MediaQuery("min-width: 640px")
-  let open = $state(false)
   const badge = $derived(store.unread > BADGE_MAX ? `${BADGE_MAX}+` : String(store.unread))
 
   function follow(item: Notification) {
@@ -50,7 +54,7 @@
   {/if}
 {/snippet}
 
-{#if wide.current}
+{#if wide.current && !hideTrigger}
   <Popover.Root bind:open>
     <Popover.Trigger>
       {#snippet child({ props })}{@render bell(props)}{/snippet}
@@ -65,13 +69,19 @@
   </Popover.Root>
 {:else}
   <Sheet.Root bind:open>
-    <Sheet.Trigger>
-      {#snippet child({ props })}{@render bell(props)}{/snippet}
-    </Sheet.Trigger>
+    {#if !hideTrigger}<Sheet.Trigger>
+        {#snippet child({ props })}{@render bell(props)}{/snippet}
+      </Sheet.Trigger>{/if}
     <!-- The header's own Close replaces the sheet's small corner one (a 44px target on phones). -->
     <Sheet.Content
-      side="bottom"
-      class="h-dvh w-full max-w-none gap-0 p-0 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] [&>[data-dialog-close]]:hidden"
+      onCloseAutoFocus={(event) => {
+        if (restoreFocus) {
+          event.preventDefault()
+          restoreFocus()
+        }
+      }}
+      side={wide.current ? "right" : "bottom"}
+      class="h-dvh w-full max-w-none gap-0 p-0 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:max-w-md [&>[data-dialog-close]]:hidden"
     >
       <div class="flex items-center gap-related border-b border-border px-inset py-hairline">
         <Sheet.Title class="flex-1 type-h3">Notifications</Sheet.Title>
