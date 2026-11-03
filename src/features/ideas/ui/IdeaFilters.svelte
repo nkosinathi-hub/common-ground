@@ -1,7 +1,5 @@
 <script lang="ts">
-  import { Search } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
-  import { Input } from "$lib/components/ui/input"
   import { NativeSelect } from "$lib/components/ui/native-select"
   import * as ToggleGroup from "$lib/components/ui/toggle-group"
   import { IDEA_STAGES, type IdeaFilter, type Whose } from "../domain"
@@ -20,20 +18,7 @@
 </script>
 
 <!-- Figma Idea toolbar (211:10826): search, tags, stage, whose, Clear, then List or Board. -->
-<div class="flex flex-wrap items-center gap-related" role="search" aria-label="Filter ideas">
-  <label class="relative w-full sm:w-70">
-    <span class="sr-only">Search ideas</span>
-    <Search
-      class="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
-      aria-hidden="true"
-    />
-    <Input
-      class="pl-9"
-      placeholder="Search ideas"
-      value={filter.text ?? ""}
-      oninput={(event) => (filter = { ...filter, text: event.currentTarget.value })}
-    />
-  </label>
+<div class="flex flex-wrap items-center gap-related" role="group" aria-label="Filter ideas">
   <NativeSelect
     aria-label="Tag"
     value={filter.tag ?? ""}

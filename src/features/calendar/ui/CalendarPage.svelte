@@ -2,7 +2,7 @@
   import { untrack } from "svelte"
   import { Plus } from "@lucide/svelte"
   import { FORMER_MEMBER, todayDateOnly, type DateOnly } from "@/shared/domain"
-  import { AsyncView, Fab, navigate, Resource } from "@/shared/ui"
+  import { AsyncView, PageAction, navigate, Resource } from "@/shared/ui"
   import { peopleLine, type WeekStart } from "../domain"
   import AgendaList from "./AgendaList.svelte"
   import CalendarHeader from "./CalendarHeader.svelte"
@@ -52,7 +52,7 @@
 
 <!-- Figma D12 (month), D13 (agenda) and M05 (phone agenda). -->
 <div class="flex flex-col gap-section">
-  <CalendarHeader {month} {spaceName} onNew={() => plan(calendar.selected)} />
+  <CalendarHeader {month} {spaceName} />
   <CalendarToolbar {calendar} {zone} />
   {#if month}
     <AsyncView resource={calendar.window}>
@@ -76,11 +76,6 @@
     <PhoneAgenda {calendar} {weekStart} {zone} {spaceId} {who} />
   {/if}
 </div>
-{#if !wide}<Fab
-    icon={Plus}
-    label="New event"
-    onclick={() => plan(calendar.selected)}
-    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
-  />{/if}
+<PageAction icon={Plus} label="New event" onclick={() => plan(calendar.selected)} />
 
 <EventDialog bind:open={dialog.open} {spaceId} day={dialog.day} onSaved={created} />

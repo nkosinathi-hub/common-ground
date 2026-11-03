@@ -14,6 +14,16 @@ const PLAIN = { kind: "note", sections: {}, responseWish: null, supportWish: nul
 
 /** Mirrors the notes RLS and RPCs: visibility per viewer, read rows, Home order and paging. */
 export class InMemoryNotes extends NotesStore implements NotesRepository {
+  async get(spaceId: string, noteId: string, now: string): Promise<Result<NoteRecord>> {
+    const note = this.rows.find(
+      (n) =>
+        n.id === noteId &&
+        n.spaceId === spaceId &&
+        this.visible(n) &&
+        (!n.expiresAt || n.expiresAt > now),
+    )
+    return note ? ok(this.record(note)) : err(appError("not_found", "note not found"))
+  }
   async home(
     spaceId: string,
     after: NoteCursor | null,

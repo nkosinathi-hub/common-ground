@@ -17,9 +17,14 @@ const holdsFocus = (dialog: Locator) =>
 
 /**
  * Opens a modal from its trigger with Enter, checks Tab and Shift+Tab never leave it, closes it
- * with Escape and checks focus is back on the trigger.
+ * with Escape and checks focus returns to the trigger or its surviving replacement.
  */
-export async function expectFocusTrap(page: Page, trigger: Locator, dialog: Locator) {
+export async function expectFocusTrap(
+  page: Page,
+  trigger: Locator,
+  dialog: Locator,
+  returnFocus: Locator = trigger,
+) {
   await trigger.focus()
   await page.keyboard.press("Enter")
   await expect(dialog).toBeVisible()
@@ -30,5 +35,5 @@ export async function expectFocusTrap(page: Page, trigger: Locator, dialog: Loca
   }
   await page.keyboard.press("Escape")
   await expect(dialog).toBeHidden()
-  await expect(trigger).toBeFocused()
+  await expect(returnFocus).toBeFocused()
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, untrack } from "svelte"
   import { Badge } from "$lib/components/ui/badge"
   import { Button } from "$lib/components/ui/button"
   import * as Collapsible from "$lib/components/ui/collapsible"
@@ -14,10 +15,14 @@
     note: Note
     notes: NotesState
     me: string
+    initiallyOpen?: boolean
   }
 
-  let { note, notes, me }: Props = $props()
-  let open = $state(false)
+  let { note, notes, me, initiallyOpen = false }: Props = $props()
+  let open = $state(untrack(() => initiallyOpen))
+  onMount(() => {
+    if (initiallyOpen && isUnread(note)) void notes.markRead(note)
+  })
   const unread = $derived(isUnread(note))
   const author = $derived(note.authorId === me ? "You" : note.authorName)
   const to = $derived(

@@ -2,6 +2,7 @@
   import { ChevronDown, Play } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Popover from "$lib/components/ui/popover"
+  import { usePageActions } from "@/shared/ui"
   import { cn } from "$lib/utils"
   import type { EpisodeNumber } from "../application/ports"
   import EpisodePicker from "./EpisodePicker.svelte"
@@ -10,6 +11,7 @@
   /** Full width in the phone's sticky bar; fits its label in the header. */
   let { block = false }: { block?: boolean } = $props()
   const playback = useTitlePlayback()
+  const shellActions = usePageActions()
   let picking = $state(false)
   const next = $derived(playback?.next)
   const label = $derived.by(() => {
@@ -28,13 +30,13 @@
 <!-- Play split button (287:9587): the next episode from your place; the chevron picks another. -->
 {#if playback}
   <div class={cn("flex", block && "min-w-0 flex-1")}>
-    <Button
-      class={cn("min-w-0 rounded-r-none", block && "flex-1")}
-      disabled={playback.play.status === "loading"}
-      onclick={() => void playback.playNext()}
-    >
-      <Play aria-hidden="true" /><span class="truncate">{label}</span>
-    </Button>
+    {#if !shellActions}<Button
+        class={cn("min-w-0 rounded-r-none", block && "flex-1")}
+        disabled={playback.play.status === "loading"}
+        onclick={() => void playback.playNext()}
+      >
+        <Play aria-hidden="true" /><span class="truncate">{label}</span>
+      </Button>{/if}
     {#if playback.episodic}
       <Popover.Root bind:open={picking}>
         <Popover.Trigger>
@@ -42,7 +44,9 @@
             <Button
               {...props}
               size="icon"
-              class="rounded-l-none border-l border-primary-foreground/30"
+              class={shellActions
+                ? "rounded-full"
+                : "rounded-l-none border-l border-primary-foreground/30"}
               aria-label="Play an episode"
             >
               <ChevronDown />

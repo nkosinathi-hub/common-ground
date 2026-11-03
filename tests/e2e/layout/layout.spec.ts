@@ -1,3 +1,4 @@
+import { quickCapture } from "../support/navigation"
 import { expect, test, type Page } from "@playwright/test"
 import { addTitle, captureIdea } from "../support/fixtures"
 import { settled } from "../support/a11y"
@@ -56,7 +57,7 @@ test("reduced motion leaves nothing animating @mobile", async () => {
     await settled(page)
     moving.push(...(await longMotions(page)).map((m) => `${name}: ${m}`))
   }
-  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await quickCapture(page)
   await expect(page.getByRole("dialog")).toBeVisible()
   moving.push(...(await longMotions(page)).map((m) => `dialog: ${m}`))
   expect(moving).toEqual([])

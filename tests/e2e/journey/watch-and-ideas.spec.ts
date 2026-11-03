@@ -1,3 +1,4 @@
+import { quickCapture } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { addTitle, captureIdea } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
@@ -43,10 +44,10 @@ test("quick capture from any screen keeps an unsent draft", async ({ page }) => 
   await signIn(page, ana)
   const spaceId = await createSpace(page, "Quick")
   await page.goto(`./#/s/${spaceId}/watch`)
-  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await quickCapture(page)
   await page.getByLabel("Idea", { exact: true }).fill("Pop-up cinema")
   await page.reload()
-  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await quickCapture(page)
   await expect(page.getByLabel("Idea", { exact: true })).toHaveValue("Pop-up cinema")
   await page.getByRole("button", { name: "Save idea" }).click()
   await expect(page.getByText("Idea saved")).toBeVisible()

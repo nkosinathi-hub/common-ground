@@ -3,7 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { canDelete, type Viewer } from "@/shared/domain"
-  import { ConfirmDialog } from "@/shared/ui"
+  import { ConfirmDialog, PageAction, usePageActions } from "@/shared/ui"
   import type { Idea } from "../domain"
   import IdeaDetailsDialog from "./IdeaDetailsDialog.svelte"
 
@@ -15,6 +15,7 @@
   }
 
   let { idea, viewer, onChange, onDelete }: Props = $props()
+  const shellActions = usePageActions()
   let editing = $state(false)
   let confirming = $state(false)
 </script>
@@ -48,3 +49,9 @@
   confirmLabel="Delete"
   onConfirm={onDelete}
 />
+
+{#if shellActions}<PageAction
+    icon={SquarePen}
+    label="Edit idea"
+    onclick={() => (editing = true)}
+  />{/if}

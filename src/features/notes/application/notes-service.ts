@@ -54,6 +54,11 @@ export class NotesService {
     return ok({ items, next: page.value.next })
   }
 
+  async get(spaceId: string, noteId: string): Promise<Result<Note>> {
+    const found = await this.repo.get(spaceId, noteId, this.clock().toISOString())
+    return found.ok ? ok(await this.named(spaceId, found.value, toNote)) : found
+  }
+
   async send(spaceId: string, draft: NoteDraft): Promise<Result<Note>> {
     const body = validateNote(draft.body)
     if (!body.ok) return body

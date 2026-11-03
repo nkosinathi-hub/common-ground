@@ -1,18 +1,14 @@
 <script lang="ts">
-  import { Plus } from "@lucide/svelte"
-  import { Button } from "$lib/components/ui/button"
-
   interface Props {
     /** Month view (D12) or the agenda (D13); each has its own headline. */
     month: boolean
     spaceName: string
-    onNew: () => void
   }
 
-  let { month, spaceName, onNew }: Props = $props()
+  let { month, spaceName }: Props = $props()
 </script>
 
-<!-- D12 and D13 hero: the headline, a line under it, and the plus; phones use the FAB. -->
+<!-- The page keeps its headline; the shared shell places the New event action. -->
 <header class="flex items-start justify-between gap-columns">
   <div class="flex flex-col gap-related">
     <h1 class="type-h1 text-foreground">
@@ -24,7 +20,4 @@
         : `Everything ${spaceName} have planned, in one list.`}
     </p>
   </div>
-  <Button size="icon" class="max-md:hidden" aria-label="New event" onclick={onNew}
-    ><Plus aria-hidden="true" /></Button
-  >
 </header>

@@ -4,12 +4,14 @@
   import SearchResult from "./SearchResult.svelte"
 
   interface Props {
+    onOpen?: () => void
     page: SearchPage
     onPick: (title: CatalogTitle) => void
     statusOf?: (title: CatalogTitle) => PickStatus
+    hrefOf?: (title: CatalogTitle) => string | undefined
   }
 
-  let { page, onPick, statusOf = () => "idle" }: Props = $props()
+  let { page, onPick, statusOf = () => "idle", hrefOf, onOpen }: Props = $props()
 </script>
 
 {#if page.stale}
@@ -18,7 +20,9 @@
 {#if page.results.length > 0}
   <ul class="flex flex-col divide-y divide-border rounded-lg border border-border">
     {#each page.results as item (catalogKey(item))}
-      <li><SearchResult {item} {onPick} status={statusOf(item)} /></li>
+      <li>
+        <SearchResult {item} {onPick} status={statusOf(item)} href={hrefOf?.(item)} {onOpen} />
+      </li>
     {/each}
   </ul>
 {:else}

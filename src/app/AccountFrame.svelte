@@ -1,11 +1,9 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
-  import { NotificationsBell } from "@/features/notifications"
   import { useSpaces } from "@/features/spaces"
   import type { Route } from "@/shared/domain"
   import AppShell from "./shell/AppShell.svelte"
   import CaptureDialog from "./shell/CaptureDialog.svelte"
-  import QuickCapture from "./shell/QuickCapture.svelte"
 
   interface Props {
     route: Route
@@ -22,8 +20,6 @@
 
 {#if space}
   <AppShell {space} {route} onSignOut={signOut}>
-    {#snippet actions()}<QuickCapture /><NotificationsBell />{/snippet}
-    {#snippet bell()}<QuickCapture compact /><NotificationsBell />{/snippet}
     {@render children(true)}
   </AppShell>
   <CaptureDialog spaceId={space.id} />

@@ -1,3 +1,4 @@
+import { openNotifications } from "../support/navigation"
 import { expect, test, type Page } from "@playwright/test"
 import { captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
 import { createSpace, projectPage, signIn } from "../support/session"
@@ -35,7 +36,7 @@ test("an accepted invite makes it our idea, and the new collaborator follows it"
 
   // Ben is told, opens the idea from the notification and accepts.
   await ben.reload()
-  await ben.getByRole("button", { name: /^Notifications, \d+ unread$/ }).click()
+  await openNotifications(ben)
   await ben.getByRole("link", { name: /ana invited you to an idea/ }).click()
   const invitation = ben.getByRole("region", { name: "Invitation" })
   await expect(invitation).toContainText("ana invited you to work on this idea")

@@ -11,6 +11,7 @@ import type {
 } from "../application/ports"
 import { NOTES_PAGE_SIZE } from "../domain"
 import { homeFilter, newestEmbeds } from "./home-filter"
+import { findNote } from "./find-note"
 import { HOME_COLUMNS, REPLY_COLUMNS, toPosted, toRecord, toReply, type HomeRow } from "./note-rows"
 
 /** The reply cap reply_to_note enforces, so one request reads a whole thread. */
@@ -31,6 +32,7 @@ const nullable = (value: string | null) => value as string
 
 export class SupabaseNotes implements NotesRepository {
   constructor(private readonly db: Db) {}
+  get = (spaceId: string, noteId: string, now: string) => findNote(this.db, spaceId, noteId, now)
 
   home(
     spaceId: string,

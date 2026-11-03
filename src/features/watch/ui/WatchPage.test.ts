@@ -49,9 +49,11 @@ describe("WatchPage", () => {
   it("shows a no-match state for filters and clears them", async () => {
     setup(3)
     await waitFor(() => expect(cards()).toHaveLength(3))
-    await fireEvent.click(screen.getByRole("radio", { name: /^Anime/ }))
+    await fireEvent.click(screen.getByRole("button", { name: "Filters" }))
+    await fireEvent.change(screen.getByLabelText("Type"), { target: { value: "anime" } })
+    await fireEvent.click(screen.getByRole("button", { name: "Apply filters" }))
     expect(await screen.findByText("Nothing here just yet")).toBeInTheDocument()
-    await fireEvent.click(screen.getByRole("button", { name: "Clear filters" }))
+    await fireEvent.click(screen.getAllByRole("button", { name: "Clear filters" })[0]!)
     await waitFor(() => expect(cards()).toHaveLength(3))
   })
 
@@ -72,7 +74,6 @@ describe("WatchPage", () => {
   it("adds a title manually from the add dialog", async () => {
     const { gateway } = setup()
     await fireEvent.click(await screen.findByRole("button", { name: "Add a title" }))
-    await fireEvent.click(await screen.findByRole("radio", { name: "Enter manually" }))
     await fireEvent.input(screen.getByLabelText("Title"), { target: { value: "Home video" } })
     await fireEvent.click(screen.getByRole("button", { name: "Add title" }))
     await waitFor(() => expect(gateway.items.map((i) => i.title)).toEqual(["Home video"]))

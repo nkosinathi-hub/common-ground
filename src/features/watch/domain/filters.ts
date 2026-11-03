@@ -6,7 +6,7 @@ export interface KeyedRow {
   readonly sortKey: string
 }
 
-export const SEARCH_MAX = 100
+const SEARCH_MAX = 100
 
 export const DEFAULT_FILTERS: WatchFilters = {
   mediaType: null,

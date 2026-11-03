@@ -36,6 +36,7 @@ export interface NotesPage<T> {
 
 /** The server decides visibility: a note shows to its recipient, its author, or everyone. */
 export interface NotesRepository {
+  get(spaceId: string, noteId: string, now: string): Promise<Result<NoteRecord>>
   /** Notes that have not expired by `now`, pinned first, then newest. */
   home(
     spaceId: string,

@@ -28,6 +28,7 @@
     /** Sits at the footer's start, before Cancel, e.g. "Delete event…". */
     footerStart?: Snippet
     cancelLabel?: string
+    onCloseAutoFocus?: (event: Event) => void
   }
 
   let {
@@ -46,6 +47,7 @@
     footer,
     footerStart,
     cancelLabel = "Cancel",
+    onCloseAutoFocus,
   }: Props = $props()
 
   // Opens on the first field, so typing starts at once; Close is only the fallback.
@@ -61,6 +63,7 @@
 <Dialog.Root bind:open>
   <Dialog.Content
     showCloseButton={false}
+    {onCloseAutoFocus}
     onOpenAutoFocus={(event) => focusFirstField(body, event)}
     class={cn(
       "flex max-h-[min(90dvh,56rem)] w-full flex-col gap-0 overflow-hidden rounded-xl border-border bg-card p-0",

@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button"
   import * as DropdownMenu from "$lib/components/ui/dropdown-menu"
   import { buildHash } from "@/shared/domain"
-  import { ConfirmDialog, TextLink } from "@/shared/ui"
+  import { ConfirmDialog, PageAction, TextLink, usePageActions } from "@/shared/ui"
   import { eventIcs, formatWhen, icsFileName, utcOffset, type CalendarEvent } from "../domain"
   import { saveFile } from "./browser"
 
@@ -19,6 +19,7 @@
   }
 
   let { event, spaceId, zone, mayChange, onEdit, onDelete }: Props = $props()
+  const shellActions = usePageActions()
   const when = $derived(formatWhen(event.timing, event.timeZone, zone))
   let confirming = $state(false)
   const download = () =>
@@ -43,7 +44,7 @@
     </div>
     <div class="flex items-center gap-related">
       {#if mayChange}
-        <Button variant="outline" onclick={onEdit}><SquarePen aria-hidden="true" />Edit</Button>
+        <PageAction icon={SquarePen} label="Edit" onclick={onEdit} />
       {/if}
       <Button variant="outline" size="icon" aria-label="Download .ics" onclick={download}>
         <Download aria-hidden="true" />
@@ -74,3 +75,9 @@
   confirmLabel="Delete"
   onConfirm={onDelete}
 />
+
+{#if shellActions && !mayChange}<PageAction
+    icon={Download}
+    label="Download .ics"
+    onclick={download}
+  />{/if}

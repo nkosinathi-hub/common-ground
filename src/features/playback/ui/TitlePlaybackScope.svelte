@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { Play } from "@lucide/svelte"
+  import { PageAction, usePageActions } from "@/shared/ui"
   import { untrack, type Snippet } from "svelte"
   import type { PlaybackCatalog, PlayTarget } from "../application/ports"
   import { usePlayback } from "./context"
@@ -15,6 +17,7 @@
 
   let { target, catalog, onwatched, children }: Props = $props()
   const { service } = usePlayback()
+  const shellActions = usePageActions()
   const playback = untrack(
     () =>
       new TitlePlayback(
@@ -34,3 +37,10 @@
 </script>
 
 {@render children()}
+
+{#if shellActions}<PageAction
+    icon={Play}
+    label={playback.episodic ? "Play next episode" : "Play"}
+    disabled={playback.play.status === "loading"}
+    onclick={() => void playback.playNext()}
+  />{/if}

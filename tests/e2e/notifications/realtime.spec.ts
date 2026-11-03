@@ -1,3 +1,4 @@
+import { notificationControl } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { addTitle, captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
 import { realtimeJoined } from "../support/realtime"
@@ -22,7 +23,7 @@ test("the notification badge updates live in the other member's browser", async 
     joined = realtimeJoined(next, "notifications-")
   })
   await joined
-  const bell = benPage.getByRole("button", { name: /^Notifications/ })
+  const bell = await notificationControl(benPage)
   await expect(bell).toHaveAccessibleName("Notifications")
 
   await addTitle(page, spaceId, "Paprika")

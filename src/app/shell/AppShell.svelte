@@ -1,27 +1,26 @@
 <script lang="ts">
+  import { Lightbulb } from "@lucide/svelte"
+  import { openCapture } from "@/features/ideas"
   import type { Snippet } from "svelte"
   import { mode } from "mode-watcher"
   import { applySpaceLook, useSpaces, type Space } from "@/features/spaces"
-  import type { Route } from "@/shared/domain"
-  import { pageTitle } from "@/shared/ui"
+  import { buildHash, type Route } from "@/shared/domain"
+  import { pageTitle, providePageActions, provideSearchControl } from "@/shared/ui"
   import { crumbsOf } from "./breadcrumbs"
-  import MobileBars from "./MobileBars.svelte"
+  import AdaptiveNav from "./AdaptiveNav.svelte"
   import { sectionOf } from "./nav"
-  import Rail from "./Rail.svelte"
   import TopBar from "./TopBar.svelte"
 
   interface Props {
     space: Space
     route: Route
     onSignOut: () => void
-    /** Desktop top bar actions: Capture idea and the bell. */
-    actions?: Snippet
-    /** The bell for the mobile app bar. */
-    bell?: Snippet
     children: Snippet
   }
 
-  let { space, route, onSignOut, actions, bell, children }: Props = $props()
+  let { space, route, onSignOut, children }: Props = $props()
+  const actions = providePageActions()
+  provideSearchControl()
 
   const current = $derived(sectionOf(route.name))
   const crumbs = $derived(crumbsOf(route, space.name, pageTitle.current))
@@ -44,19 +43,24 @@
 >
   Skip to content
 </a>
-<div class="flex min-h-dvh">
-  <Rail spaceId={space.id} {current} {onSignOut} />
-  <div class="flex min-w-0 flex-1 flex-col">
-    <TopBar {crumbs} {actions} />
-    <MobileBars spaceId={space.id} {current} {onSignOut} {bell}>
-      <!-- Phones keep clear of the tab bar and a screen's FAB above it. -->
-      <main
-        id="main"
-        tabindex="-1"
-        class="mx-auto w-full max-w-content flex-1 px-gutter pt-section pb-40 outline-none md:pb-section"
-      >
-        {@render children()}
-      </main>
-    </MobileBars>
-  </div>
+<div class="flex min-h-dvh min-w-0 flex-col">
+  <AdaptiveNav
+    {space}
+    routeKey={buildHash(route)}
+    {current}
+    {onSignOut}
+    action={actions.current ?? {
+      label: "Capture an idea from anywhere",
+      icon: Lightbulb,
+      onclick: openCapture,
+    }}
+  />
+  <main
+    id="main"
+    tabindex="-1"
+    class="mx-auto flex w-full max-w-content flex-1 flex-col gap-stack px-gutter pt-stack pb-36 outline-none"
+  >
+    <TopBar {crumbs} />
+    {@render children()}
+  </main>
 </div>

@@ -1,9 +1,8 @@
 <script lang="ts">
   import { untrack } from "svelte"
-  import { MediaQuery } from "svelte/reactivity"
   import { Lightbulb, Plus } from "@lucide/svelte"
   import { ok, type MemberRef } from "@/shared/domain"
-  import { EmptyState, ErrorState, Fab, FormError, Loading, LoadMore } from "@/shared/ui"
+  import { EmptyState, ErrorState, PageAction, FormError, Loading, LoadMore } from "@/shared/ui"
   import { allTags } from "../domain"
   import { useIdeas } from "./context"
   import IdeaBoard from "./IdeaBoard.svelte"
@@ -23,7 +22,6 @@
   }
 
   let { spaceId, me, ideaHref, authors = [] }: Props = $props()
-  const wide = new MediaQuery("min-width: 768px")
 
   const board = new IdeasState(
     useIdeas().service,
@@ -87,9 +85,4 @@
 
   <LoadMore list={board.list} />
 </div>
-{#if !wide.current}<Fab
-    icon={Plus}
-    label="Capture idea"
-    onclick={openCapture}
-    class="fixed right-gutter bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30"
-  />{/if}
+<PageAction icon={Plus} label="Capture idea" onclick={openCapture} />

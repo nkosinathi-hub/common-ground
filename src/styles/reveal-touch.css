@@ -1,0 +1,26 @@
+/* Compact hints stay within the screen; touch navigation names do not require a hover. */
+[data-reveal-surface][data-align="start"] [data-reveal-label] {
+  right: auto;
+  left: 0;
+}
+@media (hover: none), (pointer: coarse) {
+  [data-reveal-surface][data-touch-label="true"] [data-reveal-label] {
+    max-width: 14rem;
+    margin-inline-start: 8px;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+[data-reveal-surface][data-compact="true"] [data-reveal-label] {
+  z-index: 50;
+  width: max-content;
+  max-inline-size: min(14rem, calc(100vw - var(--gutter) * 2));
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+[data-reveal-surface][data-compact="true"][data-hint-side="top"] [data-reveal-label] {
+  top: auto;
+  bottom: calc(100% + 6px);
+}

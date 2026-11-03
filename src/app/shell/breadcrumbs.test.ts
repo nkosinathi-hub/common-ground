@@ -14,8 +14,8 @@ describe("crumbsOf", () => {
 
   it("walks up through every parent, naming the page by its title when given", () => {
     const crumbs = crumbsOf({ name: "note", spaceId, noteId }, "Ana & Ben")
-    expect(crumbs.map((c) => c.label)).toEqual(["Ana & Ben", "Home", "Notes", "Note"])
-    expect(crumbs[2]!.href).toBe(`#/s/${spaceId}/home/notes`)
+    expect(crumbs.map((c) => c.label)).toEqual(["Ana & Ben", "Notes", "Note"])
+    expect(crumbs[1]!.href).toBe(`#/s/${spaceId}/home/notes`)
     const title = crumbsOf(
       { name: "watch-item", spaceId, itemId: noteId },
       "Ana & Ben",

@@ -1,3 +1,4 @@
+import { openNotifications } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { daysFromNow } from "../support/dates"
 import { captureIdea, inviteMember } from "../support/fixtures"
@@ -73,7 +74,7 @@ test("events are planned, edited, answered and exported", async ({ page, browser
   await benPage.context().close()
 
   await page.reload()
-  await page.getByRole("button", { name: /^Notifications, \d+ unread$/ }).click()
+  await openNotifications(page)
   await expect(page.getByRole("link", { name: /ben replied to your plan/ })).toBeVisible()
   await page.keyboard.press("Escape")
 

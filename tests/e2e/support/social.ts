@@ -1,3 +1,4 @@
+import { openNotifications } from "./navigation"
 import { expect, type Page } from "@playwright/test"
 
 /** On a title page, recommends it to one member with a note. */
@@ -21,7 +22,7 @@ export async function comment(page: Page, body: string): Promise<void> {
 
 /** Opens the notifications popover and expects one notification by its text. */
 export async function expectNotification(page: Page, text: RegExp): Promise<void> {
-  await page.getByRole("button", { name: /^Notifications, \d+ unread$/ }).click()
+  await openNotifications(page)
   await expect(page.getByRole("link", { name: text })).toBeVisible()
   await page.keyboard.press("Escape")
 }
