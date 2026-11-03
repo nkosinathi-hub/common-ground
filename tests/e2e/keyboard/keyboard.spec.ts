@@ -70,6 +70,7 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
     page,
     page.getByRole("button", { name: "Enter a title manually" }),
     dialog("Add a title manually"),
+    page.getByRole("button", { name: "Open search", exact: true }),
   )
   await page.keyboard.press("Escape")
   const more = page.getByRole("button", { name: "More", exact: true })

@@ -11,12 +11,14 @@
     spaceId: string
     onAdded: (id: string) => void
     defaultIntent?: SharedIntent
+    onCloseAutoFocus?: (event: Event) => void
   }
   let {
     open = $bindable(false),
     spaceId,
     onAdded,
     defaultIntent = "want_to_watch",
+    onCloseAutoFocus,
   }: Props = $props()
   let intent = $state<SharedIntent>(untrack(() => defaultIntent))
   const adds = new AddTitleState(
@@ -47,6 +49,7 @@
 
 <DialogShell
   bind:open
+  {onCloseAutoFocus}
   title="Add a title manually"
   description="Use the search above to find catalog titles, or enter your own here."
   primary="Add title"

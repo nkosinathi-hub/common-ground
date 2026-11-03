@@ -89,5 +89,6 @@
 <SearchManualDialog
   bind:open={manual}
   {space}
+  restoreFocus={() => trigger?.focus()}
   onAdded={() => search.query.trim().length >= 2 && void search.load()}
 />

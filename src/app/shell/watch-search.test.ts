@@ -53,4 +53,13 @@ describe("universal search", () => {
     expect(screen.getByRole("searchbox")).toHaveValue("")
     expect(screen.queryByRole("region", { name: "Discover titles" })).toBeNull()
   })
+  it("returns focus to search when manual entry closes after its result trigger disappears", async () => {
+    const { search } = setup()
+    await search("arrival")
+    await fireEvent.click(await screen.findByRole("button", { name: "Enter a title manually" }))
+    const dialog = await screen.findByRole("dialog", { name: "Add a title manually" })
+    expect(screen.queryByRole("button", { name: "Enter a title manually" })).toBeNull()
+    await fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }))
+    await waitFor(() => expect(screen.getByRole("button", { name: "Open search" })).toHaveFocus())
+  })
 })

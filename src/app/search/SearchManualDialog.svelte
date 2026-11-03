@@ -5,10 +5,12 @@
     open = $bindable(false),
     space,
     onAdded,
+    restoreFocus,
   }: {
     open: boolean
     space: Space
     onAdded: () => void
+    restoreFocus: () => void
   } = $props()
 </script>
 
@@ -16,6 +18,10 @@
   bind:open
   spaceId={space.id}
   defaultIntent={space.defaultWatchIntent}
+  onCloseAutoFocus={(event) => {
+    event.preventDefault()
+    restoreFocus()
+  }}
   onAdded={() => {
     watchChanged(space.id)
     onAdded()
