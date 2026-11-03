@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test"
 import { expectNotification } from "../support/social"
 import { requireStack, type TestUser } from "../support/stack"
 import * as talk from "./hard-talk"
+import { noteAction } from "./note-action"
 const { closeDialog, COMPOSER, expectFeed, next, readable, startSharing, threeMembers } = talk
 const { waiting } = talk
 
@@ -31,10 +32,10 @@ test("a draft saves privately, resumes, and sends at the last step @mobile", asy
   await expect(dialog.getByRole("status")).toHaveText(/saved/i)
   await closeDialog(ana, dialog)
   await expect(ana.getByRole("region", { name: "Your drafts (1)" })).toBeVisible()
-  await expect(ana.getByRole("button", { name: /^(Write a note|Open navigation)$/ })).toBeFocused()
+  await expect(noteAction(ana)).toBeFocused()
 
   await ben.reload()
-  await expect(ben.getByRole("button", { name: /^(Write a note|Open navigation)$/ })).toBeVisible()
+  await expect(noteAction(ben)).toBeVisible()
   await expect(waiting(ben)).toHaveCount(0)
   await expect(ben.getByText(WORDS)).toHaveCount(0)
   // Straight from the API: nobody but Ana can read her draft.
