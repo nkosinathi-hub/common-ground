@@ -1,13 +1,14 @@
 import { expect, type Browser, type Page } from "@playwright/test"
 import { secondMember, zoneOf } from "./session"
 import type { TestUser } from "./stack"
+import { activatePageAction } from "./navigation"
 
 const UUID = "[0-9a-f-]{36}"
 
 /** Captures an idea with the capture dialog on the ideas list, opens it and returns its id. */
 export async function captureIdea(page: Page, spaceId: string, title: string): Promise<string> {
   await page.goto(`./#/s/${spaceId}/ideas`)
-  await page.getByRole("button", { name: "Capture idea", exact: true }).click()
+  await activatePageAction(page, "Capture idea")
   await page.getByLabel("Idea", { exact: true }).fill(title)
   await page.getByRole("button", { name: "Save idea" }).click()
   await page.getByRole("link", { name: title }).first().click()
@@ -30,11 +31,7 @@ export async function openIdeaTab(page: Page, spaceId: string, ideaId: string, t
 /** Adds a watchlist title by hand, opens it and returns its id. */
 export async function addTitle(page: Page, spaceId: string, title: string): Promise<string> {
   await page.goto(`./#/s/${spaceId}/watch`)
-  // An empty list shows both the header button and the empty-state one.
-  await page
-    .getByRole("button", { name: /^(Add your first title|Add a title)$/ })
-    .first()
-    .click()
+  await activatePageAction(page, "Add a title")
   await page.getByRole("button", { name: "Enter a title manually" }).click()
   await page.getByLabel("Title", { exact: true }).fill(title)
   await page.getByRole("button", { name: "Add title" }).click()

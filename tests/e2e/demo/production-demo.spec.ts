@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test"
-import { navigateSection } from "../support/navigation"
+import { clickPageButton, navigateSection } from "../support/navigation"
 
 test("sample demo uses the real pages, details and dialogs without login @mobile", async ({
   page,
@@ -9,7 +9,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await page.goto("/#/demo")
   await expect(page.getByRole("heading", { name: /Good .*, Ana/ })).toBeVisible()
   await expect(page.getByRole("heading", { name: "Notes for you" })).toBeVisible()
-  await page.getByRole("button", { name: "Write a note", exact: true }).click()
+  await clickPageButton(page, "Write a note")
   await expect(page.getByRole("dialog")).toBeVisible()
   await page.keyboard.press("Escape")
   await navigateSection(page, "Watch")
@@ -41,7 +41,7 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(
     page.getByRole("heading", { level: 1, name: /Make time for each other|Time, together/ }),
   ).toBeVisible()
-  await page.getByRole("button", { name: "More", exact: true }).click()
+  await page.getByRole("button", { name: "Common Ground menu", exact: true }).click()
   await page.getByRole("link", { name: "Space settings", exact: true }).click()
   await expect(page.getByRole("heading", { name: "Space settings", exact: true })).toBeVisible()
   await page.getByRole("tab", { name: "Members & safety" }).click()

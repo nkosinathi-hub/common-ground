@@ -4,8 +4,7 @@
   import UniversalSearch from "../search/UniversalSearch.svelte"
   import type { Section } from "./nav"
   import RadialNav from "./RadialNav.svelte"
-  import MoreMenu from "./MoreMenu.svelte"
-  import SpaceSwitcher from "./SpaceSwitcher.svelte"
+  import AppMenu from "./AppMenu.svelte"
 
   interface Props {
     space: Space
@@ -23,16 +22,15 @@
 <header class="sticky top-(--chrome-top) z-30 py-related">
   <div class="mx-auto w-full max-w-content px-gutter py-related">
     <div class="header-row" data-searching={searching}>
-      <div class="header-utility" inert={searching}><SpaceSwitcher /></div>
-      <UniversalSearch {space} bind:expanded={searching} />
-      <div class="header-utility header-actions" inert={searching}>
-        <MoreMenu
+      <div class="header-utility" inert={searching}>
+        <AppMenu
           spaceId={space.id}
           {routeKey}
           {onSignOut}
           onNavigate={() => (navigationOpen = true)}
         />
       </div>
+      <UniversalSearch {space} bind:expanded={searching} />
     </div>
   </div>
 </header>

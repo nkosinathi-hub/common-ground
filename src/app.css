@@ -10,6 +10,7 @@
 @import "./styles/header-controls.css";
 @import "./styles/radial-navigation.css";
 @import "./styles/route-action.css";
+@import "./styles/touch-forms.css";
 
 @custom-variant dark (&:is(.dark *));
 

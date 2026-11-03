@@ -2,7 +2,9 @@
 
 ## One floating control
 
-The bottom-centre button runs the current page's primary action with one click or tap.
+The bottom-centre button runs the current page's primary action with a mouse click.
+On touchscreens its visible Navigate label and compass invite a tap to reveal routes. The same
+centre then shows the page action; a second tap runs it. No gesture is needed to discover navigation.
 Watch adds a title, Notes writes a note, Ideas captures an idea, Calendar creates an event.
 Title details play the film or next episode; idea and editable event details expose Edit.
 The shell reuses each page's callback. Pages without a registered action retain quick capture.
@@ -10,24 +12,30 @@ The shell reuses each page's callback. Pages without a registered action retain 
 The same control reveals the five destinations in a semicircle:
 
 - Mouse: hover opens the fan; leaving closes it unless it was explicitly opened.
-- Touch: hold for 450 ms or swipe up; releasing does not run the primary action.
+- Touch: tap opens routes. Hold for 450 ms or swipe up are optional shortcuts.
 - Keyboard: focus or an arrow key opens routes; arrows, Home and End move between links.
 - Escape closes and returns focus. Ordinary Tab and native links continue to work.
-- More also offers Navigate, so touch navigation does not depend on discovering a gesture.
+- The Common Ground logo also offers Navigate.
 
 Home, Watch, Ideas, Notes and Calendar keep their order and current-page marker.
 The fan adapts its radius to the available width, retains 44 px targets and clears safe areas.
-Its surfaces and labels appear only while open. Reduced motion disables the animation.
+The primary control retains a solid contrasting surface and an outer separation ring over cards.
+Route surfaces and labels appear while open. Reduced motion disables the animation.
 
 ## Header
 
-The header shares the content's exact maximum width and gutters. Space sits at the left edge,
-More at the right. At rest, search is a bare icon. Hovering or opening it reveals a frosted
+The header shares the content's exact maximum width and gutters. The app logo sits at the left edge,
+search at the right. At rest, search is a bare icon. Hovering or opening it reveals a frosted
 field across the full header; the utility icons fade away and become inert while it is open.
 Close, Escape or clicking outside restores the utility controls. Cmd/Ctrl+K focuses search.
 The bottom control remains available; page actions no longer compete for header space.
-More retains quick idea capture from every screen, even when its primary action is different.
-Notifications in More retain their live unread count; closing the drawer returns focus to More.
+The logo replaces both the space avatar and More. It holds space switching, quick capture,
+notifications with live unread counts, settings, account tools and sign out. It closes completely
+before opening a dialog or drawer; closing that view returns focus to the logo.
+
+Touch dialogs focus Close instead of a text field. Typing starts when the user taps a field;
+desktop dialogs retain their typing shortcut. Touch inputs use at least 16 px text to avoid
+automatic input zoom, while pinch zoom remains enabled. Hidden search contents cannot widen the page.
 
 ## Universal search
 

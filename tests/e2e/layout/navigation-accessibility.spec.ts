@@ -19,7 +19,7 @@ test("icon search and semicircle navigation remain accessible @a11y", async ({ p
   await expectAccessible(page)
   await page.screenshot({ path: info.outputPath("watch-search.png") })
   await page.keyboard.press("Escape")
-  const more = page.getByRole("button", { name: "More", exact: true })
+  const more = page.getByRole("button", { name: "Common Ground menu", exact: true })
   await more.focus()
   await page.keyboard.press("Enter")
   await expect(page.getByRole("link", { name: "Account and data" })).toBeVisible()

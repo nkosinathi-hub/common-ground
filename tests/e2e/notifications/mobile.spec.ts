@@ -6,11 +6,13 @@ import { createUser, requireStack } from "../support/stack"
 requireStack()
 
 // #28: on a phone the notifications open as a sheet covering the whole screen.
-test("notifications fill a phone screen and Escape returns to More @mobile", async ({ page }) => {
+test("notifications fill a phone screen and Escape returns to the logo @mobile", async ({
+  page,
+}) => {
   test.skip(test.info().project.name !== "mobile", "phones only")
   await signIn(page, await createUser("phone"))
   await createSpace(page, "Phone space")
-  const more = page.getByRole("button", { name: "More", exact: true })
+  const more = page.getByRole("button", { name: "Common Ground menu", exact: true })
   await openNotifications(page)
 
   const sheet = page.getByRole("dialog", { name: "Notifications" })
