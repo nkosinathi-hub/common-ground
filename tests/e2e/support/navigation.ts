@@ -21,3 +21,12 @@ export async function openSearch(page: Page) {
   await expect(input).toBeFocused()
   return input
 }
+
+/** Secondary capture stays available when the current page owns a different primary action. */
+export async function quickCapture(page: Page) {
+  await page.getByRole("button", { name: "More", exact: true }).click()
+  await page
+    .locator('[aria-label="Space tools"]')
+    .getByRole("button", { name: "Capture idea", exact: true })
+    .click()
+}

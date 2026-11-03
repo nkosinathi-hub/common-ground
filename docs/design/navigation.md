@@ -26,6 +26,7 @@ More at the right. At rest, search is a bare icon. Hovering or opening it reveal
 field across the full header; the utility icons fade away and become inert while it is open.
 Close, Escape or clicking outside restores the utility controls. Cmd/Ctrl+K focuses search.
 The bottom control remains available; page actions no longer compete for header space.
+More retains quick idea capture from every screen, even when its primary action is different.
 
 ## Universal search
 

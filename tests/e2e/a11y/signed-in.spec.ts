@@ -1,3 +1,4 @@
+import { quickCapture } from "../support/navigation"
 import { expect, test, type Page } from "@playwright/test"
 import { axeViolations, expectAccessible, TOASTER } from "../support/a11y"
 import { addTitle, captureIdea, inviteToken } from "../support/fixtures"
@@ -68,7 +69,7 @@ for (const [name, path] of Object.entries(ROUTES)) {
 test("a success toast has enough contrast @a11y", async () => {
   // Adding a title no longer toasts (the add dialog lists it), so capture an idea instead.
   await page.goto(`./#/s/${fixture.space}/home`)
-  await page.getByRole("button", { name: "Capture an idea from anywhere" }).click()
+  await quickCapture(page)
   await page.getByLabel("Idea", { exact: true }).fill("Toast idea")
   await page.getByRole("button", { name: "Save idea" }).click()
   await expect(page.getByText("Idea saved")).toBeVisible()

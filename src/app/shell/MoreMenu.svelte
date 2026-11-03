@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { Compass, Bell, Ellipsis, LogOut, Settings, UserRound } from "@lucide/svelte"
+  import { Compass, Bell, Ellipsis, Lightbulb, LogOut, Settings, UserRound } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import * as Popover from "$lib/components/ui/popover"
+  import { openCapture } from "@/features/ideas"
   import { NotificationsBell } from "@/features/notifications"
   import { buildHash } from "@/shared/domain"
   import { RevealContent } from "@/shared/ui"
@@ -54,6 +55,16 @@
       }}
     >
       <Compass aria-hidden="true" />Navigate
+    </Button>
+    <Button
+      variant="ghost"
+      class="h-11 justify-start"
+      onclick={() => {
+        close()
+        openCapture()
+      }}
+    >
+      <Lightbulb aria-hidden="true" />Capture idea
     </Button>
     <Button
       variant="ghost"
