@@ -3,6 +3,7 @@
   import { Button } from "$lib/components/ui/button"
   import { openCapture } from "@/features/ideas"
   import type { NotificationsStore } from "@/features/notifications"
+  import { usePageActions } from "@/shared/ui"
   import { buildHash } from "@/shared/domain"
   let {
     spaceId,
@@ -21,8 +22,23 @@
     onSignOut: () => void
     onClose: () => void
   } = $props()
+  const actions = usePageActions()
 </script>
 
+{#if actions?.tools.length}
+  <div class="flex flex-col gap-related border-t border-border pt-related">
+    {#each actions.tools as tool (tool)}
+      <Button
+        variant="ghost"
+        class="h-11 justify-start"
+        disabled={tool.disabled}
+        onclick={() => choose(tool.onclick)}
+      >
+        <tool.icon aria-hidden="true" />{tool.label}
+      </Button>
+    {/each}
+  </div>
+{/if}
 <div class="flex flex-col gap-related border-t border-border pt-related">
   <Button variant="ghost" class="h-11 justify-start" onclick={onNavigate}>
     <Compass aria-hidden="true" />Navigate

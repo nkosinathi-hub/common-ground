@@ -31,7 +31,16 @@
   }
 </script>
 
-{#if signedIn === false}
+{#if signedIn}
+  <p class="type-sm text-muted-foreground">Connected on this device.</p>
+  <Button
+    variant="outline"
+    onclick={async () => {
+      await account.signOut()
+      signedIn = false
+    }}>Disconnect Jellyfin</Button
+  >
+{:else if signedIn === false}
   {#if open}
     <!-- The token Jellyfin returns stays on this device; it is never sent to Common Ground. -->
     <form

@@ -1,4 +1,4 @@
-import { titleActivity } from "../support/title"
+import { titleActivity, titleActions } from "../support/title"
 import { expect, test } from "@playwright/test"
 import { addTitle } from "../support/fixtures"
 import { expectFocusTrap, tabTo } from "../support/keyboard"
@@ -55,10 +55,12 @@ test("dialogs trap focus, close on Escape and return focus", async ({ page }) =>
   await addTitle(page, spaceId, "Mononoke")
   const dialog = (name: string) => page.getByRole("dialog", { name })
 
+  const actions = await titleActions(page)
   await expectFocusTrap(
     page,
-    page.getByRole("button", { name: "About this title", exact: true }).first(),
+    actions.getByRole("button", { name: "About this title", exact: true }),
     dialog("About this title"),
+    page.locator(".fan-trigger"),
   )
   await titleActivity(page)
   await expectFocusTrap(

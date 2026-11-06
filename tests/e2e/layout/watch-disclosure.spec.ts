@@ -11,9 +11,7 @@ test("Watch keeps filters quiet until requested, applies once and cancels safely
   await expect(controls.getByRole("button")).toHaveCount(2)
   await expect(page.getByRole("combobox")).toHaveCount(0)
   await expect(page.getByRole("radio")).toHaveCount(0)
-  await expect(page.locator(".fan-trigger")).toHaveAccessibleName(
-    info.project.name === "desktop" ? "Add a title" : "Open navigation",
-  )
+  await expect(page.locator(".fan-trigger")).toHaveAccessibleName("Add a title")
   await controls.getByRole("button", { name: "Filters", exact: true }).click()
   const dialog = page.getByRole("dialog", { name: "Your collection, your way" })
   await expect(dialog).toBeVisible()

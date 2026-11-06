@@ -1,26 +1,35 @@
 <script lang="ts">
   import { untrack } from "svelte"
+  import { StepForward } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import type { NextUp } from "../application/ports"
   import { CountdownState } from "./countdown-state.svelte"
-
-  interface Props {
+  let {
+    next,
+    due,
+    auto = true,
+    onplay,
+    seconds = 10,
+  }: {
     next: NextUp
-    /** True once the episode ended or reached its credits. */
     due: boolean
+    auto?: boolean
     onplay: (next: NextUp) => void
     seconds?: number
-  }
-
-  let { next, due, onplay, seconds = 10 }: Props = $props()
-  const countdown = new CountdownState(() => onplay(next))
+  } = $props()
   let dismissed = $state(false)
-
+  let played = false
+  function play() {
+    if (played) return
+    played = true
+    countdown.cancel()
+    onplay(next)
+  }
+  const countdown = new CountdownState(play)
   $effect(() => {
-    if (due && !dismissed) untrack(() => countdown.start(seconds))
+    if (due && auto && !dismissed) untrack(() => countdown.start(seconds))
     return () => countdown.cancel()
   })
-
   const label = $derived(`S${next.season}E${next.episode}${next.title ? `: ${next.title}` : ""}`)
 </script>
 
@@ -28,7 +37,7 @@
   <div class="rounded-md bg-background/90 p-item type-sm shadow" role="status" aria-live="polite">
     <p>Next up, {label}{countdown.running ? `, in ${countdown.remaining} s` : ""}</p>
     <div class="mt-2 flex gap-related">
-      <Button size="sm" onclick={() => onplay(next)}>Play now</Button>
+      <Button size="sm" onclick={play}>Play now</Button>
       <Button
         size="sm"
         variant="ghost"
@@ -39,4 +48,8 @@
       >
     </div>
   </div>
+{:else}
+  <Button size="sm" variant="secondary" title={label} onclick={play}>
+    <StepForward aria-hidden="true" />Next episode
+  </Button>
 {/if}

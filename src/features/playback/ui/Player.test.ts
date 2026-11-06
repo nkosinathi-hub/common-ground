@@ -13,11 +13,12 @@ const show = { spaceId: "s", itemId: "i", catalog: { type: "tv", id: 1399 } } as
 const ref = { kind: "episode", tmdbId: 1399, season: 1, episode: 2 } as const
 const track = { url: "https://a.example.org/en.vtt", language: "eng", label: "English" }
 
-function setup(source: PlayableSource) {
+function setup(source: PlayableSource, party = false) {
   const nextUp = vi.fn(async () => ok({ season: 1, episode: 3, title: "Three" }))
   const fakes = playerFakes([source], { nextUp })
   const onnext = vi.fn()
   const props = {
+    party,
     playing: { ref, sources: [source] },
     target: show,
     title: "Show",
@@ -63,6 +64,7 @@ describe("Player", () => {
     const { video, onnext } = setup(
       fileSource("https://a.example.org/1.mp4", { segments: [...credits] }),
     )
+    Object.defineProperty(video(), "paused", { value: false })
     video().currentTime = 55
     await fireEvent(video(), new Event("timeupdate"))
     expect(await screen.findByText(/Next up, S1E3: Three, in 10 s/)).toBeInTheDocument()
@@ -71,7 +73,7 @@ describe("Player", () => {
   })
 
   it("keeps controls on the page in theatre mode", async () => {
-    setup(fileSource("https://a.example.org/1.mp4"))
+    setup(fileSource("https://a.example.org/1.mp4"), true)
     await fireEvent.click(screen.getByRole("button", { name: "Theatre mode" }))
     expect(screen.getByRole("region", { name: "Player: Show" }).className).toContain("fixed")
     expect(screen.getByRole("button", { name: "Leave theatre mode" })).toBeInTheDocument()

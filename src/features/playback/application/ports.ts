@@ -1,4 +1,5 @@
 import type { Result } from "../../../shared/domain/result"
+import type { Segment } from "../domain/source.types"
 import type { MediaRef } from "../domain/media-ref"
 
 export type {
@@ -69,6 +70,7 @@ export interface ProviderAccount {
  * another stream; until it lands, composition supplies interim implementations.
  */
 export interface PlaybackPorts {
+  segments?(ref: MediaRef, signal: AbortSignal): Promise<readonly Segment[]>
   /** Where this person is in a series: the episode to play now, or null to start at S1E1. */
   nextEpisode(target: PlayTarget): Promise<Result<EpisodeNumber | null>>
   /** The episode after this one, for the play-next countdown (Jellyfin NextUp when signed in). */

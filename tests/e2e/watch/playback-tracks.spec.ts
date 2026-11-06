@@ -23,6 +23,7 @@ for (const [kind, path] of [
     await expect
       .poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState))
       .toBeGreaterThan(1)
+    await page.locator("summary", { hasText: "Audio and subtitles" }).click()
     if (kind === "hls") {
       const audio = page.getByLabel("Audio language")
       await expect(audio.locator("option:checked")).toContainText("English")

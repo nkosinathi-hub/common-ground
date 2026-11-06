@@ -10,13 +10,14 @@ import {
   type PlaybackBuild,
 } from "./src/app/composition/playback"
 import { fixtureBuild } from "./src/app/composition/playback-fixture"
+import { INTRO_ORIGIN } from "./src/features/playback/infrastructure/introdb"
 import { cspOrigins } from "./src/features/playback/domain/csp-origins"
 
 const src = (path: string) => fileURLToPath(new URL(`./src/${path}`, import.meta.url))
 
 const env = (mode: string) => loadEnv(mode, process.cwd(), "VITE_")
 
-/** Playback origins come only from the compiled-in plugins (docs/playback-plugins.md). */
+/** Media/frame origins come from plugins; optional timing metadata adds one connect-only origin. */
 // The end-to-end build's loopback media server, and a loopback CinePro Core in `pnpm dev` only,
 // are the only http origins a build accepts; every other build names https servers or fails.
 const playback = (mode: string) => {
@@ -27,7 +28,8 @@ const playback = (mode: string) => {
     ...(cineproOrigin ? { cineproOrigin, allowCineproLoopback: mode === "development" } : {}),
     ...fixtureBuild(vars.VITE_PLAYBACK_FIXTURE_ORIGIN),
   }
-  return cspOrigins(playbackPlugins(build), { allowLoopback: loopbackAllowed(build) })
+  const origins = cspOrigins(playbackPlugins(build), { allowLoopback: loopbackAllowed(build) })
+  return { ...origins, connect: [...origins.connect, INTRO_ORIGIN] }
 }
 
 export default defineConfig(({ mode }) => ({

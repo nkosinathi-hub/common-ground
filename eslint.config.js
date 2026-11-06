@@ -13,6 +13,8 @@ export default ts.config(
       "extension/dist",
       "extension/dist-firefox",
       "coverage",
+      "playwright-report",
+      "test-results",
       "src/lib/components/ui",
       "**/database.types.ts",
       "supabase/functions/**/index.ts",

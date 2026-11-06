@@ -67,3 +67,19 @@ describe("CinePro Core plugin", () => {
     expect(() => cineproPlugin("https://*.example.org")).toThrow(/exact origin/)
   })
 })
+
+it("invalidates the pinned framework's cache before renewing signed URLs", async () => {
+  const fetch = answering({ status: "OK" })
+  const provider = cineproPlugin(origin).create({ serverUrl: origin }, deps(fetch))
+  const source = {
+    kind: "file",
+    url: `${origin}/v1/proxy`,
+    providerId: "cinepro",
+    subtitles: [],
+    segments: [],
+    providerData: { responseId: "cached-id" },
+  } as const
+  expect(await provider.refresh?.(source, signal())).toEqual(ok(undefined))
+  expect(fetch.mock.calls[0]?.[0]).toBe(`${origin}/v1/refresh/cached-id`)
+  expect(fetch.mock.calls[0]?.[1]?.method).toBe("GET")
+})

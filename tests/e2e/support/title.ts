@@ -3,7 +3,8 @@ import { expect, type Page } from "@playwright/test"
 export async function titleDetails(page: Page) {
   const dialog = page.getByRole("dialog", { name: "About this title", exact: true })
   if (!(await dialog.isVisible())) {
-    await page.getByRole("button", { name: "About this title", exact: true }).first().click()
+    const actions = await titleActions(page)
+    await actions.getByRole("button", { name: "About this title", exact: true }).click()
   }
   await expect(dialog).toBeVisible()
   return dialog
@@ -22,8 +23,10 @@ export async function titleActivity(page: Page) {
 export async function titleActions(page: Page) {
   const trigger = page.locator(".fan-trigger")
   if ((await trigger.getAttribute("aria-expanded")) !== "true") {
-    if (await page.evaluate(() => matchMedia("(pointer: coarse)").matches)) await trigger.tap()
-    else await trigger.hover()
+    if (await page.evaluate(() => matchMedia("(pointer: coarse)").matches)) {
+      await page.getByRole("button", { name: "Common Ground menu", exact: true }).click()
+      return page.getByRole("dialog", { name: "Common Ground menu", exact: true })
+    } else await trigger.hover()
   }
   return page.getByRole("navigation", { name: "Main", exact: true })
 }

@@ -1,3 +1,5 @@
+import { introSegments } from "@/features/playback/infrastructure/introdb"
+import { catalogNext } from "./playback-next"
 import { Capacitor } from "@capacitor/core"
 import { ok } from "@/shared/domain"
 import { preferencesStorage } from "@/shared/infrastructure/preferences-storage"
@@ -34,6 +36,7 @@ export function playbackPorts(
   const fromJellyfin = async (tmdbId: number) =>
     jellyfin && (await jellyfin.signedIn()) ? jellyfin.nextUp(tmdbId) : ok(null)
   return {
+    segments: (ref, signal) => introSegments(fetch, ref, signal),
     nextEpisode: async (target) => {
       const next = await fromJellyfin(target.catalog.id)
       if (next.ok && next.value) return ok(next.value)
@@ -53,14 +56,7 @@ export function playbackPorts(
       )
       return ok(nextSeason ? { season: nextSeason.number, episode: 1 } : null)
     },
-    nextUp: async (target, current) => {
-      const next = await fromJellyfin(target.catalog.id)
-      if (!next.ok || !next.value || current.kind !== "episode") return ok(null)
-      const same = next.value.season === current.season && next.value.episode === current.episode
-      return ok(
-        same ? { season: current.season, episode: current.episode + 1, title: "" } : next.value,
-      )
-    },
+    nextUp: (target, current) => catalogNext(catalog, target, current),
     // 90% played: the person's history, which moves their own place forward.
     markWatched: (target, ref) =>
       history.markWatched(

@@ -1,27 +1,27 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
-  import type { PlayableSource } from "../domain/source.types"
-  import type { CaptionChoice } from "./caption-pref"
+  import type { PlayerMediaProps } from "./player-media-props"
   import { captionPreference } from "./caption-pref"
   import { usePlayback } from "./context"
   import { LocalSubtitles } from "./local-subtitles"
   import { EMPTY_TRACKS, type EngineHandle } from "./media-tracks"
   import PlayerSurface from "./PlayerSurface.svelte"
   import TrackControls from "./TrackControls.svelte"
-  interface Props {
-    source: PlayableSource | null
-    title: string
-    captions: CaptionChoice
-    video?: HTMLVideoElement | null
-    onfail: () => void
-  }
-  let { source, title, captions = $bindable(), video = $bindable(null), onfail }: Props = $props()
+  let {
+    source,
+    title,
+    autoplay = false,
+    loading = false,
+    captions = $bindable(),
+    video = $bindable(null),
+    onfail,
+  }: PlayerMediaProps = $props()
   const { device } = usePlayback()
   const upload = new LocalSubtitles()
-  let handle = $state<EngineHandle | null>(null)
+  let handle = $state.raw<EngineHandle | null>(null)
   let tracks = $state<ReturnType<EngineHandle["tracks"]>>(EMPTY_TRACKS)
   let audio = $state(device.read("playback-audio-language") ?? "en")
-  let audioChoice = $state<{ handle: EngineHandle; id: string } | null>(null)
+  let audioChoice = $state.raw<{ handle: EngineHandle; id: string } | null>(null)
   let restoreVersion = 0
   let selected = $state<string | undefined>()
   let error = $state("")
@@ -85,7 +85,7 @@
   onDestroy(() => upload.dispose())
 </script>
 
-<PlayerSurface {source} {title} bind:video bind:handle {onfail} />
+<PlayerSurface {loading} {autoplay} {source} {title} bind:video bind:handle {onfail} />
 {#if source && source.kind !== "embed"}
   <TrackControls
     audio={tracks.audio}

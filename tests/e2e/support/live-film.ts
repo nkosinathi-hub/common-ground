@@ -29,7 +29,7 @@ export async function playInApp(page: Page, timeout = 45_000): Promise<Playing> 
     .poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState), { timeout })
     .toBeGreaterThan(0)
   await video.focus()
-  await page.keyboard.press("k")
+  if (await video.evaluate((v: HTMLVideoElement) => v.paused)) await page.keyboard.press("k")
   await expect
     .poll(() => video.evaluate((v: HTMLVideoElement) => v.currentTime), { timeout })
     .toBeGreaterThan(2)

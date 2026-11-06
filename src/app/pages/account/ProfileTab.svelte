@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PlaybackSettings } from "@/features/playback"
   import { AppearanceCard, PasswordCard, ProfileCard, SessionsCard } from "@/features/account"
 
   interface Props {
@@ -15,6 +16,7 @@
   <div class="flex flex-col gap-columns">
     <ProfileCard {userId} {displayName} />
     <PasswordCard />
+    <PlaybackSettings />
   </div>
   <div class="flex flex-col gap-columns">
     <AppearanceCard compact />

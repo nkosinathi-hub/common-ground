@@ -87,7 +87,6 @@
   <RouteAction
     {action}
     {open}
-    contextual={tools.length > 0 && !routes}
     controls={id}
     bind:trigger
     onReveal={() => (pinned = true)}

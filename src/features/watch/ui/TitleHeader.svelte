@@ -47,12 +47,12 @@
       >
         {item.synopsis}
       </p>{/if}
-    <Button
-      variant="ghost"
-      size="sm"
-      class="-ml-3 text-muted-foreground"
-      onclick={() => (about = true)}><Info aria-hidden="true" />About this title</Button
-    >
+    {#if !actions}<Button
+        variant="ghost"
+        size="sm"
+        class="-ml-3 text-muted-foreground"
+        onclick={() => (about = true)}><Info aria-hidden="true" />About this title</Button
+      >{/if}
   </div>
 </header>
 {#if actions}<PageTool

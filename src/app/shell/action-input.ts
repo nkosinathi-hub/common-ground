@@ -5,7 +5,6 @@ import { FanDrag } from "./fan-drag"
 interface Control {
   action: () => PageActionSpec
   open: () => boolean
-  touch: () => boolean
   reveal: () => void
   activate: () => void
   holdReveal?: () => void
@@ -13,7 +12,7 @@ interface Control {
   dragging?: (active: boolean) => void
 }
 
-/** Touch first discloses destinations; a second tap on the same control runs its page action. */
+/** A tap runs the page action; hold or drag discloses destinations without firing it. */
 export class ActionInput {
   private pointer = false
   private skipClick = false
@@ -30,8 +29,7 @@ export class ActionInput {
       this.drag.begin()
     })
   }
-  private run(touch: boolean) {
-    if (touch && !this.control.open()) return this.control.reveal()
+  private run() {
     const action = this.control.action()
     if (action.disabled) return
     this.control.activate()
@@ -65,7 +63,7 @@ export class ActionInput {
     if (event.pointerType === "mouse") return this.cancel()
     this.skipClick = true
     const consumed = this.drag.finish(event)
-    if (this.gesture.finish(event) && !consumed) this.run(true)
+    if (this.gesture.finish(event) && !consumed) this.run()
   }
   cancel = (event?: PointerEvent) => {
     if (event && this.id !== null && event.pointerId !== this.id) return
@@ -79,11 +77,19 @@ export class ActionInput {
     event.preventDefault()
     this.gesture.show()
   }
+  outsideDown = () => (this.skipClick = false)
+  compatibilityClick = (event: MouseEvent) => {
+    if (!this.skipClick || event.detail === 0) return
+    this.skipClick = false
+    event.preventDefault()
+    event.stopImmediatePropagation()
+  }
   click = (event: MouseEvent) => {
+    if (event.defaultPrevented) return
     if (event.detail !== 0 && (this.skipClick || this.gesture.consume())) {
       this.skipClick = false
       return
     }
-    this.run(this.control.touch())
+    this.run()
   }
 }

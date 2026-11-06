@@ -58,7 +58,7 @@ test("hold, drag and release chooses the last route without changing normal taps
   await expect(page.getByRole("dialog")).toBeVisible()
 })
 
-test("holding the title FAB exposes routes while a normal tap retains title tools @mobile", async ({
+test("holding the title FAB exposes routes while a normal tap plays immediately @mobile", async ({
   page,
 }, info) => {
   test.skip(info.project.name === "desktop", "Uses real touch pointer events")
@@ -68,20 +68,10 @@ test("holding the title FAB exposes routes while a normal tap retains title tool
   await expect(page.getByRole("heading", { name: "Episodes", exact: true })).toBeVisible()
   const touch = await page.context().newCDPSession(page)
   await page.locator(".fan-trigger").tap()
-  await expect(
-    page
-      .getByRole("navigation", { name: "Main", exact: true })
-      .getByRole("button", { name: "Watch trailer", exact: true }),
-  ).toBeVisible()
-  await hold(page, touch)
-  await drag(page, touch, "About this title")
-  await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
-  const about = page.getByRole("dialog", { name: "About this title", exact: true })
-  await expect(about).toBeVisible()
+  const player = page.getByRole("dialog", { name: "Watching Ted Lasso", exact: true })
+  await expect(player).toBeVisible()
   await page.keyboard.press("Escape")
-  await expect(about).toBeHidden()
-  await page.keyboard.press("Escape")
-  await expect(page.locator(".fan-trigger")).toHaveAttribute("aria-expanded", "false")
+  await expect(player).toBeHidden()
   await hold(page, touch)
   await drag(page, touch, "Home")
   await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
