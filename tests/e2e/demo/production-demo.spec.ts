@@ -1,3 +1,4 @@
+import { titleActivity } from "../support/title"
 import { expect, test } from "@playwright/test"
 import { clickPageButton, navigateSection } from "../support/navigation"
 
@@ -16,12 +17,10 @@ test("sample demo uses the real pages, details and dialogs without login @mobile
   await expect(page.getByRole("heading", { name: "Our next good watch." })).toBeVisible()
   await page.getByRole("link", { name: /Ted Lasso poster/ }).click()
   await expect(page.getByRole("heading", { name: "Ted Lasso", exact: true })).toBeVisible()
-  await expect(page.getByRole("button", { name: "Play an episode" }).first()).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Episodes", exact: true })).toBeVisible()
   // Sources and freshness are credited under Account, not on the title page.
   await expect(page.getByText(/Listings from/)).toHaveCount(0)
-  // Phones put the discussion on its own tab; wide screens show it beside progress.
-  const discussion = page.getByRole("tab", { name: "Discussion" })
-  if (await discussion.isVisible()) await discussion.click()
+  await titleActivity(page)
   await expect(page.getByText(/the biscuits/)).toBeVisible()
   await expect(page.getByText(/Ben is ahead/)).toBeVisible()
   await page.reload()

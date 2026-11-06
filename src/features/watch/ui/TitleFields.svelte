@@ -6,6 +6,7 @@
   import { MEDIA_TYPES } from "../domain/labels"
   import { NOTE_MAX, SYNOPSIS_MAX, YEAR_DIGITS } from "../domain/validation"
   import type { TitleFormState } from "./title-form-state.svelte"
+  import { TITLE_OPTIONS } from "./title-options"
 
   interface Props {
     form: TitleFormState
@@ -31,16 +32,16 @@
       />
     {/snippet}
   </FormField>
-  <FormField
-    id={id("note")}
-    label="Where to watch"
-    optional
-    maxlength={NOTE_MAX}
-    placeholder="For example: DVD on the shelf"
-    hint="Your own note. No verified provider data."
-    bind:value={form.note}
-    error={errorFor("availabilityNote")}
-  />
+  {#if TITLE_OPTIONS.availability}<FormField
+      id={id("note")}
+      label="Where to watch"
+      optional
+      maxlength={NOTE_MAX}
+      placeholder="For example: DVD on the shelf"
+      hint="Your own note. No verified provider data."
+      bind:value={form.note}
+      error={errorFor("availabilityNote")}
+    />{/if}
 {/snippet}
 
 <!-- Figma S04: the title, its type and year, then the rest folded away. -->
@@ -80,7 +81,10 @@
   </FormField>
 </div>
 {#if folded}
-  <CollapsibleGroup title="More details" meta="Synopsis, where to watch">
+  <CollapsibleGroup
+    title="More details"
+    meta={TITLE_OPTIONS.availability ? "Synopsis, where to watch" : "Synopsis"}
+  >
     <div class="flex flex-col gap-stack pt-stack">{@render details()}</div>
   </CollapsibleGroup>
 {:else}

@@ -8,6 +8,7 @@
     PlaySplitButton,
     TitlePlaybackScope,
     TrailerButton,
+    TitleEpisodes,
   } from "@/features/playback"
   import { RecommendButton } from "@/features/recommendations"
   import type { Space } from "@/features/spaces"
@@ -60,11 +61,11 @@
           {itemId}
           isFilm={item.mediaType === "movie"}
           {compact}
+          inFab
           title={summaryOf(item)}
         />
       {/snippet}
       {#snippet tools(item)}
-        <TrailerButton />
         <RecommendButton
           spaceId={space.id}
           {itemId}
@@ -74,6 +75,7 @@
         />
       {/snippet}
       {#snippet player(item)}<PlayerSlot title={item.title} />{/snippet}
+      {#snippet episodes()}<TitleEpisodes /><TrailerButton inFab />{/snippet}
       {#snippet discussion(frame)}
         <CommentThread
           spaceId={space.id}

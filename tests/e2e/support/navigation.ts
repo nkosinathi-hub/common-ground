@@ -3,7 +3,10 @@ import { expect, type Page } from "@playwright/test"
 /** Keep route assertions shared with the actual disclosure, on mouse and touch projects. */
 export async function openNavigation(page: Page) {
   const trigger = page.locator(".fan-trigger")
-  if ((await trigger.getAttribute("aria-expanded")) !== "true") {
+  if (
+    (await trigger.getAttribute("aria-expanded")) !== "true" ||
+    !(await page.locator(".route-fan a").count())
+  ) {
     await page.getByRole("button", { name: "Common Ground menu", exact: true }).click()
     await page.getByRole("button", { name: "Navigate", exact: true }).click()
   }
@@ -17,7 +20,8 @@ export async function navigateSection(page: Page, name: string) {
 }
 export async function activatePageAction(page: Page, name: string) {
   const action = page.locator(".fan-trigger")
-  if ((await action.getAttribute("aria-label")) === "Open navigation") await action.click()
+  if (/^Open (navigation|title actions)$/.test((await action.getAttribute("aria-label")) ?? ""))
+    await action.click()
   await expect(action).toHaveAccessibleName(name)
   await action.click()
 }

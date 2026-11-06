@@ -1,3 +1,4 @@
+import { titleActivity } from "../support/title"
 import { quickCapture } from "../support/navigation"
 import { expect, test } from "@playwright/test"
 import { addTitle, captureIdea } from "../support/fixtures"
@@ -12,16 +13,13 @@ test("add a title manually, track progress and comment", async ({ page }) => {
 
   await addTitle(page, spaceId, "Frieren")
   await expect(page.getByRole("heading", { name: "Frieren" })).toBeVisible()
-  const where = page.getByRole("region", { name: "Where to watch" })
-  await expect(where.getByText(/not a provider listing/i)).toBeVisible()
-
-  // Phones put the discussion on its own tab; wide screens show it beside progress.
-  const discussion = page.getByRole("tab", { name: "Discussion" })
-  if (await discussion.isVisible()) await discussion.click()
+  await expect(page.getByRole("region", { name: "Where to watch" })).toHaveCount(0)
+  await titleActivity(page)
   await page.getByLabel("Add a comment").fill("Episode 10 made me cry")
   await page.getByRole("button", { name: /^(Post|Comment|Send)$/ }).click()
   await expect(page.getByText("Episode 10 made me cry")).toBeVisible()
   await page.reload()
+  await titleActivity(page)
   await expect(page.getByText("Episode 10 made me cry")).toBeVisible()
 })
 

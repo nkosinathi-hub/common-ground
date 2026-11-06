@@ -35,8 +35,10 @@ describe("route action activation", () => {
     expect(reveal).not.toHaveBeenCalled()
   })
   it("prevents compatibility mouse focus when handling a touch directly", () => {
-    const { input } = setup(true)
+    const { input, onclick, reveal } = setup(true)
     const preventDefault = vi.fn()
+    const target = document.createElement("button")
+    target.setPointerCapture = vi.fn()
     input.down({
       pointerType: "touch",
       isPrimary: true,
@@ -44,9 +46,12 @@ describe("route action activation", () => {
       clientX: 0,
       clientY: 0,
       preventDefault,
-      currentTarget: { setPointerCapture: vi.fn() },
+      currentTarget: target,
     } as unknown as PointerEvent)
     expect(preventDefault).toHaveBeenCalledOnce()
     input.cancel()
+    input.click(new MouseEvent("click", { detail: 1 }))
+    expect(reveal).not.toHaveBeenCalled()
+    expect(onclick).not.toHaveBeenCalled()
   })
 })

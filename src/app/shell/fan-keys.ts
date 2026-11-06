@@ -6,6 +6,10 @@ export const FAN_POSITIONS = [
   [1, -0.24],
 ]
 
+export const fanKeyTarget = (event: KeyboardEvent, root: HTMLElement | undefined, open: boolean) =>
+  (event.key === "Escape" && open && !event.defaultPrevented && event.target === document.body) ||
+  (event.target instanceof Node && !!root?.contains(event.target))
+
 /** This is a disclosure of ordinary links, with optional arrows in visual route order. */
 export function fanKeys(
   event: KeyboardEvent,
@@ -25,8 +29,8 @@ export function fanKeys(
   event.preventDefault()
   expand()
   requestAnimationFrame(() => {
-    const links = [...root.querySelectorAll<HTMLAnchorElement>(".fan-route")]
-    const current = links.indexOf(document.activeElement as HTMLAnchorElement)
+    const links = [...root.querySelectorAll<HTMLElement>(".fan-route:not(:disabled)")]
+    const current = links.indexOf(document.activeElement as HTMLElement)
     const backwards = event.key === "ArrowLeft" || event.key === "ArrowUp"
     const index =
       event.key === "Home"

@@ -8,7 +8,11 @@ import { PlaybackService } from "../application/playback-service"
 import type { MediaRef } from "../domain/media-ref"
 import type { PlayableSource } from "../domain/source.types"
 
-export function renderTitlePlayback(sources: PlayableSource[], target: PlayTarget) {
+export function renderTitlePlayback(
+  sources: PlayableSource[],
+  target: PlayTarget,
+  overrides: Partial<PlaybackCatalog> = {},
+) {
   const asked: MediaRef[] = []
   const service = new PlaybackService(
     {
@@ -61,7 +65,7 @@ export function renderTitlePlayback(sources: PlayableSource[], target: PlayTarge
     props: {
       provide,
       component: TitlePlaybackHarness,
-      props: { target, catalog },
+      props: { target, catalog: { ...catalog, ...overrides } },
     },
   })
   return { asked, service }

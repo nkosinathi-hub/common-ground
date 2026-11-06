@@ -1,6 +1,6 @@
 /* One primary button; hover, hold and arrows reveal the surrounding destinations. */
 .radial-nav > .fan-trigger {
-  touch-action: pan-x;
+  touch-action: none;
   width: 56px;
   height: 56px;
   border: 2px solid var(--background);
