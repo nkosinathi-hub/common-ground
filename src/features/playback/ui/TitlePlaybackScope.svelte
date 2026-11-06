@@ -40,7 +40,9 @@
 
 {#if shellActions}<PageAction
     icon={Play}
-    label={playback.episodic ? "Play next episode" : "Play"}
+    label={playback.episodic && playback.next
+      ? `Continue S${playback.next.season} E${playback.next.episode}`
+      : "Play"}
     disabled={playback.play.status === "loading"}
     onclick={() => void playback.playNext()}
   />{/if}

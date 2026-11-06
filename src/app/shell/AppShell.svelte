@@ -49,6 +49,7 @@
     routeKey={buildHash(route)}
     {current}
     {onSignOut}
+    tools={actions.tools}
     action={actions.current ?? {
       label: "Capture an idea from anywhere",
       icon: Lightbulb,

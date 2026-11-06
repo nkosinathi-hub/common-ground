@@ -4,6 +4,7 @@
   import AvailabilityNote from "./AvailabilityNote.svelte"
   import ProgressCard from "./ProgressCard.svelte"
   import type { TitlePage } from "./title-page.svelte"
+  import { TITLE_OPTIONS } from "./title-options"
 
   interface Props {
     page: TitlePage
@@ -24,20 +25,22 @@
   version={page.version}
   onChanged={page.changed}
 />
-{#if !item.catalog}
-  <AvailabilityNote {item} />
-{:else if wide}
-  <Availability
-    spaceId={item.spaceId}
-    type={item.catalog.type}
-    id={item.catalog.id}
-    title={item.title}
-  />
-{:else}
-  <AvailabilitySheet
-    spaceId={item.spaceId}
-    type={item.catalog.type}
-    id={item.catalog.id}
-    title={item.title}
-  />
+{#if TITLE_OPTIONS.availability}
+  {#if !item.catalog}
+    <AvailabilityNote {item} />
+  {:else if wide}
+    <Availability
+      spaceId={item.spaceId}
+      type={item.catalog.type}
+      id={item.catalog.id}
+      title={item.title}
+    />
+  {:else}
+    <AvailabilitySheet
+      spaceId={item.spaceId}
+      type={item.catalog.type}
+      id={item.catalog.id}
+      title={item.title}
+    />
+  {/if}
 {/if}

@@ -12,8 +12,9 @@
     current: Section | null
     onSignOut: () => void
     action: PageActionSpec
+    tools?: PageActionSpec[]
   }
-  let { space, routeKey, current, onSignOut, action }: Props = $props()
+  let { space, routeKey, current, onSignOut, action, tools = [] }: Props = $props()
   let searching = $state(false),
     navigationOpen = $state(false)
 </script>
@@ -35,4 +36,11 @@
   </div>
 </header>
 
-<RadialNav spaceId={space.id} {current} {routeKey} {action} bind:requested={navigationOpen} />
+<RadialNav
+  spaceId={space.id}
+  {current}
+  {routeKey}
+  {action}
+  {tools}
+  bind:requested={navigationOpen}
+/>

@@ -15,10 +15,13 @@ export class FanGesture {
     this.timer = setTimeout(() => this.show(), 450)
   }
   move(event: PointerEvent) {
-    if (!this.timer) return
+    if (!this.timer) return this.handled
     if (event.clientY - this.start.y < -24) this.show()
-    else if (Math.abs(event.clientX - this.start.x) > 16 || event.clientY - this.start.y > 16)
+    else if (Math.abs(event.clientX - this.start.x) > 16 || event.clientY - this.start.y > 16) {
       this.cancel()
+      return false
+    }
+    return true
   }
   show() {
     this.cancel()

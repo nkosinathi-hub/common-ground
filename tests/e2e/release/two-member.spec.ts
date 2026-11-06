@@ -1,3 +1,4 @@
+import { titleActivity } from "../support/title"
 import { expect, test } from "@playwright/test"
 import { edgeFunctionBlocker } from "../support/clients"
 import { addTitle, captureIdea, inviteMember, openIdeaTab } from "../support/fixtures"
@@ -45,6 +46,7 @@ test("two members share titles, ideas, a third member, talk and tasks", async ({
   await benPage.goto(`./#/s/${spaceId}/watch/${itemId}`)
   await comment(benPage, "The bathhouse scene is the best part")
   await page.reload()
+  await titleActivity(page)
   await expect(page.getByText("The bathhouse scene is the best part")).toBeVisible()
 
   await openIdeaTab(page, spaceId, ideaId, "tasks")

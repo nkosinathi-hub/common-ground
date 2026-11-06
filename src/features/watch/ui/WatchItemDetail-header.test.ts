@@ -27,6 +27,7 @@ const menu = async () =>
 describe("WatchItemDetail header", () => {
   it("likes privately, swaps to a dislike, and clears with the same tap", async () => {
     const { opinionRows, title } = renderTitle()
+    await fireEvent.click(await screen.findByRole("button", { name: "About this title" }))
     const like = await screen.findByRole("button", { name: "I liked it" })
     await fireEvent.click(like)
     await waitFor(() => expect(opinionRows.rows.get(title.id)).toBe("liked"))
@@ -40,15 +41,24 @@ describe("WatchItemDetail header", () => {
   })
 
   it("edits a hand-added title's details from its menu", async () => {
-    renderTitle()
+    const { gateway } = renderTitle()
+    await fireEvent.click(await screen.findByRole("button", { name: "About this title" }))
     await menu()
     await fireEvent.click(await screen.findByRole("menuitem", { name: "Edit details" }))
-    expect(await screen.findByRole("dialog")).toBeInTheDocument()
+    expect(await screen.findByRole("dialog", { name: "Edit this title" })).toBeInTheDocument()
+    expect(screen.queryByLabelText("Where to watch")).toBeNull()
+    await fireEvent.input(screen.getByLabelText("Title"), {
+      target: { value: "Updated shelf copy" },
+    })
+    await fireEvent.click(screen.getByRole("button", { name: "Save changes" }))
+    await waitFor(() => expect(gateway.items[0]?.title).toBe("Updated shelf copy"))
+    await waitFor(() => expect(gateway.items[0]?.availabilityNote).toBe("Borrowed from Mum"))
   })
 
   it("keeps a catalog title's details, and offers Delete only when allowed", async () => {
     renderTitle({ catalog: { type: "movie", id: 7 }, createdBy: PARTNER })
     await screen.findByRole("heading", { name: "Shelf copy" })
+    await fireEvent.click(screen.getByRole("button", { name: "About this title" }))
     expect(screen.queryByRole("button", { name: /^More for/ })).toBeNull()
   })
 })

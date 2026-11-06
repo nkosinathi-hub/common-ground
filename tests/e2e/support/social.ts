@@ -1,8 +1,10 @@
 import { openNotifications } from "./navigation"
 import { expect, type Page } from "@playwright/test"
+import { titleActivity, titleDetails } from "./title"
 
 /** On a title page, recommends it to one member with a note. */
 export async function recommend(page: Page, to: string, note: string): Promise<void> {
+  const about = await titleDetails(page)
   await page.getByRole("button", { name: "Recommend" }).click()
   const dialog = page.getByRole("dialog", { name: "Recommend a title" })
   await dialog.getByRole("button", { name: to, exact: true }).click()
@@ -11,10 +13,13 @@ export async function recommend(page: Page, to: string, note: string): Promise<v
   // The dialog closes only once the send succeeds; an earlier toast may still be showing.
   await expect(dialog).toBeHidden()
   await expect(page.getByText(`Recommended to ${to}`).first()).toBeVisible()
+  await about.getByRole("button", { name: "Done", exact: true }).click()
+  await expect(about).toBeHidden()
 }
 
 /** Posts a plain comment in the thread on the current page. */
 export async function comment(page: Page, body: string): Promise<void> {
+  await titleActivity(page)
   await page.getByLabel("Add a comment").fill(body)
   await page.getByRole("button", { name: "Post", exact: true }).click()
   await expect(page.getByText(body)).toBeVisible()

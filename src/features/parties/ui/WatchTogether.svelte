@@ -4,7 +4,7 @@
   import { Button } from "$lib/components/ui/button"
   import type { SummaryTitle } from "@/features/catalog"
   import { buildHash } from "@/shared/domain"
-  import { Resource } from "@/shared/ui"
+  import { Resource, PageTool, navigate } from "@/shared/ui"
   import { useParties } from "./context"
   import StartPartyDialog from "./StartPartyDialog.svelte"
 
@@ -15,11 +15,12 @@
     isFilm: boolean
     /** Icon only, beside the play button in the phone's sticky bar. */
     compact?: boolean
+    inFab?: boolean
     /** Shown at the top of the setup dialog. */
     title?: SummaryTitle
   }
 
-  let { spaceId, itemId, isFilm, compact = false, title }: Props = $props()
+  let { spaceId, itemId, isFilm, compact = false, title, inFab = false }: Props = $props()
   const { service } = useParties()
   const open = new Resource(() => service.openFor(itemId))
   let starting = $state(false)
@@ -31,7 +32,19 @@
 </script>
 
 <!-- The title page's one secondary action (D03a), beside Play. -->
-{#if open.value}
+{#if inFab}
+  <PageTool
+    label={open.value ? "Join the watch party" : "Watch together"}
+    icon={Users}
+    order={30}
+    disabled={open.state.status === "loading"}
+    onclick={() =>
+      open.value
+        ? navigate(buildHash({ name: "party", spaceId, partyId: open.value.id }))
+        : (starting = true)}
+  />
+  <StartPartyDialog bind:open={starting} {spaceId} {itemId} {isFilm} {title} />
+{:else if open.value}
   <Button
     variant="outline"
     size={compact ? "icon" : "default"}

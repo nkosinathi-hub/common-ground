@@ -10,6 +10,7 @@
 @import "./styles/header-controls.css";
 @import "./styles/radial-navigation.css";
 @import "./styles/route-action.css";
+@import "./styles/fan-drag.css";
 @import "./styles/touch-forms.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -65,7 +66,8 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
+      transition: none !important;
+      animation-delay: 0ms !important;
       scroll-behavior: auto !important;
     }
   }

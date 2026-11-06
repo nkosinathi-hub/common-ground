@@ -4,7 +4,7 @@
   import * as Card from "$lib/components/ui/card"
   import { Separator } from "$lib/components/ui/separator"
   import type { MemberRef } from "@/shared/domain"
-  import { DialogShell, type Resource } from "@/shared/ui"
+  import { DialogShell, PageAction, type Resource } from "@/shared/ui"
   import { placeLabel } from "../domain/places"
   import type { MemberProgress } from "../domain/progress-types"
   import { memberRows, type SeasonFact } from "../domain/title-facts"
@@ -31,6 +31,12 @@
   const together = $derived(current?.together ? placeLabel(current.together) : null)
   const season = $derived(mine?.season ?? current?.together?.season ?? (seasons[0]?.number || null))
 </script>
+
+{#if !item.catalog}<PageAction
+    label="Update progress"
+    icon={Pencil}
+    onclick={() => (adjusting = true)}
+  />{/if}
 
 <!-- D03a Progress card: together first, then each person, then the watched-together log. -->
 <Card.Root role="region" aria-labelledby="progress-heading">

@@ -1,0 +1,42 @@
+.fan-trigger[data-holding]::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fan-hold 450ms ease-out both;
+}
+@keyframes fan-hold {
+  from {
+    opacity: 0.15;
+    scale: 0.75;
+  }
+  to {
+    opacity: 0.8;
+    scale: 1.12;
+  }
+}
+.radial-nav[data-dragging] .fan-trigger {
+  box-shadow:
+    0 0 0 8px color-mix(in oklab, var(--primary) 18%, transparent),
+    0 10px 28px color-mix(in oklab, var(--foreground) 28%, transparent);
+}
+.fan-route[data-drag-selected] {
+  scale: 1.16;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  outline: 3px solid color-mix(in oklab, var(--primary) 30%, transparent);
+  outline-offset: 4px;
+}
+.fan-route[data-drag-selected] .fan-label {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  transform: translateY(3px);
+}
+.fan-label {
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}

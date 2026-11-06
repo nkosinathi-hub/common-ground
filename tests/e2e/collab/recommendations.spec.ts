@@ -1,3 +1,4 @@
+import { titleDetails } from "../support/title"
 import { expect, test, type Page } from "@playwright/test"
 import { addTitle, inviteMember } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
@@ -34,11 +35,13 @@ test("a recommendation is answered once and never waits twice", async ({ page, b
   const itemId = await addTitle(page, spaceId, "Arrival")
 
   await recommend(page, "ben", "Linguistics!")
+  await titleDetails(page)
   await page.getByRole("button", { name: "Recommend" }).click()
   const again = page.getByRole("dialog", { name: "Recommend a title" })
   await again.getByRole("button", { name: "ben", exact: true }).click()
   await again.getByRole("button", { name: "Send" }).click()
   await expect(again.getByRole("alert")).toContainText("already has this recommendation waiting")
+  await page.keyboard.press("Escape")
   await page.keyboard.press("Escape")
   expect(await statuses(itemId)).toEqual(["pending"])
 

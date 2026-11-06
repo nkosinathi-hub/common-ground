@@ -4,6 +4,7 @@
   import PlaySplitButton from "./PlaySplitButton.svelte"
   import TitlePlaybackScope from "./TitlePlaybackScope.svelte"
   import TrailerButton from "./TrailerButton.svelte"
+  import TitleEpisodes from "./TitleEpisodes.svelte"
 
   /** Tests only: the title page's playback pieces, as WatchSection puts them together. */
   let { target, catalog }: { target: PlayTarget; catalog: PlaybackCatalog } = $props()
@@ -11,4 +12,5 @@
 
 <TitlePlaybackScope {target} {catalog}>
   <PlaySplitButton /><TrailerButton /><PlayerSlot title="Film" />
+  <TitleEpisodes />
 </TitlePlaybackScope>

@@ -38,15 +38,17 @@ function setup(extra: Parameters<typeof item>[2] = {}, fakes = watchFakes()) {
 }
 
 describe("WatchItemDetail", () => {
-  it("shows a hand-added title with its note and the caller's pieces", async () => {
+  it("keeps availability hidden and secondary information out of the main page", async () => {
     setup()
     expect(await screen.findByRole("heading", { name: "Home video" })).toBeInTheDocument()
-    const where = screen.getByRole("region", { name: "Where to watch" })
-    expect(where).toHaveTextContent("On the shelf")
-    expect(where).toHaveTextContent("Added by a member, not a provider listing.")
+    expect(screen.queryByRole("region", { name: "Where to watch" })).toBeNull()
+    expect(screen.getByText("Progress and discussion").closest("details")).not.toHaveAttribute(
+      "open",
+    )
+    await fireEvent.click(screen.getByText("Progress and discussion"))
     expect(screen.getByText("Comments go here")).toBeInTheDocument()
+    await fireEvent.click(screen.getByRole("button", { name: "About this title" }))
     expect(screen.getByText("Recommend goes here")).toBeInTheDocument()
-    expect(screen.getByText("Together false false")).toBeInTheDocument()
   })
 
   it("lists everyone's place, you first, and names removed members still visible", async () => {
@@ -54,6 +56,7 @@ describe("WatchItemDetail", () => {
     fakes.members.list = fakes.members.list.filter((m) => m.id !== PARTNER)
     fakes.members.former = [{ id: PARTNER, displayName: "Lindi" }]
     setup({}, fakes)
+    await fireEvent.click(await screen.findByText("Progress and discussion"))
     const places = within(await screen.findByRole("list", { name: "Everyone's place" }))
     const [mine, theirs] = places.getAllByRole("listitem")
     expect(mine).toHaveTextContent("Nkosi (you)")
@@ -62,6 +65,7 @@ describe("WatchItemDetail", () => {
 
   it("adjusts my place without touching my partner's", async () => {
     const { gateway } = setup()
+    await fireEvent.click(await screen.findByText("Progress and discussion"))
     await fireEvent.click(await screen.findByRole("button", { name: "Adjust my place" }))
     const dialog = within(await screen.findByRole("dialog", { name: "Adjust my place" }))
     await fireEvent.change(dialog.getByLabelText("Status"), { target: { value: "completed" } })
@@ -73,6 +77,7 @@ describe("WatchItemDetail", () => {
 
   it("logs a watched-together night by hand", async () => {
     const { gateway } = setup()
+    await fireEvent.click(await screen.findByText("Progress and discussion"))
     await fireEvent.click(await screen.findByRole("button", { name: "Log watched together" }))
     await fireEvent.click(await screen.findByRole("button", { name: "Log watch" }))
     await waitFor(() => expect(gateway.sessionRows).toHaveLength(1))
@@ -80,6 +85,7 @@ describe("WatchItemDetail", () => {
 
   it("deletes from its menu after confirmation", async () => {
     const { gateway } = setup()
+    await fireEvent.click(await screen.findByRole("button", { name: "About this title" }))
     await fireEvent.keyDown(await screen.findByRole("button", { name: /^More for/ }), {
       key: "Enter",
     })

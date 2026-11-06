@@ -1,71 +1,64 @@
 <script lang="ts">
   import type { Snippet } from "svelte"
+  import { Info } from "@lucide/svelte"
   import { Poster } from "@/features/catalog"
-  import { Separator } from "$lib/components/ui/separator"
+  import { Button } from "$lib/components/ui/button"
+  import { PageTool, usePageActions } from "@/shared/ui"
   import type { WatchItemView } from "../domain/types"
-  import ItemActions from "./ItemActions.svelte"
-  import ListMenu from "./ListMenu.svelte"
-  import OpinionToggle from "./OpinionToggle.svelte"
+  import TitleDetails from "./TitleDetails.svelte"
 
-  interface Props {
+  let {
+    view,
+    backHref,
+    seasons,
+    tools,
+    onChanged,
+  }: {
     view: WatchItemView
     backHref: string
-    /** "3 seasons", when the catalog knows. */
     seasons: string | null
-    wide: boolean
-    /** Play and Watch together: the header's actions on wide screens, the sticky bar on phones. */
-    actions?: Snippet
-    /** Trailer and recommend, as icon buttons. */
     tools?: Snippet
     onChanged: () => void
-  }
-
-  let { view, backHref, seasons, wide, actions, tools, onChanged }: Props = $props()
+  } = $props()
+  const actions = usePageActions()
+  let about = $state(false)
   const item = $derived(view.item)
-  const meta = $derived([item.releaseYear, seasons].filter(Boolean).join(" · "))
+  const meta = $derived(
+    [item.mediaType === "movie" ? "Film" : "Series", item.releaseYear, seasons]
+      .filter(Boolean)
+      .join(" · "),
+  )
 </script>
 
-{#snippet icons()}
-  {@render tools?.()}<ItemActions {view} {backHref} {onChanged} />
-{/snippet}
-{#snippet synopsis()}
-  {#if item.synopsis}<p class="line-clamp-2 type-body text-muted-foreground">
-      {item.synopsis}
-    </p>{/if}
-{/snippet}
-
-<!-- D03a header (289:9576), M03c on phones: poster, title, meta line, story and actions. -->
-<header class="flex flex-col gap-stack">
-  <div class="flex gap-columns">
-    <Poster
-      path={item.posterPath}
-      title={item.title}
-      size="w342"
-      class="aspect-2/3 h-auto w-22 shrink-0 self-start rounded-lg object-cover md:w-30"
-    />
-    <div class="flex min-w-0 flex-1 flex-col gap-related">
-      <h1 class="type-h1 text-foreground">{item.title}</h1>
-      <div class="flex flex-wrap items-center gap-x-item gap-y-hairline">
-        {#if meta}<p class="type-sm text-muted-foreground">{meta}</p>{/if}
-        <ListMenu {item} {onChanged} />
-        {#if wide}
-          <Separator orientation="vertical" class="h-5" />
-          <OpinionToggle spaceId={item.spaceId} itemId={item.id} />
-        {/if}
-      </div>
-      {#if wide}
-        {@render synopsis()}
-        <div class="flex flex-wrap items-center gap-related pt-related">
-          {@render actions?.()}{@render icons()}
-        </div>
-      {:else}
-        <div class="flex items-center gap-related">
-          {@render icons()}<span class="ml-auto"
-            ><OpinionToggle spaceId={item.spaceId} itemId={item.id} /></span
-          >
-        </div>
-      {/if}
-    </div>
+<header class="flex items-center gap-item sm:gap-columns">
+  <Poster
+    path={item.posterPath}
+    title={item.title}
+    size="w342"
+    class={item.mediaType === "movie"
+      ? "aspect-2/3 w-24 shrink-0 rounded-lg object-cover shadow-sm sm:w-40"
+      : "aspect-2/3 w-16 shrink-0 rounded-lg object-cover shadow-sm sm:w-24"}
+  />
+  <div class="flex min-w-0 flex-1 flex-col items-start gap-related">
+    <p class="type-label-sm text-muted-foreground">{meta}</p>
+    <h1 class="type-h1 break-words text-foreground">{item.title}</h1>
+    {#if item.mediaType === "movie" && item.synopsis}<p
+        class="line-clamp-3 max-w-prose type-sm leading-relaxed text-muted-foreground"
+      >
+        {item.synopsis}
+      </p>{/if}
+    <Button
+      variant="ghost"
+      size="sm"
+      class="-ml-3 text-muted-foreground"
+      onclick={() => (about = true)}><Info aria-hidden="true" />About this title</Button
+    >
   </div>
-  {#if !wide}{@render synopsis()}{/if}
 </header>
+{#if actions}<PageTool
+    label="About this title"
+    icon={Info}
+    order={40}
+    onclick={() => (about = true)}
+  />{/if}
+<TitleDetails bind:open={about} {view} {backHref} {tools} {onChanged} />

@@ -1,3 +1,4 @@
+import { titleDetails } from "../support/title"
 import { expect, test } from "@playwright/test"
 import { addTitle } from "../support/fixtures"
 import { createSpace, signIn } from "../support/session"
@@ -11,6 +12,7 @@ test("a member likes a title, changes their mind and keeps it after a reload", a
   await signIn(page, await createUser("likes"))
   const spaceId = await createSpace(page, "Likes")
   await addTitle(page, spaceId, "Arrival")
+  await titleDetails(page)
   const liked = page.getByRole("button", { name: "I liked it" }).first()
   const notForMe = page.getByRole("button", { name: "Not for me" }).first()
   await liked.click()
@@ -19,6 +21,7 @@ test("a member likes a title, changes their mind and keeps it after a reload", a
   await notForMe.click()
   await expect(notForMe).toHaveAttribute("aria-pressed", "true")
   await page.reload()
+  await titleDetails(page)
   await expect(page.getByRole("button", { name: "Not for me" }).first()).toHaveAttribute(
     "aria-pressed",
     "true",
