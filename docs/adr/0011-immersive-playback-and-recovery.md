@@ -28,7 +28,9 @@ Source expiry metadata was collected but never renewed. The demo disabled the re
 - Fetch optional TheIntroDB timing metadata in parallel with playback. Never guess intro lengths.
   Known intros offer a button and automatic skipping. Intros and next-episode automation have
   persistent device preferences, enabled by default. Party playback keeps manual shared control.
-- Retry transient segment requests and retain a modest buffer. A stuck playing video gets a finite
+- Retry transient segment requests and retain a modest buffer. Observe actual media progression
+  independently of buffering events: a decoded video can silently freeze at readyState 4.
+  Initial loading and failed media must not be mistaken for a deliberate viewer pause. A stuck playing video gets a finite
   recovery budget; brief seeks get extra time; pause and offline state do not count as stalled playback. Preserve position
   across fallback, invalidate CinePro's cached response through its existing GET refresh endpoint,
   and resolve again through normal origin validation. Ignore duplicate and stale failures.

@@ -10,7 +10,7 @@
   import { SourceSession } from "./source-session.svelte"
   import { PlayerTimeline } from "./player-timeline.svelte"
   import { sourceExpiry } from "./source-expiry"
-  import { watchMedia } from "./media-recovery"
+  import { watchMedia, pauseToPreserve } from "./media-recovery"
   import { playbackPreference } from "./playback-preferences"
   import { inCredits } from "../domain/progress"
   import { playerKeyboard } from "./player-keyboard"
@@ -40,13 +40,12 @@
     () => video,
     () => (source ? service.reporter(source, target, playing.ref, onwatched) : null),
   )
-  const fail = () => void session.fail(source, position.time)
+  const paused = $derived(pauseToPreserve(video, position.paused))
+  const fail = () => void session.fail(source, position.time, false, paused)
   onDestroy(session.dispose)
   $effect(() => (video && attachVideo ? untrack(() => attachVideo(video!)) : undefined))
   $effect(() => (video ? watchMedia(video, fail, 20_000, session.ready) : undefined))
-  $effect(() =>
-    sourceExpiry(source, () => void session.fail(source, position.time, true, position.paused)),
-  )
+  $effect(() => sourceExpiry(source, () => void session.fail(source, position.time, true, paused)))
 
   function toggleCaptions() {
     const language = captions.language ?? source?.subtitles[0]?.language ?? null
@@ -66,7 +65,7 @@
     : "flex min-h-0 flex-1 flex-col gap-related"}
   onkeydown={(event) => playerKeyboard(event, { video, container, toggleCaptions })}
 >
-  <PlaybackOptions {session} time={position.time} paused={position.paused} {onretry} />
+  <PlaybackOptions {session} time={position.time} {paused} {onretry} />
   <PlayerMedia
     loading={session.refreshing}
     {source}

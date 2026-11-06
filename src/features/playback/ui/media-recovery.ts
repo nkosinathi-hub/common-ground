@@ -1,4 +1,9 @@
-/** Buffering is bounded; brief seeks get extra time, while pause and offline state never fail. */
+/** A paused, decoded video has a pause to preserve; initial loading and media errors do not. */
+export function pauseToPreserve(video: HTMLVideoElement | null, paused: boolean): boolean {
+  return !!(video && paused && video.currentTime > 0 && video.readyState >= 2 && !video.error)
+}
+
+/** Observe actual progress: decoders can freeze with readyState 4 and emit no waiting event. */
 export function watchMedia(
   video: HTMLVideoElement,
   onfail: () => void,
@@ -6,50 +11,39 @@ export function watchMedia(
   onready: () => void = () => {},
 ) {
   let lastTime = video.currentTime
-  let timer: ReturnType<typeof setTimeout> | undefined
-  const clear = () => {
-    clearTimeout(timer)
-    timer = undefined
+  let lastProgress = Date.now()
+  let failed = false
+  const reset = () => {
+    lastTime = video.currentTime
+    lastProgress = Date.now()
   }
-  const waiting = () => {
-    if (timer || video.paused || video.ended || navigator.onLine === false) return
-    const position = video.currentTime
-    timer = setTimeout(
-      () => {
-        timer = undefined
-        if (
-          !video.paused &&
-          !video.ended &&
-          navigator.onLine !== false &&
-          video.currentTime <= position + 0.1
-        )
-          onfail()
-      },
-      video.seeking ? timeoutMs * 2 : timeoutMs,
+  const check = () => {
+    if (failed) return
+    if (
+      video.paused ||
+      video.ended ||
+      navigator.onLine === false ||
+      Math.abs(video.currentTime - lastTime) > 0.1
     )
+      return reset()
+    if (Date.now() - lastProgress < timeoutMs * (video.seeking ? 2 : 1)) return
+    failed = true
+    onfail()
   }
-  const progress = () => {
-    if (Math.abs(video.currentTime - lastTime) > 0.1) {
-      lastTime = video.currentTime
-      clear()
-    }
-    if (video.readyState < 3) waiting()
-  }
-  video.addEventListener("waiting", waiting)
-  video.addEventListener("stalled", waiting)
   const ready = () => {
-    clear()
+    reset()
     onready()
   }
+  const timer = setInterval(check, Math.min(2000, timeoutMs / 4))
   video.addEventListener("playing", ready)
-  video.addEventListener("timeupdate", progress)
-  video.addEventListener("pause", clear)
+  video.addEventListener("timeupdate", check)
+  video.addEventListener("pause", reset)
+  video.addEventListener("seeking", reset)
   return () => {
-    clear()
-    video.removeEventListener("waiting", waiting)
-    video.removeEventListener("stalled", waiting)
+    clearInterval(timer)
     video.removeEventListener("playing", ready)
-    video.removeEventListener("timeupdate", progress)
-    video.removeEventListener("pause", clear)
+    video.removeEventListener("timeupdate", check)
+    video.removeEventListener("pause", reset)
+    video.removeEventListener("seeking", reset)
   }
 }
