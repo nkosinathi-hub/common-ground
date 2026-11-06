@@ -24,7 +24,7 @@ async function played(page: Page) {
   await expect(video).toBeVisible({ timeout: 20_000 })
   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.readyState)).toBeGreaterThan(1)
   await video.focus()
-  await page.keyboard.press("k")
+  if (await video.evaluate((v: HTMLVideoElement) => v.paused)) await page.keyboard.press("k")
   await expect.poll(() => video.evaluate((v: HTMLVideoElement) => v.ended)).toBe(true)
   return video.evaluate((v: HTMLVideoElement) => ({ src: v.currentSrc, width: v.videoWidth }))
 }

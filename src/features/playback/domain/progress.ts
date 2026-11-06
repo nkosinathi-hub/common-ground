@@ -18,3 +18,6 @@ export const SKIP_LABELS: Record<SegmentKind, string> = {
   recap: "Skip recap",
   preview: "Skip preview",
 }
+
+export const inCredits = (segments: readonly Segment[], time: number): boolean =>
+  segments.some((s) => s.kind === "credits" && time >= s.start && time < s.end)

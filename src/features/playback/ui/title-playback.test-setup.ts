@@ -1,7 +1,7 @@
 import { render } from "@testing-library/svelte"
 import { appError, err, ok, type DeviceStore } from "@/shared/domain"
 import Provided from "@/shared/ui/testing/Provided.svelte"
-import type { PlaybackCatalog, PlayTarget } from "../application/ports"
+import type { PlaybackCatalog, PlaybackPorts, PlayTarget } from "../application/ports"
 import TitlePlaybackHarness from "./TitlePlaybackHarness.svelte"
 import { providePlayback } from "./context"
 import { PlaybackService } from "../application/playback-service"
@@ -12,6 +12,7 @@ export function renderTitlePlayback(
   sources: PlayableSource[],
   target: PlayTarget,
   overrides: Partial<PlaybackCatalog> = {},
+  ports: Partial<PlaybackPorts> = {},
 ) {
   const asked: MediaRef[] = []
   const service = new PlaybackService(
@@ -34,6 +35,7 @@ export function renderTitlePlayback(
       nextEpisode: async () => ok(null),
       nextUp: async () => ok(null),
       markWatched: async () => ok(undefined),
+      ...ports,
     },
   )
   const device: DeviceStore = { read: () => null, write: () => {} }

@@ -22,7 +22,16 @@ export default defineConfig({
   use: {
     baseURL: BASE_URL,
     trace: "retain-on-failure",
-    launchOptions: executablePath ? { executablePath } : {},
+    launchOptions: {
+      ...(executablePath ? { executablePath } : {}),
+      ...(process.env.E2E_PUBLIC_PLAYBACK_IP && process.env.VITE_CINEPRO_CORE_ORIGIN
+        ? {
+            args: [
+              `--host-resolver-rules=MAP ${new URL(process.env.VITE_CINEPRO_CORE_ORIGIN).hostname} ${process.env.E2E_PUBLIC_PLAYBACK_IP}`,
+            ],
+          }
+        : {}),
+    },
   },
   projects: [
     { name: "desktop", use: { ...chromium, viewport: { width: 1280, height: 800 } } },

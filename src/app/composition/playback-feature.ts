@@ -33,10 +33,11 @@ export function composePlaybackFeature(
     tmdb,
     choices: device.read(CHOICES),
   })
-  const service = new PlaybackService(
-    playback.resolver,
-    playbackPorts(watch, playback.jellyfin, history, catalog),
-  )
+  const service = new PlaybackService(playback.resolver, {
+    ...playbackPorts(watch, playback.jellyfin, history, catalog),
+    // Local fixture edits use their own segments rather than unrelated community timings.
+    ...(fixture.fixtureOrigin ? { segments: async () => [] } : {}),
+  })
   return { service, device, jellyfin: playback.jellyfin, log: playback.log }
 }
 

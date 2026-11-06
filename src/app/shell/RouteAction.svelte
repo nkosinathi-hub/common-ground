@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from "svelte"
   import { MediaQuery } from "svelte/reactivity"
-  import { ChevronUp, Compass } from "@lucide/svelte"
+  import { ChevronUp } from "@lucide/svelte"
   import { Button } from "$lib/components/ui/button"
   import { RevealContent, type PageActionSpec } from "@/shared/ui"
   import { ActionInput } from "./action-input"
@@ -9,7 +9,6 @@
     action,
     open,
     controls,
-    contextual = false,
     trigger = $bindable(null),
     onReveal,
     onHover,
@@ -19,7 +18,6 @@
     action: PageActionSpec
     open: boolean
     controls: string
-    contextual?: boolean
     trigger?: HTMLButtonElement | null
     onReveal: () => void
     onHover: () => void
@@ -32,7 +30,6 @@
   const input = new ActionInput({
     action: () => action,
     open: () => open,
-    touch: () => touch.current,
     reveal: () => onReveal(),
     activate: () => onActivate(),
     holdReveal: () => onHold(),
@@ -40,13 +37,14 @@
     dragging: (active) => (dragging = active),
   })
   onDestroy(input.cancel)
-  const revealLabel = $derived(contextual ? "Title actions" : "Navigate")
-  const label = $derived(
-    touch.current && !open ? (contextual ? "Open title actions" : "Open navigation") : action.label,
-  )
+  const label = $derived(action.label)
 </script>
 
-<svelte:window onblur={() => input.cancel()} />
+<svelte:window
+  onblur={() => input.cancel()}
+  onpointerdowncapture={input.outsideDown}
+  onclickcapture={input.compatibilityClick}
+/>
 
 <Button
   bind:ref={trigger}
@@ -57,7 +55,7 @@
   aria-expanded={open}
   aria-controls={controls}
   aria-describedby={`${controls}-hint`}
-  aria-disabled={((open || !touch.current) && action.disabled) || undefined}
+  aria-disabled={action.disabled || undefined}
   onpointerenter={(event) => {
     if (event.pointerType === "mouse" && !touch.current) onHover()
   }}
@@ -70,11 +68,7 @@
   oncontextmenu={input.context}
   onclick={input.click}
 >
-  <RevealContent
-    icon={touch.current && !open ? Compass : action.icon}
-    label={action.label}
-    compact
-  />
+  <RevealContent icon={action.icon} label={action.label} compact />
   <ChevronUp class="action-chevron" aria-hidden="true" />
   <span class="touch-action-label" aria-hidden="true"
     >{dragging
@@ -83,11 +77,11 @@
         : "Drag to choose"
       : open
         ? action.label
-        : revealLabel}</span
+        : action.label}</span
   >
 </Button>
 <span id={`${controls}-hint`} class="sr-only">
-  Touch: tap to reveal {contextual ? "title actions" : "routes"}, then use the centre for {action.label}.
-  Mouse: hover for actions, click for {action.label}. Arrow keys navigate; Escape closes. All tools
-  are in the Common Ground logo. Hold or slide up, drag to a destination, then release to select it.
+  Tap for {action.label}. Hold for navigation. Mouse: hover for actions, click for {action.label}.
+  Arrow keys navigate; Escape closes. All tools are in the Common Ground logo. Hold or slide up,
+  drag to a destination, then release to select it.
 </span>

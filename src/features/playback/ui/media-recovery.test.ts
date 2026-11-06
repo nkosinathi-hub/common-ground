@@ -1,0 +1,21 @@
+import { afterEach, expect, it, vi } from "vitest"
+import { watchMedia } from "./media-recovery"
+afterEach(() => vi.useRealTimers())
+it("recovers stalled playback once but never treats a pause as failure", () => {
+  vi.useFakeTimers()
+  const video = document.createElement("video")
+  Object.defineProperty(video, "paused", { value: false, configurable: true })
+  const fail = vi.fn()
+  const dispose = watchMedia(video, fail, 1000)
+  video.dispatchEvent(new Event("waiting"))
+  video.dispatchEvent(new Event("stalled"))
+  vi.advanceTimersByTime(500)
+  video.dispatchEvent(new Event("timeupdate"))
+  vi.advanceTimersByTime(500)
+  expect(fail).toHaveBeenCalledOnce()
+  Object.defineProperty(video, "paused", { value: true })
+  video.dispatchEvent(new Event("waiting"))
+  vi.advanceTimersByTime(2000)
+  expect(fail).toHaveBeenCalledOnce()
+  dispose()
+})

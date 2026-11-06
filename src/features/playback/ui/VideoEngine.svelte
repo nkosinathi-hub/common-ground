@@ -4,13 +4,20 @@
   import { nativeTracks } from "./native-tracks"
 
   interface Props {
+    autoplay?: boolean
     source: PlayableSource
     handle?: EngineHandle | null
     video?: HTMLVideoElement | null
     onfail: () => void
   }
 
-  let { source, handle = $bindable(null), video = $bindable(null), onfail }: Props = $props()
+  let {
+    source,
+    autoplay = false,
+    handle = $bindable(null),
+    video = $bindable(null),
+    onfail,
+  }: Props = $props()
 
   $effect(() => {
     if (!video) return
@@ -34,6 +41,7 @@
   bind:this={video}
   class="h-full w-full bg-black"
   src={source.url}
+  {autoplay}
   controls
   playsinline
   preload="metadata"

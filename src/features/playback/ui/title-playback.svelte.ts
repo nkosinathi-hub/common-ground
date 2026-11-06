@@ -16,6 +16,17 @@ export class TitlePlayback {
   mode = $state<"title" | "trailer">("title")
   /** Where your place says to carry on; the picker marks everything before it watched. */
   next = $state<EpisodeNumber | null>(null)
+  selected = $state<EpisodeNumber | null>(null)
+
+  get episodeLabel(): string | null {
+    if (!this.selected || this.mode !== "title") return null
+    const { season, episode } = this.selected
+    const name =
+      this.choices.selectedSeason === season
+        ? this.choices.episodes.find((e) => e.number === episode)?.name
+        : null
+    return `S${season} E${episode}${name ? ` · ${name}` : ""}`
+  }
 
   constructor(
     catalog: PlaybackCatalog,
@@ -47,9 +58,16 @@ export class TitlePlayback {
 
   async playEpisode(episode?: EpisodeNumber): Promise<void> {
     this.mode = "title"
+    this.selected = episode ?? (this.episodic ? this.next : null)
     if (episode) this.choices.selectedEpisode = episode.episode
     await this.play.open(episode, undefined, { excludeProviderIds: TRAILER })
+    const ref = this.play.playing?.ref
+    if (this.mode === "title" && this.play.status === "ready" && ref?.kind === "episode")
+      this.selected = { season: ref.season, episode: ref.episode }
   }
+
+  retry = () =>
+    this.mode === "trailer" ? this.playTrailer() : this.playEpisode(this.selected ?? undefined)
 
   async playTrailer(): Promise<void> {
     this.mode = "trailer"

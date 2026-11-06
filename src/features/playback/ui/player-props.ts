@@ -3,6 +3,7 @@ import type { EpisodeNumber, PlayTarget } from "../application/ports"
 
 export interface PlayerProps {
   party?: boolean
+  preview?: boolean
   playing: Playing
   target: PlayTarget
   title: string

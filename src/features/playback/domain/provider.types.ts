@@ -30,6 +30,8 @@ export interface Provider {
     prefs?: PlaybackPrefs,
   ): Promise<Result<PlayableSource[]>>
   health(signal: AbortSignal): Promise<Result<void>>
+  /** Invalidates cached, expiring links before a fresh, validated resolution. */
+  refresh?(source: PlayableSource, signal: AbortSignal): Promise<Result<void>>
   /** Progress back to the provider, when it keeps its own (Jellyfin resume points). */
   report?(event: PlaybackEvent): Promise<void>
 }

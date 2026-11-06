@@ -3,13 +3,20 @@
   import { attachShaka, type EngineHandle } from "./shaka"
 
   interface Props {
+    autoplay?: boolean
     source: PlayableSource
     handle?: EngineHandle | null
     video?: HTMLVideoElement | null
     onfail: () => void
   }
 
-  let { source, handle = $bindable(null), video = $bindable(null), onfail }: Props = $props()
+  let {
+    source,
+    autoplay = false,
+    handle = $bindable(null),
+    video = $bindable(null),
+    onfail,
+  }: Props = $props()
 
   $effect(() => {
     const element = video
@@ -30,5 +37,12 @@
 </script>
 
 <!-- playsinline keeps iOS from taking over the screen, so the skip and party overlays stay. -->
-<video bind:this={video} class="h-full w-full bg-black" controls playsinline aria-label="Video">
+<video
+  bind:this={video}
+  class="h-full w-full bg-black"
+  {autoplay}
+  controls
+  playsinline
+  aria-label="Video"
+>
 </video>

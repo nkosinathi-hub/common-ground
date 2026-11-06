@@ -8,7 +8,7 @@ test("one touch control keeps tap actions separate from hold and swipe navigatio
   await page.goto("./#/demo")
   await navigateSection(page, "Watch")
   const action = page.locator(".fan-trigger")
-  await expect(action).toHaveAccessibleName("Open navigation")
+  await expect(action).toHaveAccessibleName("Add a title")
   await expect(page.locator(".radial-nav > button")).toHaveCount(1)
   const center = async () => {
     const rect = (await action.boundingBox())!
@@ -27,12 +27,16 @@ test("one touch control keeps tap actions separate from hold and swipe navigatio
     .getByRole("navigation", { name: "Main", exact: true })
     .getByRole("link", { name: "Notes", exact: true })
     .click()
-  await expect(action).toHaveAccessibleName("Open navigation")
+  await expect(action).toHaveAccessibleName("Write a note")
   const point = await center()
   await touch.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] })
   await touch.send("Input.dispatchTouchEvent", {
     type: "touchMove",
     touchPoints: [{ ...point, y: point.y - 45 }],
+  })
+  await touch.send("Input.dispatchTouchEvent", {
+    type: "touchMove",
+    touchPoints: [{ x: 5, y: 200 }],
   })
   await touch.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] })
   await expect(action).toHaveAttribute("aria-expanded", "true")
@@ -41,11 +45,8 @@ test("one touch control keeps tap actions separate from hold and swipe navigatio
     .getByRole("navigation", { name: "Main", exact: true })
     .getByRole("link", { name: "Watch", exact: true })
     .click()
-  await expect(action).toHaveAccessibleName("Open navigation")
+  await expect(action).toHaveAccessibleName("Add a title")
   const tap = await center()
-  await page.touchscreen.tap(tap.x, tap.y)
-  await expect(action).toHaveAttribute("aria-expanded", "true")
-  await expect(page.getByRole("searchbox")).toHaveCount(0)
   await page.touchscreen.tap(tap.x, tap.y)
   await expect(page.getByRole("searchbox", { name: "Search everything" })).toBeFocused()
   await expect(action).toHaveAttribute("aria-expanded", "false")

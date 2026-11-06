@@ -3,16 +3,14 @@ import { episodeRef, movieRef, type MediaRef } from "../domain/media-ref"
 import type { PlaybackPrefs } from "../domain/provider.types"
 import type { PlayableSource } from "../domain/source.types"
 import type { EpisodeNumber, NextUp, PlaybackPorts, PlayTarget } from "./ports"
+import type { Playing } from "./playing"
+import { refreshPlayback } from "./refresh-playback"
 import { ProgressReporter } from "./progress-reporter"
 import type { SourceResolver } from "./source-resolver"
 
 type Resolver = Pick<SourceResolver, "resolve" | "providerFor">
 
-export interface Playing {
-  readonly ref: MediaRef
-  /** Best first; the player moves down the list when a source fails. */
-  readonly sources: readonly PlayableSource[]
-}
+export type { Playing } from "./playing"
 
 export interface ProviderSelection {
   readonly providerIds?: readonly string[]
@@ -70,6 +68,14 @@ export class PlaybackService {
   async nextUp(target: PlayTarget, current: MediaRef): Promise<Result<NextUp | null>> {
     if (current.kind !== "episode") return ok(null)
     return this.ports.nextUp(target, current)
+  }
+
+  refresh(target: PlayTarget, playing: Playing, source: PlayableSource, signal: AbortSignal) {
+    return refreshPlayback(this.resolver, target, playing, source, signal)
+  }
+
+  segments(ref: MediaRef, signal: AbortSignal) {
+    return this.ports.segments?.(ref, signal) ?? Promise.resolve([])
   }
 
   reporter(

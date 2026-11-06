@@ -7,3 +7,6 @@ supabase/migrations
 supabase/tests
 supabase/.temp
 android
+
+playwright-report/
+test-results/

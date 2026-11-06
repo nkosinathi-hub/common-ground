@@ -5,7 +5,7 @@ import type { ProviderPlugin } from "../../domain/plugin.types"
 import { EMPTY_POLICY } from "../../domain/policy"
 import type { MediaRef } from "../../domain/media-ref"
 import type { PlayableSource } from "../../domain/source.types"
-import { requestJson } from "../http"
+import { requestJson, requestOk } from "../http"
 import { toPlayableSources } from "./response"
 
 export interface CineProOptions {
@@ -74,6 +74,15 @@ export function cineproPlugin(
     create: (config, deps) => ({
       id: deps.id,
       supports: () => true,
+      refresh: (source, signal) => {
+        const id = source.providerData?.responseId
+        return id
+          ? requestOk(deps.fetch, {
+              url: `${config.serverUrl}/v1/refresh/${encodeURIComponent(id)}`,
+              signal,
+            })
+          : Promise.resolve(ok(undefined))
+      },
       resolve: (ref, signal) => resolve(deps.fetch, config.serverUrl, deps.id, ref, signal),
       health: async (signal) => {
         const result = await requestJson(deps.fetch, { url: `${config.serverUrl}/`, signal })

@@ -7,6 +7,8 @@
   import VideoEngine from "./VideoEngine.svelte"
 
   interface Props {
+    loading?: boolean
+    autoplay?: boolean
     source: PlayableSource | null
     handle?: EngineHandle | null
     title: string
@@ -14,23 +16,36 @@
     onfail: () => void
   }
 
-  let { source, handle = $bindable(null), title, video = $bindable(null), onfail }: Props = $props()
+  let {
+    source,
+    loading = false,
+    autoplay = false,
+    handle = $bindable(null),
+    title,
+    video = $bindable(null),
+    onfail,
+  }: Props = $props()
   const engine = $derived(source ? engineFor(source) : null)
 </script>
 
 <div class="relative aspect-video w-full flex-1 overflow-hidden rounded-md bg-black">
   {#if !source}
-    <p class="grid h-full place-items-center p-inset text-center type-sm text-white" role="alert">
-      None of the sources for this title would play. Try again later.
+    <p
+      class="grid h-full place-items-center p-inset text-center type-sm text-white"
+      role={loading ? "status" : "alert"}
+    >
+      {loading
+        ? "Refreshing playback…"
+        : "None of the sources for this title would play. Try again later."}
     </p>
   {:else}
     {#key source}
       {#if engine === "embed"}
         <EmbedEngine {source} {title} />
       {:else if engine === "shaka"}
-        <ShakaEngine {source} bind:handle bind:video {onfail} />
+        <ShakaEngine {autoplay} {source} bind:handle bind:video {onfail} />
       {:else}
-        <VideoEngine {source} bind:handle bind:video {onfail} />
+        <VideoEngine {autoplay} {source} bind:handle bind:video {onfail} />
       {/if}
     {/key}
   {/if}

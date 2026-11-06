@@ -29,7 +29,13 @@ export async function attachShaka(
   const player = new shaka.Player()
   player.configure({
     preferredAudioLanguage: "en",
-    streaming: { bufferingGoal: 10, rebufferingGoal: 1 },
+    manifest: { retryParameters: { maxAttempts: 3, timeout: 12000, stallTimeout: 4000 } },
+    streaming: {
+      bufferingGoal: 30,
+      rebufferingGoal: 2,
+      bufferBehind: 30,
+      retryParameters: { maxAttempts: 3, timeout: 12000, stallTimeout: 4000 },
+    },
   })
   await player.attach(video)
   const engine = player.getNetworkingEngine()

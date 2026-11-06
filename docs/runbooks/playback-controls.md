@@ -6,13 +6,22 @@
   player's tracks; choosing another language saves that device's preference.
 - CinePro preserves provider audio metadata and ranks advertised English ahead of unknown audio
   or a different dub within the same provider priority. “Original” is unknown, not English.
-- Use Playback source to change providers without losing the current position. A provider cannot
+- Open Playback options, then Playback source, to change providers without losing the current position. A provider cannot
   supply an audio language it does not carry.
-- Load subtitle file accepts SRT or VTT up to 2 MB. SRT is converted to WebVTT in memory. The file
+- Open Audio and subtitles to choose tracks or load a file. Load subtitle file accepts SRT or VTT up to 2 MB. SRT is converted to WebVTT in memory. The file
   stays on the viewer's device; it is not stored in the workspace or sent to the playback API.
   Selecting identical contents again adds no duplicate track. It follows source fallback inside
   the current player, and is released when the player closes.
-- Source exhaustion offers Retry playback, which resolves the title/episode again.
+- Source failure preserves position while trying fallbacks, then renews cached links once without
+  progress. Another recovery budget requires a minute of successful progression. Closing aborts it.
+- Account and data > Profile and sign-in > Playback contains Jellyfin access and automatic intro /
+  next episode preferences. Known intros skip after three seconds; the next episode counts down
+  for ten seconds at credits/end. Manual Next episode remains available. Unknown intros are not guessed.
+- The demo plays a labelled synthetic preview through the production player; it is not a provider test.
+- `E2E_PUBLIC_PLAYBACK_IP=<public-DNS-IP> VITE_CINEPRO_CORE_ORIGIN=<origin>` opts into
+  `public-continuity.spec.ts`. It pins browser DNS to a public Funnel address and asserts the remote
+  address while playing an older film, newer film and episode past 100 seconds. Use a local test
+  Supabase stack, never production credentials. Physical mobile browser testing is still separate.
 
 ## API runtime rollout
 

@@ -1,20 +1,21 @@
 import { expect, test } from "@playwright/test"
 import { navigateSection, quickCapture } from "../support/navigation"
 
-test("a normal touch reveals routes before the page action @mobile", async ({ page }, info) => {
+test("a normal touch runs the page action on the first tap @mobile", async ({ page }, info) => {
   test.skip(info.project.name === "desktop", "Touch navigation is exercised on touch profiles")
   await page.goto("./#/demo")
+  await navigateSection(page, "Notes")
   const action = page.locator(".fan-trigger")
+  await expect(action).toHaveAccessibleName("Write a note")
   const { x, y } = await action.evaluate((el) => {
     const box = el.getBoundingClientRect()
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
   })
   await page.touchscreen.tap(x, y)
-  await expect(action).toHaveAttribute("aria-expanded", "true")
-  await expect(page.getByRole("dialog")).toHaveCount(0)
-  await expect(
-    page.getByRole("navigation", { name: "Main", exact: true }).getByRole("link"),
-  ).toHaveCount(5)
+  await expect(action).toHaveAttribute("aria-expanded", "false")
+  const dialog = page.getByRole("dialog", { name: "Leave a little note" })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole("button", { name: "Close", exact: true })).toBeFocused()
 })
 
 test("touch dialogs stay usable without unsolicited text focus or tiny fields @mobile", async ({
