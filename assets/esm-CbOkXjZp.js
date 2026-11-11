@@ -1,0 +1,2 @@
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/web-CMkAmzcp.js","assets/index-DH9kgKZg.js","assets/index-AK1oag0v.css"])))=>i.map(i=>d[i]);
+import{i as e,u as t}from"./index-DH9kgKZg.js";var n=t(`App`,{web:()=>e(()=>import(`./web-CMkAmzcp.js`).then(e=>new e.AppWeb),__vite__mapDeps([0,1,2]))}),r=t(`PushNotifications`,{});export{n,r as t};
